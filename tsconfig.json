@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es6", // Compilar para a versão ES6
+    "module": "commonjs", // Usar o sistema de módulos CommonJS
+    "rootDir": "./src", // Diretório de origem dos arquivos .ts
+    "outDir": "./dist", // Diretório de saída dos arquivos compilados .js
+    "esModuleInterop": true, // Habilitar interoperabilidade entre módulos CommonJS e ES Modules
+    "strict": true, // Habilitar todas as verificações estritas
+    "skipLibCheck": true, // Ignorar checagem das definições de tipo de bibliotecas
+    "forceConsistentCasingInFileNames": true, // Forçar consistência na capitalização de nomes de arquivos
+    "resolveJsonModule": true, // Permitir importação de arquivos JSON como módulos (caso necessário)
+    "types": ["node", "@types/axios"], // Incluir tipos de Node.js e Axios
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false
+  },
+  "include": ["src/**/*.ts", "src/use-cases/user/user.route.ts"] // Incluir todos os arquivos .ts da pasta src
+}

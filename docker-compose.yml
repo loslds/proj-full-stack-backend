@@ -1,0 +1,45 @@
+services:
+  mysql8:
+    env_file:
+      - .env
+    image: mysql:8
+    restart: always
+    container_name: mysql8
+    ports:
+      - ${DB_PORT}:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql8_data:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+
+  phpmyadmin:
+    env_file:
+      - .env
+    image: phpmyadmin
+    container_name: phpmyadmin_container
+    restart: always
+    environment:
+      PMA_HOST: mysql8
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - 8080:80
+    depends_on:
+      - mysql8
+    volumes:
+      - /sessions
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 512M
+
+volumes:
+  mysql8_data:
