@@ -25,7 +25,7 @@ export class PessoaRepository {
     return this.repo.delete(pessoaId);
   }
 
-  async findAll(where?: FindOptionsWhere<PessoaEntity>): Promise<PessoaEntity[]> {
+  async findPessoaAll(where?: FindOptionsWhere<PessoaEntity>): Promise<PessoaEntity[]> {
     return this.repo.find({ where });
   }
 

@@ -7,12 +7,12 @@ export class PessoaController {
   constructor(private readonly pessoaRepository: PessoaRepository) {}
 
   /** GET */
-  async findAll(
+  async findPessoaAll(
     req: Request<any, any, any>,
     res: Response<Record<string, any>>,
     _next: NextFunction,
   ) {
-    const pessoas = await this.pessoaRepository.findAll();
+    const pessoas = await this.pessoaRepository.findPessoaAll();
     return res.status(200).send({ success: true, pessoas }).end();
   }
 

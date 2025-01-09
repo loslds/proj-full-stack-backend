@@ -9,7 +9,7 @@ const moduloRepository = new ModuloRepository(dataSource);
 const controller = new ModuloController(moduloRepository);
 const moduloRoute = Router();
 
-moduloRoute.get('/', (...n) => controller.findAll(...n));
+moduloRoute.get('/', (...n) => controller.findModuloAll(...n));
 moduloRoute.post('/', createValidation, (...n) => controller.create(...n));
 moduloRoute.get('/:moduloId', (...n) => controller.getOne(...n));
 moduloRoute.patch('/:moduloId', updateValidation, (...n) =>

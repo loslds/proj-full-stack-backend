@@ -9,7 +9,7 @@ const pessoaRepository = new PessoaRepository(dataSource);
 const controller = new PessoaController(pessoaRepository);
 const pessoaRoute = Router();
 
-pessoaRoute.get('/', (...n) => controller.findAll(...n));
+pessoaRoute.get('/', (...n) => controller.findPessoaAll(...n));
 pessoaRoute.post('/', createValidation, (...n) => controller.create(...n));
 pessoaRoute.get('/:pessoaId', (...n) => controller.getOne(...n));
 pessoaRoute.patch('/:pessoaId', updateValidation, (...n) =>

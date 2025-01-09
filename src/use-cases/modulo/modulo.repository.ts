@@ -8,12 +8,12 @@ export class ModuloRepository {
     this.repo = this.dataSource.getRepository(ModuloEntity);
   }
 
-  async create(modulo: ModuloCreate): Promise<ModuloEntity> {
+  async createModulo(modulo: ModuloCreate): Promise<ModuloEntity> {
     const data = this.repo.create(modulo);
     return this.repo.save(data);
   }
 
-  async update(
+  async updateModulo(
     moduloId: number,
     modulo: DeepPartial<ModuloEntity>,
   ): Promise<ModuloEntity> {
@@ -21,11 +21,11 @@ export class ModuloRepository {
     return this.repo.save(data);
   }
 
-  async delete(moduloId: number) {
+  async deleteModulo(moduloId: number) {
     return this.repo.delete(moduloId);
   }
 
-  async findAll(where?: FindOptionsWhere<ModuloEntity>): Promise<ModuloEntity[]> {
+  async findModuloAll(where?: FindOptionsWhere<ModuloEntity>): Promise<ModuloEntity[]> {
     return this.repo.find({ where });
   }
 

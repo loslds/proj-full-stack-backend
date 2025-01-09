@@ -7,12 +7,12 @@ export class ModuloController {
   constructor(private readonly moduloRepository: ModuloRepository) {}
 
   /** GET */
-  async findAll(
+  async findModuloAll(
     req: Request<any, any, any>,
     res: Response<Record<string, any>>,
     _next: NextFunction,
   ) {
-    const modulos = await this.moduloRepository.findAll();
+    const modulos = await this.moduloRepository.findModuloAll();
     return res.status(200).send({ success: true, modulos }).end();
   }
 
@@ -43,7 +43,7 @@ export class ModuloController {
     _next: NextFunction,
   ) {
     const { body } = req;
-    const modulo = await this.moduloRepository.create(body);
+    const modulo = await this.moduloRepository.createModulo(body);
     return res.status(200).send({ success: true, modulo }).end();
   }
 
@@ -63,7 +63,7 @@ export class ModuloController {
         .end();
     }
 
-    const modulo = await this.moduloRepository.update(moduloId, body);
+    const modulo = await this.moduloRepository.updateModulo(moduloId, body);
     return res.status(200).send({ success: true, modulo }).end();
   }
 
@@ -83,7 +83,7 @@ export class ModuloController {
         .end();
     }
 
-    const deleted = await this.moduloRepository.delete(moduloId);
+    const deleted = await this.moduloRepository.deleteModulo(moduloId);
     return res.status(200).send({ success: !!deleted?.affected }).end();
   }
 }
