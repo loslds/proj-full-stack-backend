@@ -1,29 +1,53 @@
-import { Column, Entity, ManyToOne, JoinColumn, Index } from 'typeorm';
-//import { PessoaEntity } from '../pessoa/pessoa.entity';
+import { FuncionarioEntity } from './../funcionario/funcionario.entity';
+import { ClienteEntity } from './../cliente/cliente.entity';
+import { ConsumidorEntity } from './../consumidor/consumidor.entity';
+import { FornecedorEntity } from './../fornecedor/fornecedor.entity';
+import { EmpresaEntity } from './../empresa/empresa.entity';
+import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('cadastro')
 export class CadastroEntity {
-  // Campo REGISTRO cadastro.
-  @Column({ primary: true, generated: true, type: 'int', nullable: false })
+  // Campo REGISTRO CADASTRO.
+  @PrimaryGeneratedColumn()
   id: number;
-  
-  // Campo para armazenar o id_empresa a ser usado em filtro em cadastro de mesma  caracteristica de empresa.
+
+  // Relacionamento com a entidade EmpresaEntity
+  @ManyToOne(() => EmpresaEntity)
+  @JoinColumn({ name: 'id_empresa' })
+  empresa: EmpresaEntity;
+
   @Column({ type: 'int', nullable: true })
   id_empresa: number;
 
-  // Campo para armazenar o id_fornecedor a ser usado em filtro em cadastro de mesma  caracteristica de fornecedor.
+  // Relacionamento com a entidade FornecedorEntity
+  @ManyToOne(() => FornecedorEntity)
+  @JoinColumn({ name: 'id_fornecedor' })
+  fornecedor: FornecedorEntity;
+
   @Column({ type: 'int', nullable: true })
   id_fornecedor: number;
 
-  // Campo para armazenar o id_consumidor a ser usado em filtro em cadastro de mesma  caracteristica de consumidor.
+  // Relacionamento com a entidade ConsumidorEntity
+  @ManyToOne(() => ConsumidorEntity)
+  @JoinColumn({ name: 'id_consumidor' })
+  consumidor: ConsumidorEntity;
+
   @Column({ type: 'int', nullable: true })
   id_consumidor: number;
 
-  // Campo para armazenar o id_cliente a ser usado em filtro em cadastro de mesma  caracteristica de cliente.
+  // Relacionamento com a entidade ClienteEntity
+  @ManyToOne(() => ClienteEntity)
+  @JoinColumn({ name: 'id_cliente' })
+  cliente: ClienteEntity;
+
   @Column({ type: 'int', nullable: true })
   id_cliente: number;
 
-  // Campo para armazenar o id_funcionario a ser usado em filtro em cadastro de mesma  caracteristica de funcionario.
+  // Relacionamento com a entidade FuncionarioEntity
+  @ManyToOne(() => FuncionarioEntity)
+  @JoinColumn({ name: 'id_funcionario' })
+  funcionario: FuncionarioEntity;
+
   @Column({ type: 'int', nullable: true })
   id_funcionario: number;
 
@@ -42,7 +66,7 @@ export class CadastroEntity {
   // Campo BAIRRO DA ENTIDADE.
   @Column({ type: 'varchar', length: 45, default: null })
   bairro: string;
-  
+
   // Campo CIDADE DA ENTIDADE.
   @Column({ type: 'varchar', length: 60, default: null })
   cidade: string;
@@ -51,14 +75,13 @@ export class CadastroEntity {
   @Column({ type: 'varchar', length: 60, default: null })
   estado: string;
 
-  // Campo CIDADE DA ENTIDADE.
+  // Campo UF DA ENTIDADE.
   @Column({ type: 'varchar', length: 5, default: null })
   uf: string;
-  
+
   @Column({
     type: 'datetime',
     nullable: true,
-    precision: null,
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
@@ -69,15 +92,6 @@ export class CadastroEntity {
   @Column({
     type: 'datetime',
     nullable: true,
-    precision: null,
   })
   updatedAt?: Date;
-
-  @ManyToOne(() => PessoaEntity)
-  @JoinColumn({ name: 'id_pessoa' })
-  idPessoa: PessoaEntity;
-
-  @Index()
-  @Column({ type: 'int', nullable: true })
-  empresa_id: number;
 }

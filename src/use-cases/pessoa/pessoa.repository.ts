@@ -8,12 +8,12 @@ export class PessoaRepository {
     this.repo = this.dataSource.getRepository(PessoaEntity);
   }
 
-  async create(pessoa: PessoaCreate): Promise<PessoaEntity> {
+  async createPessoa(pessoa: PessoaCreate): Promise<PessoaEntity> {
     const data = this.repo.create(pessoa);
     return this.repo.save(data);
   }
 
-  async update(
+  async updatePessoa(
     pessoaId: number,
     pessoa: DeepPartial<PessoaEntity>,
   ): Promise<PessoaEntity> {
@@ -21,7 +21,7 @@ export class PessoaRepository {
     return this.repo.save(data);
   }
 
-  async delete(pessoaId: number) {
+  async deletePessoa(pessoaId: number) {
     return this.repo.delete(pessoaId);
   }
 

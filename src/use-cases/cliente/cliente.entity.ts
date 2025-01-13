@@ -2,10 +2,10 @@ import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { PessoaEntity } from '../pessoa/pessoa.entity';
 import { EmpresaEntity } from '../empresa/empresa.entity';
 
-@Entity('fornecedor')
-export class FornecedorEntity {
-  // Campo REGISTRO fornecedor.
-  @Column({ primary: true, generated: true, type: 'int', nullable: false })
+@Entity('cliente')
+export class ClienteEntity {
+  // Campo REGISTRO CLIENTE
+  @Column({ unique: true, primary: true, generated: true, type: 'int', nullable: false })
   id: number;
 
   // Relacionamento com a entidade PessoaEntity
@@ -26,11 +26,11 @@ export class FornecedorEntity {
   @Column({ type: 'int', nullable: true })
   id_empresa: number;
 
-  // Campo NOME DO FORNECEDOR.
+  // Campo NOME DO CLIENTE.
   @Column({ unique: true, type: 'varchar', length: 45, nullable: false })
   name: string;
 
-  // Campo NOME FANTASIA DO FORNECEDOR.
+  // Campo NOME FANTASIA DO CLIENTE.
   @Column({ unique: true, type: 'varchar', length: 45, nullable: false })
   fantasy: string;
 
@@ -55,6 +55,4 @@ export class FornecedorEntity {
     precision: null,
   })
   updatedAt?: Date;
-
 }
-

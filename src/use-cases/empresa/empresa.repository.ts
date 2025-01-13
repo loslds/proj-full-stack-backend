@@ -1,4 +1,4 @@
-
+ 
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { EmpresaEntity } from './empresa.entity';
 import type { EmpresaCreate } from './empresa.dto';
@@ -42,10 +42,9 @@ export class EmpresaRepository {
     return this.repo.findOne({ where: { fantasy } });
   }
 
-  // Adicione este método na classe EmpresaRepository
-  async findEmpresasByPessoaId(pessoaId: number): Promise<EmpresaEntity[]> {
+  
+  async findEmpresasAllByIdPessoa(pessoaId: number): Promise<EmpresaEntity[]> {
     return this.repo.find({ where: { id_pessoa: pessoaId } });
   }
-
 }
 

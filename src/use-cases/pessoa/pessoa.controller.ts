@@ -1,89 +1,105 @@
 import type { NextFunction, Request, Response } from 'express';
-
 import type { PessoaRepository } from './pessoa.repository';
 import { PessoaCreate, PessoaUpdate } from './pessoa.dto';
 
 export class PessoaController {
   constructor(private readonly pessoaRepository: PessoaRepository) {}
 
-  /** GET */
-  async findPessoaAll(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
+  /** POST Cria uma nova pessoa */
+  async createPessoa(
+    req: Request<{}, {}, PessoaCreate>,
+    res: Response,
+    next: NextFunction
   ) {
-    const pessoas = await this.pessoaRepository.findPessoaAll();
-    return res.status(200).send({ success: true, pessoas }).end();
+    try {
+      const pessoa = await this.pessoaRepository.createPessoa(req.body);
+      return res.status(201).send({ success: true, pessoa }).end();
+    } catch (error) {
+      next(error);
+    }
   }
 
-  /** GET */
-  async getOne(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
+  /** PATCH Atualiza uma pessoa */
+  async updatePessoa(
+    req: Request<{ pessoaId: string }, {}, PessoaUpdate>,
+    res: Response,
+    next: NextFunction
   ) {
-    const { params } = req;
-    const pessoaId = Number(params?.pessoaId);
+    const pessoaId = Number(req.params.pessoaId);
 
-    if (!pessoaId) {
+    if (isNaN(pessoaId) || pessoaId <= 0) {
       return res
         .status(400)
         .send({ success: false, message: 'Invalid pessoaId' })
         .end();
     }
 
-    const pessoa = await this.pessoaRepository.findPessoaById(pessoaId);
-    return res.status(200).send({ success: true, pessoa }).end();
+    try {
+      const pessoa = await this.pessoaRepository.updatePessoa(pessoaId, req.body);
+      return res.status(200).send({ success: true, pessoa }).end();
+    } catch (error) {
+      next(error);
+    }
   }
 
-  /** POST */
-  async create(
-    req: Request<any, any, PessoaCreate>,
+  /** DELETE Remove uma pessoa */
+  async removePessoa(
+    req: Request<{ pessoaId: string }>,
     res: Response,
-    _next: NextFunction,
+    next: NextFunction
   ) {
-    const { body } = req;
-    const pessoa = await this.pessoaRepository.create(body);
-    return res.status(200).send({ success: true, pessoa }).end();
-  }
+    const pessoaId = Number(req.params.pessoaId);
 
-  /** PATCH */
-  async update(
-    req: Request<any, any, PessoaUpdate>,
-    res: Response,
-    _next: NextFunction,
-  ) {
-    const { body, params } = req;
-    const pessoaId = Number(params?.pessoaId);
-
-    if (!pessoaId) {
+    if (isNaN(pessoaId) || pessoaId <= 0) {
       return res
         .status(400)
         .send({ success: false, message: 'Invalid pessoaId' })
         .end();
     }
 
-    const pessoa = await this.pessoaRepository.update(pessoaId, body);
-    return res.status(200).send({ success: true, pessoa }).end();
-  }
-
-  /** DEL */
-  async remove(
-    req: Request<any, any, PessoaCreate>,
-    res: Response,
-    _next: NextFunction,
-  ) {
-    const { params } = req;
-    const pessoaId = Number(params?.pessoaId);
-
-    if (!pessoaId) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid pessoaId' })
-        .end();
+    try {
+      const deletedPessoa = await this.pessoaRepository.deletePessoa(pessoaId);
+      return res.status(200).send({ success: !!deletedPessoa?.affected }).end();
+    } catch (error) {
+      next(error);
     }
-
-    const deleted = await this.pessoaRepository.delete(pessoaId);
-    return res.status(200).send({ success: !!deleted?.affected }).end();
   }
+
+    /** GET Busca todas as pessoas */
+    async findAllPessoa(
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) {
+      try {
+        const pessoas = await this.pessoaRepository.findPessoaAll();
+        return res.status(200).send({ success: true, pessoas }).end();
+      } catch (error) {
+        next(error);
+      }
+    }
+  
+    /** GET Busca uma pessoa pelo ID */
+    async getOnePessoa(
+      req: Request<{ pessoaId: string }>,
+      res: Response,
+      next: NextFunction
+    ) {
+      const pessoaId = Number(req.params.pessoaId);
+  
+      if (isNaN(pessoaId) || pessoaId <= 0) {
+        return res
+          .status(400)
+          .send({ success: false, message: 'Invalid pessoaId' })
+          .end();
+      }
+  
+      try {
+        const pessoa = await this.pessoaRepository.findPessoaById(pessoaId);
+        return res.status(200).send({ success: true, pessoa }).end();
+      } catch (error) {
+        next(error);
+      }
+    }
 }
+

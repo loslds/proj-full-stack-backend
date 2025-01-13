@@ -26,27 +26,28 @@ export class FornecedorRepository {
     return this.repo.delete(fornecedorId);
   }
 
-  async findFornecedorAll(where?: FindOptionsWhere<FornecedorEntity>): Promise<FornecedorEntity[]> {
+  async findAllFornecedor(where?: FindOptionsWhere<FornecedorEntity>): Promise<FornecedorEntity[]> {
     return this.repo.find({ where });
   }
 
-  async findFornecedorById(fornecedorId: number) {
+  async findByIdFornecedor(fornecedorId: number) {
     return this.repo.findOne({ where: { id: fornecedorId } });
   }
 
-  async findFornecedorByName(name: string) {
+  async findByNameFornecedor(name: string) {
     return this.repo.findOne({ where: { name } });
   }
 
-  async findFornecedorByFantasy(fantasy: string) {
+  async findByFantasyFornecedor(fantasy: string) {
     return this.repo.findOne({ where: { fantasy } });
   }
-
-  async findFornecedorByPessoaId(pessoaId: number): Promise<FornecedorEntity[]> {
+  // busca todos os reg. id_pessoas dentro de fornecedor
+  async findAllFornecedorByPessoaId(pessoaId: number): Promise<FornecedorEntity[]> {
     return this.repo.find({ where: { id_pessoa: pessoaId } });
   }
-
-  async findFornecedorByEmpresaId(empresaId: number): Promise<FornecedorEntity[]> {
+  
+  // busca todos os reg. id_empresa dentro de fornecedor
+  async findAllFornecedorByEmpresaId(empresaId: number): Promise<FornecedorEntity[]> {
     return this.repo.find({ where: { id_empresa: empresaId } });
   }
 

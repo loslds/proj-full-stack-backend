@@ -57,8 +57,5 @@ export class EmpresaEntity {
   @ManyToOne(() => PessoaEntity)
   @JoinColumn({ name: 'id_pessoa' })
   idPessoa: PessoaEntity;
-
-  @Index()
-  @Column({ type: 'int', nullable: true })
-  empresa_id: number;
 }
+

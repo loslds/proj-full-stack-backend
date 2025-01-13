@@ -1,50 +1,108 @@
-
 import type { NextFunction, Request, Response } from 'express';
-
 import type { EmpresaRepository } from './empresa.repository';
 import { EmpresaCreate, EmpresaUpdate } from './empresa.dto';
 
-export class EmpresaController {
+export class EmpresaController {  
   constructor(private readonly empresaRepository: EmpresaRepository) {}
-
-  /** GET  Busca todos os reg. Empresa */
-  async findEmpresaAll(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
-  ) {
-    const empresas = await this.empresaRepository.findEmpresaAll();
-    return res.status(200).send({ success: true, empresas }).end();
+  
+/** POST Cria um novo registro de Empresa */
+async create(
+  req: Request<{}, {}, EmpresaCreate>,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const empresa = await this.empresaRepository.createEmpresa(req.body);
+    return res.status(201).send({ success: true, empresa });
+  } catch (error) {
+    next(error);
   }
+}
 
-  /** GET Busca um unico ID reg. Empresa */
-  async getOne(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
+/** PATCH Atualiza um registro de Empresa */
+async update(
+  req: Request<{ empresaId: string }, {}, Partial<EmpresaUpdate>>,
+  res: Response,
+  next: NextFunction
+) {
+  const empresaId = Number(req.params.empresaId);
+  if (isNaN(empresaId) || empresaId <= 0) {
+    return res
+      .status(400)
+      .send({ success: false, message: 'Invalid empresaId' })
+      .end();
+  }
+  
+  try {
+    const empresa = await this.empresaRepository.updateEmpresa(empresaId, req.body);
+    return res.status(200).send({ success: true, empresa }).end();
+  } catch (error) {
+    next(error);
+  }
+}
+  
+
+  /** DELETE Remove um registro de Empresa */
+  async remove(
+    req: Request<{ empresaId: string }>,
+    res: Response,
+    next: NextFunction
   ) {
-    const { params } = req;
-    const empresaId = Number(params?.empresaId);
-
-    if (!empresaId) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid empresaId' })
-        .end();
+    const empresaId = Number(req.params.empresaId);
+    if (isNaN(empresaId) || empresaId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid empresaId' }).end();
     }
 
-    const empresa = await this.empresaRepository.findEmpresaById(empresaId);
-    return res.status(200).send({ success: true, empresa }).end();
+    try {
+      const deleted = await this.empresaRepository.deleteEmpresa(empresaId);
+      return res.status(200).send({ success: !!deleted?.affected });
+    } catch (error) {
+      next(error);
+    }
   }
 
-  /** GET Busca um unico name reg. Empresa */
-  async findByName(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
+  /** GET Busca todos os registros de Empresa */
+  async findAll(
+    req: Request,
+    res: Response,
+    next: NextFunction
   ) {
-    const { query } = req;
-    const name = query.name as string;
+    
+    try {
+      const empresas = await this.empresaRepository.findEmpresaAll();
+      return res.status(200).send({ success: true, empresas });
+    } catch (error) {
+      next(error);
+    }
+  }
+    
+  /** GET Busca um registro de Empresa por ID */
+  async getOne(
+    req: Request<{ empresaId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const empresaId = Number(req.params.empresaId);
+
+    if (isNaN(empresaId) || empresaId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid empresaId' }).end();
+    }
+
+    try {
+      const empresa = await this.empresaRepository.findEmpresaById(empresaId);
+      return res.status(200).send({ success: true, empresa });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca um registro de Empresa por Nome */
+  async findByName(
+    req: Request<{}, {}, {}, Partial<{ name: string }>>, 
+    res: Response, 
+    next: NextFunction
+  ) {
+    const { name } = req.query;
 
     if (!name) {
       return res
@@ -53,99 +111,52 @@ export class EmpresaController {
         .end();
     }
 
-    const empresa = await this.empresaRepository.findEmpresaByName(name);
-    return res.status(200).send({ success: true, empresa }).end();
+    try {
+      const empresa = await this.empresaRepository.findEmpresaByName(name);
+      return res.status(200).send({ success: true, empresa }).end();
+    } catch (error) {
+      next(error);
+    }
   }
 
-  /** GET Busca um unico fantasy reg. Empresa */
+  /** GET Busca um registro de Empresa por Nome Fantasia */
   async findByFantasy(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
+    req: Request<{}, {}, {}, Partial<{ fantasy: string }>>, 
+    res: Response, 
+    next: NextFunction
   ) {
-    const { query } = req;
-    const fantasia = query.fantasia as string;
+    const { fantasy } = req.query;
 
-    if (!fantasia) {
+    if (!fantasy) {
       return res
-        .status(400)
-        .send({ success: false, message: 'Fantasy parameter is required' })
-        .end();
+        .status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
     }
 
-    const empresa = await this.empresaRepository.findEmpresaByFantasy(fantasia);
-    return res.status(200).send({ success: true, empresa }).end();
-  }
-
-  /** POST  grava um Reg; Empresa. */
-  async create(
-    req: Request<any, any, EmpresaCreate>,
-    res: Response,
-    _next: NextFunction,
-  ) {
-    const { body } = req;
-    const empresa = await this.empresaRepository.createEmpresa(body);
-    return res.status(200).send({ success: true, empresa }).end();
-  }
-
-  /** PATCH  Altera um Reg. Empresa. */
-  async update(
-    req: Request<any, any, EmpresaUpdate>,
-    res: Response,
-    _next: NextFunction,
-  ) {
-    const { body, params } = req;
-    const empresaId = Number(params?.moduloId);
-
-    if (!empresaId) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid empresaId' })
-        .end();
+    try {
+      const empresa = await this.empresaRepository.findEmpresaByFantasy(fantasy);
+      return res.status(200).send({ success: true, empresa }).end();
+    } catch (error) {
+      next(error);
     }
-
-    const empresa = await this.empresaRepository.updateEmpresa(empresaId, body);
-    return res.status(200).send({ success: true, empresa }).end();
   }
 
-  /** DEL um unico Reg. Empresa. */
-  async remove(
-    req: Request<any, any, EmpresaCreate>,
-    res: Response,
-    _next: NextFunction,
-  ) {
-    const { params } = req;
-    const empresaId = Number(params?.empresaId);
-
-    if (!empresaId) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid empresaId' })
-        .end();
-    }
-
-    const deleted = await this.empresaRepository.deleteEmpresa(empresaId);
-    return res.status(200).send({ success: !!deleted?.affected }).end();
-  }
-
-  /** GET Busca todas as empresas pelo id_pessoa */
+  /** GET Busca todas as empresas pelo ID de Pessoa */
   async findAllByPessoaId(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
+    req: Request<{ pessoaId: string }>,
+    res: Response,
+    next: NextFunction
   ) {
-  const pessoaId = Number(req.params?.pessoaId);
+    const pessoaId = Number(req.params.pessoaId);
+    if (isNaN(pessoaId) || pessoaId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid pessoaId' }).end();
+    }
 
-  if (!pessoaId) {
-    return res
-      .status(400)
-      .send({ success: false, message: 'Invalid pessoaId' })
-      .end();
-  }
-
-  const empresas = await  this.empresaRepository.findEmpresasByPessoaId(pessoaId);
-  return res.status(200).send({ success: true, empresas }).end();
+    try {
+      const empresas = await this.empresaRepository.findEmpresasAllByIdPessoa(pessoaId);
+      return res.status(200).send({ success: true, empresas });
+    } catch (error) {
+      next(error);
+    }
   }
 
 }
-

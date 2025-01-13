@@ -1,9 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 @Entity('pessoa')
 
 export class PessoaEntity {
-  @Column({ primary: true, generated: true, type: 'int', nullable: false })
+  @Column({ unique: true, primary: true, generated: true, type: 'int', nullable: false })
   id: number;
 
   @Column({ unique: true, type: 'varchar', length: 45, nullable: false })
@@ -32,4 +32,8 @@ export class PessoaEntity {
     precision: null,
   })
   updatedAt?: Date;
+
+  @Index()
+    @Column({ type: 'int', nullable: true })
+    pessoa_id: number;
 }
