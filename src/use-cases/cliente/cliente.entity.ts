@@ -1,3 +1,4 @@
+
 import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { PessoaEntity } from '../pessoa/pessoa.entity';
 import { EmpresaEntity } from '../empresa/empresa.entity';

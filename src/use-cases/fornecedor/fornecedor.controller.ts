@@ -6,45 +6,104 @@ import { FornecedorCreate, FornecedorUpdate } from './fornecedor.dto';
 
 export class FornecedorController {
   constructor(private readonly fornecedorRepository: FornecedorRepository) {}
-
-  /** GET  Busca todos os reg. FORNECEDORES */
-  async findAllFornecedor(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
+  
+  /** POST Cria um novo registro de Fornecedor */
+  async create(
+    req: Request<{}, {}, FornecedorCreate>,
+    res: Response,
+    next: NextFunction
   ) {
-    const fornecedores = await this.fornecedorRepository.findAllFornecedor();
-    return res.status(200).send({ success: true, fornecedores }).end();
+    try {
+      const fornecedor = await this.fornecedorRepository.createFornecedor(req.body);
+      return res.status(201).send({ success: true, fornecedor });
+    } catch (error) {
+      next(error);
+    }
   }
 
-  /** GET Busca um unico ID reg. FORNECEDOR */
-  async getOneFornecedor(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
+  /** PATCH Atualiza um registro de Fornecedor */
+  async update(
+    req: Request<{ fornecedorId: string }, {}, Partial<FornecedorUpdate>>,
+    res: Response,
+    next: NextFunction
   ) {
-    const { params } = req;
-    const fornecedorId = Number(params?.fornecedorId);
-
-    if (!fornecedorId) {
+    const fornecedorId = Number(req.params.fornecedorId);
+    if (isNaN(fornecedorId) || fornecedorId <= 0) {
       return res
         .status(400)
         .send({ success: false, message: 'Invalid fornecedorId' })
         .end();
     }
+  
+    try {
+      const fornecedor = await this.fornecedorRepository.updateFornecedor(fornecedorId, req.body);
+      return res.status(200).send({ success: true, fornecedor }).end();
+    } catch (error) {
+      next(error);
+    }
+  }
+  
+  /** DELETE Remove um registro de Fornecedor */
+  async remove(
+    req: Request<{ fornecedorId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const fornecedorId = Number(req.params.fornecedorId);
+    if (isNaN(fornecedorId) || fornecedorId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid fornecedorId' }).end();
+    }
 
-    const fornecedor = await this.fornecedorRepository.findByIdFornecedor(fornecedorId);
-    return res.status(200).send({ success: true, fornecedor }).end();
+    try {
+      const deleted = await this.fornecedorRepository.deleteFornecedor(fornecedorId);
+      return res.status(200).send({ success: !!deleted?.affected });
+    } catch (error) {
+      next(error);
+    }
   }
 
-  /** GET Busca um unico NAME reg. FORNECEDOR */
-  async findByNameFornecedor(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
+  /** GET Busca todos os registros de Fornecedor */
+  async findAll(
+    req: Request,
+    res: Response,
+    next: NextFunction
   ) {
-    const { query } = req;
-    const name = query.name as string;
+    
+    try {
+      const fornecedores = await this.fornecedorRepository.findFornecedorAll();
+      return res.status(200).send({ success: true, fornecedores });
+    } catch (error) {
+      next(error);
+    }
+  }
+    
+  /** GET Busca um registro de Fornecedor por ID */
+  async getOne(
+    req: Request<{ fornecedorId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const fornecedorId = Number(req.params.fornecedorId);
+
+    if (isNaN(fornecedorId) || fornecedorId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid fornecedorId' }).end();
+    }
+
+    try {
+      const fornecedor = await this.fornecedorRepository.findFornecedorById(fornecedorId);
+      return res.status(200).send({ success: true, fornecedor });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca um registro de Fornecedor por Nome */
+  async findByName(
+    req: Request<{}, {}, {}, Partial<{ name: string }>>, 
+    res: Response, 
+    next: NextFunction
+  ) {
+    const { name } = req.query;
 
     if (!name) {
       return res
@@ -53,120 +112,71 @@ export class FornecedorController {
         .end();
     }
 
-    const empresa = await this.fornecedorRepository.findByNameFornecedor(name);
-    return res.status(200).send({ success: true, empresa }).end();
+    try {
+      const fornecedor = await this.fornecedorRepository.findFornecedorByName(name);
+      return res.status(200).send({ success: true, fornecedor }).end();
+    } catch (error) {
+      next(error);
+    }
   }
 
-  /** GET Busca um unico FANTASY reg. FORNECEDOR */
-  async findByFantasyFornecedor(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
+  /** GET Busca um registro de Fornecedor por Fantasia */
+  async findByFantasy(
+    req: Request<{}, {}, {}, Partial<{ fantasy: string }>>, 
+    res: Response, 
+    next: NextFunction
   ) {
-    const { query } = req;
-    const fantasia = query.fantasia as string;
+    const { fantasy } = req.query;
 
-    if (!fantasia) {
+    if (!fantasy) {
       return res
-        .status(400)
-        .send({ success: false, message: 'Fantasy parameter is required' })
-        .end();
+        .status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
     }
 
-    const fornecedor = await this.fornecedorRepository.findByFantasyFornecedor(fantasia);
-    return res.status(200).send({ success: true, fornecedor }).end();
+    try {
+      const fornecedor = await this.fornecedorRepository.findFornecedorByFantasy(fantasy);
+      return res.status(200).send({ success: true, fornecedor }).end();
+    } catch (error) {
+      next(error);
+    }
   }
 
-  /** POST  grava um Reg; FORNECEDOR. */
-  async createFornecedor(
-    req: Request<any, any, FornecedorCreate>,
+  /** GET Busca todas os Fornecedores de mesmo ID de Pessoa */
+  async findAllByPessoaId(
+    req: Request<{ pessoaId: string }>,
     res: Response,
-    _next: NextFunction,
+    next: NextFunction
   ) {
-    const { body } = req;
-    const fornecedor = await this.fornecedorRepository.createFornecedor(body);
-    return res.status(200).send({ success: true, fornecedor }).end();
+    const pessoaId = Number(req.params.pessoaId);
+    if (isNaN(pessoaId) || pessoaId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid pessoaId' }).end();
+    }
+
+    try {
+      const fornecedores = await this.fornecedorRepository.findFornecedorAllByPessoaId(pessoaId);
+      return res.status(200).send({ success: true, fornecedores });
+    } catch (error) {
+      next(error);
+    }
   }
 
-  /** PATCH  Altera um Reg. FORNECEDOR. */
-  async updateFornecedor(
-    req: Request<any, any, FornecedorUpdate>,
+  /** GET Busca todos Fornecedores de mesmo ID de Empresa */
+  async findAllByEmpresaId(
+    req: Request<{ empresaId: string }>,
     res: Response,
-    _next: NextFunction,
+    next: NextFunction
   ) {
-    const { body, params } = req;
-    const fornecedorId = Number(params?.fornecedorId);
-
-    if (!fornecedorId) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid fornecedorId' })
-        .end();
+    const empresaId = Number(req.params.empresaId);
+    if (isNaN(empresaId) || empresaId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid empresaId' }).end();
     }
 
-    const fornecedor = await this.fornecedorRepository.updateFornecedor(fornecedorId, body);
-    return res.status(200).send({ success: true, fornecedor }).end();
-  }
-
-  /** DEL um unico Reg. FORNECEDOR. */
-  async removeFornecedor(
-    req: Request<any, any, FornecedorCreate>,
-    res: Response,
-    _next: NextFunction,
-  ) {
-    const { params } = req;
-    const fornecedorId = Number(params?.fornecedorId);
-
-    if (!fornecedorId) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid fornecedorId' })
-        .end();
+    try {
+      const fornecedores = await this.fornecedorRepository.findFornecedorAllByEmpresaId(empresaId);
+      return res.status(200).send({ success: true, fornecedores });
+    } catch (error) {
+      next(error);
     }
-
-    const deletedFornecedor = await this.fornecedorRepository.deleteFornecedor(fornecedorId);
-    return res.status(200).send({ success: !!deletedFornecedor?.affected }).end();
   }
-
-  /** GET Busca todas os FORNECEDORES de mesma id_pessoa */
-  async findAllFornecedoresByPessoaId(
-    req: Request<any, any, any>,
-    res: Response<Record<string, any>>,
-    _next: NextFunction,
-  ) {
-
-  const pessoaId = Number(req.params?.pessoaId);
-
-  if (!pessoaId) {
-    return res
-      .status(400)
-      .send({ success: false, message: 'Invalid pessoaId' })
-      .end();
-  }
-
-  const fornecedores = await  this.fornecedorRepository.findAllFornecedorByPessoaId(pessoaId);
-  return res.status(200).send({ success: true, fornecedores }).end();
-  }
-
-  /** GET Busca todas os FORNECEDORES de mesma id_empresa */
-    async findAllFornecedoresByEmpresaId(
-      req: Request<any, any, any>,
-      res: Response<Record<string, any>>,
-      _next: NextFunction,
-    ) {
-  
-    const empresaId = Number(req.params?.empresaId);
-  
-    if (!empresaId) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid empresaId' })
-        .end();
-    }
-  
-    const fornecedores = await  this.fornecedorRepository.findAllFornecedorByEmpresaId(empresaId);
-    return res.status(200).send({ success: true, fornecedores }).end();
-    }
-  
 }
 

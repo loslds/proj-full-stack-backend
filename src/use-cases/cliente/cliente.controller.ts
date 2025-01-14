@@ -6,43 +6,42 @@ import { ClienteCreate, ClienteUpdate } from './cliente.dto';
 export class ClienteController {  
   constructor(private readonly clienteRepository: ClienteRepository) {}
   
-/** POST Cria um novo registro de Cliente */
-async create(
-  req: Request<{}, {}, ClienteCreate>,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const cliente = await this.clienteRepository.createCliente(req.body);
-    return res.status(201).send({ success: true, cliente });
-  } catch (error) {
-    next(error);
+  /** POST Cria um novo registro de Cliente */
+  async create(
+    req: Request<{}, {}, ClienteCreate>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const cliente = await this.clienteRepository.createCliente(req.body);
+      return res.status(201).send({ success: true, cliente });
+    } catch (error) {
+      next(error);
+    }
   }
-}
 
-/** PATCH Atualiza um registro de Cliente */
-async update(
-  req: Request<{ clienteId: string }, {}, Partial<ClienteUpdate>>,
-  res: Response,
-  next: NextFunction
-) {
-  const clienteId = Number(req.params.clienteId);
-  if (isNaN(clienteId) || clienteId <= 0) {
-    return res
-      .status(400)
-      .send({ success: false, message: 'Invalid clienteId' })
-      .end();
+  /** PATCH Atualiza um registro de Cliente */
+  async update(
+    req: Request<{ clienteId: string }, {}, Partial<ClienteUpdate>>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const clienteId = Number(req.params.clienteId);
+    if (isNaN(clienteId) || clienteId <= 0) {
+      return res
+        .status(400)
+        .send({ success: false, message: 'Invalid clienteId' })
+        .end();
+    }
+  
+    try {
+      const cliente = await this.clienteRepository.updateCliente(clienteId, req.body);
+      return res.status(200).send({ success: true, cliente }).end();
+    } catch (error) {
+      next(error);
+    }
   }
   
-  try {
-    const cliente = await this.clienteRepository.updateCliente(clienteId, req.body);
-    return res.status(200).send({ success: true, cliente }).end();
-  } catch (error) {
-    next(error);
-  }
-}
-  
-
   /** DELETE Remove um registro de Cliente */
   async remove(
     req: Request<{ clienteId: string }>,
@@ -120,7 +119,7 @@ async update(
     }
   }
 
-  /** GET Busca um registro de Empresa por Nome Fantasia */
+  /** GET Busca um registro de Cliente por Fantasia */
   async findByFantasy(
     req: Request<{}, {}, {}, Partial<{ fantasy: string }>>, 
     res: Response, 
@@ -179,3 +178,4 @@ async update(
     }
   }
 }
+

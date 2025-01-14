@@ -21,7 +21,7 @@ export class ConsumidorRepository {
     const data = this.repo.create({ id: consumidorId, ...consumidor });
     return this.repo.save(data);
   }
-
+  
   async deleteConsumidor(clienteId: number) {
     return this.repo.delete(clienteId);
   }
@@ -42,13 +42,12 @@ export class ConsumidorRepository {
     return this.repo.findOne({ where: { fantasy } });
   }
 
-  async findConsumidorByPessoaId(pessoaId: number): Promise<ConsumidorEntity[]> {
+  async findConsumidorAllByPessoaId(pessoaId: number): Promise<ConsumidorEntity[]> {
     return this.repo.find({ where: { id_pessoa: pessoaId } });
   }
 
-  async findConsumidorByEmpresaId(empresaId: number): Promise<ConsumidorEntity[]> {
+  async findConsumidorAllByEmpresaId(empresaId: number): Promise<ConsumidorEntity[]> {
       return this.repo.find({ where: { id_empresa: empresaId } });
     }
 
 }
-

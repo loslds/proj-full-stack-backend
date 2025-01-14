@@ -13,7 +13,6 @@ export class FornecedorRepository {
     const data = this.repo.create(fornecedor);
     return this.repo.save(data);
   }
-
   async updateFornecedor(
     fornecedorId: number,
     fornecedor: DeepPartial<FornecedorEntity>,
@@ -26,30 +25,29 @@ export class FornecedorRepository {
     return this.repo.delete(fornecedorId);
   }
 
-  async findAllFornecedor(where?: FindOptionsWhere<FornecedorEntity>): Promise<FornecedorEntity[]> {
+  async findFornecedorAll(where?: FindOptionsWhere<FornecedorEntity>): Promise<FornecedorEntity[]> {
     return this.repo.find({ where });
   }
 
-  async findByIdFornecedor(fornecedorId: number) {
+  async findFornecedorById(fornecedorId: number) {
     return this.repo.findOne({ where: { id: fornecedorId } });
   }
 
-  async findByNameFornecedor(name: string) {
+  async findFornecedorByName(name: string) {
     return this.repo.findOne({ where: { name } });
   }
 
-  async findByFantasyFornecedor(fantasy: string) {
+  async findFornecedorByFantasy(fantasy: string) {
     return this.repo.findOne({ where: { fantasy } });
   }
-  // busca todos os reg. id_pessoas dentro de fornecedor
-  async findAllFornecedorByPessoaId(pessoaId: number): Promise<FornecedorEntity[]> {
+
+  async findFornecedorAllByPessoaId(pessoaId: number): Promise<FornecedorEntity[]> {
     return this.repo.find({ where: { id_pessoa: pessoaId } });
   }
-  
-  // busca todos os reg. id_empresa dentro de fornecedor
-  async findAllFornecedorByEmpresaId(empresaId: number): Promise<FornecedorEntity[]> {
-    return this.repo.find({ where: { id_empresa: empresaId } });
-  }
 
+  async findFornecedorAllByEmpresaId(empresaId: number): Promise<FornecedorEntity[]> {
+        return this.repo.find({ where: { id_empresa: empresaId } });
+  }
+  
 }
 
