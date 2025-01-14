@@ -14,7 +14,7 @@ export class ConsumidorEntity {
   pessoa: PessoaEntity;
 
   // Campo para armazenar o id_pessoa
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', nullable: false })
   id_pessoa: number;
 
   // Relacionamento com a entidade EmpresaEntity
@@ -23,7 +23,7 @@ export class ConsumidorEntity {
   empresa: EmpresaEntity;
 
   // Campo para armazenar o id_empresa
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', nullable: false })
   id_empresa: number;
 
   // Campo NOME DO CONSUMIDOR.
