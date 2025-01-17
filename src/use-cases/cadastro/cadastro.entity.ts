@@ -6,6 +6,7 @@ import { ConsumidorEntity } from './../consumidor/consumidor.entity';
 import { ClienteEntity } from './../cliente/cliente.entity';
 import { FuncionarioEntity } from './../funcionario/funcionario.entity';
 import { CidadeEntity } from './../cidade/cidade.entity';
+import { EstadoEntity } from './../estado/estado.entity';
 
 @Entity('cadastro')
 export class CadastroEntity {
@@ -63,6 +64,14 @@ export class CadastroEntity {
   @Column({ type: 'int', nullable: false })
   id_cidade: number;
 
+  // Relacionamento com a entidade CidadeEntity
+  @ManyToOne(() => ConsumidorEntity)
+  @JoinColumn({ name: 'id_estado' })
+  estado: CidadeEntity;
+  @Column({ type: 'int', nullable: false })
+  id_estado: number;
+
+
   // Campo ENDEREÇO DA "ENTIDADE"-> (fornecedor, consumidor, cliente, funcionario).
   @Column({ type: 'varchar', length: 200, nullable: true })
   endereco: string;
@@ -78,18 +87,6 @@ export class CadastroEntity {
   // Campo BAIRRO DA ENTIDADE.
   @Column({ type: 'varchar', length: 45, nullable: true })
   bairro: string;
-
-  // Campo CIDADE DA ENTIDADE.
-  @Column({ type: 'varchar', length: 60, nullable: true })
-  cidade: string;
-
-  // Campo ESTADO DA ENTIDADE.
-  @Column({ type: 'varchar', length: 60, nullable: true })
-  estado: string;
-
-  // Campo UF DA ENTIDADE.
-  @Column({ type: 'varchar', length: 5, nullable: true })
-  uf: string;
 
   @Column({
     type: 'datetime',
