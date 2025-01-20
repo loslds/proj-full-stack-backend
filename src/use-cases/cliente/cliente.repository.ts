@@ -42,11 +42,11 @@ export class ClienteRepository {
     return this.repo.findOne({ where: { fantasy } });
   }
 
-  async findClientesAllByPessoaId(pessoaId: number): Promise<ClienteEntity[]> {
+  async findClientesAllPessoaId(pessoaId: number): Promise<ClienteEntity[]> {
     return this.repo.find({ where: { id_pessoa: pessoaId } });
   }
 
-  async findClientesAllByEmpresaId(empresaId: number): Promise<ClienteEntity[]> {
+  async findClientesAllEmpresaId(empresaId: number): Promise<ClienteEntity[]> {
         return this.repo.find({ where: { id_empresa: empresaId } });
   }
   

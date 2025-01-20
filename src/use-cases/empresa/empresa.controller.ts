@@ -5,7 +5,7 @@ import { EmpresaCreate, EmpresaUpdate } from './empresa.dto';
 export class EmpresaController {  
   constructor(private readonly empresaRepository: EmpresaRepository) {}
   
-/** POST Cria um novo registro de Empresa */
+/** POST Cria Tabela Empresa */
 async create(
   req: Request<{}, {}, EmpresaCreate>,
   res: Response,
@@ -152,7 +152,7 @@ async update(
     }
 
     try {
-      const empresas = await this.empresaRepository.findEmpresasAllByIdPessoa(pessoaId);
+      const empresas = await this.empresaRepository.findEmpresaByPessoaId(pessoaId);
       return res.status(200).send({ success: true, empresas });
     } catch (error) {
       next(error);

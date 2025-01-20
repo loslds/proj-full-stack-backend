@@ -4,6 +4,7 @@ import type { PessoaCreate } from './pessoa.dto';
 
 export class PessoaRepository {
   private repo: Repository<PessoaEntity>;
+
   constructor(private readonly dataSource: DataSource) {
     this.repo = this.dataSource.getRepository(PessoaEntity);
   }
@@ -13,10 +14,7 @@ export class PessoaRepository {
     return this.repo.save(data);
   }
 
-  async updatePessoa(
-    pessoaId: number,
-    pessoa: DeepPartial<PessoaEntity>,
-  ): Promise<PessoaEntity> {
+  async updatePessoa(pessoaId: number, pessoa: DeepPartial<PessoaEntity>): Promise<PessoaEntity> {
     const data = this.repo.create({ id: pessoaId, ...pessoa });
     return this.repo.save(data);
   }
@@ -33,8 +31,11 @@ export class PessoaRepository {
     return this.repo.findOne({ where: { id: pessoaId } });
   }
 
-  async findPessoaByDescr(descr: string) {
-    return this.repo.findOne({ where: { descr } });
+  async findPessoaByNmPessoa(nmpessoa: string) {
+    return this.repo.findOne({ where: { nmpessoa } });
   }
 
+  async findPessoaBySigla(sigla: string) {
+    return this.repo.findOne({ where: { sigla } });
+  }
 }

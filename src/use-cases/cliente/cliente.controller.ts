@@ -152,7 +152,7 @@ export class ClienteController {
     }
 
     try {
-      const clientes = await this.clienteRepository.findClientesAllByPessoaId(pessoaId);
+      const clientes = await this.clienteRepository.findClientesAllPessoaId(pessoaId);
       return res.status(200).send({ success: true, clientes });
     } catch (error) {
       next(error);
@@ -171,7 +171,7 @@ export class ClienteController {
     }
 
     try {
-      const clientes = await this.clienteRepository.findClientesAllByEmpresaId(empresaId);
+      const clientes = await this.clienteRepository.findClientesAllEmpresaId(empresaId);
       return res.status(200).send({ success: true, clientes });
     } catch (error) {
       next(error);

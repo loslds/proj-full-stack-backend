@@ -1,17 +1,18 @@
-
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('pessoa')
-
-export class PessoaEntity {
+@Entity('cidade')
+export class CidadeEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
-    id: number; // O campo 'id' será autoincremento
+  id: number; // O campo 'id' será autoincremento
 
   @Column({ unique: true, type: 'varchar', length: 45, nullable: false })
-  nmpessoa: string;
+  nmcidade: string;
+
+  @Column({ unique: true, type: 'varchar', length: 45, nullable: false })
+  nmestado: string;
 
   @Column({ unique: true, type: 'varchar', length: 5, nullable: false })
-  sigla: string;
+  uf: string;
 
   @Column({ type: 'int', nullable: true, default: null })
   createdBy?: number;
@@ -33,7 +34,4 @@ export class PessoaEntity {
     precision: null,
   })
   updatedAt?: Date;
-
 }
-
-

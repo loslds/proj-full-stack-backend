@@ -5,101 +5,102 @@ import { PessoaCreate, PessoaUpdate } from './pessoa.dto';
 export class PessoaController {
   constructor(private readonly pessoaRepository: PessoaRepository) {}
 
-  /** POST Cria uma nova pessoa */
-  async createPessoa(
-    req: Request<{}, {}, PessoaCreate>,
-    res: Response,
-    next: NextFunction
-  ) {
+  /** POST Cria tabela Pessoa */
+  async create(req: Request<{}, {}, PessoaCreate>, res: Response, next: NextFunction) {
     try {
       const pessoa = await this.pessoaRepository.createPessoa(req.body);
-      return res.status(201).send({ success: true, pessoa }).end();
+      return res.status(201).send({ success: true, pessoa });
     } catch (error) {
       next(error);
     }
   }
 
-  /** PATCH Atualiza uma pessoa */
-  async updatePessoa(
-    req: Request<{ pessoaId: string }, {}, PessoaUpdate>,
-    res: Response,
-    next: NextFunction
-  ) {
-    const pessoaId = Number(req.params.pessoaId);
-
-    if (isNaN(pessoaId) || pessoaId <= 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid pessoaId' })
-        .end();
-    }
+  /** PATCH Atualiza um registro de Pessoa */
+  async update(req: Request<{ pessoaId: string }, {}, Partial<PessoaUpdate>>, res: Response, next: NextFunction) {
+    const pessoaId = this.validatePessoaId(req.params.pessoaId, res);
+    if (!pessoaId) return;
 
     try {
       const pessoa = await this.pessoaRepository.updatePessoa(pessoaId, req.body);
-      return res.status(200).send({ success: true, pessoa }).end();
+      return res.status(200).send({ success: true, pessoa });
     } catch (error) {
       next(error);
     }
   }
 
-  /** DELETE Remove uma pessoa */
-  async removePessoa(
-    req: Request<{ pessoaId: string }>,
-    res: Response,
-    next: NextFunction
-  ) {
-    const pessoaId = Number(req.params.pessoaId);
+  /** DELETE Remove um registro de Pessoa */
+  async remove(req: Request<{ pessoaId: string }>, res: Response, next: NextFunction) {
+    const pessoaId = this.validatePessoaId(req.params.pessoaId, res);
+    if (!pessoaId) return;
 
-    if (isNaN(pessoaId) || pessoaId <= 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid pessoaId' })
-        .end();
+    try {
+      const deleted = await this.pessoaRepository.deletePessoa(pessoaId);
+      return res.status(200).send({ success: !!deleted?.affected });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca todos os registros de Pessoa */
+  async findAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const pessoas = await this.pessoaRepository.findPessoaAll();
+      return res.status(200).send({ success: true, pessoas });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca um registro de Pessoa por ID */
+  async getOne(req: Request<{ pessoaId: string }>, res: Response, next: NextFunction) {
+    const pessoaId = this.validatePessoaId(req.params.pessoaId, res);
+    if (!pessoaId) return;
+
+    try {
+      const pessoa = await this.pessoaRepository.findPessoaById(pessoaId);
+      return res.status(200).send({ success: true, pessoa });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca um registro de Pessoa por NmPessoa */
+  async findByNmPessoa(req: Request<{}, {}, {}, { nmpessoa: string }>, res: Response, next: NextFunction) {
+    const { nmpessoa } = req.query;
+    if (!nmpessoa) {
+      return res.status(400).send({ success: false, message: 'nmpessoa parameter is required' });
     }
 
     try {
-      const deletedPessoa = await this.pessoaRepository.deletePessoa(pessoaId);
-      return res.status(200).send({ success: !!deletedPessoa?.affected }).end();
+      const pessoa = await this.pessoaRepository.findPessoaByNmPessoa(nmpessoa);
+      return res.status(200).send({ success: true, pessoa });
     } catch (error) {
       next(error);
     }
   }
 
-    /** GET Busca todas as pessoas */
-    async findAllPessoa(
-      req: Request,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const pessoas = await this.pessoaRepository.findPessoaAll();
-        return res.status(200).send({ success: true, pessoas }).end();
-      } catch (error) {
-        next(error);
-      }
+  /** GET Busca um registro de Pessoa pela Sigla */
+  async findBySigla(req: Request<{}, {}, {}, { sigla: string }>, res: Response, next: NextFunction) {
+    const { sigla } = req.query;
+    if (!sigla) {
+      return res.status(400).send({ success: false, message: 'sigla parameter is required' });
     }
-  
-    /** GET Busca uma pessoa pelo ID */
-    async getOnePessoa(
-      req: Request<{ pessoaId: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      const pessoaId = Number(req.params.pessoaId);
-  
-      if (isNaN(pessoaId) || pessoaId <= 0) {
-        return res
-          .status(400)
-          .send({ success: false, message: 'Invalid pessoaId' })
-          .end();
-      }
-  
-      try {
-        const pessoa = await this.pessoaRepository.findPessoaById(pessoaId);
-        return res.status(200).send({ success: true, pessoa }).end();
-      } catch (error) {
-        next(error);
-      }
-    }
-}
 
+    try {
+      const pessoa = await this.pessoaRepository.findPessoaBySigla(sigla);
+      return res.status(200).send({ success: true, pessoa });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** Utility to validate pessoaId */
+  private validatePessoaId(pessoaId: string, res: Response): number | null {
+    const id = Number(pessoaId);
+    if (isNaN(id) || id <= 0) {
+      res.status(400).send({ success: false, message: 'Invalid pessoaId' });
+      return null;
+    }
+    return id;
+  }
+}
