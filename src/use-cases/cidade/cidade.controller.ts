@@ -61,22 +61,8 @@ async update(
     }
   }
 
-  /** GET Busca todos os registros de Cidade */
-  async findAll(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    
-    try {
-      const cidades = await this.cidadeRepository.findCidadeAll();
-      return res.status(200).send({ success: true, cidades });
-    } catch (error) {
-      next(error);
-    }
-  }
-    
-  /** GET Busca um registro de Cidade por ID */
+
+  /** GET Lista um reg. Id em Cidade */
   async getOne(
     req: Request<{ cidadeId: string }>,
     res: Response,
@@ -96,7 +82,23 @@ async update(
     }
   }
 
-  /** GET Busca um registro de Empresa por Nome */
+  /** GET Lista todos reg. em Cidade */
+  async findAll(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    
+    try {
+      const cidades = await this.cidadeRepository.findCidadeAll();
+      return res.status(200).send({ success: true, cidades });
+    } catch (error) {
+      next(error);
+    }
+  }
+    
+
+  /** GET Lista um reg. nmcidade em Cidade */
   async findByNmCidade(
     req: Request<{}, {}, {}, Partial<{ nmcidade: string }>>, 
     res: Response, 
@@ -119,7 +121,31 @@ async update(
     }
   }
 
-  /** GET Busca um registro de Empresa por Nome do Estado */
+  /** GET Lista todos Reg. nmcidade em Cidade */
+  async findAllNmCidade(
+    req: Request<{}, {}, {}, Partial<{ nmcidade: string }>>, 
+    res: Response, 
+    next: NextFunction
+  ) {
+    const { nmcidade } = req.query;
+
+    if (!nmcidade) {
+      return res
+        .status(400)
+        .send({ success: false, message: 'Name Cidade parameter is required' })
+        .end();
+    }
+
+    try {
+      const cidade = await this.cidadeRepository.findCidadeAllNmCidade(nmcidade);
+      return res.status(200).send({ success: true, cidade }).end();
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
+  /** GET Lista um reg. nmestado em Cidade */
   async findByNmEstado(
     req: Request<{}, {}, {}, Partial<{ nmestado: string }>>, 
     res: Response, 
@@ -140,8 +166,29 @@ async update(
     }
   }
 
-  /** GET Busca todos registro de Cidade por Uf */
-  async findAllByUf(
+  /** GET Lista todos reg. nmestado em Cidade */
+  async findAllNmEstado(
+    req: Request<{}, {}, {}, Partial<{ nmestado: string }>>, 
+    res: Response, 
+    next: NextFunction
+  ) {
+    const { nmestado } = req.query;
+
+    if (!nmestado) {
+      return res
+        .status(400).send({ success: false, message: 'Name Estado parameter is required' }).end();
+    }
+
+    try {
+      const cidade = await this.cidadeRepository.findCidadeAllNmEstado(nmestado);
+      return res.status(200).send({ success: true, cidade }).end();
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Lista todos reg. uf em Cidade */
+  async findAllUf(
     req: Request<{}, {}, {}, Partial<{ uf: string }>>, 
     res: Response, 
     next: NextFunction
@@ -154,7 +201,7 @@ async update(
     }
 
     try {
-      const cidade = await this.cidadeRepository.findCidadeByNmEstado(uf);
+      const cidade = await this.cidadeRepository.findCidadeAllUf(uf);
       return res.status(200).send({ success: true, cidade }).end();
     } catch (error) {
       next(error);

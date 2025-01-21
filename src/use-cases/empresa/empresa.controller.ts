@@ -60,7 +60,7 @@ async update(
       next(error);
     }
   }
-
+//////////////////////////////////////////////
   /** GET Busca todos os registros de Empresa */
   async findAll(
     req: Request,

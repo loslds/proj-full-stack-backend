@@ -1,34 +1,30 @@
 
 import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn, Unique } from 'typeorm';
-import { PessoaEntity } from '../pessoa/pessoa.entity';
+import { CadastroEntity } from '../cadastro/cadastro.entity';
 
-@Entity('empresa')
-@Unique(['name', 'fantasy']) // Adiciona a restrição de unicidade composta
-export class EmpresaEntity {
+@Entity('email')
+@Unique(['mail', 'mailresg']) // Adiciona a restrição de unicidade composta
+export class EmailEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-  // Relacionamento com a entidade PessoaEntity
-  @ManyToOne(() => PessoaEntity)
-  @JoinColumn({ name: 'id_pessoa' })
-  pessoa: PessoaEntity;
+  // Relacionamento com a entidade CadastroEntity
+  @ManyToOne(() => CadastroEntity)
+  @JoinColumn({ name: 'id_cadastro' })
+  cadastro: CadastroEntity;
   
   @Column({ type: 'int', nullable: false })
-  id_pessoa: number;
+  id_cadastro: number;
 
   ///////////////////////////////////
   
-  @Column({ type: 'varchar', length: 45, nullable: false })
-  name: string;
+  @Column({ type: 'varchar', length: 45, nullable: true })
+  mail: string;
 
-  @Column({ type: 'varchar', length: 45, nullable: false })
-  fantasy: string;
+  @Column({ type: 'varchar', length: 45, nullable: true })
+  mailresg: string;
 
-  @Column({ type: 'varchar', length: 200, nullable: true })
-  arqlogo?: string;
-
-  @Column({ type: 'blob', nullable: true })
-  imagelogo?: Buffer;
+  //////////////////////////////
 
   @Column({ type: 'int', nullable: true, default: null })
   createdBy?: number;

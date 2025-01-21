@@ -14,9 +14,13 @@ cidadeRoute.post('/', createValidation, (req: Request, res: Response, next: Next
 cidadeRoute.get('/:cidadeId', (req: Request<{ cidadeId: string }>, res: Response, next: NextFunction) => controller.getOne(req, res, next));
 cidadeRoute.patch('/:cidadeId', updateValidation, (req: Request<{ cidadeId: string }>, res: Response, next: NextFunction) => controller.update(req, res, next));
 cidadeRoute.delete('/:cidadeId', (req: Request<{ cidadeId: string }>, res: Response, next: NextFunction) => controller.remove(req, res, next));
+
 cidadeRoute.get('/by-nmcidade', (req: Request<{}, {}, {}, { nmcidade: string }>, res: Response, next: NextFunction) => controller.findByNmCidade(req, res, next));
+
+cidadeRoute.get('/by-nmcidade', (req: Request<{}, {}, {}, { nmcidade: string }>, res: Response, next: NextFunction) => controller.findAllNmCidade(req, res, next));
 cidadeRoute.get('/by-nmestado', (req: Request<{}, {}, {}, { nmestado: string }>, res: Response, next: NextFunction) => controller.findByNmEstado(req, res, next));
-cidadeRoute.get('/by-uf', (req: Request<{}, {}, {}, { uf: string }>, res: Response, next: NextFunction) => controller.findAllByUf(req, res, next));
+cidadeRoute.get('/by-nmestado', (req: Request<{}, {}, {}, { nmestado: string }>, res: Response, next: NextFunction) => controller.findAllNmEstado(req, res, next));
+cidadeRoute.get('/by-uf', (req: Request<{}, {}, {}, { uf: string }>, res: Response, next: NextFunction) => controller.findAllUf(req, res, next));
 
 export { cidadeRoute, cidadeRepository };
 
