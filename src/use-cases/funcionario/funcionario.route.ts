@@ -18,7 +18,7 @@ funcionarioRoute.patch('/:funcionarioId', updateValidation, controller.update as
 funcionarioRoute.delete('/:funcionarioId', (req, res, next) => controller.remove(req, res, next));
 funcionarioRoute.get('/by-name', (req, res, next) => controller.findByName(req, res, next));
 funcionarioRoute.get('/by-fantasy', (req, res, next) => controller.findByFantasy(req, res, next));
-funcionarioRoute.get('/pessoa/:pessoaId', (req, res, next) => controller.findAllByPessoaId(req, res, next));
-funcionarioRoute.get('/empresa/:empresaId', (req, res, next) => controller.findAllByEmpresaId(req, res, next));
+funcionarioRoute.get('funcionario/by-pessoa/:pessoaId', (req, res, next) => controller.findAllByPessoaId(req, res, next));
+funcionarioRoute.get('funcionario/by-empresa/:empresaId', (req, res, next) => controller.findAllByEmpresaId(req, res, next));
 
 export { funcionarioRoute, funcionarioRepository };

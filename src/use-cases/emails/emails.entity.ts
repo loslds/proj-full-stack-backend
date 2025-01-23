@@ -1,10 +1,11 @@
 
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { CadastroEntity } from '../cadastro/cadastro.entity';
 
-@Entity('email')
-@Unique(['mail', 'mailresg']) // Adiciona a restrição de unicidade composta
-export class EmailEntity {
+@Entity('emails')
+//  @Unique(['mail', 'mailresg']) // Adiciona a restrição de unicidade composta
+
+export class EmailsEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 

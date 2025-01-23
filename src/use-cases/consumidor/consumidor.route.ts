@@ -18,7 +18,7 @@ consumidorRoute.patch('/:consumidorId', updateValidation, controller.update as u
 consumidorRoute.delete('/:consumidorId', (req, res, next) => controller.remove(req, res, next));
 consumidorRoute.get('/by-name', (req, res, next) => controller.findByName(req, res, next));
 consumidorRoute.get('/by-fantasy', (req, res, next) => controller.findByFantasy(req, res, next));
-consumidorRoute.get('/pessoa/:pessoaId', (req, res, next) => controller.findAllByPessoaId(req, res, next));
-consumidorRoute.get('/empresa/:empresaId', (req, res, next) => controller.findAllByEmpresaId(req, res, next));
+consumidorRoute.get('consumidor/by-pessoa/:pessoaId', (req, res, next) => controller.findAllByPessoaId(req, res, next));
+consumidorRoute.get('consumidor/by-/empresa/:empresaId', (req, res, next) => controller.findAllByEmpresaId(req, res, next));
 
 export { consumidorRoute, consumidorRepository };

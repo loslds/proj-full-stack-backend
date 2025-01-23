@@ -14,8 +14,12 @@ cadastroRoute.post('/', createValidation, (req: Request, res: Response, next: Ne
 cadastroRoute.get('/:cadastroId', (req: Request<{ cadastroId: string }>, res: Response, next: NextFunction) => controller.getOne(req, res, next));
 cadastroRoute.patch('/:cadastroId', updateValidation, (req: Request<{ cadastroId: string }>, res: Response, next: NextFunction) => controller.update(req, res, next));
 cadastroRoute.delete('/:cadastroId', (req: Request<{ cadastroId: string }>, res: Response, next: NextFunction) => controller.remove(req, res, next));
-cadastroRoute.get('/by-endereco', (req: Request<{}, {}, {}, { endereco: string }>, res: Response, next: NextFunction) => 
-controller.findByEndereco(req, res, next));
+cadastroRoute.get('/by-endereco', (req: Request<{}, {}, {}, { endereco: string }>, res: Response, next: NextFunction) => controller.findByEndereco(req, res, next));
+cadastroRoute.get('/by-enderecos', (req: Request<{}, {}, {}, { endereco: string }>, res: Response, next: NextFunction) => 
+controller.findAllEndereco(req, res, next));
+cadastroRoute.get('/by-compl', (req: Request<{}, {}, {}, { complemento: string }>, res: Response, next: NextFunction) => controller.findByCompl(req, res, next));
+cadastroRoute.get('/by-compls', (req: Request<{}, {}, {}, { complemento: string }>, res: Response, next: NextFunction) => 
+controller.findAllCompl(req, res, next));
 cadastroRoute.get('/by-bairro', (req: Request<{}, {}, {}, { bairro: string }>, res: Response, next: NextFunction) => 
 controller.findByBairro(req, res, next));
 cadastroRoute.get('/all-bairro', (req: Request<{}, {}, {}, { bairro: string }>, res: Response, next: NextFunction) => controller.findAllBairro(req, res, next));
@@ -27,6 +31,8 @@ cadastroRoute.get('/consumidor/:consumidorId', (req, res, next) => controller.fi
 cadastroRoute.get('/fornecedor/:fornecedorId', (req, res, next) => controller.findAllFornecedorId(req, res, next));
 cadastroRoute.get('/cliente/:clienteId', (req, res, next) => controller.findAllClienteId(req, res, next));
 cadastroRoute.get('/funcionario/:funcionarioId', (req, res, next) => controller.findAllFuncionarioId(req, res, next));
+cadastroRoute.get('/cidades/:cidadesId', (req, res, next) => controller.findAllCidadesId(req, res, next));
+cadastroRoute.get('/respostas/:respostasId', (req, res, next) => controller.findAllRespostasId(req, res, next));
 
 export { cadastroRoute, cadastroRepository };
 

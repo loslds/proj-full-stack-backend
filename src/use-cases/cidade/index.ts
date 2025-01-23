@@ -1,3 +1,3 @@
 
-export { cidadeRepository, cidadeRoute } from './cidade.route';
-export type { CidadeRepository } from './cidade.repository';
+export { cidadesRepository, cidadesRoute } from './cidade.route';
+export type { CidadesRepository } from './cidades.repository';

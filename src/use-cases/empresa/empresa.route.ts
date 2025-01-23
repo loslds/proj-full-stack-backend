@@ -17,6 +17,6 @@ empresaRoute.patch('/:empresaId', updateValidation, controller.update as unknown
 empresaRoute.delete('/:empresaId', (req, res, next) => controller.remove(req, res, next));
 empresaRoute.get('/by-name', (req, res, next) => controller.findByName(req, res, next));
 empresaRoute.get('/by-fantasy', (req, res, next) => controller.findByFantasy(req, res, next));
-empresaRoute.get('/pessoa/:pessoaId', (req, res, next) => controller.findAllByPessoaId(req, res, next));
+empresaRoute.get('empresa/by-pessoa/:pessoaId', (req, res, next) => controller.findAllByPessoaId(req, res, next));
 
 export { empresaRoute, empresaRepository };

@@ -1,6 +1,7 @@
 
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { CadastroEntity } from './cadastro.entity';
+import { CidadesEntity } from '../cidade/cidades.entity';
 
 export class CadastroRepository {
   private repo: Repository<CadastroEntity>;
@@ -41,12 +42,20 @@ export class CadastroRepository {
   async findCadastroByAllEndereco(endereco: string): Promise<CadastroEntity[] | null> {
     return this.repo.find({ where: { endereco } });
   }
+  // lista de um reg. em tabela Cadastro atraves do Complemento
+  async findCadastroByCompl(complemento: string): Promise<CadastroEntity | null> {
+    return this.repo.findOne({ where: { complemento } });
+  }
+  // lista todos reg. em tabela Cadastro atraves do endereco
+  async findCadastroByAllCompl(complemento: string): Promise<CadastroEntity[] | null> {
+    return this.repo.find({ where: { complemento } });
+  }
   // lista de um reg. em tabela Cadastro atraves do bairro
   async findCadastroByBairro(bairro: string): Promise<CadastroEntity | null> {
    return this.repo.findOne({ where: { bairro } });
   }
   // lista todos reg. em tabela Cadastro atraves do bairros
-  async findCadastrosAllBairro(bairro: string): Promise<CadastroEntity[]> {
+  async findCadastroAllBairro(bairro: string): Promise<CadastroEntity[]> {
    return this.repo.find({ where: { bairro } });
   }
   // lista dos de um reg. em tabela Cadastro atraves do cep
@@ -54,7 +63,7 @@ export class CadastroRepository {
     return this.repo.findOne({ where: { cep } });
   }
   // lista todos reg. em tabela Cadastro atraves do cep
-  async findCadastrosAllCep(cep: string): Promise<CadastroEntity[]> {
+  async findCadastroAllCep(cep: string): Promise<CadastroEntity[]> {
     return this.repo.find({ where: { cep } });
   }
   // lista todos reg. em tabela Cadastro atraves de mesma pessoa
@@ -81,6 +90,13 @@ export class CadastroRepository {
   async findCadastroAllFuncionarioId(funcionarioId: number): Promise<CadastroEntity[]> {
     return this.repo.find({ where: { funcionario: { id: funcionarioId } } });
   }
-
+  // lista todos reg. em tabela Cadastro atraves de mesmo Cidades
+  async findCadastroAllCidadesId(cidadesId: number): Promise<CadastroEntity[]> {
+    return this.repo.find({ where: { cidades: { id: cidadesId } } });
+  }
+  // lista todos reg. em tabela Cadastro atraves de mesmo Cidades
+  async findCadastroAllRespostasId(respostasId: number): Promise<CadastroEntity[]> {
+    return this.repo.find({ where: { respostas: { id: respostasId } } });
+  }
 }
 

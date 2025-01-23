@@ -18,7 +18,7 @@ fornecedorRoute.patch('/:fornecedorId', updateValidation, controller.update as u
 fornecedorRoute.delete('/:fornecedorId', (req, res, next) => controller.remove(req, res, next));
 fornecedorRoute.get('/by-name', (req, res, next) => controller.findByName(req, res, next));
 fornecedorRoute.get('/by-fantasy', (req, res, next) => controller.findByFantasy(req, res, next));
-fornecedorRoute.get('/pessoa/:pessoaId', (req, res, next) => controller.findAllByPessoaId(req, res, next));
-fornecedorRoute.get('/empresa/:empresaId', (req, res, next) => controller.findAllByEmpresaId(req, res, next));
+fornecedorRoute.get('fornecedor/by-pessoa/:pessoaId', (req, res, next) => controller.findAllByPessoaId(req, res, next));
+fornecedorRoute.get('fornecedor/by-/empresa/:empresaId', (req, res, next) => controller.findAllByEmpresaId(req, res, next));
 
 export { fornecedorRoute, fornecedorRepository };

@@ -5,7 +5,8 @@ import { FornecedorEntity } from './../fornecedor/fornecedor.entity';
 import { ConsumidorEntity } from './../consumidor/consumidor.entity';
 import { ClienteEntity } from './../cliente/cliente.entity';
 import { FuncionarioEntity } from './../funcionario/funcionario.entity';
-import { CidadeEntity } from './../cidade/cidade.entity';
+import { CidadesEntity } from '../cidade/cidades.entity';
+import { RespostasEntity } from '../respostas/respostas.entity';
 
 @Entity('cadastro')
 export class CadastroEntity {
@@ -36,9 +37,13 @@ export class CadastroEntity {
   @JoinColumn({ name: 'id_funcionario' })
   funcionario: FuncionarioEntity;
 
-  @ManyToOne(() => CidadeEntity)
+  @ManyToOne(() => CidadesEntity)
   @JoinColumn({ name: 'id_cidade' })
-  cidade: CidadeEntity;
+  cidades: CidadesEntity;
+
+  @ManyToOne(() => RespostasEntity)
+  @JoinColumn({ name: 'id_respostas' })
+  respostas: RespostasEntity;
 
   @Column({ type: 'varchar', length: 200, nullable: true })
   endereco?: string;

@@ -101,7 +101,7 @@ export class CadastroController {
       next(error);
     }
   }
-
+ 
   /** GET Busca um registros de Cadastro por endereço */
   async findByEndereco(
     req: Request<{}, {}, {}, { endereco: string }>, 
@@ -148,6 +148,52 @@ export class CadastroController {
     }
   }
 
+  /** GET Busca um registros de Cadastro por endereço */
+  async findByCompl(
+    req: Request<{}, {}, {}, { complemento: string }>, 
+    res: Response, 
+    next: NextFunction
+  ) {
+    const { complemento } = req.query;
+
+    if (!complemento) {
+      return res
+        .status(400)
+        .send({ success: false, message: 'Complemento parameter is required' })
+        .end();
+    }
+
+    try {
+      const cadastro = await this.cadastroRepository.findCadastroByCompl(complemento);
+      return res.status(200).send({ success: true, cadastro });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca todos registros de Cadastro por endereço */
+  async findAllCompl(
+    req: Request<{}, {}, {}, { complemento: string }>, 
+    res: Response, 
+    next: NextFunction
+  ) {
+    const { complemento } = req.query;
+
+    if (!complemento) {
+      return res
+        .status(400)
+        .send({ success: false, message: 'Complemento parameter is required' })
+        .end();
+    }
+
+    try {
+      const cadastros = await this.cadastroRepository.findCadastroByAllCompl(complemento);
+      return res.status(200).send({ success: true, cadastros });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   /** GET Busca um registros de Cadastro por Bairro */  
   async findByBairro(
     req: Request<{}, {}, {}, { bairro: string }>, 
@@ -187,7 +233,7 @@ export class CadastroController {
     }
 
     try {
-      const cadastros = await this.cadastroRepository.findCadastrosAllBairro(bairro);
+      const cadastros = await this.cadastroRepository.findCadastroAllBairro(bairro);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
@@ -234,7 +280,7 @@ export class CadastroController {
     }
 
     try {
-      const cadastros = await this.cadastroRepository.findCadastrosAllCep(cep);
+      const cadastros = await this.cadastroRepository.findCadastroAllCep(cep);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
@@ -369,4 +415,48 @@ export class CadastroController {
       next(error);
     }
   }
+
+
+  /** GET Busca todos registros de Cadastro com id_cidades */
+  async findAllCidadesId(
+    req: Request<{ cidadesId: string } >,
+    res: Response,
+    next: NextFunction
+  ) {
+    const cidadesId =  Number(req.params.cidadesId);
+    if (isNaN(cidadesId) || cidadesId <= 0) {
+      return res
+      .status(400)
+      .send({ success: false, message: 'Invalid cidadesId' })
+      .end();
+    }
+    try {
+      const cadastros = await this.cadastroRepository.findCadastroAllCidadesId(cidadesId);
+      return res.status(200).send({ success: true, cadastros });
+    } catch (error) {
+      next(error);
+    }
+  }
+  
+  /** GET Busca todos registros de Cadastro com id_cidades */
+  async findAllRespostasId(
+    req: Request<{ respostasId: string } >,
+    res: Response,
+    next: NextFunction
+  ) {
+    const respostasId =  Number(req.params.respostasId);
+    if (isNaN(respostasId) || respostasId <= 0) {
+      return res
+      .status(400)
+      .send({ success: false, message: 'Invalid respostasId' })
+      .end();
+    }
+    try {
+      const cadastros = await this.cadastroRepository.findCadastroAllRespostasId(respostasId);
+      return res.status(200).send({ success: true, cadastros });
+    } catch (error) {
+      next(error);
+    }
+  }
+
 }

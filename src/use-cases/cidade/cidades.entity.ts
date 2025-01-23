@@ -1,10 +1,21 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { CadastroEntity } from '../cadastro/cadastro.entity';
 
-@Entity('cidade')
-export class CidadeEntity {
+@Entity('cidades')
+export class CidadesEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number; // O campo 'id' será autoincremento
 
+  // Relacionamento com a entidade CadastroEntity
+  @ManyToOne(() => CadastroEntity)
+  @JoinColumn({ name: 'id_cadastro' })
+  cadastro: CadastroEntity;
+  
+  @Column({ type: 'int', nullable: false })
+  id_cadastro: number;
+
+  ///////////////////////////////////
+  
   @Column({ unique: true, type: 'varchar', length: 45, nullable: false })
   nmcidade: string;
 

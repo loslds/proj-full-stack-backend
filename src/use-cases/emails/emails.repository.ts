@@ -1,30 +1,30 @@
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
-import { EmailEntity } from './email.entity';
-import type { EmailCreate } from './email.dto';
+import { EmailsEntity } from './emails.entity';
+import type { EmailsCreate } from './emails.dto';
 
-export class EmailRepository {
-  private repo: Repository<EmailEntity>;
+export class EmailsRepository {
+  private repo: Repository<EmailsEntity>;
 
   constructor(private readonly dataSource: DataSource) {
-    this.repo = this.dataSource.getRepository(EmailEntity);
+    this.repo = this.dataSource.getRepository(EmailsEntity);
   }
 
   // Cria um novo registro de Email
-  async createEmail(email: EmailCreate): Promise<EmailEntity> {
-    const data = this.repo.create(email);
+  async createEmails(emails: EmailsCreate): Promise<EmailsEntity> {
+    const data = this.repo.create(emails);
     return this.repo.save(data);
   }
 
   // Atualiza um registro de Email pelo ID fornecido
   async updateEmail(
     emailId: number,
-    email: DeepPartial<EmailEntity>,
-  ): Promise<EmailEntity> {
+    emails: DeepPartial<EmailsEntity>,
+  ): Promise<EmailsEntity> {
     if (!emailId || isNaN(emailId) || emailId <= 0) {
       throw new Error('Invalid emailId');
     }
 
-    await this.repo.update(emailId, email);
+    await this.repo.update(emailId, emails);
     const updatedEmail = await this.findEmailById(emailId);
 
     if (!updatedEmail) {
@@ -44,12 +44,12 @@ export class EmailRepository {
   }
 
   // Busca todos os registros de Email com condição opcional
-  async findEmailAll(where?: FindOptionsWhere<EmailEntity>): Promise<EmailEntity[]> {
+  async findEmailAll(where?: FindOptionsWhere<EmailsEntity>): Promise<EmailsEntity[]> {
     return this.repo.find({ where });
   }
 
   // Busca um registro de Email pelo ID
-  async findEmailById(emailId: number): Promise<EmailEntity | null> {
+  async findEmailById(emailId: number): Promise<EmailsEntity | null> {
     if (!emailId || isNaN(emailId) || emailId <= 0) {
       throw new Error('Invalid emailId');
     }
@@ -58,27 +58,27 @@ export class EmailRepository {
   }
 
   // Busca todos os registros de Email pelo campo mail
-  async findEmailAllMail(mail: string): Promise<EmailEntity[]> {
+  async findEmailAllMail(mail: string): Promise<EmailsEntity[]> {
     return this.repo.find({ where: { mail } });
   }
 
   // Busca um registro de Email pelo campo mail
-  async findEmailByMail(mail: string): Promise<EmailEntity | null> {
+  async findEmailByMail(mail: string): Promise<EmailsEntity | null> {
     return this.repo.findOne({ where: { mail } });
   }
 
   // Busca todos os registros de Email pelo campo mailresg
-  async findEmailAllMailresg(mailresg: string): Promise<EmailEntity[]> {
+  async findEmailAllMailresg(mailresg: string): Promise<EmailsEntity[]> {
     return this.repo.find({ where: { mailresg } });
   }
 
   // Busca um registro de Email pelo campo mailresg
-  async findEmailByMailresg(mailresg: string): Promise<EmailEntity | null> {
+  async findEmailByMailresg(mailresg: string): Promise<EmailsEntity | null> {
     return this.repo.findOne({ where: { mailresg } });
   }
 
   // Busca todos os registros de Email pelo campo id_cadastro
-  async findEmailByCadastroId(cadastroId: number): Promise<EmailEntity[]> {
+  async findEmailByCadastroId(cadastroId: number): Promise<EmailsEntity[]> {
     if (!cadastroId || isNaN(cadastroId) || cadastroId <= 0) {
       throw new Error('Invalid cadastroId');
     }

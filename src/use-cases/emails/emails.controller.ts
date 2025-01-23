@@ -1,35 +1,35 @@
 
   import { NextFunction, Request, Response } from 'express';
-  import { EmailRepository } from './email.repository';
-  import { EmailCreate, EmailUpdate } from './email.dto';
+  import { EmailsRepository } from './emails.repository';
+  import { EmailsCreate, EmailsUpdate } from './emails.dto';
   
-  export class EmailController {
-    constructor(private readonly emailRepository: EmailRepository) {}
+  export class EmailsController {
+    constructor(private readonly emailsRepository: EmailsRepository) {}
   
     /** POST Cria Tabela Email */
     async create(
-      req: Request<{}, {}, EmailCreate>,
+      req: Request<{}, {}, EmailsCreate>,
       res: Response,
       next: NextFunction
     ) {
       try {
-        const email = await this.emailRepository.createEmail(req.body);
-        return res.status(201).send({ success: true, email });
+        const emails = await this.emailsRepository.createEmails(req.body);
+        return res.status(201).send({ success: true, emails });
       } catch (error) {
         next(error);
       }
     }
   
-    /** PATCH Atualiza um registro de Email */
+    /** PATCH Atualiza um registro de Emails */
     async update(
-      req: Request<{ mailId: string }, {}, Partial<EmailUpdate>>,
+      req: Request<{ mailId: string }, {}, Partial<EmailsUpdate>>,
       res: Response,
       next: NextFunction
     ) {
       try {
         const mailId = Number(req.params.mailId);
-        const email = await this.emailRepository.updateEmail(mailId, req.body);
-        return res.status(200).send({ success: true, email });
+        const emails = await this.emailsRepository.updateEmail(mailId, req.body);
+        return res.status(200).send({ success: true, emails });
       } catch (error) {
         next(error);
       }
@@ -43,7 +43,7 @@
     ) {
       try {
         const mailId = Number(req.params.mailId);
-        await this.emailRepository.deleteEmail(mailId);
+        await this.emailsRepository.deleteEmail(mailId);
         return res.status(200).send({ success: true });
       } catch (error) {
         next(error);
@@ -57,7 +57,7 @@
       next: NextFunction
     ) {
       try {
-        const emails = await this.emailRepository.findEmailAll();
+        const emails = await this.emailsRepository.findEmailAll();
         return res.status(200).send({ success: true, emails });
       } catch (error) {
         next(error);
@@ -72,8 +72,8 @@
     ) {
       try {
         const mailId = Number(req.params.mailId);
-        const email = await this.emailRepository.findEmailById(mailId);
-        return res.status(200).send({ success: true, email });
+        const emails = await this.emailsRepository.findEmailById(mailId);
+        return res.status(200).send({ success: true, emails });
       } catch (error) {
         next(error);
       }
@@ -90,7 +90,7 @@
         if (!mail) {
           return res.status(400).send({ success: false, message: 'mail parameter is required' });
         }
-        const emails = await this.emailRepository.findEmailAllMail(mail);
+        const emails = await this.emailsRepository.findEmailAllMail(mail);
         return res.status(200).send({ success: true, emails });
       } catch (error) {
         next(error);
@@ -108,8 +108,8 @@
         if (!mail) {
           return res.status(400).send({ success: false, message: 'mail parameter is required' });
         }
-        const email = await this.emailRepository.findEmailByMail(mail);
-        return res.status(200).send({ success: true, email });
+        const emails = await this.emailsRepository.findEmailByMail(mail);
+        return res.status(200).send({ success: true, emails });
       } catch (error) {
         next(error);
       }
@@ -126,7 +126,7 @@
         if (!mailresg) {
           return res.status(400).send({ success: false, message: 'mailresg parameter is required' });
         }
-        const emails = await this.emailRepository.findEmailAllMailresg(mailresg);
+        const emails = await this.emailsRepository.findEmailAllMailresg(mailresg);
         return res.status(200).send({ success: true, emails });
       } catch (error) {
         next(error);
@@ -144,8 +144,8 @@
         if (!mailresg) {
           return res.status(400).send({ success: false, message: 'mailresg parameter is required' });
         }
-        const email = await this.emailRepository.findEmailByMailresg(mailresg);
-        return res.status(200).send({ success: true, email });
+        const emails = await this.emailsRepository.findEmailByMailresg(mailresg);
+        return res.status(200).send({ success: true, emails });
       } catch (error) {
         next(error);
       }
@@ -159,7 +159,7 @@
     ) {
       try {
         const cadastroId = Number(req.params.cadastroId);
-        const emails = await this.emailRepository.findEmailByCadastroId(cadastroId);
+        const emails = await this.emailsRepository.findEmailByCadastroId(cadastroId);
         return res.status(200).send({ success: true, emails });
       } catch (error) {
         next(error);
