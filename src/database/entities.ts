@@ -1,4 +1,4 @@
-import { UserEntity } from '../use-cases/user/user.entity';
+import { UserEntity } from '../use-cases/users/users.entity';
 
 import { PessoaEntity } from '../use-cases/pessoa/pessoa.entity';
 

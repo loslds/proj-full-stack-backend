@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { UserRepository } from './user.repository';
-import { UserCreate, UserUpdate } from './user.dto';
+import { UserCreate, UserUpdate } from './users.dto';
 
 export class UserController {
   constructor(private readonly userRepository: UserRepository) {}

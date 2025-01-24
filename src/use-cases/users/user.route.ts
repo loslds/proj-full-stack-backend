@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { UserController } from './user.controller';
 import { UserRepository } from './user.repository';
 import { dataSource } from '../../database/dataSource';
-import { createValidation, updateValidation } from './user.validation';
+import { createValidation, updateValidation } from './users.validation';
 
 const userRepository = new UserRepository(dataSource);
 const controller = new UserController(userRepository);

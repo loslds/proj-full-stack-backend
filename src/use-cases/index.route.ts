@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { userRoute } from './user/user.route';
+import { userRoute } from './users/user.route';
 
 import { pessoaRoute } from './pessoa/pessoa.route';
 
