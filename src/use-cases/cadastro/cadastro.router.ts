@@ -31,8 +31,6 @@ cadastroRoute.get('/consumidor/:consumidorId', (req, res, next) => controller.fi
 cadastroRoute.get('/fornecedor/:fornecedorId', (req, res, next) => controller.findAllFornecedorId(req, res, next));
 cadastroRoute.get('/cliente/:clienteId', (req, res, next) => controller.findAllClienteId(req, res, next));
 cadastroRoute.get('/funcionario/:funcionarioId', (req, res, next) => controller.findAllFuncionarioId(req, res, next));
-cadastroRoute.get('/cidades/:cidadesId', (req, res, next) => controller.findAllCidadesId(req, res, next));
-cadastroRoute.get('/respostas/:respostasId', (req, res, next) => controller.findAllRespostasId(req, res, next));
 
 export { cadastroRoute, cadastroRepository };
 

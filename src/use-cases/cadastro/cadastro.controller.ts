@@ -416,47 +416,4 @@ export class CadastroController {
     }
   }
 
-
-  /** GET Busca todos registros de Cadastro com id_cidades */
-  async findAllCidadesId(
-    req: Request<{ cidadesId: string } >,
-    res: Response,
-    next: NextFunction
-  ) {
-    const cidadesId =  Number(req.params.cidadesId);
-    if (isNaN(cidadesId) || cidadesId <= 0) {
-      return res
-      .status(400)
-      .send({ success: false, message: 'Invalid cidadesId' })
-      .end();
-    }
-    try {
-      const cadastros = await this.cadastroRepository.findCadastroAllCidadesId(cidadesId);
-      return res.status(200).send({ success: true, cadastros });
-    } catch (error) {
-      next(error);
-    }
-  }
-  
-  /** GET Busca todos registros de Cadastro com id_cidades */
-  async findAllRespostasId(
-    req: Request<{ respostasId: string } >,
-    res: Response,
-    next: NextFunction
-  ) {
-    const respostasId =  Number(req.params.respostasId);
-    if (isNaN(respostasId) || respostasId <= 0) {
-      return res
-      .status(400)
-      .send({ success: false, message: 'Invalid respostasId' })
-      .end();
-    }
-    try {
-      const cadastros = await this.cadastroRepository.findCadastroAllRespostasId(respostasId);
-      return res.status(200).send({ success: true, cadastros });
-    } catch (error) {
-      next(error);
-    }
-  }
-
 }

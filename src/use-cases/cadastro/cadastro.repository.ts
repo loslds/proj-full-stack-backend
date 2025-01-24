@@ -1,7 +1,7 @@
 
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { CadastroEntity } from './cadastro.entity';
-import { CidadesEntity } from '../cidade/cidades.entity';
+import { CidadesEntity } from '../cidades/cidades.entity';
 
 export class CadastroRepository {
   private repo: Repository<CadastroEntity>;
@@ -90,13 +90,6 @@ export class CadastroRepository {
   async findCadastroAllFuncionarioId(funcionarioId: number): Promise<CadastroEntity[]> {
     return this.repo.find({ where: { funcionario: { id: funcionarioId } } });
   }
-  // lista todos reg. em tabela Cadastro atraves de mesmo Cidades
-  async findCadastroAllCidadesId(cidadesId: number): Promise<CadastroEntity[]> {
-    return this.repo.find({ where: { cidades: { id: cidadesId } } });
-  }
-  // lista todos reg. em tabela Cadastro atraves de mesmo Cidades
-  async findCadastroAllRespostasId(respostasId: number): Promise<CadastroEntity[]> {
-    return this.repo.find({ where: { respostas: { id: respostasId } } });
-  }
+  
 }
 

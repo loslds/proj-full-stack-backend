@@ -22,20 +22,41 @@ export class PessoaRepository {
   async deletePessoa(pessoaId: number) {
     return this.repo.delete(pessoaId);
   }
-
-  async findPessoaAll(where?: FindOptionsWhere<PessoaEntity>): Promise<PessoaEntity[]> {
+  
+  /////////////////////////////////
+  
+  // Busca todos os registros de Pessoa com condição opcional
+  async findPessoalAll(where?: FindOptionsWhere<PessoaEntity>): Promise<PessoaEntity[]> {
     return this.repo.find({ where });
   }
 
-  async findPessoaById(pessoaId: number) {
+  // Busca um registro de Pessoa pelo ID
+  async findPessoaById(pessoaId: number): Promise<PessoaEntity | null> {
+    if (!pessoaId || isNaN(pessoaId) || pessoaId <= 0) {
+      throw new Error('Invalid pessoaId');
+    }
     return this.repo.findOne({ where: { id: pessoaId } });
   }
 
-  async findPessoaByNmPessoa(nmpessoa: string) {
+
+  // Busca todos os registros de Pessoa pelo campo nmpessoa
+  async findPessoaAllNmpessoa(nmpessoa: string): Promise<PessoaEntity[]> {
+    return this.repo.find({ where: { nmpessoa } });
+  }
+  
+  // Busca um registro de Pessoa pelo campo nmpessoa
+  async findPessoaByNmpessoa(nmpessoa: string): Promise<PessoaEntity | null> {
     return this.repo.findOne({ where: { nmpessoa } });
   }
 
-  async findPessoaBySigla(sigla: string) {
+  // Busca todos os registros de Pessoa pelo campo sigla
+  async findPessoaAllSigla(sigla: string): Promise<PessoaEntity[]> {
+    return this.repo.find({ where: { sigla } });
+  }
+  
+  // Busca um registro de Pessoa pelo campo sigla
+  async findPessoaBySigla(sigla: string): Promise<PessoaEntity | null> {
     return this.repo.findOne({ where: { sigla } });
   }
 }
+
