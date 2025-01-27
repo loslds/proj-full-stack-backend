@@ -14,5 +14,5 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false
   },
-  "include": ["src/**/*.ts", "src/use-cases/users/user.route.ts"] // Incluir todos os arquivos .ts da pasta src
+  "include": ["src/**/*.ts", "src/use-cases/users/users.route.ts"] // Incluir todos os arquivos .ts da pasta src
 }

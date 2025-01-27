@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
-import { PessoaEntity } from '../pessoa/pessoa.entity';
-import { EmpresaEntity } from '../empresa/empresa.entity';
+import { PessoaEntity } from '../pessoas/pessoas.entity';
+import { EmpresaEntity } from '../empresas/empresas.entity';
 
 @Entity('consumidor')
 export class ConsumidorEntity {

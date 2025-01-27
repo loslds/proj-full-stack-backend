@@ -1,2 +1,2 @@
-export { userRepository, userRoute } from './user.route';
-export type { UserRepository } from './user.repository';
+export { usersRepository, usersRoute } from './users.route';
+export type { UsersRepository } from './users.repository';

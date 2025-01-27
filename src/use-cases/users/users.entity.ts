@@ -1,6 +1,6 @@
 
 import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { CadastroEntity } from '../cadastro/cadastro.entity';
+import { CadastroEntity } from '../cadastros/cadastros.entity';
 
 @Entity('users')
 export class UsersEntity {
@@ -15,8 +15,8 @@ export class UsersEntity {
   @Column({ type: 'int', nullable: false })
   id_cadastro: number;
 
-  // Define se o usuário está bloqueado (0 = não, 1 = sim)
-  @Column({ type: 'tinyint', nullable: false, default: 0 })
+  // Define se o usuário está bloqueado 
+  @Column({ type: 'int', nullable: false, default: 0 })
   bloqueado: number;
 
   // Contagem de acessos
@@ -24,11 +24,19 @@ export class UsersEntity {
   qdd_acesso: number;
 
   // Último acesso (como data e hora)
-  @Column({ type: 'timestamp', nullable: false })
-  ultimo_acesso: Date;
+  @Column({ 
+    type: 'timestamp',
+    precision: null,
+    nullable: false,
+  })
+  ult_acesso: Date;
 
   // Data e hora do login
-  @Column({ type: 'timestamp', nullable: false })
+  @Column({ 
+    type: 'timestamp',
+    precision: null,
+    nullable: false,
+  })
   data_login: Date;
 
   // Data e hora do logout

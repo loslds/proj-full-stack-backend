@@ -37,7 +37,7 @@ export class FonesRepository {
   // Deleta um registro de Fones pelo ID
   async deleteFones(fonesId: number): Promise<void> {
     if (!fonesId || isNaN(fonesId) || fonesId <= 0) {
-      throw new Error('Invalid docsIdId');
+      throw new Error('Invalid fonesIdId');
     }
     await this.repo.delete(fonesId);
   }
@@ -50,7 +50,7 @@ export class FonesRepository {
   // Busca um registro de Fones pelo ID
   async findFonesById(fonesId: number): Promise<FonesEntity | null> {
     if (!fonesId || isNaN(fonesId) || fonesId <= 0) {
-      throw new Error('Invalid docsId');
+      throw new Error('Invalid fonesId');
     }
     return this.repo.findOne({ where: { id: fonesId } });
   }

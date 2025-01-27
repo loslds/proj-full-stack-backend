@@ -1,18 +1,22 @@
 import { Router } from 'express';
 
-import { userRoute } from './users/user.route';
+import { pessoasRoute } from './pessoas/pessoas.route';
+import { empresasRoute } from './empresas/empresas.route';
 
-import { pessoaRoute } from './pessoa/pessoa.route';
+
+import { usersRoute } from './users/users.route';
+
+
 
 import { moduloRoute } from './modulo/modulo.route';
 
 const indexRoute = Router();
 
-indexRoute.use('/user', userRoute);
+indexRoute.use('/pessoas', pessoasRoute);
+indexRoute.use('/empresas', empresasRoute);
 
-indexRoute.use('/pessoa', pessoaRoute);
 
+indexRoute.use('/users', usersRoute);
 indexRoute.use('/modulo', moduloRoute);
-
 
 export { indexRoute };

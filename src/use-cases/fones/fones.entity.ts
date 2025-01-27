@@ -1,6 +1,6 @@
 
 import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { CadastroEntity } from '../cadastro/cadastro.entity';
+import { CadastroEntity } from '../cadastros/cadastros.entity';
 
 @Entity('fones')
 
