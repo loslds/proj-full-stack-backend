@@ -1,10 +1,11 @@
+
 import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { PessoasEntity } from '../pessoas/pessoas.entity';
 import { EmpresasEntity } from '../empresas/empresas.entity';
-import { FornecedorEntity } from '../fornecedor/fornecedor.entity';
-import { ConsumidorEntity } from '../consumidor/consumidor.entity';
+import { FornecedoresEntity } from '../fornecedores/fornecedores.entity';
+import { ConsumidoresEntity } from '../consumidores/consumidores.entity';
 import { ClientesEntity } from '../clientes/clientes.entity';
-import { FuncionarioEntity } from '../funcionario/funcionario.entity';
+import { FuncionariosEntity } from '../funcionarios/funcionarios.entity';
 
 @Entity('cadastros')
 export class CadastrosEntity {
@@ -13,27 +14,27 @@ export class CadastrosEntity {
 
   @ManyToOne(() => PessoasEntity)
   @JoinColumn({ name: 'id_pessoa' })
-  pessoa: PessoasEntity;
+  pessoas: PessoasEntity;
 
   @ManyToOne(() => EmpresasEntity)
   @JoinColumn({ name: 'id_empresa' })
-  empresa: EmpresasEntity;
+  empresas: EmpresasEntity;
 
-  @ManyToOne(() => FornecedorEntity)
+  @ManyToOne(() => FornecedoresEntity)
   @JoinColumn({ name: 'id_fornecedor' })
-  fornecedor: FornecedorEntity;
+  fornecedores: FornecedoresEntity;
 
-  @ManyToOne(() => ConsumidorEntity)
+  @ManyToOne(() => ConsumidoresEntity)
   @JoinColumn({ name: 'id_consumidor' })
-  consumidor: ConsumidorEntity;
+  consumidores: ConsumidoresEntity;
 
   @ManyToOne(() => ClientesEntity)
   @JoinColumn({ name: 'id_cliente' })
-  cliente: ClientesEntity;
+  clientes: ClientesEntity;
 
-  @ManyToOne(() => FuncionarioEntity)
+  @ManyToOne(() => FuncionariosEntity)
   @JoinColumn({ name: 'id_funcionario' })
-  funcionario: FuncionarioEntity;
+  funcionarios: FuncionariosEntity;
 
   
   @Column({ type: 'varchar', length: 200, nullable: true })

@@ -1,6 +1,6 @@
 
 import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { CadastroEntity } from '../cadastros/cadastros.entity';
+import { CadastrosEntity } from '../cadastros/cadastros.entity';
 
 @Entity('docs')
 
@@ -9,12 +9,12 @@ export class DocsEntity {
   id: number;
 
   // Relacionamento com a entidade CadastroEntity
-  @ManyToOne(() => CadastroEntity)
+  @ManyToOne(() => CadastrosEntity)
   @JoinColumn({ name: 'id_cadastro' })
-  cadastro: CadastroEntity;
+  cadastros: CadastrosEntity;
   
   @Column({ type: 'int', nullable: false })
-  id_cadastro: number;
+  id_cadastros: number;
 
   ///////////////////////////////////
   

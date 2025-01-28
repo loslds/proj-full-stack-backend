@@ -107,11 +107,11 @@ export class DocsRepository {
   }
   
   // Busca todos os registros de Docs pelo campo id_cadastro
-  async findDocsByCadastroId(cadastroId: number): Promise<DocsEntity[]> {
-    if (!cadastroId || isNaN(cadastroId) || cadastroId <= 0) {
+  async findDocsByCadastrosId(cadastrosId: number): Promise<DocsEntity[]> {
+    if (!cadastrosId || isNaN(cadastrosId) || cadastrosId <= 0) {
       throw new Error('Invalid cadastroId');
     }
 
-    return this.repo.find({ where: { id_cadastro: cadastroId } });
+    return this.repo.find({ where: { id_cadastros: cadastrosId } });
   }
 }

@@ -23,9 +23,9 @@ fonesRoute.get('/by-fonex', (req: Request<{}, {}, {}, { fonex: string }>, res: R
 // Rota para buscar em fones todos reg. fonex (plural)
 fonesRoute.get('/by-fonexs', (req: Request<{}, {}, {}, { fonex: string }>, res: Response, next: NextFunction) => controller.findAllFonex(req, res, next));
 
-// Rota para buscar documento por cadastroId
-fonesRoute.get('/fones/by-cadastro/:cadastroId', (req: Request<{ cadastroId: string }>, res: Response, next: NextFunction) => 
-  controller.findByCadastroId(req, res, next)
+// Rota para buscar fones por cadastrosId
+fonesRoute.get('/fones/by-cadastros/:cadastrosId', (req: Request<{ cadastrosId: string }>, res: Response, next: NextFunction) => 
+  controller.findByCadastrosId(req, res, next)
 );
 
 export { fonesRoute, fonesRepository };

@@ -57,11 +57,11 @@ export class CidadesRepository {
       return this.repo.find({ where: { uf } });
     }
   // Busca todos os registros de Cidades pelo campo id_cadastro
-  async findCidadesByCadastroId(cadastroId: number): Promise<CidadesEntity[]> {
-    if (!cadastroId || isNaN(cadastroId) || cadastroId <= 0) {
+  async findCidadesByCadastrosId(cadastrosId: number): Promise<CidadesEntity[]> {
+    if (!cadastrosId || isNaN(cadastrosId) || cadastrosId <= 0) {
       throw new Error('Invalid cadastroId');
     }
 
-    return this.repo.find({ where: { id_cadastro: cadastroId } });
+    return this.repo.find({ where: { id_cadastros: cadastrosId } });
   }
 }

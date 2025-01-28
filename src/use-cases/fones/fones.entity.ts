@@ -1,6 +1,6 @@
 
 import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { CadastroEntity } from '../cadastros/cadastros.entity';
+import { CadastrosEntity } from '../cadastros/cadastros.entity';
 
 @Entity('fones')
 
@@ -8,13 +8,13 @@ export class FonesEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-  // Relacionamento com a entidade CadastroEntity
-  @ManyToOne(() => CadastroEntity)
+  // Relacionamento com a entidade CadastrosEntity
+  @ManyToOne(() => CadastrosEntity)
   @JoinColumn({ name: 'id_cadastro' })
-  cadastro: CadastroEntity;
+  cadastros: CadastrosEntity;
   
   @Column({ type: 'int', nullable: false })
-  id_cadastro: number;
+  id_cadastros: number;
 
   ///////////////////////////////////
   

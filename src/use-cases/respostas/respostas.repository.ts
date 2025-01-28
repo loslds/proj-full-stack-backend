@@ -62,13 +62,13 @@ export class RespostasRepository {
   }
   
   
-  // Busca todos os registros de Docs pelo campo id_cadastro
-    async findRespostasByCadastroId(cadastroId: number): Promise<RespostasEntity[]> {
-      if (!cadastroId || isNaN(cadastroId) || cadastroId <= 0) {
-        throw new Error('Invalid cadastroId');
+  // Busca todos os registros de Respostas pelo campo id_cadastro
+    async findRespostasByCadastrosId(cadastrosId: number): Promise<RespostasEntity[]> {
+      if (!cadastrosId || isNaN(cadastrosId) || cadastrosId <= 0) {
+        throw new Error('Invalid cadastrosId');
       }
   
-      return this.repo.find({ where: { id_cadastro: cadastroId } });
+      return this.repo.find({ where: { id_cadastros: cadastrosId } });
     }
 
 }

@@ -1,108 +1,108 @@
 
 import { NextFunction, Request, Response } from 'express';
-import { CadastroRepository } from './cadastro.repository';
-import { CadastroCreate, CadastroUpdate } from './cadastro.dto';
-import { CadastroEntity } from './cadastros.entity';
+import { CadastrosRepository } from './cadastros.repository';
+import { CadastrosCreate, CadastrosUpdate } from './cadastros.dto';
+import { CadastrosEntity } from './cadastros.entity';
 import { DeepPartial } from 'typeorm';
 
-export class CadastroController {
-  constructor(private readonly cadastroRepository: CadastroRepository) {}
+export class CadastrosController {
+  constructor(private readonly cadastrosRepository: CadastrosRepository) {}
 
   /** POST Cria um novo registro de Cadastro */
   async create(
-    req: Request<{}, {}, CadastroCreate>,
+    req: Request<{}, {}, CadastrosCreate>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const cadastro = await this.cadastroRepository.createCadastro(req.body);
-      return res.status(201).send({ success: true, cadastro });
+      const cadastros = await this.cadastrosRepository.createCadastros(req.body);
+      return res.status(201).send({ success: true, cadastros });
     } catch (error) {
       next(error);
     }
   }
 
-  /** PATCH Atualiza um registro de Cadastro */
+  /** PATCH Atualiza um registro de Cadastros */
   async update(
-    req: Request<{ cadastroId: string }, {}, CadastroUpdate>,
+    req: Request<{ cadastrosId: string }, {}, CadastrosUpdate>,
     res: Response,
     next: NextFunction
   ) {
-    const cadastroId = Number(req.params.cadastroId);
-    if (isNaN(cadastroId) || cadastroId <= 0) {
+    const cadastrosId = Number(req.params.cadastrosId);
+    if (isNaN(cadastrosId) || cadastrosId <= 0) {
       return res
         .status(400)
-        .send({ success: false, message: 'Invalid cadastroId' })
+        .send({ success: false, message: 'Invalid cadastrosId' })
         .end();
     }
 
     try {
-      const cadastro = await this.cadastroRepository.updateCadastro(
-        cadastroId,
-        req.body as DeepPartial<CadastroEntity>
+      const cadastros = await this.cadastrosRepository.updateCadastros(
+        cadastrosId,
+        req.body as DeepPartial<CadastrosEntity>
       );
-      return res.status(200).send({ success: true, cadastro });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** DELETE Remove um registro de Cadastro */
-  async remove(
-    req: Request<{ cadastroId: string }>,
-    res: Response,
-    next: NextFunction
-  ) {
-    const cadastroId = Number(req.params.cadastroId);
-    if (isNaN(cadastroId) || cadastroId <= 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid cadastroId' })
-        .end();
-    }
-
-    try {
-      await this.cadastroRepository.deleteCadastro(cadastroId);
-      return res.status(200).send({ success: true });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** GET Busca todos os registros de Cadastro */
-  async findAll(req: Request, res: Response, next: NextFunction) {
-    try {
-      const cadastros = await this.cadastroRepository.findCadastroAll();
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registro de Cadastro por ID */
-  async getOne(
-    req: Request<{ cadastroId: string }>,
+  /** DELETE Remove um registro de Cadastros */
+  async remove(
+    req: Request<{ cadastrosId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const cadastroId = Number(req.params.cadastroId);
-
-    if (isNaN(cadastroId) || cadastroId <= 0) {
+    const cadastrosId = Number(req.params.cadastrosId);
+    if (isNaN(cadastrosId) || cadastrosId <= 0) {
       return res
         .status(400)
-        .send({ success: false, message: 'Invalid cadastroId' })
+        .send({ success: false, message: 'Invalid cadastrosId' })
         .end();
     }
 
     try {
-      const cadastro = await this.cadastroRepository.findCadastroById(cadastroId);
-      return res.status(200).send({ success: true, cadastro });
+      await this.cadastrosRepository.deleteCadastros(cadastrosId);
+      return res.status(200).send({ success: true });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca todos os registros de Cadastros */
+  async findAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const cadastros = await this.cadastrosRepository.findCadastrosAll();
+      return res.status(200).send({ success: true, cadastros });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca um registro de Cadastros por ID */
+  async getOne(
+    req: Request<{ cadastrosId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const cadastrosId = Number(req.params.cadastrosId);
+
+    if (isNaN(cadastrosId) || cadastrosId <= 0) {
+      return res
+        .status(400)
+        .send({ success: false, message: 'Invalid cadastrosId' })
+        .end();
+    }
+
+    try {
+      const cadastros = await this.cadastrosRepository.findCadastrosById(cadastrosId);
+      return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
     }
   }
  
-  /** GET Busca um registros de Cadastro por endereço */
+  /** GET Busca um registros de Cadastros por endereco */
   async findByEndereco(
     req: Request<{}, {}, {}, { endereco: string }>, 
     res: Response, 
@@ -118,14 +118,14 @@ export class CadastroController {
     }
 
     try {
-      const cadastro = await this.cadastroRepository.findCadastroByEndereco(endereco);
-      return res.status(200).send({ success: true, cadastro });
+      const cadastros = await this.cadastrosRepository.findCadastrosByEndereco(endereco);
+      return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca todos registros de Cadastro por endereço */
+  /** GET Busca todos registros de Cadastros por endereco */
   async findAllEndereco(
     req: Request<{}, {}, {}, { endereco: string }>, 
     res: Response, 
@@ -141,14 +141,14 @@ export class CadastroController {
     }
 
     try {
-      const cadastros = await this.cadastroRepository.findCadastroByAllEndereco(endereco);
+      const cadastros = await this.cadastrosRepository.findCadastrosByAllEndereco(endereco);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registros de Cadastro por endereço */
+  /** GET Busca um registros de Cadastros por complemento */
   async findByCompl(
     req: Request<{}, {}, {}, { complemento: string }>, 
     res: Response, 
@@ -164,14 +164,14 @@ export class CadastroController {
     }
 
     try {
-      const cadastro = await this.cadastroRepository.findCadastroByCompl(complemento);
-      return res.status(200).send({ success: true, cadastro });
+      const cadastros = await this.cadastrosRepository.findCadastrosByCompl(complemento);
+      return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca todos registros de Cadastro por endereço */
+  /** GET Busca todos registros de Cadastro por complemento */
   async findAllCompl(
     req: Request<{}, {}, {}, { complemento: string }>, 
     res: Response, 
@@ -187,14 +187,14 @@ export class CadastroController {
     }
 
     try {
-      const cadastros = await this.cadastroRepository.findCadastroByAllCompl(complemento);
+      const cadastros = await this.cadastrosRepository.findCadastrosByAllCompl(complemento);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registros de Cadastro por Bairro */  
+  /** GET Busca um registros de Cadastros por bairro */  
   async findByBairro(
     req: Request<{}, {}, {}, { bairro: string }>, 
     res: Response, 
@@ -210,14 +210,14 @@ export class CadastroController {
     }
 
     try {
-      const cadastro = await this.cadastroRepository.findCadastroByBairro(bairro);
-      return res.status(200).send({ success: true, cadastro });
+      const cadastros = await this.cadastrosRepository.findCadastrosByBairro(bairro);
+      return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registros de Cadastro por Bairro */  
+  /** GET Busca um registros de Cadastro por bairro */  
   async findAllBairro(
     req: Request<{}, {}, {}, { bairro: string }>, 
     res: Response, 
@@ -233,7 +233,7 @@ export class CadastroController {
     }
 
     try {
-      const cadastros = await this.cadastroRepository.findCadastroAllBairro(bairro);
+      const cadastros = await this.cadastrosRepository.findCadastrosAllBairro(bairro);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
@@ -256,8 +256,8 @@ export class CadastroController {
     }
 
     try {
-      const cadastro = await this.cadastroRepository.findCadastroByCep(cep);
-      return res.status(200).send({ success: true, cadastro });
+      const cadastros = await this.cadastrosRepository.findCadastrosByCep(cep);
+      return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
     }
@@ -280,7 +280,7 @@ export class CadastroController {
     }
 
     try {
-      const cadastros = await this.cadastroRepository.findCadastroAllCep(cep);
+      const cadastros = await this.cadastrosRepository.findCadastrosAllCep(cep);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
@@ -302,7 +302,7 @@ export class CadastroController {
     }
 
     try {
-      const cadastros = await this.cadastroRepository.findCadastroAllPessoaId(pessoaId);
+      const cadastros = await this.cadastrosRepository.findCadastrosAllPessoaId(pessoaId);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
@@ -324,7 +324,7 @@ export class CadastroController {
     }
 
     try {
-      const cadastros = await this.cadastroRepository.findCadastroAllEmpresaId(empresaId);
+      const cadastros = await this.cadastrosRepository.findCadastrosAllEmpresaId(empresaId);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
@@ -346,14 +346,14 @@ export class CadastroController {
     }
 
     try {
-      const cadastros = await this.cadastroRepository.findCadastroAllFornecedorId(fornecedorId);
+      const cadastros = await this.cadastrosRepository.findCadastrosAllFornecedorId(fornecedorId);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
     }
   }
   
-  /** GET Busca todos registros de Cadastro com id_consumidor */
+  /** GET Busca todos registros de Cadastros com id_consumidor */
   async findAllConsumidorId(
     req: Request<{ consumidorId: string } >,
     res: Response,
@@ -367,7 +367,7 @@ export class CadastroController {
       .end();
     }
     try {
-      const cadastros = await this.cadastroRepository.findCadastroAllConsumidorId(consumidorId);
+      const cadastros = await this.cadastrosRepository.findCadastrosAllConsumidorId(consumidorId);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
@@ -388,7 +388,7 @@ export class CadastroController {
       .end();
     }
     try {
-      const cadastros = await this.cadastroRepository.findCadastroAllClienteId(clienteId);
+      const cadastros = await this.cadastrosRepository.findCadastrosAllClienteId(clienteId);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);
@@ -409,7 +409,7 @@ export class CadastroController {
       .end();
     }
     try {
-      const cadastros = await this.cadastroRepository.findCadastroAllFuncionarioId(funcionarioId);
+      const cadastros = await this.cadastrosRepository.findCadastrosAllFuncionarioId(funcionarioId);
       return res.status(200).send({ success: true, cadastros });
     } catch (error) {
       next(error);

@@ -185,15 +185,15 @@ export class FonesController {
     }
   }
   
-  /** GET Lista todos os registros de FfonexEmail por cadastroId */
-  async findByCadastroId(
-    req: Request<{ cadastroId: string }>,
+  /** GET Lista todos os registros de Fones por cadastrosId */
+  async findByCadastrosId(
+    req: Request<{ cadastrosId: string }>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const cadastroId = Number(req.params.cadastroId);
-      const fones = await this.fonesRepository.findFonesByCadastroId(cadastroId);
+      const cadastrosId = Number(req.params.cadastrosId);
+      const fones = await this.fonesRepository.findFonesByCadastrosId(cadastrosId);
       return res.status(200).send({ success: true, fones });
     } catch (error) {
       next(error);

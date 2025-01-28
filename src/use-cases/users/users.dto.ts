@@ -7,7 +7,7 @@ export const usersCreateSchema = z.object({
   ult_acesso: z.string().datetime(), // String no formato ISO 8601 (data e hora)
   data_login: z.string().datetime(), // String no formato ISO 8601 (data e hora)
   data_logout: z.string().datetime().optional(), // Opcional (string no formato ISO 8601)
-  id_cadastro: z.number().int().positive(), // Número inteiro positivo
+  id_cadastros: z.number().int().positive(), // Número inteiro positivo
 });
 
 // Schema para atualização de usuários
@@ -17,7 +17,7 @@ export const usersUpdateSchema = z.object({
   ult_acesso: z.string().datetime().optional(), // Opcional
   data_login: z.string().datetime().optional(), // Opcional
   data_logout: z.string().datetime().optional(), // Opcional
-  id_cadastro: z.number().int().positive(), // Número inteiro positivo obrigatório
+  id_cadastros: z.number().int().positive(), // Número inteiro positivo obrigatório
 });
 
 // Tipos inferidos a partir dos schemas

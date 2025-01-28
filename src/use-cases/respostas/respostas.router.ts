@@ -25,7 +25,7 @@ controller.findByResp2(req, res, next));
 respostasRoute.get('/by-resp3', (req: Request<{}, {}, {}, { resp3: string }>, res: Response, next: NextFunction) => controller.findByResp3(req, res, next));
 
 // Rota para buscar respostas por cadastroId
-respostasRoute.get('/respostas/by-cadastro/:cadastroId', (req: Request<{ cadastroId: string }>, res: Response, next: NextFunction) => 
+respostasRoute.get('/respostas/by-cadastros/:cadastrosId', (req: Request<{ cadastrosId: string }>, res: Response, next: NextFunction) => 
 controller.findByCadastroId(req, res, next)
 );
 

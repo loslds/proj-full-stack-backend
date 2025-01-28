@@ -20,8 +20,8 @@ cidadesRoute.get('/by-nmestado', (req: Request<{}, {}, {}, { nmestado: string }>
 cidadesRoute.get('/by-nmestados', (req: Request<{}, {}, {}, { nmestado: string }>, res: Response, next: NextFunction) => controller.findAllNmEstado(req, res, next));
 cidadesRoute.get('/by-uf', (req: Request<{}, {}, {}, { uf: string }>, res: Response, next: NextFunction) => controller.findAllUf(req, res, next));
 // Rota para buscar documento por cadastroId
-cidadesRoute.get('/cidades/by-cadastro/:cadastroId', (req: Request<{ cadastroId: string }>, res: Response, next: NextFunction) => 
-  controller.findByCadastroId(req, res, next)
+cidadesRoute.get('/cidades/by-cadastros/:cadastrosId', (req: Request<{ cadastrosId: string }>, res: Response, next: NextFunction) => 
+  controller.findByCadastrosId(req, res, next)
 );
 
 export { cidadesRoute, cidadesRepository };

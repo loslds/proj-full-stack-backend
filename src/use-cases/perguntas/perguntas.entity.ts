@@ -7,7 +7,7 @@ export class PerguntasEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
     id: number; // O campo 'id' será autoincremento
 
-  ///////////////////
+    ///////////////////
   @Column({ unique: true, type: 'varchar', length: 100, nullable: false })
   descrperg: string;
 

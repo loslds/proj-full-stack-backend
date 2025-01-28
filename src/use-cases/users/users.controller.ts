@@ -263,14 +263,14 @@ export class UsersController {
 
 
   /** GET Lista todos os registros de Users por cadastroId */
-  async findByCadastroId(
-    req: Request<{ cadastroId: string }>,
+  async findByCadastrosId(
+    req: Request<{ cadastrosId: string }>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const cadastroId = Number(req.params.cadastroId);
-      const users = await this.usersRepository.findUsersByCadastroId(cadastroId);
+      const cadastrosId = Number(req.params.cadastrosId);
+      const users = await this.usersRepository.findUsersByCadastrosId(cadastrosId);
       return res.status(200).send({ success: true, users });
     } catch (error) {
       next(error);

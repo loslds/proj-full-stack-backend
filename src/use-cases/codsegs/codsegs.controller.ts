@@ -116,14 +116,14 @@
     }
   
     /** GET Lista todos os registros de Email por cadastroId */
-    async findByCadastroId(
-      req: Request<{ cadastroId: string }>,
+    async findByCadastrosId(
+      req: Request<{ cadastrosId: string }>,
       res: Response,
       next: NextFunction
     ) {
       try {
-        const cadastroId = Number(req.params.cadastroId);
-        const codsegs = await this.codsegsRepository.findCodsegsByCadastroId(cadastroId);
+        const cadastrosId = Number(req.params.cadastrosId);
+        const codsegs = await this.codsegsRepository.findCodsegsByCadastrosId(cadastrosId);
         return res.status(200).send({ success: true, codsegs });
       } catch (error) {
         next(error);

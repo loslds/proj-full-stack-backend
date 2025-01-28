@@ -240,15 +240,15 @@ export class RespostasController {
     }
   }
  
-  /** GET Lista todos os registros de Respostas por cadastroId */
+  /** GET Lista todos os registros de Respostas por cadastrosId */
   async findByCadastroId(
-    req: Request<{ cadastroId: string }>,
+    req: Request<{ cadastrosId: string }>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const cadastroId = Number(req.params.cadastroId);
-      const respostas = await this.respostasRepository.findRespostasByCadastroId(cadastroId);
+      const cadastrosId = Number(req.params.cadastrosId);
+      const respostas = await this.respostasRepository.findRespostasByCadastrosId(cadastrosId);
       return res.status(200).send({ success: true, respostas });
     } catch (error) {
       next(error);

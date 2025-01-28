@@ -208,15 +208,15 @@ async update(
     }
   }
 
-  /** GET Lista todos os registros de Email por cadastroId */
-  async findByCadastroId(
-    req: Request<{ cadastroId: string }>,
+  /** GET Lista todos os registros de Cidades por cadastroId */
+  async findByCadastrosId(
+    req: Request<{ cadastrosId: string }>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const cadastroId = Number(req.params.cadastroId);
-      const cidades = await this.cidadesRepository.findCidadesByCadastroId(cadastroId);
+      const cadastrosId = Number(req.params.cadastrosId);
+      const cidades = await this.cidadesRepository.findCidadesByCadastrosId(cadastrosId);
       return res.status(200).send({ success: true, cidades });
     } catch (error) {
       next(error);

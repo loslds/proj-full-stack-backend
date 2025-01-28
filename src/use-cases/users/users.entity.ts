@@ -1,6 +1,6 @@
 
 import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { CadastroEntity } from '../cadastros/cadastros.entity';
+import { CadastrosEntity } from '../cadastros/cadastros.entity';
 
 @Entity('users')
 export class UsersEntity {
@@ -8,12 +8,12 @@ export class UsersEntity {
   id: number;
 
   // Relacionamento com a entidade CadastroEntity
-  @ManyToOne(() => CadastroEntity)
-  @JoinColumn({ name: 'id_cadastro' })
-  cadastro: CadastroEntity;
+  @ManyToOne(() => CadastrosEntity)
+  @JoinColumn({ name: 'id_cadastros' })
+  cadastro: CadastrosEntity;
 
   @Column({ type: 'int', nullable: false })
-  id_cadastro: number;
+  id_cadastros: number;
 
   // Define se o usuário está bloqueado 
   @Column({ type: 'int', nullable: false, default: 0 })

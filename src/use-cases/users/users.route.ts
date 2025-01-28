@@ -40,8 +40,8 @@ usersRoute.get('/by-data_logout', (req: Request<{}, {}, {}, { data_logout: Date 
 usersRoute.get('/by-data_logouts', (req: Request<{}, {}, {}, { data_logout: Date }>, res: Response, next: NextFunction) => controller.findAllDataLogout(req, res, next));
 
 // Rota para buscar documento por cadastroId
-usersRoute.get('/fones/by-cadastro/:cadastroId', (req: Request<{ cadastroId: string }>, res: Response, next: NextFunction) => 
-  controller.findByCadastroId(req, res, next)
+usersRoute.get('/fones/by-cadastros/:cadastrosId', (req: Request<{ cadastrosId: string }>, res: Response, next: NextFunction) => 
+  controller.findByCadastrosId(req, res, next)
 );
 
 export { usersRoute, usersRepository };

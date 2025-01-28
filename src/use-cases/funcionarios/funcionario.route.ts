@@ -1,10 +1,10 @@
 
 import { Router, RequestHandler } from 'express';
 
-import { FuncionarioController } from './funcionario.controller';
-import { FuncionarioRepository } from './funcionario.repository';
+import { FuncionarioController } from './funcionarios.controller';
+import { FuncionarioRepository } from './funcionarios.repository';
 import { dataSource } from '../../database/dataSource';
-import { createValidation, updateValidation } from './funcionario.validation';
+import { createValidation, updateValidation } from './funcionarios.validation';
 
 const funcionarioRepository = new FuncionarioRepository(dataSource);
 const controller = new FuncionarioController(funcionarioRepository);

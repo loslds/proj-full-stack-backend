@@ -1,61 +1,61 @@
 
 import type { NextFunction, Request, Response } from 'express';
 
-import type { FornecedorRepository } from './fornecedor.repository';
-import { FornecedorCreate, FornecedorUpdate } from './fornecedor.dto';
+import type { FornecedoresRepository } from './fornecedores.repository';
+import { FornecedoresCreate, FornecedoresUpdate } from './fornecedores.dto';
 
-export class FornecedorController {
-  constructor(private readonly fornecedorRepository: FornecedorRepository) {}
+export class FornecedoresController {
+  constructor(private readonly fornecedoresRepository: FornecedoresRepository) {}
   
-  /** POST Cria um novo registro de Fornecedor */
+  /** POST Cria um novo registro de Fornecedores */
   async create(
-    req: Request<{}, {}, FornecedorCreate>,
+    req: Request<{}, {}, FornecedoresCreate>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const fornecedor = await this.fornecedorRepository.createFornecedor(req.body);
-      return res.status(201).send({ success: true, fornecedor });
+      const fornecedores = await this.fornecedoresRepository.createFornecedores(req.body);
+      return res.status(201).send({ success: true, fornecedores });
     } catch (error) {
       next(error);
     }
   }
 
-  /** PATCH Atualiza um registro de Fornecedor */
+  /** PATCH Atualiza um registro de Fornecedores */
   async update(
-    req: Request<{ fornecedorId: string }, {}, Partial<FornecedorUpdate>>,
+    req: Request<{ fornecedoresId: string }, {}, Partial<FornecedoresUpdate>>,
     res: Response,
     next: NextFunction
   ) {
-    const fornecedorId = Number(req.params.fornecedorId);
-    if (isNaN(fornecedorId) || fornecedorId <= 0) {
+    const fornecedoresId = Number(req.params.fornecedoresId);
+    if (isNaN(fornecedoresId) || fornecedoresId <= 0) {
       return res
         .status(400)
-        .send({ success: false, message: 'Invalid fornecedorId' })
+        .send({ success: false, message: 'Invalid fornecedoresId' })
         .end();
     }
   
     try {
-      const fornecedor = await this.fornecedorRepository.updateFornecedor(fornecedorId, req.body);
-      return res.status(200).send({ success: true, fornecedor }).end();
+      const fornecedores = await this.fornecedoresRepository.updateFornecedores(fornecedoresId, req.body);
+      return res.status(200).send({ success: true, fornecedores }).end();
     } catch (error) {
       next(error);
     }
   }
   
-  /** DELETE Remove um registro de Fornecedor */
+  /** DELETE Remove um registro de Fornecedores */
   async remove(
-    req: Request<{ fornecedorId: string }>,
+    req: Request<{ fornecedoresId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const fornecedorId = Number(req.params.fornecedorId);
-    if (isNaN(fornecedorId) || fornecedorId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid fornecedorId' }).end();
+    const fornecedoresId = Number(req.params.fornecedoresId);
+    if (isNaN(fornecedoresId) || fornecedoresId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid fornecedoresId' }).end();
     }
 
     try {
-      const deleted = await this.fornecedorRepository.deleteFornecedor(fornecedorId);
+      const deleted = await this.fornecedoresRepository.deleteFornecedores(fornecedoresId);
       return res.status(200).send({ success: !!deleted?.affected });
     } catch (error) {
       next(error);
@@ -70,34 +70,34 @@ export class FornecedorController {
   ) {
     
     try {
-      const fornecedores = await this.fornecedorRepository.findFornecedorAll();
+      const fornecedores = await this.fornecedoresRepository.findFornecedoresAll();
       return res.status(200).send({ success: true, fornecedores });
     } catch (error) {
       next(error);
     }
   }
     
-  /** GET Busca um registro de Fornecedor por ID */
+  /** GET Busca um registro de Fornecedores por ID */
   async getOne(
-    req: Request<{ fornecedorId: string }>,
+    req: Request<{ fornecedoresId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const fornecedorId = Number(req.params.fornecedorId);
+    const fornecedoresId = Number(req.params.fornecedoresId);
 
-    if (isNaN(fornecedorId) || fornecedorId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid fornecedorId' }).end();
+    if (isNaN(fornecedoresId) || fornecedoresId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid fornecedoresId' }).end();
     }
 
     try {
-      const fornecedor = await this.fornecedorRepository.findFornecedorById(fornecedorId);
-      return res.status(200).send({ success: true, fornecedor });
+      const fornecedores = await this.fornecedoresRepository.findFornecedoresById(fornecedoresId);
+      return res.status(200).send({ success: true, fornecedores });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registro de Fornecedor por Nome */
+  /** GET Busca um registro de Fornecedores por Nome */
   async findByName(
     req: Request<{}, {}, {}, Partial<{ name: string }>>, 
     res: Response, 
@@ -113,14 +113,14 @@ export class FornecedorController {
     }
 
     try {
-      const fornecedor = await this.fornecedorRepository.findFornecedorByName(name);
-      return res.status(200).send({ success: true, fornecedor }).end();
+      const fornecedores = await this.fornecedoresRepository.findFornecedoresByName(name);
+      return res.status(200).send({ success: true, fornecedores }).end();
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registro de Fornecedor por Fantasia */
+  /** GET Busca um registro de Fornecedores por Fantasia */
   async findByFantasy(
     req: Request<{}, {}, {}, Partial<{ fantasy: string }>>, 
     res: Response, 
@@ -134,8 +134,8 @@ export class FornecedorController {
     }
 
     try {
-      const fornecedor = await this.fornecedorRepository.findFornecedorByFantasy(fantasy);
-      return res.status(200).send({ success: true, fornecedor }).end();
+      const fornecedores = await this.fornecedoresRepository.findFornecedoresByFantasy(fantasy);
+      return res.status(200).send({ success: true, fornecedores }).end();
     } catch (error) {
       next(error);
     }
@@ -153,7 +153,7 @@ export class FornecedorController {
     }
 
     try {
-      const fornecedores = await this.fornecedorRepository.findFornecedorAllByPessoaId(pessoaId);
+      const fornecedores = await this.fornecedoresRepository.findFornecedoresAllByPessoaId(pessoaId);
       return res.status(200).send({ success: true, fornecedores });
     } catch (error) {
       next(error);
@@ -172,7 +172,7 @@ export class FornecedorController {
     }
 
     try {
-      const fornecedores = await this.fornecedorRepository.findFornecedorAllByEmpresaId(empresaId);
+      const fornecedores = await this.fornecedoresRepository.findFornecedoresAllByEmpresaId(empresaId);
       return res.status(200).send({ success: true, fornecedores });
     } catch (error) {
       next(error);

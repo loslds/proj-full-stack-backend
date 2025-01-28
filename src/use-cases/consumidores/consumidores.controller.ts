@@ -1,67 +1,67 @@
 
 import type { NextFunction, Request, Response } from 'express';
-import type { ConsumidorRepository } from './consumidor.repository';
-import { ConsumidorCreate, ConsumidorUpdate } from './consumidor.dto';
+import type { ConsumidoresRepository } from './consumidores.repository';
+import { ConsumidoresCreate, ConsumidoresUpdate } from './consumidores.dto';
 
-export class ConsumidorController {  
-  constructor(private readonly consumidorRepository: ConsumidorRepository) {}
+export class ConsumidoresController {  
+  constructor(private readonly consumidoresRepository: ConsumidoresRepository) {}
   
-  /** POST Cria um novo registro de Consumidor */
+  /** POST Cria um novo registro de Consumidores */
   async create(
-    req: Request<{}, {}, ConsumidorCreate>,
+    req: Request<{}, {}, ConsumidoresCreate>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const consumidor = await this.consumidorRepository.createConsumidor(req.body);
+      const consumidor = await this.consumidoresRepository.createConsumidores(req.body);
       return res.status(201).send({ success: true, consumidor });
     } catch (error) {
       next(error);
     }
   }
 
-  /** PATCH Atualiza um registro de Consumidor */
+  /** PATCH Atualiza um registro de Consumidores */
   async update(
-    req: Request<{ consumidorId: string }, {}, Partial<ConsumidorUpdate>>,
+    req: Request<{ consumidoresId: string }, {}, Partial<ConsumidoresUpdate>>,
     res: Response,
     next: NextFunction
   ) {
-    const consumidorId = Number(req.params.consumidorId);
-    if (isNaN(consumidorId) || consumidorId <= 0) {
+    const consumidoresId = Number(req.params.consumidoresId);
+    if (isNaN(consumidoresId) || consumidoresId <= 0) {
       return res
         .status(400)
-        .send({ success: false, message: 'Invalid consumidorId' })
+        .send({ success: false, message: 'Invalid consumidoresId' })
         .end();
     }
   
     try {
-      const consumidor = await this.consumidorRepository.updateConsumidor(consumidorId, req.body);
-      return res.status(200).send({ success: true, consumidor }).end();
+      const consumidores = await this.consumidoresRepository.updateConsumidores(consumidoresId, req.body);
+      return res.status(200).send({ success: true, consumidores }).end();
     } catch (error) {
       next(error);
     }
   }
   
-  /** DELETE Remove um registro de Consumidor */
+  /** DELETE Remove um registro de Consumidores */
   async remove(
-    req: Request<{ consumidorId: string }>,
+    req: Request<{ consumidoresId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const consumidorId = Number(req.params.consumidorId);
-    if (isNaN(consumidorId) || consumidorId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid consumidorId' }).end();
+    const consumidoresId = Number(req.params.consumidoresId);
+    if (isNaN(consumidoresId) || consumidoresId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid consumidoresId' }).end();
     }
 
     try {
-      const deleted = await this.consumidorRepository.deleteConsumidor(consumidorId);
+      const deleted = await this.consumidoresRepository.deleteConsumidores(consumidoresId);
       return res.status(200).send({ success: !!deleted?.affected });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca todos os registros de Consumidor */
+  /** GET Busca todos os registros de Consumidores */
   async findAll(
     req: Request,
     res: Response,
@@ -69,7 +69,7 @@ export class ConsumidorController {
   ) {
     
     try {
-      const consumidores = await this.consumidorRepository.findConsumidorAll();
+      const consumidores = await this.consumidoresRepository.findConsumidoresAll();
       return res.status(200).send({ success: true, consumidores });
     } catch (error) {
       next(error);
@@ -78,25 +78,25 @@ export class ConsumidorController {
     
   /** GET Busca um registro de Consumidor por ID */
   async getOne(
-    req: Request<{ consumidorId: string }>,
+    req: Request<{ consumidoresId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const consumidorId = Number(req.params.consumidorId);
+    const consumidoresId = Number(req.params.consumidoresId);
 
-    if (isNaN(consumidorId) || consumidorId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid consumidorId' }).end();
+    if (isNaN(consumidoresId) || consumidoresId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid consumidoresId' }).end();
     }
 
     try {
-      const consumidor = await this.consumidorRepository.findConsumidorById(consumidorId);
-      return res.status(200).send({ success: true, consumidor });
+      const consumidores = await this.consumidoresRepository.findConsumidoresById(consumidoresId);
+      return res.status(200).send({ success: true, consumidores });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registro de Consumidor por Nome */
+  /** GET Busca um registro de Consumidores por Nome */
   async findByName(
     req: Request<{}, {}, {}, Partial<{ name: string }>>, 
     res: Response, 
@@ -112,14 +112,14 @@ export class ConsumidorController {
     }
 
     try {
-      const consumidor = await this.consumidorRepository.findConsumidorByName(name);
-      return res.status(200).send({ success: true, consumidor }).end();
+      const consumidores = await this.consumidoresRepository.findConsumidoresByName(name);
+      return res.status(200).send({ success: true, consumidores }).end();
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registro de Consumidor por Fantasia */
+  /** GET Busca um registro de Consumidores por Fantasia */
   async findByFantasy(
     req: Request<{}, {}, {}, Partial<{ fantasy: string }>>, 
     res: Response, 
@@ -133,8 +133,8 @@ export class ConsumidorController {
     }
 
     try {
-      const consumidor = await this.consumidorRepository.findConsumidorByFantasy(fantasy);
-      return res.status(200).send({ success: true, consumidor }).end();
+      const consumidores = await this.consumidoresRepository.findConsumidoresByFantasy(fantasy);
+      return res.status(200).send({ success: true, consumidores }).end();
     } catch (error) {
       next(error);
     }
@@ -152,7 +152,7 @@ export class ConsumidorController {
     }
 
     try {
-      const consumidores = await this.consumidorRepository.findConsumidorAllByPessoaId(pessoaId);
+      const consumidores = await this.consumidoresRepository.findConsumidoresAllByPessoaId(pessoaId);
       return res.status(200).send({ success: true, consumidores });
     } catch (error) {
       next(error);
@@ -171,7 +171,7 @@ export class ConsumidorController {
     }
 
     try {
-      const consumidores = await this.consumidorRepository.findConsumidorAllByEmpresaId(empresaId);
+      const consumidores = await this.consumidoresRepository.findConsumidoresAllByEmpresaId(empresaId);
       return res.status(200).send({ success: true, consumidores });
     } catch (error) {
       next(error);

@@ -54,8 +54,8 @@ emailsRoute.get('/by-mailresg', (req: Request<{}, {}, {}, { mailresg: string }>,
 );
 
 // Rota para buscar e-mails por cadastroId
-emailsRoute.get('/email/by-cadastro/:cadastroId', (req: Request<{ cadastroId: string }>, res: Response, next: NextFunction) => 
-  controller.findByCadastroId(req, res, next)
+emailsRoute.get('/email/by-cadastros/:cadastrosId', (req: Request<{ cadastrosId: string }>, res: Response, next: NextFunction) => 
+  controller.findByCadastrosId(req, res, next)
 );
 
 export { emailsRoute, emailsRepository };

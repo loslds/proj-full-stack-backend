@@ -14,3 +14,4 @@ export const emailsUpdateSchema = z.object({
 
 export type EmailsCreate = z.infer<typeof emailsCreateSchema>;
 export type EmailsUpdate = z.infer<typeof emailsUpdateSchema>;
+

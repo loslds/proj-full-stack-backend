@@ -77,12 +77,12 @@ export class EmailsRepository {
     return this.repo.findOne({ where: { mailresg } });
   }
 
-  // Busca todos os registros de Email pelo campo id_cadastro
-  async findEmailByCadastroId(cadastroId: number): Promise<EmailsEntity[]> {
-    if (!cadastroId || isNaN(cadastroId) || cadastroId <= 0) {
-      throw new Error('Invalid cadastroId');
+  // Busca todos os registros de Email pelo campo id_cadastros
+  async findEmailByCadastrosId(cadastrosId: number): Promise<EmailsEntity[]> {
+    if (!cadastrosId || isNaN(cadastrosId) || cadastrosId <= 0) {
+      throw new Error('Invalid cadastrosId');
     }
 
-    return this.repo.find({ where: { id_cadastro: cadastroId } });
+    return this.repo.find({ where: { id_cadastros: cadastrosId } });
   }
 }

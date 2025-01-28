@@ -6,7 +6,7 @@ export const docsCreateSchema = z.object({
   inscre: z.string().min(3),
   inscrm: z.string().min(3),
   matricula: z.string().min(3),
-  id_cadastro: z.number(),
+  id_cadastros: z.number(),
 });
 
 export const docsUpdateSchema = z.object({
@@ -16,7 +16,7 @@ export const docsUpdateSchema = z.object({
   inscre: z.string().min(3).optional(),
   inscrm: z.string().min(3).optional(),
   matricula: z.string().min(3).optional(),
-  id_cadastro: z.number().optional(),  
+  id_cadastros: z.number().optional(),  
   
 });
 

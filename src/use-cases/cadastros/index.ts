@@ -1,3 +1,3 @@
 
-export { cadastroRepository, cadastroRoute } from './cadastro.router';
-export type { CadastroRepository } from './cadastro.repository';
+export { cadastrosRepository, cadastrosRoute } from './cadastros.router';
+export type { CadastrosRepository } from './cadastros.repository';

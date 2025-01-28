@@ -38,9 +38,9 @@ codsegsRoute.get('/by-codigo', (req: Request<{}, {}, {}, { codigo: string }>, re
   controller.findByCodigo(req, res, next)
 );
 
-// Rota para buscar documento por cadastroId
-codsegsRoute.get('/codsegs/by-cadastro/:cadastroId', (req: Request<{ cadastroId: string }>, res: Response, next: NextFunction) => 
-  controller.findByCadastroId(req, res, next)
+// Rota para buscar docsegs por cadastrosId
+codsegsRoute.get('/codsegs/by-cadastros/:cadastrosId', (req: Request<{ cadastrosId: string }>, res: Response, next: NextFunction) => 
+  controller.findByCadastrosId(req, res, next)
 );
 
 export { codsegsRoute, codsegsRepository };

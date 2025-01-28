@@ -1,36 +1,36 @@
-import { Column, Entity, ManyToOne, JoinColumn, Index } from 'typeorm';
-import { PessoaEntity } from '../pessoas/pessoas.entity';
-import { EmpresaEntity } from '../empresas/empresas.entity';
+import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { PessoasEntity } from '../pessoas/pessoas.entity';
+import { EmpresasEntity } from '../empresas/empresas.entity';
 
-@Entity('funcionario')
-export class FuncionarioEntity {
-  // Campo REGISTRO FUNCIONARIO
+@Entity('consumidores')
+export class ConsumidoresEntity {
+  // Campo REGISTRO CONSUMIDOR
   @Column({ primary: true, generated: true, type: 'int', nullable: false })
   id: number;
 
   // Relacionamento com a entidade PessoaEntity
-  @ManyToOne(() => PessoaEntity)
+  @ManyToOne(() => PessoasEntity)
   @JoinColumn({ name: 'id_pessoa' })
-  pessoa: PessoaEntity;
+  pessoa: PessoasEntity;
 
   // Campo para armazenar o id_pessoa
   @Column({ type: 'int', nullable: false })
   id_pessoa: number;
 
   // Relacionamento com a entidade EmpresaEntity
-  @ManyToOne(() => EmpresaEntity)
+  @ManyToOne(() => EmpresasEntity)
   @JoinColumn({ name: 'id_empresa' })
-  empresa: EmpresaEntity;
+  empresa: EmpresasEntity;
 
   // Campo para armazenar o id_empresa
   @Column({ type: 'int', nullable: false })
   id_empresa: number;
 
-  // Campo NOME DO FUNCIONARIO.
+  // Campo NOME DO CONSUMIDORES.
   @Column({ unique: true, type: 'varchar', length: 45, nullable: false })
   name: string;
 
-  // Campo NOME FANTASIA DO FUNCIONARIO.
+  // Campo NOME FANTASIA DO CONSUMIDORES.
   @Column({ unique: true, type: 'varchar', length: 45, nullable: false })
   fantasy: string;
 

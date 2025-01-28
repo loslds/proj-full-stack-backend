@@ -4,7 +4,7 @@ export const fonesCreateSchema = z.object({
   fonex: z.string().min(10),
   fonec: z.string().min(10),
   fonez: z.string().min(10),
-  id_cadastro: z.number(),
+  id_cadastros: z.number(),
 });
 
 export const fonesUpdateSchema = z.object({
@@ -12,7 +12,7 @@ export const fonesUpdateSchema = z.object({
   fonex: z.string().min(3).optional(),
   fonec: z.string().min(3).optional(),
   fonez: z.string().min(3).optional(),
-  id_cadastro: z.number().optional(),  
+  id_cadastros: z.number().optional(),  
   
 });
 

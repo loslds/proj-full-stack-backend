@@ -110,10 +110,10 @@ export class UsersRepository {
 
   
   // Busca todos os registros de Docs pelo campo id_cadastro
-  async findUsersByCadastroId(cadastroId: number): Promise<UsersEntity[]> {
-    if (!cadastroId || isNaN(cadastroId) || cadastroId <= 0) {
-      throw new Error('Invalid cadastroId');
+  async findUsersByCadastrosId(cadastrosId: number): Promise<UsersEntity[]> {
+    if (!cadastrosId || isNaN(cadastrosId) || cadastrosId <= 0) {
+      throw new Error('Invalid cadastrosId');
     }
-    return this.repo.find({ where: { id_cadastro: cadastroId } });
+    return this.repo.find({ where: { id_cadastros: cadastrosId } });
   }
 }
