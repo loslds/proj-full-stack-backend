@@ -1,11 +1,12 @@
 
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { PessoasEntity } from '../pessoas/pessoas.entity';
 import { EmpresasEntity } from '../empresas/empresas.entity';
 import { FornecedoresEntity } from '../fornecedores/fornecedores.entity';
 import { ConsumidoresEntity } from '../consumidores/consumidores.entity';
 import { ClientesEntity } from '../clientes/clientes.entity';
 import { FuncionariosEntity } from '../funcionarios/funcionarios.entity';
+import { UsersEntity } from '../users/users.entity';
 
 @Entity('cadastros')
 export class CadastrosEntity {
@@ -36,7 +37,9 @@ export class CadastrosEntity {
   @JoinColumn({ name: 'id_funcionario' })
   funcionarios: FuncionariosEntity;
 
-  
+  @OneToMany('UsersEntity', (entity: UsersEntity) => entity.cadastro)
+  usuarios: UsersEntity[];
+
   @Column({ type: 'varchar', length: 200, nullable: true })
   endereco?: string;
 

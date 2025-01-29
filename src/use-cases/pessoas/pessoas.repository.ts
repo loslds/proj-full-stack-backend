@@ -9,6 +9,20 @@ export class PessoasRepository {
     this.repo = this.dataSource.getRepository(PessoasEntity);
   }
 
+  async hasDuplicated(name?: string, sigla?: string, excludes: number[] = []) { 
+    const query = this.repo.createQueryBuilder('Pessoas')
+    .select()
+    .where('Pessoas.nmpessoa LIKE :name', {name})
+    .andWhere('Pessoas.sigla LIKE :sigla', {sigla})
+
+    if(!!excludes?.length) {
+      query.andWhere('Pessoas.id NOT IN(:...excludes)',{ excludes })
+    }
+
+    const result = await query.getOne()
+    return result
+  }
+
   async createPessoas(pessoas: PessoasCreate): Promise<PessoasEntity> {
     const data = this.repo.create(pessoas);
     return this.repo.save(data);

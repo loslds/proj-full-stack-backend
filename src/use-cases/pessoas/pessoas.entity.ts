@@ -1,16 +1,17 @@
-
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, Index } from 'typeorm';
 
 @Entity('pessoas')
 
+@Index(['nmpessoa', 'sigla']) // Índice composto único para nmpessoa e sigla
+
 export class PessoasEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
-    id: number; // O campo 'id' será autoincremento
+  id: number; // O campo 'id' será autoincremento
 
-  @Column({ unique: true, type: 'varchar', length: 45, nullable: false })
+  @Column({ type: 'varchar', length: 45, nullable: false, collation:'utf8mb4_general_ci' })
   nmpessoa: string;
 
-  @Column({ unique: true, type: 'varchar', length: 5, nullable: false })
+  @Column({ type: 'varchar', length: 5, nullable: false })
   sigla: string;
 
   @Column({ type: 'int', nullable: true, default: null })
@@ -19,7 +20,6 @@ export class PessoasEntity {
   @Column({
     type: 'datetime',
     nullable: true,
-    precision: null,
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
@@ -27,13 +27,6 @@ export class PessoasEntity {
   @Column({ type: 'int', nullable: true })
   updatedBy?: number;
 
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-  })
+  @Column({ type: 'datetime', nullable: true })
   updatedAt?: Date;
-
 }
-
-

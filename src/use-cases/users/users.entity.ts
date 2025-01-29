@@ -1,5 +1,5 @@
 
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
 import { CadastrosEntity } from '../cadastros/cadastros.entity';
 
 @Entity('users')
@@ -8,7 +8,7 @@ export class UsersEntity {
   id: number;
 
   // Relacionamento com a entidade CadastroEntity
-  @ManyToOne(() => CadastrosEntity)
+  @ManyToOne('CadastrosEntity', (entity: CadastrosEntity) => entity.usuarios)
   @JoinColumn({ name: 'id_cadastros' })
   cadastro: CadastrosEntity;
 

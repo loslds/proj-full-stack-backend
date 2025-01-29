@@ -63,12 +63,12 @@ export class RespostasRepository {
   
   
   // Busca todos os registros de Respostas pelo campo id_cadastro
-    async findRespostasByCadastrosId(cadastrosId: number): Promise<RespostasEntity[]> {
-      if (!cadastrosId || isNaN(cadastrosId) || cadastrosId <= 0) {
-        throw new Error('Invalid cadastrosId');
+    async findRespostasByUsersId(usersId: number): Promise<RespostasEntity[]> {
+      if (!usersId || isNaN(usersId) || usersId <= 0) {
+        throw new Error('Invalid usersId');
       }
   
-      return this.repo.find({ where: { id_cadastros: cadastrosId } });
+      return this.repo.find({ where: { id_users: usersId } });
     }
 
 }

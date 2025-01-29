@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { indexRoute } from './use-cases/index.route';
+import { errorHandler } from './services/errorHandler';
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 app.use('/api', indexRoute); // Agora todas as rotas serão prefixadas com /api
 
+app.use(errorHandler)
 // Inicializar o servidor
 // app.listen(port, () => {
 //   console.log(`Servidor rodando em http://localhost:${port}`);

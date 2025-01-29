@@ -1,11 +1,13 @@
-import { UserEntity } from '../use-cases/users/users.entity';
 
-import { PessoaEntity } from '../use-cases/pessoas/pessoas.entity';
+
+
 
 import { ModuloEntity } from '../use-cases/modulo/modulo.entity';
+import { PessoasEntity } from '../use-cases/pessoas/pessoas.entity';
+import { UsersEntity } from '../use-cases/users/users.entity';
 
 export const entities = [
-  UserEntity,
-  PessoaEntity,
+  // UsersEntity,
+  PessoasEntity,
   //
 ];

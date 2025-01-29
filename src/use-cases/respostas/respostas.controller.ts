@@ -241,14 +241,14 @@ export class RespostasController {
   }
  
   /** GET Lista todos os registros de Respostas por cadastrosId */
-  async findByCadastroId(
-    req: Request<{ cadastrosId: string }>,
+  async findByUsersId(
+    req: Request<{ usersId: string }>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const cadastrosId = Number(req.params.cadastrosId);
-      const respostas = await this.respostasRepository.findRespostasByCadastrosId(cadastrosId);
+      const usersId = Number(req.params.usersId);
+      const respostas = await this.respostasRepository.findRespostasByUsersId(usersId);
       return res.status(200).send({ success: true, respostas });
     } catch (error) {
       next(error);

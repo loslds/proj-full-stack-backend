@@ -3,6 +3,7 @@ import { PessoasRepository } from './pessoas.repository';
 import { PessoasCreate, PessoasUpdate } from './pessoas.dto';
 import { PessoasEntity } from './pessoas.entity';
 import { DeepPartial } from 'typeorm';
+import { HttpException } from '../../services/HttpException';
 
 export class PessoasController {
   constructor(private readonly pessoasRepository: PessoasRepository) {}
@@ -13,8 +14,13 @@ export class PessoasController {
     res: Response,
     next: NextFunction
   ) {
+    const { body } = req
+    const { nmpessoa, sigla} = body
     try {
-      const pessoas = await this.pessoasRepository.createPessoas(req.body);
+      const exists = await this.pessoasRepository.hasDuplicated(nmpessoa, sigla)
+      if(!!exists) throw new HttpException(400,'pessoa ja existe')
+
+      const pessoas = await this.pessoasRepository.createPessoas(body);
       return res.status(201).send({ success: true, pessoas });
     } catch (error) {
       next(error);
@@ -27,19 +33,20 @@ export class PessoasController {
     res: Response,
     next: NextFunction
   ) {
-    const pessoasId = Number(req.params.pessoasId);
-    if (isNaN(pessoasId) || pessoasId <= 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid pessoasId' })
-        .end();
-    }
-
+    const { params, body } = req
+    const { nmpessoa, sigla} = body
     try {
+      const pessoasId = Number(params?.pessoasId);
+      if(!pessoasId) throw new HttpException(400,'id da pessoa invalido')
+      
+      const exists = await this.pessoasRepository.hasDuplicated(nmpessoa, sigla, [pessoasId])
+      if(!!exists) throw  new HttpException(400,'pessoa ja existe')
+
       const pessoas = await this.pessoasRepository.updatePessoas(
         pessoasId,
-        req.body as DeepPartial<PessoasEntity>
+        body 
       );
+
       return res.status(200).send({ success: true, pessoas });
     } catch (error) {
       next(error);

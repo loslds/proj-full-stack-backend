@@ -9,7 +9,7 @@ export const respostasCreateSchema = z.object({
   resp1: z.string().min(10),
   resp2: z.string().min(10),
   resp3: z.string().min(10),
-  id_cadastros: z.number(),
+  id_users: z.number(),
 });
 
 export const respostasUpdateSchema = z.object({
@@ -19,7 +19,7 @@ export const respostasUpdateSchema = z.object({
   resp1: z.string().min(10).optional().nullable(),
   resp2: z.string().min(10).optional().nullable(),
   resp3: z.string().min(10).optional().nullable(),
-  id_cadastros: z.number().optional(),
+  id_users: z.number().optional(),
 });
 
 export type RespostasCreate = z.infer<typeof respostasCreateSchema> & Partial<RespostasEntity>;

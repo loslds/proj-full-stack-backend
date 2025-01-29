@@ -1,18 +1,18 @@
 import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { CadastrosEntity } from '../cadastros/cadastros.entity';
+import { UsersEntity } from '../users/users.entity';
 
-@Entity('cadastro')
+@Entity('respostas')
 export class RespostasEntity {
   @PrimaryGeneratedColumn()
   id: number;
   
-  // Relacionamento com a entidade CadastrosEntity
-  @ManyToOne(() => CadastrosEntity)
-  @JoinColumn({ name: 'id_cadastros' })
-  cadastro: CadastrosEntity;
+  // Relacionamento com a entidade UsersEntity
+  @ManyToOne(() => UsersEntity)
+  @JoinColumn({ name: 'id_respostas' })
+  users: UsersEntity;
 
   @Column({ type: 'int', nullable: false })
-  id_cadastros: number;
+  id_users: number;
 
   ///////////////////////////////////
 

@@ -24,9 +24,9 @@ respostasRoute.get('/by-resp2', (req: Request<{}, {}, {}, { resp2: string }>, re
 controller.findByResp2(req, res, next));
 respostasRoute.get('/by-resp3', (req: Request<{}, {}, {}, { resp3: string }>, res: Response, next: NextFunction) => controller.findByResp3(req, res, next));
 
-// Rota para buscar respostas por cadastroId
-respostasRoute.get('/respostas/by-cadastros/:cadastrosId', (req: Request<{ cadastrosId: string }>, res: Response, next: NextFunction) => 
-controller.findByCadastroId(req, res, next)
+// Rota para buscar respostas por UsersId
+respostasRoute.get('/respostas/by-users/:usersId', (req: Request<{ usersId: string }>, res: Response, next: NextFunction) => 
+controller.findByUsersId(req, res, next)
 );
 
 export { respostasRoute, respostasRepository };
