@@ -51,13 +51,54 @@ export class PessoasRepository {
     }
     return this.repo.findOne({ where: { id: pessoasId } });
   }
-
-
-  // Busca todos os registros de Pessoas pelo campo nmpessoa
-  async findPessoasAllNmpessoa(nmpessoa: string): Promise<PessoasEntity[]> {
-    return this.repo.find({ where: { nmpessoa } });
+  
+  async searchpessoas(params: { id?: number; nmpessoa?: string; sigla?: string }) {
+    const query = this.repo.createQueryBuilder('Pessoas')
+      .select(['Pessoas.id', 'Pessoas.nmpessoa', 'Pessoas.sigla'])
+      .orderBy('Pessoas.id', 'ASC'); // Ordenação padrão
+  
+    // Filtrar por ID (caso seja informado)
+    if (params.id) {
+      query.andWhere('Pessoas.id = :id', { id: params.id });
+    }
+  
+    // Filtrar por nmpessoa (caso seja informado)
+    if (params.nmpessoa) {
+      query.andWhere('Pessoas.nmpessoa LIKE :nmpessoa', { nmpessoa: `%${params.nmpessoa}%` });
+    }
+  
+    // Filtrar por sigla (caso seja informado)
+    if (params.sigla) {
+      query.andWhere('Pessoas.sigla LIKE :sigla', { sigla: `%${params.sigla}%` });
+    }
+  
+    return query.getMany();
   }
   
+
+  
+  
+  // Busca todos os registros de Pessoas pelo campo nmpessoa
+  async searchName(text?: string) {
+    const query = this.repo.createQueryBuilder('Pessoas')
+    .select(['Pessoas.id', 'Pessoas.nmpessoa'])
+    .orderBy('Pessoas.id', 'ASC') // Ordena pelo ID de forma crescente
+    .limit(100)
+    if(!!text) query.andWhere('Pessoas.nmpessoa LIKE :text', { text: `%${text}%`})
+    return query.getMany()
+  }
+  
+  // Busca todos os registros de Pessoas pelo campo sigla
+  async searchSigla(text?: string) {
+    const query = this.repo.createQueryBuilder('Pessoas')
+    .select(['Pessoas.id', 'Pessoas.sigla'])
+    .limit(100)
+    if(!!text) query.andWhere('Pessoas.sigla LIKE :text', { text: `%${text}%`})
+    return query.getMany()
+  }
+
+
+
   // Busca um registro de Pessoas pelo campo nmpessoa
   async findPessoasByNmpessoa(nmpessoa: string): Promise<PessoasEntity | null> {
     return this.repo.findOne({ where: { nmpessoa } });

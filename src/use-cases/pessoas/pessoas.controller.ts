@@ -75,6 +75,8 @@ export class PessoasController {
     }
   }
 
+
+
   /** GET Busca todos os registros de Pessoas */
   async findAll(req: Request, res: Response, next: NextFunction) {
     try {
@@ -108,34 +110,72 @@ export class PessoasController {
     }
   }
 
+  async search(req: Request, res: Response, next: NextFunction) {
+    try {
+      // Extraindo parâmetros opcionais da query
+      const { id, nmpessoa, sigla } = req.query;
+
+      // Convertendo 'id' para número, caso seja enviado
+      const searchParams = {
+        id: id ? Number(id) : undefined,
+        nmpessoa: nmpessoa as string,
+        sigla: sigla as string,
+      };
+      
+
+
+      // Chamando o método do repository
+      const pessoas = await this.pessoasRepository.searchpessoas(searchParams);
+      return res.json(pessoas);
+    } catch (error) {
+      next(error); // Passa o erro para o middleware de tratamento
+    }
+  }
+
+
+
+
   ///////////////////////////////
 
   /** GET Lista todos os registros de Pessoa por nmpessoa */
-  async findAllNmpessoa(
-    req: Request<{}, {}, {}, { nmpessoa: string }>,
+  async searchByName(
+    req: Request,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const { nmpessoa } = req.query;
-      if (!nmpessoa) {
-        return res.status(400).send({ success: false, message: 'nmpessoa parameter is required' });
-      }
-      const pessoas = await this.pessoasRepository.findPessoasAllNmpessoa(nmpessoa);
+      const text  = req.query?.text as string;
+      const pessoas = await this.pessoasRepository.searchName(text);
       return res.status(200).send({ success: true, pessoas });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registro de Pessoa por nmpessoa */
-  async findByNmpessoa(
-    req: Request<{}, {}, {}, { nmpessoa: string }>,
+/** GET Lista todos os registros de Pessoa por nmpessoa */
+  async searchBySigla(
+   req: Request,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const { nmpessoa } = req.query;
+      const text  = req.query?.text as string;
+      const pessoas = await this.pessoasRepository.searchSigla(text);
+      return res.status(200).send({ success: true, pessoas });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
+  /** GET Busca um registro de Pessoa por nmpessoa */
+  async findByNmpessoa(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const nmpessoa = req.query?.nmpessoa as string;
       if (!nmpessoa) {
         return res.status(400).send({ success: false, message: 'nmpessoa parameter is required' });
       }

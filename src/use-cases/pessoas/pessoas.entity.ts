@@ -8,7 +8,7 @@ export class PessoasEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number; // O campo 'id' será autoincremento
 
-  @Column({ type: 'varchar', length: 45, nullable: false, collation:'utf8mb4_general_ci' })
+  @Column({ name:'nmpessoa', type: 'varchar', length: 45, nullable: false, collation:'utf8mb4_general_ci' })
   nmpessoa: string;
 
   @Column({ type: 'varchar', length: 5, nullable: false })
