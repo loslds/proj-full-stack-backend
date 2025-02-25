@@ -1,7 +1,7 @@
 
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
-import { PerguntasEntity } from './perguntas.entity';
-import type { PerguntasCreate } from './perguntas.dto';
+import { PerguntasEntity } from './chaves.entity';
+import type { PerguntasCreate } from './chaves.dto';
 
 export class PerguntasRepository {
   private repo: Repository<PerguntasEntity>;

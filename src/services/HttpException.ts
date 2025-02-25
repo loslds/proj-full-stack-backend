@@ -1,3 +1,4 @@
+
 export class HttpException extends Error {
   status: number;
   message: string;
@@ -39,3 +40,4 @@ export enum ErrMsg {
   largeFile = 'too_large_file',
   emptyFile = 'empty_file',
 }
+

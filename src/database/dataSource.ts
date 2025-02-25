@@ -1,3 +1,4 @@
+
 import { DataSource } from 'typeorm';
 import { configDB } from '../config/db';
 import { entities } from './entities';
@@ -12,3 +13,5 @@ export const dataSource = new DataSource({
   entities,
   synchronize: true,
 });
+
+

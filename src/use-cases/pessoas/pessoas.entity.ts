@@ -1,3 +1,4 @@
+
 import { Column, Entity, PrimaryGeneratedColumn, Index } from 'typeorm';
 
 @Entity('pessoas')
@@ -30,3 +31,4 @@ export class PessoasEntity {
   @Column({ type: 'datetime', nullable: true })
   updatedAt?: Date;
 }
+

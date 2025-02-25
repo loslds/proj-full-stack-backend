@@ -1,17 +1,20 @@
 
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
-@Entity('perguntas')
-
-export class PerguntasEntity {
+@Entity('setores')
+@Unique(['name']) // Adiciona a restrição de unicidade composta
+export class SetoresEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
-    id: number; // O campo 'id' será autoincremento
+  id: number;
+  
+  @Column({ type: 'varchar', length: 45, nullable: false })
+  name: string;
 
-    ///////////////////
-  @Column({ unique: true, type: 'varchar', length: 100, nullable: false })
-  descrperg: string;
+  @Column({ type: 'varchar', length: 60, nullable: false })
+  acao: string;
 
-  ////////////////////
+  @Column({ type: 'int', length: 2, nullable: true })
+  nivel?: number;
 
   @Column({ type: 'int', nullable: true, default: null })
   createdBy?: number;
@@ -35,5 +38,3 @@ export class PerguntasEntity {
   updatedAt?: Date;
 
 }
-
-

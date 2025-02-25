@@ -1,3 +1,4 @@
+
 import 'dotenv/config';
 
 export const configDB = {
@@ -9,3 +10,5 @@ export const configDB = {
 };
 
 export const urlDB = `mysql://${configDB.username}:${configDB.password}@${configDB.host}:${configDB.port}/${configDB.database}`;
+
+

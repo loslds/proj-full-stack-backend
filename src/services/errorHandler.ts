@@ -1,3 +1,4 @@
+
 import { NextFunction, Request, Response } from "express";
 import { HttpException } from "./HttpException";
 
@@ -18,3 +19,4 @@ export const errorHandler = (
     status: statusCode,
   });
 };
+

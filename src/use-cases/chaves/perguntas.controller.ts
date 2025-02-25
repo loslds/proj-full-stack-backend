@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { PerguntasRepository } from './perguntas.repository';
-import { PerguntasCreate, PerguntasUpdate } from './perguntas.dto';
-import { PerguntasEntity } from './perguntas.entity';
+import { PerguntasCreate, PerguntasUpdate } from './chaves.dto';
+import { PerguntasEntity } from './chaves.entity';
 import { DeepPartial } from 'typeorm';
 
 export class PerguntasController {
