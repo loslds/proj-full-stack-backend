@@ -1,13 +1,4 @@
 
-// import { dataSource } from './database/dataSource';
-// import { httpServer } from './httpServer';
-// import { startServer } from './startServer';
-
-
-// startServer(dataSource, httpServer).then(() => {
-//   console.log('Server started');
-// });
-
 import type { Express } from 'express';
 import { appPort } from './config/app';
 import type { DataSource } from 'typeorm';

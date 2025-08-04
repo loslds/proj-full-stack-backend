@@ -38,7 +38,6 @@ export class PerguntasEntity {
     precision: null,
   })
   updatedAt?: Date;
-
 }
 
 

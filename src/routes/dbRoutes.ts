@@ -1,3 +1,4 @@
+ 
 import { Router } from 'express';
 import { dataSource } from '../database/dataSource';
 import { checkTables } from '../services/checkDatabase';

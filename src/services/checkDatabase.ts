@@ -1,4 +1,4 @@
-
+  
 import { dataSource } from '../database/dataSource';
 
 export async function checkTables(): Promise<{ success: boolean; message: string }> {
@@ -14,30 +14,34 @@ export async function checkTables(): Promise<{ success: boolean; message: string
     const requiredTables = [
       'pessoas',
       'empresas',
-      'funcionario',
-      'clientes',
-      'fornecedores',
-      'consumidores',
-      'cadastros',
-      'emails',
-      'docs',
-      'fones',
-      'cidades',
-      'codsegs',
-      'perguntas',
-      'respostas',
-      'niveis',
-      'setores',
-      'acoes',
-      'chaves',
-      'modulos',
-      'perguntas',
-      'respostas',
-      'avatares',
-      'avatar_users',
-      'users',
-      'acessos',
-      'resgates',
+      // 'funcionario',
+      // 'clientes',
+      // 'fornecedores',
+      // 'consumidores',
+      // 'cidades',
+      
+      // 'cadastros',
+      
+      // 'emails',
+      // 'docs',
+      // 'fones',
+      // 'codsegs',
+      // 'perguntas',
+      // 'respostas',
+      
+      // 'avatares',
+      // 'avatar_users',
+      
+      // 'modulos',
+      // 'niveis',
+      // 'acoes',
+      // 'setores',
+
+      // 'chaves',
+            
+      // 'users',
+      // 'acessos',
+      // 'resgates',
     ]; 
     const existingTables = tables.map((table: any) => Object.values(table)[0]);
 
