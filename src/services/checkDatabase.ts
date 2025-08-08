@@ -12,6 +12,7 @@ export async function checkTables(): Promise<{ success: boolean; message: string
 
     // 🔹 Liste as tabelas que o sistema precisa
     const requiredTables = [
+      'sys_data',
       'pessoas',
       'empresas',
       // 'funcionario',
