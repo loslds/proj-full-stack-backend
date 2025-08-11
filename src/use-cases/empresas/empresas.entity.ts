@@ -1,10 +1,11 @@
 
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique } from 'typeorm';
 import { PessoasEntity } from '../pessoas/pessoas.entity';
 
 @Entity('empresas')
 @Unique(['name', 'fantasy']) // Adiciona a restrição de unicidade composta
 export class EmpresasEntity {
+  // ref ao ID do Registro
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
@@ -12,7 +13,7 @@ export class EmpresasEntity {
   @ManyToOne(() => PessoasEntity)
   @JoinColumn({ name: 'id_pessoa' })
   pessoa: PessoasEntity;
-  
+  //id da entidade do Registro Pessoa  
   @Column({ type: 'int', nullable: false })
   id_pessoa: number;
 
@@ -52,3 +53,4 @@ export class EmpresasEntity {
   updatedAt?: Date;
 
 }
+
