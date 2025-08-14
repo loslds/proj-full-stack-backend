@@ -1,19 +1,27 @@
-
 import { Router } from 'express';
-
+import { sysDataRoute } from './sysData.route';
 import { pessoasRoute } from './pessoas';
 import { empresasRoute } from './empresas';
-import { setoresRoute } from './setores'; 
 
 const indexRoute = Router();
 
+// Suas rotas existentes
+indexRoute.use('/sys-data', sysDataRoute);
 indexRoute.use('/pessoas', pessoasRoute);
 indexRoute.use('/empresas', empresasRoute);
-indexRoute.use('/setores', setoresRoute);
 
-indexRoute.get('/', (req, res) => {
-  return res.status(200).send({success: true}).end()
+// Nova rota para teste de conexão com o banco
+indexRoute.get('/db/check-connection', async (req, res) => {
+  try {
+    await req.app.get('dataSource').query('SELECT 1');
+    return res.status(200).json({ success: true, message: 'Conexão com o banco OK ✅' });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Falha na conexão com o banco ❌', error: err });
+  }
 });
 
+indexRoute.get('/', (req, res) => {
+  return res.status(200).send({ success: true }).end();
+});
 
 export { indexRoute };
