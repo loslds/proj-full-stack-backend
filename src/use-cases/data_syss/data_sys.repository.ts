@@ -33,7 +33,7 @@ export class Data_SysRepository {
     return this.repo.save(data);
   }
 
-  async deletePessoas(data_sysId: number) {
+  async deleteDatasys(data_sysId: number) {
     return this.repo.delete(data_sysId);
   }
   

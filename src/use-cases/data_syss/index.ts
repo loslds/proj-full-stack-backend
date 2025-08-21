@@ -1,2 +1,2 @@
-export { pessoasRepository, pessoasRoute } from './pessoas.route';
-export type { PessoasRepository } from './data_sys.repository';
+export { data_sysRepository, datasysRoute } from './data_sys.route';
+export type { Data_SysRepository } from './data_sys.repository';

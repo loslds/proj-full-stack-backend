@@ -1,12 +1,13 @@
+
 import { Router } from 'express';
-import { sysDataRoute } from './sysData.route';
+import { datasysRoute } from './data_syss';
 import { pessoasRoute } from './pessoas';
 import { empresasRoute } from './empresas';
 
 const indexRoute = Router();
 
 // Suas rotas existentes
-indexRoute.use('/sys-data', sysDataRoute);
+indexRoute.use('/data_sys', datasysRoute);
 indexRoute.use('/pessoas', pessoasRoute);
 indexRoute.use('/empresas', empresasRoute);
 
@@ -25,3 +26,4 @@ indexRoute.get('/', (req, res) => {
 });
 
 export { indexRoute };
+

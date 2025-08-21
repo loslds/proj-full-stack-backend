@@ -69,7 +69,7 @@ export class Data_sysController {
     }
 
     try {
-      await this.Data_SysRepository.deletePessoas(datasysId);
+      await this.Data_SysRepository.deleteDatasys(datasysId);
       return res.status(200).send({ success: true });
     } catch (error) {
       next(error);
@@ -88,11 +88,11 @@ export class Data_sysController {
 
   /** GET Busca um registro de Datasys por ID */
   async getOne(
-    req: Request<{ pessoasId: string }>,
+    req: Request<{ datasysId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const datasysId = Number(req.params.pessoasId);
+    const datasysId = Number(req.params.datasysId);
 
     if (isNaN(datasysId) || datasysId <= 0) {
       return res
@@ -147,10 +147,6 @@ export class Data_sysController {
     next(error); // Passa o erro para o middleware de tratamento
   }
 }
-
-
-
-
 
   ///////////////////////////////
 

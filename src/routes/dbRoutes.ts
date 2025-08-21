@@ -18,8 +18,8 @@ router.get('/check-chkdb', async (req, res) => {
     const queryRunner = dataSource.createQueryRunner();
     await queryRunner.connect();
 
-    // consultar a linha sys_master (criada pelo check-databases)
-    const [rows] = await queryRunner.query(`SELECT chkdb FROM sys_data WHERE nome = 'sys_master' LIMIT 1`);
+    // consultar a linha data_sys (criada pelo check-databases)
+    const [rows] = await queryRunner.query(`SELECT chkdb FROM sys_data WHERE nome = 'datasys_nome' LIMIT 1`);
     await queryRunner.release();
 
     if ((rows as any[]).length > 0 && (rows as any)[0].chkdb === 1) {
