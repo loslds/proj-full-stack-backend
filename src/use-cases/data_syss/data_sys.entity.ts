@@ -1,20 +1,17 @@
 
 import { Column, Entity, PrimaryGeneratedColumn, Unique} from 'typeorm';
 
-@Entity('pessoas')
-@Unique(['nmpessoa']) // Adiciona a restrição de unicidade composta
-export class PessoasEntity {
+@Entity('data_sys')
+@Unique(['nome']) // Adiciona a restrição de unicidade composta
+export class Data_SysEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number; // O campo 'id' será autoincremento
 
-  @Column({ name:'nmpessoa', type: 'varchar', length: 45, nullable: false, collation:'utf8mb4_general_ci' })
-  nmpessoa: string;
+  @Column({ name:'nome', type: 'varchar', length: 60, nullable: false, collation:'utf8mb4_general_ci' })
+  nome: string;
 
-  @Column({ type: 'varchar', length: 5, nullable: false })
-  sigla: string;
-
-  @Column({ type: 'int', nullable: true, default: null })
-  createdBy?: number;
+  @Column({ type: 'tinyint', nullable: false, default: 0 })
+  chkdb: number;
 
   @Column({
     type: 'datetime',

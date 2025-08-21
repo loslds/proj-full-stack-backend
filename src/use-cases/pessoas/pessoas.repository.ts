@@ -40,7 +40,7 @@ export class PessoasRepository {
   /////////////////////////////////
   
   // Busca todos os registros de Pessoas com condição opcional
-  async findPessoaslAll(where?: FindOptionsWhere<PessoasEntity>): Promise<PessoasEntity[]> {
+  async findPessoasAll(where?: FindOptionsWhere<PessoasEntity>): Promise<PessoasEntity[]> {
     return this.repo.find({ where });
   }
 

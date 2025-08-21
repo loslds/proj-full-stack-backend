@@ -3,7 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique }
 import { PessoasEntity } from '../pessoas/pessoas.entity';
 
 @Entity('empresas')
-@Unique(['name', 'fantasy']) // Adiciona a restrição de unicidade composta
+@Unique(['nmempresa', 'fantasy']) // Adiciona a restrição de unicidade composta
 export class EmpresasEntity {
   // ref ao ID do Registro
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
@@ -20,7 +20,7 @@ export class EmpresasEntity {
   ///////////////////////////////////
   
   @Column({ type: 'varchar', length: 45, nullable: false })
-  name: string;
+  nmempresa: string;
 
   @Column({ type: 'varchar', length: 45, nullable: false })
   fantasy: string;
@@ -49,6 +49,7 @@ export class EmpresasEntity {
     type: 'datetime',
     nullable: true,
     precision: null,
+    default: () => 'CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP',
   })
   updatedAt?: Date;
 

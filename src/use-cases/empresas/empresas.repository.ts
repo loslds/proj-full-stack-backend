@@ -9,6 +9,21 @@ export class EmpresasRepository {
     this.repo = this.dataSource.getRepository(EmpresasEntity);
   }
 
+  async hasDuplicated(nmempresa?: string, fantasy?: string, excludes: number[] = []) { 
+      const query = this.repo.createQueryBuilder('Empresas')
+      .select()
+      .where('Pessoas.nmpessoa LIKE :nmempresa', {nmempresa})
+      .andWhere('Pessoas.sigla LIKE :sigla', {fantasy})
+  
+      if(!!excludes?.length) {
+        query.andWhere('Pessoas.id NOT IN(:...excludes)',{ excludes })
+      }
+  
+      const result = await query.getOne()
+      return result
+    }
+  
+  
   // Cria um registro na tabela Empresas
   async createEmpresas(empresas: EmpresasCreate): Promise<EmpresasEntity> {
     const data = this.repo.create(empresas);
@@ -40,8 +55,8 @@ export class EmpresasRepository {
   }
 
   // Busca um registro de Empresas pelo nome
-  async findEmpresasByName(name: string) {
-    return this.repo.findOne({ where: { name } });
+  async findEmpresasByName(nmempresa: string) {
+    return this.repo.findOne({ where: { nmempresa } });
   }
 
   // Busca um registro de Empresas pelo nome fantasia

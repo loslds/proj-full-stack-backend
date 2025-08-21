@@ -80,7 +80,7 @@ export class PessoasController {
   /** GET Busca todos os registros de Pessoas */
   async findAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const pessoas = await this.pessoasRepository.findPessoaslAll();
+      const pessoas = await this.pessoasRepository.findPessoasAll();
       return res.status(200).send({ success: true, pessoas });
     } catch (error) {
       next(error);
