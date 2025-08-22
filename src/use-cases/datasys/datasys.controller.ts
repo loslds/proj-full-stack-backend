@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
-import { Data_SysCreate, Data_SysUpdate } from './data_sys.dto';
-import { Data_SysRepository } from './data_sys.repository';
-import { Data_SysDto } from './data_sys.dto';
-import { Data_SysEntity } from './data_sys.entity';
+import { DataSysCreate, DataSysUpdate } from './datasys.dto';
+import { DataSysRepository } from './datasys.repository';
+import { DataSysDto } from './datasys.dto';
+import { DataSysEntity } from './datasys.entity';
 import { DeepPartial } from 'typeorm';
 import { HttpException } from '../../services/HttpException';
 
-export class Data_sysController {
-  constructor(private readonly Data_SysRepository: Data_SysRepository) {}
+export class DatasysController {
+  constructor(private readonly Data_SysRepository: DataSysRepository) {}
 
 /** POST Cria um novo registro de Data_sys */
   async create(
-    req: Request<{}, {}, Data_SysCreate>,
+    req: Request<{}, {}, DataSysCreate>,
     res: Response,
     next: NextFunction
   ) {
@@ -28,9 +28,9 @@ export class Data_sysController {
     }
   }
 
-  /** PATCH Atualiza um registro de Pessoa */
+  /** PATCH Atualiza um registro de Data_sys */
   async update(
-    req: Request<{ datasysId: string }, {}, Data_SysUpdate>,
+    req: Request<{ datasysId: string }, {}, DataSysUpdate>,
     res: Response,
     next: NextFunction
   ) {
@@ -54,7 +54,7 @@ export class Data_sysController {
     }
   }
 
-  /** DELETE Remove um registro de Pessoas */
+  /** DELETE Remove um registro de Data_sys */
   async remove(
     req: Request<{ datasysId: string }>,
     res: Response,
@@ -109,44 +109,49 @@ export class Data_sysController {
     }
   }
 
+  /** GET Busca um registro de Datasys pelo Parametro : { ID ou nome, chkdb } */
   async search(req: Request, res: Response, next: NextFunction) {
-  try {
-    // Extraindo parâmetros opcionais da query
-    const { id, nome, chkdb } = req.query;
+    try {
+      // Extraindo parâmetros opcionais da query
+      const { id, nome, chkdb } = req.query;
 
-    // Normalizando os parâmetros
-    const searchParams: {
-      id?: number;
-      nome?: string;
-      chkdb?: number;
-    } = {};
+      // Normalizando os parâmetros
+      const searchParams: {
+        id?: number;
+        nome?: string;
+        chkdb?: number;
+      } = {};
 
-    if (id && !isNaN(Number(id))) {
-      searchParams.id = Number(id);
+      if (id && !isNaN(Number(id))) {
+        searchParams.id = Number(id);
+      }
+
+      if (nome && typeof nome === "string") {
+        searchParams.nome = nome;
+      }
+
+      if (chkdb !== undefined) {
+        searchParams.chkdb = Number(chkdb) === 1 ? 1 : 0; // força tinyint (0 ou 1)
+      }
+
+      // Chamando o método do repository
+      const datasys = await this.Data_SysRepository.searchData_sys(searchParams);
+
+      // Se não encontrar nada
+      if (!datasys || (Array.isArray(datasys) && datasys.length === 0)) {
+        return res.status(404).json({ message: "Nenhum registro encontrado" });
+      }
+
+      return res.json(datasys);
+    
+    } catch (error) {
+      console.error("Erro no search:", error);
+      next(error); // Passa o erro para o middleware de tratamento
     }
-
-    if (nome && typeof nome === "string") {
-      searchParams.nome = nome;
-    }
-
-    if (chkdb !== undefined) {
-      searchParams.chkdb = Number(chkdb) === 1 ? 1 : 0; // força tinyint (0 ou 1)
-    }
-
-    // Chamando o método do repository
-    const datasys = await this.Data_SysRepository.searchData_sys(searchParams);
-
-    // Se não encontrar nada
-    if (!datasys || (Array.isArray(datasys) && datasys.length === 0)) {
-      return res.status(404).json({ message: "Nenhum registro encontrado" });
-    }
-
-    return res.json(datasys);
-  } catch (error) {
-    console.error("Erro no search:", error);
-    next(error); // Passa o erro para o middleware de tratamento
   }
-}
+  
+  // /** GET Busca todos registros em Datasys para listar pelo Parametro : { ID ou nome, chkdb } */
+
 
   ///////////////////////////////
 
@@ -165,20 +170,20 @@ export class Data_sysController {
     }
   }
 
-/** GET Lista todos os registros de DataSys por chkdb */
+  /** GET Lista todos os registros de DataSys por chkdb */
   async searchByChkdb(
-   req: Request,
+    req: Request,
     res: Response,
     next: NextFunction
-  ) {
-    try {
-      const text  = req.query?.text as string;
-      const datasys = await this.Data_SysRepository.searchChkbd(text);
-      return res.status(200).send({ success: true, datasys });
-    } catch (error) {
-      next(error);
+    ) {
+      try {
+        const text  = req.query?.text as string;
+        const datasys = await this.Data_SysRepository.searchChkbd(text);
+        return res.status(200).send({ success: true, datasys });
+      } catch (error) {
+        next(error);
+      }
     }
-  }
 
 
   /** GET Busca um registro de DataSys por nome */

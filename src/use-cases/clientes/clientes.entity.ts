@@ -1,7 +1,7 @@
 
 import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
-import { PessoasEntity } from '../pessoas/pessoas.entity';
-import { EmpresasEntity } from '../empresas/empresas.entity';
+import { PessoasEntity } from '../pessoa/pessoa.entity';
+import { EmpresasEntity } from '../empresa/empresa.entity';
 
 @Entity('clientes')
 export class ClientesEntity {

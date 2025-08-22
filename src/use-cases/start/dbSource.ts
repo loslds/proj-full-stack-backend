@@ -1,16 +1,16 @@
-
+ 
 import { DataSource } from 'typeorm';
-import { configDB } from '../config/db';
-import { entities } from './entities';
+import { configDB } from '../../config/db';
+import { dbEntity } from './dbEntity';
 
-export const dataSource = new DataSource({
+export const dbSource = new DataSource({
   type: 'mysql',
   host: configDB.host,
   port: configDB.port,
   username: configDB.username,
   password: configDB.password,
   database: configDB.database,
-  entities,
+  entities: dbEntity,
   synchronize: true,
 });
 

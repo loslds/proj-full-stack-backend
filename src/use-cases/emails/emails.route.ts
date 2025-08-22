@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { EmailsController } from './emails.controller';
 import { EmailsRepository } from './emails.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './emails.validation';
 
 const emailsRepository = new EmailsRepository(dataSource);

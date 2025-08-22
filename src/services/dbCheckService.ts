@@ -1,10 +1,10 @@
 
-import { dataSource } from '../database/dataSource';
+import { dbSource } from '../use-cases/start/dbSource';
 
 export async function checkAndInitializeSystem(requiredTables: string[] = ['pessoas', 'empresas']) {
   const messages: string[] = [];
   let overallOk = true;
-  const queryRunner = dataSource.createQueryRunner();
+  const queryRunner = dbSource.createQueryRunner();
 
   try {
     await queryRunner.connect();

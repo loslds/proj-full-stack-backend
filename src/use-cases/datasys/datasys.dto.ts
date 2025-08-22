@@ -1,7 +1,7 @@
 
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
-import { Data_SysEntity } from './data_sys.entity';
+import { DataSysEntity } from './datasys.entity';
 
 export const data_sysCreateSchema = z.object({
   nome: z.string().min(3),
@@ -13,7 +13,7 @@ export const data_sysUpdateSchema = z.object({
   chkdb: z.number().max(1),
 });
 
-export type Data_SysCreate = z.infer<typeof data_sysCreateSchema>;
-export type Data_SysUpdate = z.infer<typeof data_sysUpdateSchema>;
-export type Data_SysDto = DeepPartial<Data_SysEntity>
+export type DataSysCreate = z.infer<typeof data_sysCreateSchema>;
+export type DataSysUpdate = z.infer<typeof data_sysUpdateSchema>;
+export type DataSysDto = DeepPartial<DataSysEntity>
 

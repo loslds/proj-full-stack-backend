@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { UsersController } from './users.controller';
 import { UsersRepository } from './users.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './users.validation';
 
 const usersRepository = new UsersRepository(dataSource);

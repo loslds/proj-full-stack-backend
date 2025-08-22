@@ -2,7 +2,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { CidadesController } from './cidades.controller';
 import { CidadesRepository } from './cidades.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './cidades.validation';
 
 const cidadesRepository = new CidadesRepository(dataSource);

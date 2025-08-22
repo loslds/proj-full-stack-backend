@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { FonesController } from './fones.controller';
 import { FonesRepository } from './fones.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './fones.validation';
 
 const fonesRepository = new FonesRepository(dataSource);

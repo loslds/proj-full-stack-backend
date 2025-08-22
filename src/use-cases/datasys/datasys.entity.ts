@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryGeneratedColumn, Unique} from 'typeorm';
 
 @Entity('data_sys')
 @Unique(['nome']) // Adiciona a restrição de unicidade composta
-export class Data_SysEntity {
+export class DataSysEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number; // O campo 'id' será autoincremento
 

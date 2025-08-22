@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { ModuloController } from './modulo.controller';
 import { ModuloRepository } from './modulo.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './modulo.validation';
 
 const moduloRepository = new ModuloRepository(dataSource);

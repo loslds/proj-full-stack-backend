@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { startServer } from './startServer';
 import { appPort } from './config/app';
-import { dataSource } from './database/dataSource';
+import { dbSource } from './use-cases/start/dbSource';
 import { indexRoute } from './use-cases/index.route'; // seu arquivo de rotas principal
 
 const app = express();
@@ -22,6 +22,6 @@ app.use(express.json());
 app.use('/api', indexRoute);
 
 // Inicia servidor + conexão banco
-startServer(dataSource, app);
+startServer(dbSource, app);
 
 

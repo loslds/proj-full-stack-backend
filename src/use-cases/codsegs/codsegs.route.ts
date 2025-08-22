@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { CodsegsController } from './codsegs.controller';
 import { CodsegsRepository } from './codsegs.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './codsegs.validation';
 
 const codsegsRepository = new CodsegsRepository(dataSource);

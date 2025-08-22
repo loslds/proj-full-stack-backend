@@ -1,8 +1,8 @@
 
 import { Router } from 'express';
-import { datasysRoute } from './data_syss';
-import { pessoasRoute } from './pessoas';
-import { empresasRoute } from './empresas';
+import { datasysRoute } from './datasys';
+import { pessoasRoute } from './pessoa';
+import { empresasRoute } from './empresa';
 
 const indexRoute = Router();
 
@@ -10,6 +10,7 @@ const indexRoute = Router();
 indexRoute.use('/data_sys', datasysRoute);
 indexRoute.use('/pessoas', pessoasRoute);
 indexRoute.use('/empresas', empresasRoute);
+
 
 // Nova rota para teste de conexão com o banco
 indexRoute.get('/db/check-connection', async (req, res) => {

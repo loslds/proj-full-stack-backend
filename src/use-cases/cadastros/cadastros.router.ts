@@ -2,7 +2,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { CadastrosController } from './cadastros.controller';
 import { CadastrosRepository } from './cadastros.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './cadastros.validation';
 
 const cadastrosRepository = new CadastrosRepository(dataSource);

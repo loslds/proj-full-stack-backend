@@ -3,7 +3,7 @@ import { Router, RequestHandler } from 'express';
 
 import { FuncionarioController } from './funcionarios.controller';
 import { FuncionarioRepository } from './funcionarios.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './funcionarios.validation';
 
 const funcionarioRepository = new FuncionarioRepository(dataSource);

@@ -4,7 +4,7 @@ import { Router, RequestHandler } from 'express';
 
 import { ConsumidoresController } from './consumidores.controller';
 import { ConsumidoresRepository } from './consumidores.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './consumidores.validation';
 
 const consumidoresRepository = new ConsumidoresRepository(dataSource);

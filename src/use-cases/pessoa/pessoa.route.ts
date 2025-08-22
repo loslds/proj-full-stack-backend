@@ -1,13 +1,17 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { PessoasController } from './pessoas.controller';
-import { PessoasRepository } from './pessoas.repository';
-import { dataSource } from '../../database/dataSource';
-import { createValidation, updateValidation } from './pessoas.validation';
+import { PessoasController } from './pessoa.controller';
+import { PessoasRepository } from './pessoa.repository';
+import { dbSource } from '../start/dbSource';
+import { createValidation, updateValidation } from './pessoa.validation';
 
-const pessoasRepository = new PessoasRepository(dataSource);
+const pessoasRepository = new PessoasRepository(dbSource);
 const controller = new PessoasController(pessoasRepository);
 const pessoasRoute = Router();
+
+pessoasRoute.get('/', (req, res, next) => controller.findAll(req, res, next));
+pessoasRoute.post('/', createValidation, (req, res, next) => controller.create(req, res, next));
+pessoasRoute.get('/:pessoasId', (req, res, next) => controller.getOne(req, res, next));
 
 pessoasRoute.get('/', (req: Request, res: Response, next: NextFunction) => controller.findAll(req, res, next));
 pessoasRoute.get('/:pessoasId', (req: Request<{ pessoasId: string }>, res: Response, next: NextFunction) => controller.getOne(req, res, next));

@@ -2,7 +2,7 @@
 // src/server.ts (ou onde for o seu ponto de entrada)
 import express from 'express';
 import cors from 'cors';
-import dbRoutes from './routes/dbRoutes';  
+import dbRoutes from './use-cases/start/dbRoutes';  
 import { errorHandler } from './services/errorHandler';
 
 const app = express();

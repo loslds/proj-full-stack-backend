@@ -8,6 +8,9 @@ export async function startServer(database: DataSource, httpServer: Express) {
   await database.initialize();
   console.log('Banco de dados conectado com sucesso!');
   
+  // Disponibiliza o DataSource no app para ser usado nas rotas
+  httpServer.set('dataSource', database);
+  
   // inicializa o servidor Http
   httpServer.listen(appPort, () => {
     console.log(`Servidor rodando em http://localhost:${appPort}`);

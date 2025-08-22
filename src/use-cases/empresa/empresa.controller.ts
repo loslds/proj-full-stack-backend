@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
-import type { EmpresasRepository } from './empresas.repository';
-import { EmpresasCreate, EmpresasUpdate } from './empresas.dto';
+import type { EmpresasRepository } from './empresa.repository';
+import { EmpresasCreate, EmpresasUpdate } from './empresa.dto';
 
 export class EmpresasController {  
   constructor(private readonly empresasRepository: EmpresasRepository) {}

@@ -1,11 +1,11 @@
 import { Router, RequestHandler } from 'express';
 
-import { EmpresasController } from './empresas.controller';
-import { EmpresasRepository } from './empresas.repository';
-import { dataSource } from '../../database/dataSource';
-import { createValidation, updateValidation } from './empresas.validation';
+import { EmpresasController } from './empresa.controller';
+import { EmpresasRepository } from './empresa.repository';
+import { dbSource } from '../start/dbSource';
+import { createValidation, updateValidation } from './empresa.validation';
 
-const empresasRepository = new EmpresasRepository(dataSource);
+const empresasRepository = new EmpresasRepository(dbSource);
 const controller = new EmpresasController(empresasRepository);
 const empresasRoute = Router();
 

@@ -1,9 +1,9 @@
   
-import { dataSource } from '../database/dataSource';
+import { dbSource } from '../use-cases/start/dbSource';
 
 export async function checkTables(): Promise<{ success: boolean; message: string }> {
   try {
-    const queryRunner = dataSource.createQueryRunner();
+    const queryRunner = dbSource.createQueryRunner();
     await queryRunner.connect();
 
     // Lista todas as tabelas do banco
@@ -12,37 +12,9 @@ export async function checkTables(): Promise<{ success: boolean; message: string
 
     // 🔹 Liste as tabelas que o sistema precisa
     const requiredTables = [
-      'sys_data',
+      'sysdata',
       'pessoas',
       'empresas',
-      // 'funcionario',
-      // 'clientes',
-      // 'fornecedores',
-      // 'consumidores',
-      // 'cidades',
-      
-      // 'cadastros',
-      
-      // 'emails',
-      // 'docs',
-      // 'fones',
-      // 'codsegs',
-      // 'perguntas',
-      // 'respostas',
-      
-      // 'avatares',
-      // 'avatar_users',
-      
-      // 'modulos',
-      // 'niveis',
-      // 'acoes',
-      // 'setores',
-
-      // 'chaves',
-            
-      // 'users',
-      // 'acessos',
-      // 'resgates',
     ]; 
     const existingTables = tables.map((table: any) => Object.values(table)[0]);
 

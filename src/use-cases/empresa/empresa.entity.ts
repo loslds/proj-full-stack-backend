@@ -1,6 +1,6 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique } from 'typeorm';
-import { PessoasEntity } from '../pessoas/pessoas.entity';
+import { PessoasEntity } from '../pessoa/pessoa.entity';
 
 @Entity('empresas')
 @Unique(['nmempresa', 'fantasy']) // Adiciona a restrição de unicidade composta

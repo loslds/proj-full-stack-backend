@@ -1,6 +1,6 @@
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
-import { PessoasEntity } from './pessoas.entity';
-import type { PessoasCreate } from './pessoas.dto';
+import { PessoasEntity } from './pessoa.entity';
+import type { PessoasCreate } from './pessoa.dto';
 
 export class PessoasRepository {
   private repo: Repository<PessoasEntity>;

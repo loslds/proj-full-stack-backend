@@ -1,21 +1,56 @@
  
 import { Router } from 'express';
-import { dataSource } from '../database/dataSource';
-import { checkDatabases } from '../controllers/dbController';
-
-
+import { dbSource } from './dbSource';
+import { checkDatabases } from './dbController';
 
 const router = Router();
+
+
+
+
+
+
+
+/** Checa a existencia de Tabela data_sys */ 
+router.get('/check', async (req, res) => {
+  try {
+    const dataSource = req.app.get('dataSource');
+
+    // Verifica se a tabela existe e retorna um count
+    const result = await dataSource.query('SELECT COUNT(*) AS total FROM data_sys');
+
+    res.status(200).json({
+      success: true,
+      message: 'Tabela data_sys verificada com sucesso!',
+      totalRegistros: result[0].total
+    });
+
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({
+        success: false,
+        message: 'Erro ao verificar tabela data_sys',
+        error: error.message
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Erro desconhecido ao verificar tabela data_sys'
+      });
+    }
+  }
+});
+
 // Rota nova: faz toda a checagem e cria tabelas necessárias quando não existirem
 router.get('/check-databases', checkDatabases);
 
 // Rota já existente para chkdb — recomendo ajustar para olhar 'sys_master'
 router.get('/check-chkdb', async (req, res) => {
   try {
-    if (!dataSource.isInitialized) {
-      await dataSource.initialize();
+    if (!dbSource.isInitialized) {
+      await dbSource.initialize();
     }
-    const queryRunner = dataSource.createQueryRunner();
+    const queryRunner = dbSource.createQueryRunner();
     await queryRunner.connect();
 
     // consultar a linha data_sys (criada pelo check-databases)
@@ -49,10 +84,10 @@ router.get('/table-count/:table', async (req, res) => {
   const { table } = req.params;
 
   try {
-    if (!dataSource.isInitialized) {
-      await dataSource.initialize();
+    if (!dbSource.isInitialized) {
+      await dbSource.initialize();
     }
-    const queryRunner = dataSource.createQueryRunner();
+    const queryRunner = dbSource.createQueryRunner();
     await queryRunner.connect();
 
     // Sanitização mínima: permitir apenas nomes esperados
@@ -79,27 +114,5 @@ router.get('/table-count/:table', async (req, res) => {
   }
 });
 
-//import { checkTables } from '../services/checkDatabase';
-// // 🔍 Verifica conexão com o banco de dados
-// router.get('/check-connection', async (req, res) => {
-//   try {
-//     if (!dataSource.isInitialized) {
-//       await dataSource.initialize();
-//     }
-//     res.json({ success: true, message: '✅ Conectado ao banco de dados' });
-//   } catch (error) {
-//     console.error('❌ Erro na conexão:', error);
-//     res.status(500).json({ success: false, message: '❌ Falha na conexão com o banco de dados' });
-//   }
-// });
+///////////////////////////////////////////
 
-// // 🔍 Verifica se as tabelas existem
-// router.get('/check-tables', async (req, res) => {
-//   const result = await checkTables();
-//   res.json(result);
-// });
-
-// export default router;
-
-
-// Checa o campo chkdb na tabela sys_data (ou tb_sys se for esse o nome)

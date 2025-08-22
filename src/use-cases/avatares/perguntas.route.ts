@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { PerguntasController } from './perguntas.controller';
 import { PerguntasRepository } from './perguntas.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './perguntas.validation';
 
 const perguntasRepository = new PerguntasRepository(dataSource);

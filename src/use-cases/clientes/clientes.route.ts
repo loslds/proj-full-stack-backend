@@ -3,7 +3,7 @@ import { Router, RequestHandler } from 'express';
 
 import { ClientesController } from './clientes.controller';
 import { ClientesRepository } from './clientes.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './clientes.validation';
 
 const clientesRepository = new ClientesRepository(dataSource);

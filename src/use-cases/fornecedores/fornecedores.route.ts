@@ -3,7 +3,7 @@ import { Router, RequestHandler } from 'express';
 
 import { FornecedoresController } from './fornecedores.controller';
 import { FornecedoresRepository } from './fornecedores.repository';
-import { dataSource } from '../../database/dataSource';
+import { dataSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './fornecedores.validation';
 
 const fornecedoresRepository = new FornecedoresRepository(dataSource);
