@@ -1,13 +1,14 @@
-
+ 
+// src/use-cases/index.route.ts
 import { Router } from 'express';
-import { datasysRoute } from './datasys';
+import { systablesRoute } from './systable';
 import { pessoasRoute } from './pessoa';
 import { empresasRoute } from './empresa';
 
 const indexRoute = Router();
 
 // Suas rotas existentes
-indexRoute.use('/data_sys', datasysRoute);
+indexRoute.use('/systables', systablesRoute);
 indexRoute.use('/pessoas', pessoasRoute);
 indexRoute.use('/empresas', empresasRoute);
 

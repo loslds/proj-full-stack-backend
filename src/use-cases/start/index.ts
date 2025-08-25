@@ -1,6 +1,8 @@
 
-import { DataSysEntity } from '../datasys/datasys.entity';
+ // src/user-case/start/index.ts
+import { SystablesEntity } from '../systable/systable.entity';
 import { PessoasEntity } from '../pessoa/pessoa.entity';
 import { EmpresasEntity } from '../empresa/empresa.entity';
 
-export const entities = [DataSysEntity, PessoasEntity, EmpresasEntity];
+export const entities = [SystablesEntity, PessoasEntity, EmpresasEntity];
+

@@ -1,18 +1,13 @@
  
+  // src/user-case/start/dbRoutes.ts
 import { Router } from 'express';
 import { dbSource } from './dbSource';
 import { checkDatabases } from './dbController';
 
 const router = Router();
 
-
-
-
-
-
-
 /** Checa a existencia de Tabela data_sys */ 
-router.get('/check', async (req, res) => {
+router.get('/check-chk.db', async (req, res) => {
   try {
     const dataSource = req.app.get('dataSource');
 

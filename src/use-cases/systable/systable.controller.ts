@@ -1,27 +1,27 @@
 import { NextFunction, Request, Response } from 'express';
-import { DataSysCreate, DataSysUpdate } from './datasys.dto';
-import { DataSysRepository } from './datasys.repository';
-import { DataSysDto } from './datasys.dto';
-import { DataSysEntity } from './datasys.entity';
+import { SystableCreate, SystableUpdate } from './systable.dto';
+import { SystableRepository } from './systable.repository';
+import { SystableDto } from './systable.dto';
+import { SystablesEntity } from './systable.entity';
 import { DeepPartial } from 'typeorm';
 import { HttpException } from '../../services/HttpException';
 
-export class DatasysController {
-  constructor(private readonly Data_SysRepository: DataSysRepository) {}
+export class SystableController {
+  constructor(private readonly SystablesRepository: SystableRepository) {}
 
 /** POST Cria um novo registro de Data_sys */
   async create(
-    req: Request<{}, {}, DataSysCreate>,
+    req: Request<{}, {}, SystableCreate>,
     res: Response,
     next: NextFunction
   ) {
     const { body } = req
     const { nome, chkdb} = body
     try {
-      const exists = await this.Data_SysRepository.hasDuplicated(nome, chkdb)
-      if(!!exists) throw new HttpException(400,'data_sys ja existe')
+      const exists = await this.SystablesRepository.hasDuplicated(nome, chkdb)
+      if(!!exists) throw new HttpException(400,'systables ja existe')
 
-      const datasys = await this.Data_SysRepository.createData_sys(body);
+      const datasys = await this.SystablesRepository.createData_sys(body);
       return res.status(201).send({ success: true, datasys });
     } catch (error) {
       next(error);
@@ -30,7 +30,7 @@ export class DatasysController {
 
   /** PATCH Atualiza um registro de Data_sys */
   async update(
-    req: Request<{ datasysId: string }, {}, DataSysUpdate>,
+    req: Request<{ datasysId: string }, {}, SystableUpdate>,
     res: Response,
     next: NextFunction
   ) {
@@ -38,12 +38,12 @@ export class DatasysController {
     const { nome, chkdb} = body
     try {
       const datasysId = Number(params?.datasysId);
-      if(!datasysId) throw new HttpException(400,'Reg. id em Data_Sys invalido')
+      if(!datasysId) throw new HttpException(400,'Reg. id em systables invalido')
       
-      const exists = await this.Data_SysRepository.hasDuplicated(nome, chkdb, [datasysId])
-      if(!!exists) throw  new HttpException(400,'Reg. em Data_Sys ja existe')
+      const exists = await this.SystablesRepository.hasDuplicated(nome, chkdb, [datasysId])
+      if(!!exists) throw  new HttpException(400,'Reg. em systables ja existe')
 
-      const datasys = await this.Data_SysRepository.updateData_sys(
+      const datasys = await this.SystablesRepository.updateData_sys(
         datasysId,
         body 
       );
@@ -69,7 +69,7 @@ export class DatasysController {
     }
 
     try {
-      await this.Data_SysRepository.deleteDatasys(datasysId);
+      await this.SystablesRepository.deleteDatasys(datasysId);
       return res.status(200).send({ success: true });
     } catch (error) {
       next(error);
@@ -79,7 +79,7 @@ export class DatasysController {
   /** GET Busca todos os registros de Datasys */
   async findAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const datasys = await this.Data_SysRepository.findData_sysAll();
+      const datasys = await this.SystablesRepository.findData_sysAll();
       return res.status(200).send({ success: true, datasys });
     } catch (error) {
       next(error);
@@ -102,7 +102,7 @@ export class DatasysController {
     }
 
     try {
-      const datasys = await this.Data_SysRepository.findData_SysById(datasysId);
+      const datasys = await this.SystablesRepository.findData_SysById(datasysId);
       return res.status(200).send({ success: true, datasys });
     } catch (error) {
       next(error);
@@ -135,7 +135,7 @@ export class DatasysController {
       }
 
       // Chamando o método do repository
-      const datasys = await this.Data_SysRepository.searchData_sys(searchParams);
+      const datasys = await this.SystablesRepository.searchData_sys(searchParams);
 
       // Se não encontrar nada
       if (!datasys || (Array.isArray(datasys) && datasys.length === 0)) {
@@ -163,7 +163,7 @@ export class DatasysController {
   ) {
     try {
       const text  = req.query?.text as string;
-      const datasys = await this.Data_SysRepository.searchName(text);
+      const datasys = await this.SystablesRepository.searchName(text);
       return res.status(200).send({ success: true, datasys });
     } catch (error) {
       next(error);
@@ -178,7 +178,7 @@ export class DatasysController {
     ) {
       try {
         const text  = req.query?.text as string;
-        const datasys = await this.Data_SysRepository.searchChkbd(text);
+        const datasys = await this.SystablesRepository.searchChkbd(text);
         return res.status(200).send({ success: true, datasys });
       } catch (error) {
         next(error);
@@ -195,9 +195,9 @@ export class DatasysController {
     try {
       const nmdatasys = req.query?.nome as string;
       if (!nmdatasys) {
-        return res.status(400).send({ success: false, message: 'nome DataSys parameter is required' });
+        return res.status(400).send({ success: false, message: 'nome systables parameter is required' });
       }
-      const datasys = await this.Data_SysRepository.findData_sysByNome(nmdatasys);
+      const datasys = await this.SystablesRepository.findData_sysByNome(nmdatasys);
       return res.status(200).send({ success: true, datasys });
     } catch (error) {
       next(error);
@@ -215,7 +215,7 @@ export class DatasysController {
       if (!chkdb) {
         return res.status(400).send({ success: false, message: 'Chkdb parameter is required' });
       }
-      const datasys = await this.Data_SysRepository.findDatasysAllChkdb(chkdb);
+      const datasys = await this.SystablesRepository.findDatasysAllChkdb(chkdb);
       return res.status(200).send({ success: true, datasys });
     } catch (error) {
       next(error);

@@ -1,12 +1,12 @@
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
-import { DataSysEntity } from './datasys.entity';
-import type { DataSysCreate } from './datasys.dto';
+import { SystablesEntity } from './systable.entity';
+import type { SystableCreate } from './systable.dto';
 
-export class DataSysRepository {
-  private repo: Repository<DataSysEntity>;
+export class SystableRepository {
+  private repo: Repository<SystablesEntity>;
 
   constructor(private readonly dataSource: DataSource) {
-    this.repo = this.dataSource.getRepository(DataSysEntity);
+    this.repo = this.dataSource.getRepository(SystablesEntity);
   }
 
   async hasDuplicated(nome?: string, chkdb?: number, excludes: number[] = []) { 
@@ -23,12 +23,12 @@ export class DataSysRepository {
     return result
   }
 
-  async createData_sys(data_sys : DataSysCreate): Promise<DataSysEntity> {
+  async createData_sys(data_sys : SystableCreate): Promise<SystablesEntity> {
     const data = this.repo.create(data_sys);
     return this.repo.save(data);
   }
 
-  async updateData_sys(data_sysId: number, data_sys: DeepPartial<DataSysEntity>): Promise<DataSysEntity> {
+  async updateData_sys(data_sysId: number, data_sys: DeepPartial<SystablesEntity>): Promise<SystablesEntity> {
     const data = this.repo.create({ id: data_sysId, ...data_sys });
     return this.repo.save(data);
   }
@@ -40,12 +40,12 @@ export class DataSysRepository {
   /////////////////////////////////
   
   // Busca todos os registros de Data_Sys com condição opcional
-  async findData_sysAll(where?: FindOptionsWhere<DataSysEntity>): Promise<DataSysEntity[]> {
+  async findData_sysAll(where?: FindOptionsWhere<SystablesEntity>): Promise<SystablesEntity[]> {
     return this.repo.find({ where });
   }
 
   // Busca um registro de Data_sys pelo ID
-  async findData_SysById(data_sysId: number): Promise<DataSysEntity | null> {
+  async findData_SysById(data_sysId: number): Promise<SystablesEntity | null> {
     if (!data_sysId || isNaN(data_sysId) || data_sysId <= 0) {
       throw new Error('Invalid data_sysId');
     }
@@ -95,12 +95,12 @@ export class DataSysRepository {
   }
 
   // Busca um registro de Data_sys pelo campo nome
-  async findData_sysByNome(nome: string): Promise<DataSysEntity | null> {
+  async findData_sysByNome(nome: string): Promise<SystablesEntity | null> {
     return this.repo.findOne({ where: { nome } });
   }
 
   // Busca todos os registros de Data_sys pelo campo chkdb
-  async findDatasysAllChkdb(chkdb: number): Promise<DataSysEntity[]> {
+  async findDatasysAllChkdb(chkdb: number): Promise<SystablesEntity[]> {
      return this.repo.find({ where: { chkdb } });
   }
 }

@@ -1,4 +1,5 @@
  
+ // src/user-case/start/dbSouce.ts
 import { DataSource } from 'typeorm';
 import { configDB } from '../../config/db';
 import { dbEntity } from './dbEntity';
@@ -13,5 +14,6 @@ export const dbSource = new DataSource({
   entities: dbEntity,
   synchronize: true,
 });
+
 
 
