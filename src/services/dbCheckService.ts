@@ -1,7 +1,7 @@
 
 import { dbSource } from '../use-cases/start/dbSource';
 
-export async function checkAndInitializeSystem(requiredTables: string[] = ['pessoas', 'empresas']) {
+export async function checkAndInitializeSystem(requiredTables: string[] = ['systable', 'pessoas', 'empresas']) {
   const messages: string[] = [];
   let overallOk = true;
   const queryRunner = dbSource.createQueryRunner();
