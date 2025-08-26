@@ -1,24 +1,19 @@
 
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm'; 
 import { PessoasEntity } from '../pessoa/pessoa.entity';
-
 @Entity('empresas')
-@Unique(['nmempresa', 'fantasy']) // Adiciona a restrição de unicidade composta
+
 export class EmpresasEntity {
-  // ref ao ID do Registro
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-  // Relacionamento com a entidade PessoaEntity
   @ManyToOne(() => PessoasEntity)
   @JoinColumn({ name: 'id_pessoa' })
   pessoa: PessoasEntity;
-  //id da entidade do Registro Pessoa  
-  @Column({ type: 'int', nullable: false })
+
+  @Column({ type: 'int', nullable: false, unsigned: true })
   id_pessoa: number;
 
-  ///////////////////////////////////
-  
   @Column({ type: 'varchar', length: 45, nullable: false })
   nmempresa: string;
 
@@ -31,27 +26,15 @@ export class EmpresasEntity {
   @Column({ type: 'blob', nullable: true })
   imagelogo?: Buffer;
 
-  @Column({ type: 'int', nullable: true, default: null })
+  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
   createdBy?: number;
 
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-    default: () => 'CURRENT_TIMESTAMP',
-  })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
   updatedBy?: number;
 
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-    default: () => 'CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP',
-  })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   updatedAt?: Date;
-
 }
-

@@ -64,8 +64,8 @@ export class EmpresasRepository {
     return this.repo.findOne({ where: { fantasy } });
   }
 
-  // Busca todos os registros de Empresa com mesmo id_pessoa
-  async findEmpresasByPessoaId(pessoaId: number): Promise<EmpresasEntity[]> {
-      return this.repo.find({ where: { id_pessoa: pessoaId } });
+  // Busca todos os registros de Empresa com mesmo id_pessoas
+  async findEmpresasByPessoaId(pessoasId: number): Promise<EmpresasEntity[]> {
+      return this.repo.find({ where: { id_pessoa: pessoasId } });
     }
 }

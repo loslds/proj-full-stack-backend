@@ -17,3 +17,4 @@ export async function checkDatabases(req: Request, res: Response) {
     return res.status(200).json({ success: false, messages: ['Erro interno no servidor'] });
   }
 }
+
