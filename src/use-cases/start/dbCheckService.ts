@@ -1,5 +1,6 @@
 
-import { dbSource } from '../use-cases/start/dbSource';
+// src/use-cases/start/dbCheckService.ts
+import { dbSource } from './dbSource';
 
 export async function checkAndInitializeSystem(requiredTables: string[] = ['systable', 'pessoas', 'empresas']) {
   const messages: string[] = [];

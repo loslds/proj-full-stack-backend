@@ -1,5 +1,6 @@
   
-import { dbSource } from '../use-cases/start/dbSource';
+ // src/use-cases/start/checkDatabases.ts
+import { dbSource } from './dbSource';
 
 export async function checkTables(): Promise<{ success: boolean; message: string }> {
   try {
@@ -30,3 +31,4 @@ export async function checkTables(): Promise<{ success: boolean; message: string
     return { success: false, message: '❌ Erro ao verificar tabelas' };
   }
 }
+

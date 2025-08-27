@@ -9,7 +9,7 @@ import { HttpException } from '../../services/HttpException';
 export class SystableController {
   constructor(private readonly SystablesRepository: SystableRepository) {}
 
-/** POST Cria um novo registro de Data_sys */
+/** POST Cria um novo registro de systable */
   async create(
     req: Request<{}, {}, SystableCreate>,
     res: Response,
@@ -19,57 +19,57 @@ export class SystableController {
     const { nome, chkdb} = body
     try {
       const exists = await this.SystablesRepository.hasDuplicated(nome, chkdb)
-      if(!!exists) throw new HttpException(400,'systables ja existe')
+      if(!!exists) throw new HttpException(400,'systable ja existe')
 
-      const datasys = await this.SystablesRepository.createData_sys(body);
-      return res.status(201).send({ success: true, datasys });
+      const systable = await this.SystablesRepository.createSystable(body);
+      return res.status(201).send({ success: true, systable });
     } catch (error) {
       next(error);
     }
   }
 
-  /** PATCH Atualiza um registro de Data_sys */
+  /** PATCH Atualiza um registro de systable */
   async update(
-    req: Request<{ datasysId: string }, {}, SystableUpdate>,
+    req: Request<{ systableId: string }, {}, SystableUpdate>,
     res: Response,
     next: NextFunction
   ) {
     const { params, body } = req
     const { nome, chkdb} = body
     try {
-      const datasysId = Number(params?.datasysId);
-      if(!datasysId) throw new HttpException(400,'Reg. id em systables invalido')
+      const systableId = Number(params?.systableId);
+      if(!systableId) throw new HttpException(400,'Reg. id em Systable invalido')
       
-      const exists = await this.SystablesRepository.hasDuplicated(nome, chkdb, [datasysId])
-      if(!!exists) throw  new HttpException(400,'Reg. em systables ja existe')
+      const exists = await this.SystablesRepository.hasDuplicated(nome, chkdb, [systableId])
+      if(!!exists) throw  new HttpException(400,'Reg. em systable ja existe')
 
-      const datasys = await this.SystablesRepository.updateData_sys(
-        datasysId,
+      const systable = await this.SystablesRepository.updateSystable(
+        systableId,
         body 
       );
 
-      return res.status(200).send({ success: true, datasys });
+      return res.status(200).send({ success: true, systable });
     } catch (error) {
       next(error);
     }
   }
 
-  /** DELETE Remove um registro de Data_sys */
+  /** DELETE Remove um registro de systable */
   async remove(
-    req: Request<{ datasysId: string }>,
+    req: Request<{ systableId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const datasysId = Number(req.params.datasysId);
-    if (isNaN(datasysId) || datasysId <= 0) {
+    const systableId = Number(req.params.systableId);
+    if (isNaN(systableId) || systableId <= 0) {
       return res
         .status(400)
-        .send({ success: false, message: 'Invalid datasysId' })
+        .send({ success: false, message: 'Invalid systableId' })
         .end();
     }
 
     try {
-      await this.SystablesRepository.deleteDatasys(datasysId);
+      await this.SystablesRepository.deleteSystable(systableId);
       return res.status(200).send({ success: true });
     } catch (error) {
       next(error);
@@ -79,37 +79,37 @@ export class SystableController {
   /** GET Busca todos os registros de Datasys */
   async findAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const datasys = await this.SystablesRepository.findData_sysAll();
-      return res.status(200).send({ success: true, datasys });
+      const systable = await this.SystablesRepository.findSystableAll();
+      return res.status(200).send({ success: true, systable });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registro de Datasys por ID */
+  /** GET Busca um registro de systable por ID */
   async getOne(
-    req: Request<{ datasysId: string }>,
+    req: Request<{ systableId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const datasysId = Number(req.params.datasysId);
+    const systableId = Number(req.params.systableId);
 
-    if (isNaN(datasysId) || datasysId <= 0) {
+    if (isNaN(systableId) || systableId <= 0) {
       return res
         .status(400)
-        .send({ success: false, message: 'Invalid DatasysId' })
+        .send({ success: false, message: 'Invalid systable' })
         .end();
     }
 
     try {
-      const datasys = await this.SystablesRepository.findData_SysById(datasysId);
-      return res.status(200).send({ success: true, datasys });
+      const systable = await this.SystablesRepository.findSystableById(systableId);
+      return res.status(200).send({ success: true, systable });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registro de Datasys pelo Parametro : { ID ou nome, chkdb } */
+  /** GET Busca um registro de systable pelo Parametro : { ID ou nome, chkdb } */
   async search(req: Request, res: Response, next: NextFunction) {
     try {
       // Extraindo parâmetros opcionais da query
@@ -135,14 +135,14 @@ export class SystableController {
       }
 
       // Chamando o método do repository
-      const datasys = await this.SystablesRepository.searchData_sys(searchParams);
+      const systable = await this.SystablesRepository.searchSystable(searchParams);
 
       // Se não encontrar nada
-      if (!datasys || (Array.isArray(datasys) && datasys.length === 0)) {
+      if (!systable || (Array.isArray(systable) && systable.length === 0)) {
         return res.status(404).json({ message: "Nenhum registro encontrado" });
       }
 
-      return res.json(datasys);
+      return res.json(systable);
     
     } catch (error) {
       console.error("Erro no search:", error);
@@ -155,7 +155,7 @@ export class SystableController {
 
   ///////////////////////////////
 
-  /** GET Lista todos os registros de DataSys por nome */
+  /** GET Lista todos os registros de systable por nome */
   async searchByName(
     req: Request,
     res: Response,
@@ -163,14 +163,14 @@ export class SystableController {
   ) {
     try {
       const text  = req.query?.text as string;
-      const datasys = await this.SystablesRepository.searchName(text);
-      return res.status(200).send({ success: true, datasys });
+      const systable = await this.SystablesRepository.searchName(text);
+      return res.status(200).send({ success: true, systable });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Lista todos os registros de DataSys por chkdb */
+  /** GET Lista todos os registros de systable por chkdb */
   async searchByChkdb(
     req: Request,
     res: Response,
@@ -178,33 +178,33 @@ export class SystableController {
     ) {
       try {
         const text  = req.query?.text as string;
-        const datasys = await this.SystablesRepository.searchChkbd(text);
-        return res.status(200).send({ success: true, datasys });
+        const systable = await this.SystablesRepository.searchChkbd(text);
+        return res.status(200).send({ success: true, systable });
       } catch (error) {
         next(error);
       }
     }
 
 
-  /** GET Busca um registro de DataSys por nome */
-  async findByNmDatasys(
+  /** GET Busca um registro de systable por nome */
+  async findByNmSystable(
     req: Request,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const nmdatasys = req.query?.nome as string;
-      if (!nmdatasys) {
-        return res.status(400).send({ success: false, message: 'nome systables parameter is required' });
+      const nmsystable = req.query?.nome as string;
+      if (!nmsystable) {
+        return res.status(400).send({ success: false, message: 'nome systable parameter is required' });
       }
-      const datasys = await this.SystablesRepository.findData_sysByNome(nmdatasys);
-      return res.status(200).send({ success: true, datasys });
+      const systable = await this.SystablesRepository.findSystableByNome(nmsystable);
+      return res.status(200).send({ success: true, systable });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Lista todos os registros de Datasys por chkdb */
+  /** GET Lista todos os registros de systable por chkdb */
   async findAllChkdb(
     req: Request<{}, {}, {}, { chkdb: number }>,
     res: Response,
@@ -215,8 +215,8 @@ export class SystableController {
       if (!chkdb) {
         return res.status(400).send({ success: false, message: 'Chkdb parameter is required' });
       }
-      const datasys = await this.SystablesRepository.findDatasysAllChkdb(chkdb);
-      return res.status(200).send({ success: true, datasys });
+      const systable = await this.SystablesRepository.findSystableAllChkdb(chkdb);
+      return res.status(200).send({ success: true, systable });
     } catch (error) {
       next(error);
     }

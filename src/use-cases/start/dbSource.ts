@@ -13,6 +13,7 @@ export const dbSource = new DataSource({
   database: configDB.database,
   entities: dbEntity,
   synchronize: true,
+  logging: false,
 });
 
 

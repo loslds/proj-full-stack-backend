@@ -1,7 +1,7 @@
 
 // src/user-case/start/dbController.ts
 import { Request, Response } from 'express';
-import { checkAndInitializeSystem } from '../../services/dbCheckService';
+import { checkAndInitializeSystem } from './dbCheckService';
 
 export async function checkDatabases(req: Request, res: Response) {
   try {

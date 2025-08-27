@@ -1,4 +1,5 @@
 
+// src/services/erroHandler.ts
 export class HttpException extends Error {
   status: number;
   message: string;

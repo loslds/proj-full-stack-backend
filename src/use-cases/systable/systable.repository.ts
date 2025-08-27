@@ -10,66 +10,66 @@ export class SystableRepository {
   }
 
   async hasDuplicated(nome?: string, chkdb?: number, excludes: number[] = []) { 
-    const query = this.repo.createQueryBuilder('Data_Sys')
+    const query = this.repo.createQueryBuilder('systable')
     .select()
-    .where('Data_Sys.nome LIKE : name', {nome})
-    .andWhere('Data_Sys.chkdb LIKE : chkdb', {chkdb})
+    .where('systable.nome LIKE : name', {nome})
+    .andWhere('systable.chkdb LIKE : chkdb', {chkdb})
 
     if(!!excludes?.length) {
-      query.andWhere('Data_Sys.id NOT IN(:...excludes)',{ excludes })
+      query.andWhere('systable.id NOT IN(:...excludes)',{ excludes })
     }
 
     const result = await query.getOne()
     return result
   }
 
-  async createData_sys(data_sys : SystableCreate): Promise<SystablesEntity> {
-    const data = this.repo.create(data_sys);
+  async createSystable(systable : SystableCreate): Promise<SystablesEntity> {
+    const data = this.repo.create(systable);
     return this.repo.save(data);
   }
 
-  async updateData_sys(data_sysId: number, data_sys: DeepPartial<SystablesEntity>): Promise<SystablesEntity> {
-    const data = this.repo.create({ id: data_sysId, ...data_sys });
+  async updateSystable(systableId: number, systable: DeepPartial<SystablesEntity>): Promise<SystablesEntity> {
+    const data = this.repo.create({ id: systableId, ...systable });
     return this.repo.save(data);
   }
 
-  async deleteDatasys(data_sysId: number) {
-    return this.repo.delete(data_sysId);
+  async deleteSystable(systableId: number) {
+    return this.repo.delete(systableId);
   }
   
   /////////////////////////////////
   
   // Busca todos os registros de Data_Sys com condição opcional
-  async findData_sysAll(where?: FindOptionsWhere<SystablesEntity>): Promise<SystablesEntity[]> {
+  async findSystableAll(where?: FindOptionsWhere<SystablesEntity>): Promise<SystablesEntity[]> {
     return this.repo.find({ where });
   }
 
   // Busca um registro de Data_sys pelo ID
-  async findData_SysById(data_sysId: number): Promise<SystablesEntity | null> {
+  async findSystableById(data_sysId: number): Promise<SystablesEntity | null> {
     if (!data_sysId || isNaN(data_sysId) || data_sysId <= 0) {
       throw new Error('Invalid data_sysId');
     }
     return this.repo.findOne({ where: { id: data_sysId } });
   }
   
-  async searchData_sys(params: { id?: number; nome?: string; chkdb?: number }) {
-    const query = this.repo.createQueryBuilder('Data_sys')
-      .select(['Data_sys.id', 'Data_sys.nome', 'Data_sys.chkdb'])
-      .orderBy('Data_sys.id', 'ASC'); // Ordenação padrão
+  async searchSystable(params: { id?: number; nome?: string; chkdb?: number }) {
+    const query = this.repo.createQueryBuilder('systable')
+      .select(['systable.id', 'systable.nome', 'systable.chkdb'])
+      .orderBy('systable.id', 'ASC'); // Ordenação padrão
   
     // Filtrar por ID (caso seja informado)
     if (params.id) {
-      query.andWhere('Data_sys.id = :id', { id: params.id });
+      query.andWhere('systable.id = :id', { id: params.id });
     }
   
     // Filtrar por nome (caso seja informado)
     if (params.nome) {
-      query.andWhere('Data_sys.nome LIKE : nome', { nome: `%${params.nome}%` });
+      query.andWhere('systable.nome LIKE : nome', { nome: `%${params.nome}%` });
     }
   
     // Filtrar por chkdb (caso seja informado)
     if (params.chkdb) {
-      query.andWhere('Data_sys.chkdb LIKE : chkdb', { chkdb: `%${params.chkdb}%` });
+      query.andWhere('systable.chkdb LIKE : chkdb', { chkdb: `%${params.chkdb}%` });
     }
   
     return query.getMany();
@@ -77,30 +77,30 @@ export class SystableRepository {
   
   // Busca todos os registros de Data_sys pelo campo nome
   async searchName(text?: string) {
-    const query = this.repo.createQueryBuilder('Data_sys')
-    .select(['Data_sys.id', 'Data_sys.nome'])
-    .orderBy('Data_sys.id', 'ASC') // Ordena pelo ID de forma crescente
+    const query = this.repo.createQueryBuilder('systable')
+    .select(['systable.id', 'systable.nome'])
+    .orderBy('systable.id', 'ASC') // Ordena pelo ID de forma crescente
     .limit(100)
-    if(!!text) query.andWhere('Data_sys.nome LIKE : text', { text: `%${text}%`})
+    if(!!text) query.andWhere('systable.nome LIKE : text', { text: `%${text}%`})
     return query.getMany()
   }
   
   // Busca todos os registros de Data_sys pelo campo chkdb
   async searchChkbd(text?: string) {
-    const query = this.repo.createQueryBuilder('Data_sys')
-    .select(['Data_sys.id', 'Data_sys.chkdb'])
+    const query = this.repo.createQueryBuilder('systable')
+    .select(['systable.id', 'systable.chkdb'])
     .limit(100)
-    if(!!text) query.andWhere('Data_sys.chkdb LIKE : text', { text: `%${text}%`})
+    if(!!text) query.andWhere('systable.chkdb LIKE : text', { text: `%${text}%`})
     return query.getMany()
   }
 
   // Busca um registro de Data_sys pelo campo nome
-  async findData_sysByNome(nome: string): Promise<SystablesEntity | null> {
+  async findSystableByNome(nome: string): Promise<SystablesEntity | null> {
     return this.repo.findOne({ where: { nome } });
   }
 
   // Busca todos os registros de Data_sys pelo campo chkdb
-  async findDatasysAllChkdb(chkdb: number): Promise<SystablesEntity[]> {
+  async findSystableAllChkdb(chkdb: number): Promise<SystablesEntity[]> {
      return this.repo.find({ where: { chkdb } });
   }
 }

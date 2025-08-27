@@ -5,7 +5,6 @@ import { dbSource } from './dbSource';
 import { checkDatabases } from './dbController';
 import { syncSysTables } from '../../services/syncsysTables';
 
-
 const router = Router();
 
 /** Checa a existencia de Tabela data_sys */ 

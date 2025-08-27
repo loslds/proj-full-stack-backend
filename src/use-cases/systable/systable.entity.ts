@@ -1,7 +1,7 @@
 
 import { Column, Entity, PrimaryGeneratedColumn, Unique} from 'typeorm';
 
-@Entity('systables')
+@Entity('systable')
 @Unique(['nome']) // Adiciona a restrição de unicidade composta
 
 export class SystablesEntity {
