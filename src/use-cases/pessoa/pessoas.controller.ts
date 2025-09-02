@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import { PessoasRepository } from './pessoa.repository';
-import { PessoasCreate, PessoasUpdate } from './pessoa.dto';
-import { PessoasEntity } from './pessoa.entity';
+import { PessoasRepository } from './pessoas.repository';
+import { PessoasCreate, PessoasUpdate } from './pessoas.dto';
+import { PessoasEntity } from './pessoas.entity';
 import { DeepPartial } from 'typeorm';
-import { HttpException } from '../../services/HttpException';
+import { HttpException } from '../../middlewares/HttpException';
 
 export class PessoasController {
   constructor(private readonly pessoasRepository: PessoasRepository) {}

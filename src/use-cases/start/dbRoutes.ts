@@ -83,7 +83,7 @@ router.get('/table-count/:table', async (req, res) => {
     await queryRunner.connect();
 
     // Sanitização mínima: permitir apenas nomes esperados
-    const allowed = ['systables', 'pessoas', 'empresas']; // expanda conforme necessário
+    const allowed = ['systables', 'pessoas', 'empresas', 'tabela_falsa' ]; // expanda conforme necessário
     if (!allowed.includes(table)) {
       await queryRunner.release();
       return res.status(400).json({ success: false, message: 'Tabela não permitida para contagem.' });

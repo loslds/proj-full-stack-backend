@@ -2,9 +2,9 @@
 // src/index.tsx
 import express from 'express';
 import cors from 'cors';
-import { dbSource } from './use-cases/start/dbSource';
-import { indexRoute } from './use-cases/index.route';
-import { errorHandler } from './services/errorHandler';
+import { dbSource } from './database';
+import { indexRoute } from './routes/indexRoute';
+import { errorHandler } from './middlewares/errorHandler';
 import { appPort, frontendPort } from './config/app';
 import { checkConnection } from "./use-cases/start/checkConnection";
 
@@ -42,63 +42,5 @@ dbSource.initialize()
   .catch((err) => {
     console.error("❌ Erro ao conectar ao banco de dados:", err);
   });
-
-
-
-// import express from 'express';
-// import cors from 'cors';
-// import { startServer } from './startServer';
-// import { appPort } from './config/app';
-// import { dbSource } from './use-cases/start/dbSource';
-// import { indexRoute } from './use-cases/index.route';
-
-// const app = express();
-
-// // Middleware CORS
-// app.use(
-//   cors({
-//     origin: "http://localhost:5173",
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     allowedHeaders: ["Content-Type", "Authorization"]
-//   })
-// );
-
-// // Middleware para JSON
-// app.use(express.json());
-
-// // Rotas principais
-// app.use('/api', indexRoute);
-
-// // Inicia servidor + conexão com banco
-// startServer(dbSource, app);
-
-
-// /////////////////////////////////////////////////
-// import express from 'express';
-// import cors from 'cors';
-// import { startServer } from './startServer';
-// import { appPort } from './config/app';
-// import { dbSource } from './use-cases/start/dbSource';
-// import { indexRoute } from './use-cases/index.route'; // seu arquivo de rotas principal
-
-// const app = express();
-
-// // Middleware CORS
-// app.use(
-//   cors({
-//     origin: "http://localhost:5173", // ✅ libera seu frontend correto
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     allowedHeaders: ["Content-Type", "Authorization"]
-//   })
-// );
-
-// // Middleware para JSON
-// app.use(express.json());
-
-// // Registra suas rotas
-// app.use('/api', indexRoute);
-
-// // Inicia servidor + conexão banco
-// startServer(dbSource, app);
 
 

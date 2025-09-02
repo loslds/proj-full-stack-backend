@@ -1,7 +1,7 @@
 
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
-import { PessoasEntity } from './pessoa.entity';
+import { PessoasEntity } from './pessoas.entity';
 
 export const pessoasCreateSchema = z.object({
   nmpessoa: z.string().min(3),

@@ -4,7 +4,7 @@ import { SystableRepository } from './systable.repository';
 import { SystableDto } from './systable.dto';
 import { SystablesEntity } from './systable.entity';
 import { DeepPartial } from 'typeorm';
-import { HttpException } from '../../services/HttpException';
+import { HttpException } from '../../middlewares/HttpException';
 
 export class SystableController {
   constructor(private readonly SystablesRepository: SystableRepository) {}

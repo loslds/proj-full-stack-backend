@@ -1,4 +1,4 @@
-
+ 
 // backend/api/db/syncsysTables.ts
 import { dbSource } from '../use-cases/start/dbSource';
 
@@ -54,3 +54,4 @@ export async function syncSysTables(requiredTables: string[]): Promise<TableStat
     await queryRunner.release();
   }
 }
+

@@ -1,7 +1,7 @@
 
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
-import { dbEntity } from '../use-cases/start/dbEntity'; // caminho para seu array de entities
+import { dbEntity } from '../entities/dbEntity'; // caminho para seu array de entities
 
 export const configDB = {
   host: process.env.DB_HOST || 'localhost',

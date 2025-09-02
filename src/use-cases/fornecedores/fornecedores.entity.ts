@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
-import { PessoasEntity } from '../pessoa/pessoa.entity';
+import { PessoasEntity } from '../pessoa/pessoas.entity';
 import { EmpresasEntity } from '../empresa/empresa.entity';
 
 @Entity('fornecedor')

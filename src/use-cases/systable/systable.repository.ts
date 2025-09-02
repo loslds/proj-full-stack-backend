@@ -45,11 +45,11 @@ export class SystableRepository {
   }
 
   // Busca um registro de Data_sys pelo ID
-  async findSystableById(data_sysId: number): Promise<SystablesEntity | null> {
-    if (!data_sysId || isNaN(data_sysId) || data_sysId <= 0) {
+  async findSystableById(systableId: number): Promise<SystablesEntity | null> {
+    if (!systableId || isNaN(systableId) || systableId <= 0) {
       throw new Error('Invalid data_sysId');
     }
-    return this.repo.findOne({ where: { id: data_sysId } });
+    return this.repo.findOne({ where: { id: systableId } });
   }
   
   async searchSystable(params: { id?: number; nome?: string; chkdb?: number }) {
