@@ -1,4 +1,4 @@
-// src/services/checkDatabases.ts
+// src/services/checkTables.ts
 import { requiredTables } from '../config/tables';
 import { dbSource } from '../database';
 

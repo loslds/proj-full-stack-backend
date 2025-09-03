@@ -1,6 +1,3 @@
-
-// src/dbCheckService.ts
-
 // src/services/dbCheckService.ts
 import { dbSource } from "../database";
 import { requiredTables } from "../config/tables";
@@ -16,14 +13,15 @@ export async function checkAndInitializeSystem(
   const messages: string[] = [];
   let overallOk = true;
 
+  // Inicializa dbSource se ainda não estiver
+  if (!dbSource.isInitialized) await dbSource.initialize();
+
   const queryRunner = dbSource.createQueryRunner();
 
   try {
-    // Conecta ao banco
-    if (!dbSource.isInitialized) await dbSource.initialize();
     await queryRunner.connect();
 
-    // 1️⃣ Verifica se a tabela 'systable' existe
+    // 1️⃣ Verifica/Cria systable
     messages.push("🔍 Verificando existência da tabela systable...");
     const systableRows = await queryRunner.query("SHOW TABLES LIKE 'systable'");
     if (systableRows.length === 0) {
@@ -46,15 +44,14 @@ export async function checkAndInitializeSystem(
       messages.push("✅ systable existe.");
     }
 
-    // 2️⃣ Verifica cada tabela mínima
+    // 2️⃣ Verifica/cria cada tabela mínima
     for (const tbl of tables) {
       messages.push(`🔍 Verificando tabela "${tbl}"...`);
       const tblRows = await queryRunner.query(`SHOW TABLES LIKE '${tbl}'`);
-
       if (tblRows.length === 0) {
-        messages.push(`❌ Tabela "${tbl}" não encontrada. Criando esqueleto mínimo...`);
+        messages.push(`❌ Tabela "${tbl}" não encontrada. Criando tabela mínima...`);
         await queryRunner.query(`
-          CREATE TABLE IF NOT EXISTS \`${tbl}\` (
+          CREATE TABLE \`${tbl}\` (
             id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
             nome VARCHAR(60) DEFAULT NULL,
             createBy INT UNSIGNED DEFAULT NULL,
@@ -81,7 +78,7 @@ export async function checkAndInitializeSystem(
         overallOk = false;
       }
 
-      // 4️⃣ Atualiza ou insere na systable
+      // 4️⃣ Atualiza systable
       try {
         await queryRunner.query(
           `INSERT INTO systable (nome, chkdb, numberRRegs, createAt, updateAt)
@@ -91,7 +88,7 @@ export async function checkAndInitializeSystem(
         );
 
         if (cnt === 0) {
-          messages.push(`⚠️ Tabela "${tbl}" está vazia. Verificar dados.`);
+          messages.push(`⚠️ Tabela "${tbl}" está vazia.`);
           overallOk = false;
         } else {
           messages.push(`✅ Tabela "${tbl}" com dados OK.`);
@@ -103,7 +100,7 @@ export async function checkAndInitializeSystem(
       }
     }
 
-    // 5️⃣ Atualiza/insere linha 'sys_master' se habilitado
+    // 5️⃣ Atualiza/insere sys_master
     if (options.updateSysMaster) {
       try {
         await queryRunner.query(
@@ -112,11 +109,10 @@ export async function checkAndInitializeSystem(
            ON DUPLICATE KEY UPDATE chkdb = VALUES(chkdb), numberRRegs = VALUES(numberRRegs), updateAt = NOW();`,
           ["sys_master", overallOk ? 1 : 0, 0]
         );
-
         messages.push(
           overallOk
             ? "✅ Sistema pronto. Liberado para serviço."
-            : "❌ Requisitos não aceitáveis. Solicitar contato com Administrador."
+            : "❌ Requisitos não aceitáveis. Solicitar Administrador."
         );
       } catch (err) {
         messages.push("❌ Erro ao atualizar sys_master.");
@@ -132,8 +128,6 @@ export async function checkAndInitializeSystem(
   } finally {
     try {
       await queryRunner.release();
-    } catch (e) {
-      // ignora erros de release
-    }
+    } catch {}
   }
 }

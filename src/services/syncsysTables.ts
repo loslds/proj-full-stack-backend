@@ -1,5 +1,5 @@
  
-// backend/api/db/syncsysTables.ts
+// backend/services/syncsysTables.ts
 import { dbSource } from '../use-cases/start/dbSource';
 
 export interface TableStatus {
