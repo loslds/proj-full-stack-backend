@@ -1,4 +1,4 @@
 
-export { systableRepository, systableRoute } from './systable.route';
-export type { SystableRepository } from './systable.repository';
+export { systableRepository, systableRoute } from './systables.route';
+export type { SystableRepository } from './systables.repository';
 

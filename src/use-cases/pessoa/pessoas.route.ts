@@ -17,8 +17,8 @@ pessoasRoute.patch('/:pessoasId', updateValidation, (req: Request<{ pessoasId: s
 pessoasRoute.delete('/:pessoasId', (req: Request<{ pessoasId: string }>, res: Response, next: NextFunction) => controller.remove(req, res, next));
 
 /////////////////////////////
-//pessoasRoute.get('/search', (req, res, next) => controller.search(req, res, next));
-//pessoasRoute.get('/by-nmpessoa', (req, res, next) => controller.findByNmpessoa(req, res, next));
+pessoasRoute.get('/search', (req, res, next) => controller.search(req, res, next));
+//pessoasRoute.get('/by-nome', (req, res, next) => controller.findByNmpessoa(req, res, next));
 //pessoasRoute.get('/search-name', (req, res, next) => controller.searchByName(req, res, next));
 //pessoasRoute.get('/search-sigla', (req, res, next) => controller.searchBySigla(req, res, next));
 ////////////////////////////

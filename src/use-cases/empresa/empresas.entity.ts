@@ -15,7 +15,7 @@ export class EmpresasEntity {
   id_pessoa: number;
 
   @Column({ type: 'varchar', length: 45, nullable: false })
-  nmempresa: string;
+  nome: string;
 
   @Column({ type: 'varchar', length: 45, nullable: false })
   fantasy: string;

@@ -1,73 +1,38 @@
 import type { NextFunction, Request, Response } from 'express';
-import type { EmpresasRepository } from './empresa.repository';
-import { EmpresasCreate, EmpresasUpdate } from './empresa.dto';
+import type { EmpresasRepository } from './empresas.repository';
+import { EmpresasCreate, EmpresasUpdate } from './empresas.dto';
+import { ParsedQs } from 'qs';
+
+// Tipagem para query string da rota /search
+interface SearchQuery extends ParsedQs {
+  id?: string;
+  nome?: string;
+  fantasy?: string;
+}
 
 export class EmpresasController {  
   constructor(private readonly empresasRepository: EmpresasRepository) {}
-  
-/** POST Cria Tabela Empresas */
-async create(
-  req: Request<{}, {}, EmpresasCreate>,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const empresas = await this.empresasRepository.createEmpresas(req.body);
-    return res.status(201).send({ success: true, empresas });
-  } catch (error) {
-    next(error);
-  }
-}
 
-/** PATCH Atualiza um registro de Empresas */
-async update(
-  req: Request<{ empresasId: string }, {}, Partial<EmpresasUpdate>>,
-  res: Response,
-  next: NextFunction
-) {
-  const empresasId = Number(req.params.empresasId);
-  if (isNaN(empresasId) || empresasId <= 0) {
-    return res
-      .status(400)
-      .send({ success: false, message: 'Invalid empresasId' })
-      .end();
-  }
-  
-  try {
-    const empresas = await this.empresasRepository.updateEmpresas(empresasId, req.body);
-    return res.status(200).send({ success: true, empresas }).end();
-  } catch (error) {
-    next(error);
-  }
-}
-  
-
-  /** DELETE Remove um registro de Empresas */
-  async remove(
-    req: Request<{ empresasId: string }>,
+  /** POST Cria Tabela Empresas */
+  async create(
+    req: Request<{}, {}, EmpresasCreate>,
     res: Response,
     next: NextFunction
   ) {
-    const empresasId = Number(req.params.empresasId);
-    if (isNaN(empresasId) || empresasId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid empresasId' }).end();
-    }
-
     try {
-      const deleted = await this.empresasRepository.deleteEmpresas(empresasId);
-      return res.status(200).send({ success: !!deleted?.affected });
+      const empresas = await this.empresasRepository.createEmpresas(req.body);
+      return res.status(201).send({ success: true, empresas });
     } catch (error) {
       next(error);
     }
   }
-//////////////////////////////////////////////
-  /** GET Busca todos os registros de Empresa */
+
+    /** GET Busca todos os registros de Empresa */
   async findAll(
     req: Request,
     res: Response,
     next: NextFunction
   ) {
-    
     try {
       const empresas = await this.empresasRepository.findEmpresasAll();
       return res.status(200).send({ success: true, empresas });
@@ -83,14 +48,65 @@ async update(
     next: NextFunction
   ) {
     const empresasId = Number(req.params.empresasId);
-
     if (isNaN(empresasId) || empresasId <= 0) {
       return res.status(400).send({ success: false, message: 'Invalid empresasId' }).end();
     }
-
     try {
       const empresas = await this.empresasRepository.findEmpresasById(empresasId);
       return res.status(200).send({ success: true, empresas });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** PATCH Atualiza um registro de Empresas */
+  async update(
+    req: Request<{ empresasId: string }, {}, Partial<EmpresasUpdate>>,
+    res: Response,
+    next: NextFunction
+    ) {
+    const empresasId = Number(req.params.empresasId);
+    if (isNaN(empresasId) || empresasId <= 0) {
+      return res
+        .status(400)
+        .send({ success: false, message: 'Invalid empresasId' })
+        .end();
+      }
+    try {
+      const empresas = await this.empresasRepository.updateEmpresas(empresasId, req.body);
+        return res.status(200).send({ success: true, empresas }).end();
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** DELETE Remove um registro de Empresas */
+  async remove(
+    req: Request<{ empresasId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const empresasId = Number(req.params.empresasId);
+    if (isNaN(empresasId) || empresasId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid empresasId' }).end();
+    }
+    try {
+      const deleted = await this.empresasRepository.deleteEmpresas(empresasId);
+        return res.status(200).send({ success: !!deleted?.affected });
+    } catch (error) {
+      next(error);
+    }
+  }
+  /** pesquisaregistro de Empresas através do ID ou NOME ou FANTASY */
+  async search(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
+    try {
+      const { id, nome, fantasy } = req.query;
+      const results = await this.empresasRepository.searchEmpresas({
+        id: id ? Number(id) : undefined,
+        nome,
+        fantasy,
+      });
+      return res.json(results);
     } catch (error) {
       next(error);
     }
@@ -103,14 +119,12 @@ async update(
     next: NextFunction
   ) {
     const { name } = req.query;
-
     if (!name) {
       return res
         .status(400)
         .send({ success: false, message: 'Name parameter is required' })
         .end();
     }
-
     try {
       const empresas = await this.empresasRepository.findEmpresasByName(name);
       return res.status(200).send({ success: true, empresas }).end();
@@ -126,12 +140,10 @@ async update(
     next: NextFunction
   ) {
     const { fantasy } = req.query;
-
     if (!fantasy) {
       return res
         .status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
     }
-
     try {
       const empresas = await this.empresasRepository.findEmpresasByFantasy(fantasy);
       return res.status(200).send({ success: true, empresas }).end();
@@ -140,7 +152,7 @@ async update(
     }
   }
 
-  /** GET Busca todas as empresass pelo ID de Pessoa */
+  /** GET Busca todas as empresas com mesmo ID de Pessoa */
   async findAllByPessoaId(
     req: Request<{ pessoaId: string }>,
     res: Response,
@@ -158,5 +170,4 @@ async update(
       next(error);
     }
   }
-
 }

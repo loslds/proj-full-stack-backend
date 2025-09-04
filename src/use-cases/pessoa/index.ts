@@ -1,5 +1,6 @@
 
 //use-cases/pessoa/index.ts
+
 export { pessoasRoute } from './pessoas.route';
 export { PessoasController } from './pessoas.controller';
 export type { PessoaDto } from './pessoas.dto';

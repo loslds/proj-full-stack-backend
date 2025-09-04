@@ -9,7 +9,7 @@ import { syncTablesRoutes } from './syncTablesRoutes'; // nova
 
 const indexRoute = Router();
 
-indexRoute.use('/systable', systableRoute);
+indexRoute.use('/systables', systableRoute);
 indexRoute.use('/pessoas', pessoasRoute);
 indexRoute.use('/empresas', empresasRoute);
 

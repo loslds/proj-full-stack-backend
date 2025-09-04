@@ -15,9 +15,9 @@ export class PessoasController {
     next: NextFunction
   ) {
     const { body } = req
-    const { nmpessoa, sigla} = body
+    const { nome, sigla} = body
     try {
-      const exists = await this.pessoasRepository.hasDuplicated(nmpessoa, sigla)
+      const exists = await this.pessoasRepository.hasDuplicated(nome, sigla)
       if(!!exists) throw new HttpException(400,'pessoa ja existe')
 
       const pessoas = await this.pessoasRepository.createPessoas(body);
@@ -34,12 +34,12 @@ export class PessoasController {
     next: NextFunction
   ) {
     const { params, body } = req
-    const { nmpessoa, sigla} = body
+    const { nome, sigla} = body
     try {
       const pessoasId = Number(params?.pessoasId);
       if(!pessoasId) throw new HttpException(400,'id da pessoa invalido')
       
-      const exists = await this.pessoasRepository.hasDuplicated(nmpessoa, sigla, [pessoasId])
+      const exists = await this.pessoasRepository.hasDuplicated(nome, sigla, [pessoasId])
       if(!!exists) throw  new HttpException(400,'pessoa ja existe')
 
       const pessoas = await this.pessoasRepository.updatePessoas(
@@ -66,7 +66,6 @@ export class PessoasController {
         .send({ success: false, message: 'Invalid pessoasId' })
         .end();
     }
-
     try {
       await this.pessoasRepository.deletePessoas(pessoasId);
       return res.status(200).send({ success: true });
@@ -74,8 +73,6 @@ export class PessoasController {
       next(error);
     }
   }
-
-
 
   /** GET Busca todos os registros de Pessoas */
   async findAll(req: Request, res: Response, next: NextFunction) {
@@ -113,12 +110,12 @@ export class PessoasController {
   async search(req: Request, res: Response, next: NextFunction) {
     try {
       // Extraindo parâmetros opcionais da query
-      const { id, nmpessoa, sigla } = req.query;
+      const { id, nome, sigla } = req.query;
 
       // Convertendo 'id' para número, caso seja enviado
       const searchParams = {
         id: id ? Number(id) : undefined,
-        nmpessoa: nmpessoa as string,
+        nome: nome as string,
         sigla: sigla as string,
       };
       
@@ -131,9 +128,6 @@ export class PessoasController {
       next(error); // Passa o erro para o middleware de tratamento
     }
   }
-
-
-
 
   ///////////////////////////////
 
@@ -167,7 +161,6 @@ export class PessoasController {
     }
   }
 
-
   /** GET Busca um registro de Pessoa por nmpessoa */
   async findByNmpessoa(
     req: Request,
@@ -175,11 +168,11 @@ export class PessoasController {
     next: NextFunction
   ) {
     try {
-      const nmpessoa = req.query?.nmpessoa as string;
-      if (!nmpessoa) {
-        return res.status(400).send({ success: false, message: 'nmpessoa parameter is required' });
+      const nome = req.query?.nome as string;
+      if (!nome) {
+        return res.status(400).send({ success: false, message: 'nome parameter is required' });
       }
-      const pessoas = await this.pessoasRepository.findPessoasByNmpessoa(nmpessoa);
+      const pessoas = await this.pessoasRepository.findPessoasByNmpessoa(nome);
       return res.status(200).send({ success: true, pessoas });
     } catch (error) {
       next(error);

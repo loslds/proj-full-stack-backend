@@ -1,6 +1,6 @@
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
-import { EmpresasEntity } from './empresa.entity';
-import type { EmpresasCreate } from './empresa.dto';
+import { EmpresasEntity } from './empresas.entity';
+import type { EmpresasCreate } from './empresas.dto';
 
 export class EmpresasRepository {
   private repo: Repository<EmpresasEntity>;
@@ -9,21 +9,48 @@ export class EmpresasRepository {
     this.repo = this.dataSource.getRepository(EmpresasEntity);
   }
 
-  async hasDuplicated(nmempresa?: string, fantasy?: string, excludes: number[] = []) { 
-      const query = this.repo.createQueryBuilder('Empresas')
+  async hasDuplicated(nome?: string, fantasy?: string, excludes: number[] = []) { 
+    const query = this.repo.createQueryBuilder('empresas')
       .select()
-      .where('Pessoas.nmpessoa LIKE :nmempresa', {nmempresa})
-      .andWhere('Pessoas.sigla LIKE :sigla', {fantasy})
+      .where('empresas.nome LIKE :nome', {nome})
+      .andWhere('empresas.fantasy LIKE :fantasy', {fantasy})
   
-      if(!!excludes?.length) {
-        query.andWhere('Pessoas.id NOT IN(:...excludes)',{ excludes })
-      }
-  
-      const result = await query.getOne()
-      return result
+    if(!!excludes?.length) {
+      query.andWhere('empresas.id NOT IN(:...excludes)',{ excludes })
     }
   
+    const result = await query.getOne()
+    
+    return result
+  }
   
+  // pesquisa empresas conforme o parametro setado ID, NOME, FANTASY
+  async searchEmpresas(params: { id?: number; nome?: string; fantasy?: string }) {
+    const query = this.repo.createQueryBuilder('empresas')
+      .select(['empresas.id', 'empresas.nome', 'empresas.fantasy'])
+      .orderBy('empresas.id', 'ASC');
+
+    if (params.id) {
+      query.andWhere('empresas.id = :id', { id: params.id });
+    }
+
+    if (params.nome) {
+      query.andWhere('empresas.nome LIKE :nome', { nome: `%${params.nome}%` });
+    }
+
+    if (params.fantasy) {
+      query.andWhere('empresas.fantasy LIKE :fantasy', { fantasy: `%${params.fantasy}%` });
+    }
+
+    return query.getMany();
+  }
+
+
+
+
+
+
+
   // Cria um registro na tabela Empresas
   async createEmpresas(empresas: EmpresasCreate): Promise<EmpresasEntity> {
     const data = this.repo.create(empresas);
@@ -55,8 +82,8 @@ export class EmpresasRepository {
   }
 
   // Busca um registro de Empresas pelo nome
-  async findEmpresasByName(nmempresa: string) {
-    return this.repo.findOne({ where: { nmempresa } });
+  async findEmpresasByName(nome: string) {
+    return this.repo.findOne({ where: { nome } });
   }
 
   // Busca um registro de Empresas pelo nome fantasia
@@ -65,7 +92,7 @@ export class EmpresasRepository {
   }
 
   // Busca todos os registros de Empresa com mesmo id_pessoas
-  async findEmpresasByPessoaId(pessoasId: number): Promise<EmpresasEntity[]> {
-      return this.repo.find({ where: { id_pessoa: pessoasId } });
+  async findEmpresasByPessoaId(pessoaId: number): Promise<EmpresasEntity[]> {
+      return this.repo.find({ where: { id_pessoa: pessoaId } });
     }
 }

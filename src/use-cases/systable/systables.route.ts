@@ -1,20 +1,20 @@
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { SystableController } from './systable.controller';
-import { SystableRepository } from './systable.repository';
+import { SystablesController } from './systables.controller';
+import { SystablesRepository } from './systables.repository';
 import { dbSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './systables.validation';
 
-const systableRepository = new SystableRepository(dbSource);
-const controller = new SystableController(systableRepository);
+const systablesRepository = new SystablesRepository(dbSource);
+const controller = new SystablesController(systablesRepository);
 const systableRoute = Router();
 
-systableRoute.get('/', (req, res, next) => controller.findAll(req, res, next));
-
+systableRoute.get('/', (req: Request, res: Response, next: NextFunction) => controller.findAll(req, res, next));
 systableRoute.post('/', createValidation, (req, res, next) => controller.create(req, res, next));
 
-systableRoute.get('/:systableId', (req, res, next) => controller.getOne(req, res, next));
 
+
+systableRoute.get('/:systableId', (req: Request,res: Response, next: NextFunction) => controller.getOne(req, res, next));
 
 /** GET Busca todos os registros de systable */ 
 systableRoute.get('/', (req: Request, res: Response, next: NextFunction) => controller.findAll(req, res, next));

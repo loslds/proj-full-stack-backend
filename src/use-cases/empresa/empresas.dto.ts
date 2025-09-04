@@ -1,4 +1,7 @@
+
+import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
+import { EmpresasEntity} from './empresas.entity';
 
 export const empresasCreateSchema = z.object({
   name: z.string().min(3),
@@ -14,3 +17,4 @@ export const empresasUpdateSchema = z.object({
 
 export type EmpresasCreate = z.infer<typeof empresasCreateSchema>;
 export type EmpresasUpdate = z.infer<typeof empresasUpdateSchema>;
+export type EmpresasDto = DeepPartial<EmpresasEntity>

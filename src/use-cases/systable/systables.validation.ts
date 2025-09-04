@@ -1,5 +1,7 @@
-import { zodBodyValidation } from '../../helpers/zod-validation';
-import { systableCreateSchema, systableUpdateSchema } from './systable.dto';
 
-export const createValidation = zodBodyValidation(systableCreateSchema);
-export const updateValidation = zodBodyValidation(systableUpdateSchema);
+// /use-cases/pessoa/systables.validation.ts 
+import { zodBodyValidation } from '../../helpers/zod-validation';
+import { systablesCreateSchema, systablesUpdateSchema } from './systables.dto';
+
+export const createValidation = zodBodyValidation(systablesCreateSchema);
+export const updateValidation = zodBodyValidation(systablesUpdateSchema);

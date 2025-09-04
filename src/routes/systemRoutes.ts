@@ -9,7 +9,7 @@ import { syncTablesRoutes } from "./syncTablesRoutes"; // novo
 const systemRoutes = Router();
 
 // agora centralizamos as rotas do sistema aqui
-systemRoutes.use("/systable", systableRoute);
+systemRoutes.use("/systables", systableRoute);
 systemRoutes.use("/pessoas", pessoasRoute);
 systemRoutes.use("/empresas", empresasRoute);
 systemRoutes.use("/sync", syncTablesRoutes);

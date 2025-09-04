@@ -1,7 +1,7 @@
 
 import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { PessoasEntity } from '../pessoa/pessoas.entity';
-import { EmpresasEntity } from '../empresa/empresa.entity';
+import { EmpresasEntity } from '../empresa/empresas.entity';
 import { FornecedoresEntity } from '../fornecedores/fornecedores.entity';
 import { ConsumidoresEntity } from '../consumidores/consumidores.entity';
 import { ClientesEntity } from '../clientes/clientes.entity';

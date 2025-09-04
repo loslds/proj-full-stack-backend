@@ -13,29 +13,33 @@ export class PessoasRepository {
   }
 
   async hasDuplicated(name?: string, sigla?: string, excludes: number[] = []) { 
-    const query = this.repo.createQueryBuilder('Pessoas')
+    const query = this.repo.createQueryBuilder('pessoas')
     .select()
-    .where('Pessoas.nmpessoa LIKE :name', {name})
-    .andWhere('Pessoas.sigla LIKE :sigla', {sigla})
+    .where('pessoas.nome LIKE :name', {name})
+    .andWhere('pessoas.sigla LIKE :sigla', {sigla})
 
+    // Excluir registros com mesmos nomes em pessoas
     if(!!excludes?.length) {
-      query.andWhere('Pessoas.id NOT IN(:...excludes)',{ excludes })
+      query.andWhere('pessoas.id NOT IN(:...excludes)',{ excludes })
     }
 
     const result = await query.getOne()
     return result
   }
-
+  
+  // Cria novo registros em pessoas
   async createPessoas(pessoas: PessoasCreate): Promise<PessoasEntity> {
     const data = this.repo.create(pessoas);
     return this.repo.save(data);
   }
 
+  // Altera registros em pessoas atraves do id selecionado
   async updatePessoas(pessoasId: number, pessoas: DeepPartial<PessoasEntity>): Promise<PessoasEntity> {
     const data = this.repo.create({ id: pessoasId, ...pessoas });
     return this.repo.save(data);
   }
 
+  // Deleta registros em pessoas atraves do id selecionado
   async deletePessoas(pessoasId: number) {
     return this.repo.delete(pessoasId);
   }
@@ -54,25 +58,25 @@ export class PessoasRepository {
     }
     return this.repo.findOne({ where: { id: pessoasId } });
   }
-  
-  async searchpessoas(params: { id?: number; nmpessoa?: string; sigla?: string }) {
-    const query = this.repo.createQueryBuilder('Pessoas')
-      .select(['Pessoas.id', 'Pessoas.nmpessoa', 'Pessoas.sigla'])
-      .orderBy('Pessoas.id', 'ASC'); // Ordenação padrão
+  // Busca um registro de Pessoas pelo ID?,nome?,sigla?
+  async searchpessoas(params: { id?: number; nome?: string; sigla?: string }) {
+    const query = this.repo.createQueryBuilder('pessoas')
+      .select(['pessoas.id', 'pessoas.nome', 'pessoas.sigla'])
+      .orderBy('pessoas.id', 'ASC'); // Ordenação padrão
   
     // Filtrar por ID (caso seja informado)
     if (params.id) {
-      query.andWhere('Pessoas.id = :id', { id: params.id });
+      query.andWhere('pessoas.id = :id', { id: params.id });
     }
   
     // Filtrar por nmpessoa (caso seja informado)
-    if (params.nmpessoa) {
-      query.andWhere('Pessoas.nmpessoa LIKE :nmpessoa', { nmpessoa: `%${params.nmpessoa}%` });
+    if (params.nome) {
+      query.andWhere('pessoas.nome LIKE :nome', { nome: `%${params.nome}%` });
     }
   
     // Filtrar por sigla (caso seja informado)
     if (params.sigla) {
-      query.andWhere('Pessoas.sigla LIKE :sigla', { sigla: `%${params.sigla}%` });
+      query.andWhere('pessoas.sigla LIKE :sigla', { sigla: `%${params.sigla}%` });
     }
   
     return query.getMany();
@@ -103,8 +107,8 @@ export class PessoasRepository {
 
 
   // Busca um registro de Pessoas pelo campo nmpessoa
-  async findPessoasByNmpessoa(nmpessoa: string): Promise<PessoasEntity | null> {
-    return this.repo.findOne({ where: { nmpessoa } });
+  async findPessoasByNmpessoa(nome: string): Promise<PessoasEntity | null> {
+    return this.repo.findOne({ where: { nome } });
   }
 
   // Busca todos os registros de Pessoas pelo campo sigla

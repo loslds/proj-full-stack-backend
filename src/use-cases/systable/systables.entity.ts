@@ -1,7 +1,7 @@
 
 import { Column, Entity, PrimaryGeneratedColumn, Unique} from 'typeorm';
 
-@Entity('systable')
+@Entity('systables')
 @Unique(['nome']) // Adiciona a restrição de unicidade composta
 
 export class SystablesEntity {
@@ -11,8 +11,11 @@ export class SystablesEntity {
   @Column({ name:'nome', type: 'varchar', length: 60, nullable: false, collation:'utf8mb4_general_ci' })
   nome: string;
 
-  @Column({ type: 'tinyint', nullable: false, default: 0 })
+  @Column({ type: 'tinyint', nullable: false, unsigned: true, default: 0 })
   chkdb: number;
+
+  @Column({ type: 'int', nullable: true, unsigned: true, default: 0 })
+  numberregs?: number;
 
   @Column({
     type: 'datetime',
