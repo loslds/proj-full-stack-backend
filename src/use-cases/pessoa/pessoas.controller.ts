@@ -1,3 +1,5 @@
+
+// C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.controller.ts
 import { NextFunction, Request, Response } from 'express';
 import { PessoasRepository } from './pessoas.repository';
 import { PessoasCreate, PessoasUpdate } from './pessoas.dto';
@@ -118,20 +120,16 @@ export class PessoasController {
         nome: nome as string,
         sigla: sigla as string,
       };
-      
-
 
       // Chamando o método do repository
-      const pessoas = await this.pessoasRepository.searchpessoas(searchParams);
+      const pessoas = await   this.pessoasRepository.searchPessoas(searchParams);
       return res.json(pessoas);
     } catch (error) {
       next(error); // Passa o erro para o middleware de tratamento
     }
   }
 
-  ///////////////////////////////
-
-  /** GET Lista todos os registros de Pessoa por nmpessoa */
+  /** GET Pesquisa registros de Pessoa por nome */
   async searchByName(
     req: Request,
     res: Response,
@@ -144,11 +142,11 @@ export class PessoasController {
     } catch (error) {
       next(error);
     }
-  }
+  } 
 
-/** GET Lista todos os registros de Pessoa por nmpessoa */
+  /** GET Pesquisa registros de Pessoa por sigla */
   async searchBySigla(
-   req: Request,
+    req: Request,
     res: Response,
     next: NextFunction
   ) {
@@ -161,8 +159,8 @@ export class PessoasController {
     }
   }
 
-  /** GET Busca um registro de Pessoa por nmpessoa */
-  async findByNmpessoa(
+  /** GET Busca um registro de Pessoa por nome */
+  async findOneNome(
     req: Request,
     res: Response,
     next: NextFunction
@@ -172,51 +170,71 @@ export class PessoasController {
       if (!nome) {
         return res.status(400).send({ success: false, message: 'nome parameter is required' });
       }
-      const pessoas = await this.pessoasRepository.findPessoasByNmpessoa(nome);
+      const pessoas = await this.pessoasRepository.findOneNomePessoas(nome);
       return res.status(200).send({ success: true, pessoas });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Lista todos os registros de Pessoas por sigla */
-  async findAllSigla(
-    req: Request<{}, {}, {}, { sigla: string }>,
-    res: Response,
-    next: NextFunction
+/** GET Busca todos os registros de Pessoa por nome */
+async findAllNome(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const nome = req.query?.nome as string;
+    if (!nome) {
+      return res.status(400).send({ success: false, message: "nome parameter is required" });
+    }
+    const pessoas = await this.pessoasRepository.findAllNomePessoas(nome);
+    if (pessoas.length === 0) {
+      return res.status(404).send({ success: false, message: "Nenhuma pessoa encontrada com esse nome" });
+    }
+    return res.status(200).send({ success: true, pessoas });
+  } catch (error) {
+    next(error);
+    }
+  } 
+  
+/** GET Busca um registro de Pessoa por sigla */
+async findOneSigla(
+  req: Request,
+  res: Response,
+  next: NextFunction
   ) {
     try {
-      const { sigla } = req.query;
-      if (!sigla) {
-        return res.status(400).send({ success: false, message: 'sigla parameter is required' });
+      const nome = req.query?.nome as string;
+      if (!nome) {
+      return res.status(400).send({ success: false, message: 'sigla parameter is required' });
       }
-      const pessoas = await this.pessoasRepository.findPessoasAllSigla(sigla);
+      const pessoas = await this.pessoasRepository.findOneSiglaPessoas(nome);
       return res.status(200).send({ success: true, pessoas });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registro de Pessoa por sigla */
-  async findBySigla(
-    req: Request<{}, {}, {}, { sigla: string }>,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      const { sigla } = req.query;
-      if (!sigla) {
-        return res.status(400).send({ success: false, message: 'sigla parameter is required' });
+/** GET Busca todos os registros de Pessoa por sigla */
+async findAllSigla(
+  req: Request,
+  res: Response,
+  next: NextFunction
+ ) {
+  try {
+    const sigla = req.query?.sigla as string;
+    if (!sigla) {
+      return res.status(400).send({ success: false, message: "sigla parameter is required" });
+    }
+      const pessoas = await this.pessoasRepository.findAllSiglaPessoas(sigla);
+      if (pessoas.length === 0) {
+        return res.status(404).send({ success: false, message: "Nenhuma pessoa encontrada com esse sigla" });
       }
-      const pessoas = await this.pessoasRepository.findPessoasBySigla(sigla);
       return res.status(200).send({ success: true, pessoas });
     } catch (error) {
       next(error);
     }
   }
-
-
-
-
-
 }
+

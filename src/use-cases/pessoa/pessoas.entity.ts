@@ -1,4 +1,5 @@
 
+//C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.entity.ts
 import { Column, Entity, PrimaryGeneratedColumn, Unique} from 'typeorm';
 
 @Entity('pessoas')

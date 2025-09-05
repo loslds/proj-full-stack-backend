@@ -1,6 +1,5 @@
 
-//use-cases/pessoa/index.ts
-
+// C:\repository\proj-full-stack-backend\src\use-cases\pessoa\index.ts
 export { pessoasRoute } from './pessoas.route';
 export { PessoasController } from './pessoas.controller';
 export type { PessoaDto } from './pessoas.dto';

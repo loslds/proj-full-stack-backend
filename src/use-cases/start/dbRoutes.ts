@@ -1,7 +1,7 @@
  
   // src/user-case/start/dbRoutes.ts
 import { Router } from 'express';
-import { dbSource } from './dbSource';
+import { dbSource } from '../../database';
 import { checkDatabases } from './dbController';
 import { syncSysTables } from '../../services/syncsysTables';
 

@@ -1,5 +1,5 @@
 
-// /use-cases/pessoa/systables.validation.ts 
+// C:\repository\proj-full-stack-backend\src\use-cases\systable\systables.validation.ts
 import { zodBodyValidation } from '../../helpers/zod-validation';
 import { systablesCreateSchema, systablesUpdateSchema } from './systables.dto';
 

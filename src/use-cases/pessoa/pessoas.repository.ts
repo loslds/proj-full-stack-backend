@@ -1,6 +1,5 @@
  
-// /use-cases/pessoas.repository.ts 
-
+// C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.repository.ts
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { PessoasEntity } from './pessoas.entity';
 import type { PessoasCreate } from './pessoas.dto';
@@ -51,15 +50,16 @@ export class PessoasRepository {
     return this.repo.find({ where });
   }
 
-  // Busca um registro de Pessoas pelo ID
+  // Busca um registro de pessoas pelo ID
   async findPessoasById(pessoasId: number): Promise<PessoasEntity | null> {
     if (!pessoasId || isNaN(pessoasId) || pessoasId <= 0) {
       throw new Error('Invalid pessoasId');
     }
     return this.repo.findOne({ where: { id: pessoasId } });
   }
-  // Busca um registro de Pessoas pelo ID?,nome?,sigla?
-  async searchpessoas(params: { id?: number; nome?: string; sigla?: string }) {
+  
+  // Busca um registro de pessoas pelo ID?,nome?,sigla?
+  async searchPessoas(params: { id?: number; nome?: string; sigla?: string }) {
     const query = this.repo.createQueryBuilder('pessoas')
       .select(['pessoas.id', 'pessoas.nome', 'pessoas.sigla'])
       .orderBy('pessoas.id', 'ASC'); // Ordenação padrão
@@ -81,17 +81,14 @@ export class PessoasRepository {
   
     return query.getMany();
   }
-  
-
-  
-  
-  // Busca todos os registros de Pessoas pelo campo nmpessoa
+    
+  // Busca todos os registros de Pessoas pelo campo nome
   async searchName(text?: string) {
     const query = this.repo.createQueryBuilder('Pessoas')
-    .select(['Pessoas.id', 'Pessoas.nmpessoa'])
+    .select(['Pessoas.id', 'Pessoas.nome'])
     .orderBy('Pessoas.id', 'ASC') // Ordena pelo ID de forma crescente
     .limit(100)
-    if(!!text) query.andWhere('Pessoas.nmpessoa LIKE :text', { text: `%${text}%`})
+    if(!!text) query.andWhere('Pessoas.nome LIKE :text', { text: `%${text}%`})
     return query.getMany()
   }
   
@@ -104,21 +101,23 @@ export class PessoasRepository {
     return query.getMany()
   }
 
-
-
-  // Busca um registro de Pessoas pelo campo nmpessoa
-  async findPessoasByNmpessoa(nome: string): Promise<PessoasEntity | null> {
+  // Busca somente um registro de Pessoas pelo campo nome
+  async findOneNomePessoas(nome: string): Promise<PessoasEntity | null> {
     return this.repo.findOne({ where: { nome } });
   }
 
-  // Busca todos os registros de Pessoas pelo campo sigla
-  async findPessoasAllSigla(sigla: string): Promise<PessoasEntity[]> {
-    return this.repo.find({ where: { sigla } });
+  // Busca todos registros de Pessoas pelo campo nome
+  async findAllNomePessoas(nome: string): Promise<PessoasEntity[]>  {
+    return this.repo.find({ where: { nome } });
   }
-  
-  // Busca um registro de Pessoa pelo campo sigla
-  async findPessoasBySigla(sigla: string): Promise<PessoasEntity | null> {
+
+  // Busca somente um registro de Pessoas pelo campo sigla
+  async findOneSiglaPessoas(sigla: string): Promise<PessoasEntity | null> {
     return this.repo.findOne({ where: { sigla } });
   }
-}
 
+  // Busca todos registros de Pessoas pelo campo sigla
+  async findAllSiglaPessoas(sigla: string): Promise<PessoasEntity[]> {
+    return this.repo.find({ where: { sigla } });
+  }
+}

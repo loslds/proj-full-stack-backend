@@ -1,4 +1,5 @@
 
+// C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.dto.ts
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
 import { PessoasEntity } from './pessoas.entity';

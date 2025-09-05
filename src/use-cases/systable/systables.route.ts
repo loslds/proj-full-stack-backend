@@ -1,8 +1,9 @@
 
+// C:\repository\proj-full-stack-backend\src\use-cases\systable\systables.route.ts
+import { dbSource } from '../../database';
 import { Router, Request, Response, NextFunction } from 'express';
 import { SystablesController } from './systables.controller';
 import { SystablesRepository } from './systables.repository';
-import { dbSource } from '../start/dbSource';
 import { createValidation, updateValidation } from './systables.validation';
 
 const systablesRepository = new SystablesRepository(dbSource);
@@ -10,44 +11,19 @@ const controller = new SystablesController(systablesRepository);
 const systableRoute = Router();
 
 systableRoute.get('/', (req: Request, res: Response, next: NextFunction) => controller.findAll(req, res, next));
-systableRoute.post('/', createValidation, (req, res, next) => controller.create(req, res, next));
-
-
-
-systableRoute.get('/:systableId', (req: Request,res: Response, next: NextFunction) => controller.getOne(req, res, next));
-
-/** GET Busca todos os registros de systable */ 
-systableRoute.get('/', (req: Request, res: Response, next: NextFunction) => controller.findAll(req, res, next));
-
-/** GET Busca registro data_sys pelo ID */ 
-systableRoute.get('/:systableId', (req: Request<{ systableId: string }>, res: Response, next: NextFunction) => controller.getOne(req, res, next));
-
-/** GET Busca registro systable pelo ID para Alterar*/ 
-systableRoute.patch('/:systableId', updateValidation, (req: Request<{ systableId: string }>, res: Response, next: NextFunction) => controller.update(req, res, next));
-
-/** GET Busca registro data_sys pelo ID para Excluir/Deletar*/ 
-systableRoute.delete('/:systableId', (req: Request<{ systableId: string }>, res: Response, next: NextFunction) => controller.remove(req, res, next));
-
-/** Valida registro systable */ 
+systableRoute.get('/:systablesId', (req: Request<{ systablesId: string }>, res: Response, next: NextFunction) => controller.getOne(req, res, next));
 systableRoute.post('/', createValidation, (req: Request, res: Response, next: NextFunction) => controller.create(req, res, next));
-
-/** Busca todos registro systable */ 
+systableRoute.patch('/:systablesId', updateValidation, (req: Request<{ systablesId: string }>, res: Response, next: NextFunction) => controller.update(req, res, next));
+systableRoute.delete('/:systablesId', (req: Request<{ systablesId: string }>, res: Response, next: NextFunction) => controller.remove(req, res, next));
 systableRoute.get('/search', (req, res, next) => controller.search(req, res, next));
-
-////////////////////////////
-
-/** Busca todos registro systable */ 
-systableRoute.get('/by-systable', (req, res, next) => controller.findAll(req, res, next));
-
-/** Busca registro systable pelo nome*/ 
+/////////////////////////////
 systableRoute.get('/search-name', (req, res, next) => controller.searchByName(req, res, next));
-
-/** Busca registro systable pelo chkdb*/ 
 systableRoute.get('/search-chkdb', (req, res, next) => controller.searchByChkdb(req, res, next));
+systableRoute.get('/one-nome', (req, res, next) => controller.findOneNome(req, res, next));
+systableRoute.get('/all-nome', (req, res, next) => controller.findAllNome(req, res, next));
+systableRoute.get('/all-chkdb', (req, res, next) => controller.findAllChkdb(req, res, next));
+systableRoute.get('/all-NumberReg', (req, res, next) => controller.findAllNumberregs(req, res, next));
+
 
 ////////////////////////////
-
-
-
-export { systableRoute, systableRepository};
-
+export { systableRoute, systablesRepository };

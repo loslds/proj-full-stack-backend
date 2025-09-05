@@ -1,3 +1,5 @@
+
+//C:\repository\proj-full-stack-backend\src\use-cases\systable\systables.dto.ts
 import { SystablesEntity } from './systables.entity';
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';

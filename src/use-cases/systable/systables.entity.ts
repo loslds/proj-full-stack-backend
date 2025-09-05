@@ -1,4 +1,5 @@
 
+//C:\repository\proj-full-stack-backend\src\use-cases\systable\systables.entity.ts
 import { Column, Entity, PrimaryGeneratedColumn, Unique} from 'typeorm';
 
 @Entity('systables')
