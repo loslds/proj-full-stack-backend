@@ -1,10 +1,10 @@
  
 // src/routes/indexRoute.ts
 import { Router } from 'express';
+import { systemRoutes } from './systemRoutes';
 import { systableRoute } from '../use-cases/systable';
 import { pessoasRoute } from '../use-cases/pessoa';
 import { empresasRoute } from '../use-cases/empresa';
-import { systemRoutes } from './systemRoutes';      // nova
 import { syncTablesRoutes } from './syncTablesRoutes'; // nova
 
 const indexRoute = Router();

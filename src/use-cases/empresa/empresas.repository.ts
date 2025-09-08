@@ -9,11 +9,31 @@ export class EmpresasRepository {
     this.repo = this.dataSource.getRepository(EmpresasEntity);
   }
 
+  async createNotExistsEmpresas(): Promise<void> {
+    await this.dataSource.query(`
+      CREATE TABLE IF NOT EXISTS empresas (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        id_pessoa INT UNSIGNED NOT NULL,
+        nome VARCHAR(60) NOT NULL,
+        fantasy VARCHAR(60) NOT NULL,
+        arqlogo VARCHAR(200) DEFAULT NULL,
+        imagelogo BLOB DEFAULT NULL,
+        createdBy INT DEFAULT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedBy INT DEFAULT NULL,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT fk_pessoa FOREIGN KEY (id_pessoa) REFERENCES pessoas(id)
+      )
+    `);
+  }
+
   async hasDuplicated(nome?: string, fantasy?: string, excludes: number[] = []) { 
     const query = this.repo.createQueryBuilder('empresas')
       .select()
       .where('empresas.nome LIKE :nome', {nome})
       .andWhere('empresas.fantasy LIKE :fantasy', {fantasy})
+      // colocar o cnpj ou cpf de acordo com o cadastro <emails> ,<docs> e <fones>
+      //.andWhere('<>', {<>})
   
     if(!!excludes?.length) {
       query.andWhere('empresas.id NOT IN(:...excludes)',{ excludes })

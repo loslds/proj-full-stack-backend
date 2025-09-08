@@ -1,6 +1,6 @@
  
 // C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.repository.ts
-import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
+import { DataSource, DeepPartial, Repository, FindOptionsWhere,  FindOptionsOrder } from 'typeorm';
 import { PessoasEntity } from './pessoas.entity';
 import type { PessoasCreate } from './pessoas.dto';
 
@@ -11,12 +11,28 @@ export class PessoasRepository {
     this.repo = this.dataSource.getRepository(PessoasEntity);
   }
 
+  /** ✅ Cria a tabela 'pessoas' caso não exista */
+  async createNotExistsPessoas(): Promise<void> {
+    await this.dataSource.query(`
+      CREATE TABLE IF NOT EXISTS pessoas (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(60) NOT NULL COLLATE utf8mb4_general_ci UNIQUE,
+        sigla VARCHAR(5) NOT NULL,
+        createdBy INT DEFAULT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedBy INT DEFAULT NULL,
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+  }
+
+  /** Verifica duplicidade de registro em pessoas ou não  */
   async hasDuplicated(name?: string, sigla?: string, excludes: number[] = []) { 
     const query = this.repo.createQueryBuilder('pessoas')
     .select()
     .where('pessoas.nome LIKE :name', {name})
     .andWhere('pessoas.sigla LIKE :sigla', {sigla})
-
+    
     // Excluir registros com mesmos nomes em pessoas
     if(!!excludes?.length) {
       query.andWhere('pessoas.id NOT IN(:...excludes)',{ excludes })
@@ -25,6 +41,23 @@ export class PessoasRepository {
     const result = await query.getOne()
     return result
   }
+
+  /** ✅ método: cria a tabela física se não existir */
+  async createIfNotExistsPessoas(): Promise<void> {
+    await this.dataSource.query(`
+      CREATE TABLE IF NOT EXISTS pessoas (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(60) NOT NULL COLLATE utf8mb4_general_ci UNIQUE,
+        sigla TINYINT UNSIGNED NOT NULL DEFAULT 0,
+        numberregs INT UNSIGNED DEFAULT 0,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedBy INT DEFAULT NULL,
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+  }
+
+
   
   // Cria novo registros em pessoas
   async createPessoas(pessoas: PessoasCreate): Promise<PessoasEntity> {
@@ -46,10 +79,12 @@ export class PessoasRepository {
   /////////////////////////////////
   
   // Busca todos os registros de Pessoas com condição opcional
-  async findPessoasAll(where?: FindOptionsWhere<PessoasEntity>): Promise<PessoasEntity[]> {
-    return this.repo.find({ where });
+  async findPessoasAll(
+    where?: FindOptionsWhere<PessoasEntity>, 
+    order?: FindOptionsOrder<PessoasEntity>): Promise<PessoasEntity[]> {
+      return this.repo.find({ where, order });
   }
-
+  
   // Busca um registro de pessoas pelo ID
   async findPessoasById(pessoasId: number): Promise<PessoasEntity | null> {
     if (!pessoasId || isNaN(pessoasId) || pessoasId <= 0) {

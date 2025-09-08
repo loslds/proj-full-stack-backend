@@ -4,7 +4,7 @@ import { NextFunction, Request, Response } from 'express';
 import { PessoasRepository } from './pessoas.repository';
 import { PessoasCreate, PessoasUpdate } from './pessoas.dto';
 import { PessoasEntity } from './pessoas.entity';
-import { DeepPartial } from 'typeorm';
+import { DeepPartial, FindOptionsWhere } from 'typeorm';
 import { HttpException } from '../../middlewares/HttpException';
 
 export class PessoasController {
@@ -76,15 +76,31 @@ export class PessoasController {
     }
   }
 
+ 
   /** GET Busca todos os registros de Pessoas */
   async findAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const pessoas = await this.pessoasRepository.findPessoasAll();
+      
+      const { ativo } = req.query; // ex: ?ativo=true
+
+      let where: FindOptionsWhere<PessoasEntity> | undefined;
+
+      if (ativo !== undefined) {
+        where = { ativo: ativo === "true" } as FindOptionsWhere<PessoasEntity>;
+      }
+
+      const pessoas = await this.pessoasRepository.findPessoasAll( where, { nome: "ASC" } );
+
       return res.status(200).send({ success: true, pessoas });
+
     } catch (error) {
       next(error);
     }
   }
+
+
+    
+  
 
   /** GET Busca um registro de Pessoas por ID */
   async getOne(

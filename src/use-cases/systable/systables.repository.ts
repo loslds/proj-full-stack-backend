@@ -1,14 +1,29 @@
 
 //C:\repository\proj-full-stack-backend\src\use-cases\systable\systables.repository.ts
+import { dbSource } from '../../database';
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { SystablesEntity } from './systables.entity';
 import type { SystablesCreate } from './systables.dto';
-
 export class SystablesRepository {
   private repo: Repository<SystablesEntity>;
 
   constructor(private readonly dataSource: DataSource) {
     this.repo = this.dataSource.getRepository(SystablesEntity);
+  }
+
+  /** ✅ método: cria a tabela física se não existir */
+  async createNotExistsSystables(): Promise<void> {
+    await this.dataSource.query(`
+      CREATE TABLE IF NOT EXISTS systables (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(60) NOT NULL COLLATE utf8mb4_general_ci UNIQUE,
+        chkdb TINYINT UNSIGNED NOT NULL DEFAULT 0,
+        numberregs INT UNSIGNED DEFAULT 0,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedBy INT DEFAULT NULL,
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
   }
 
   async hasDuplicated(nome?: string, chkdb?: number, numberregs?: number, excludes: number[] = []) { 

@@ -1,5 +1,4 @@
 
-//config/tables.ts
 // src/config/tables.ts
 export const requiredTables = [
   'systable',
@@ -7,3 +6,5 @@ export const requiredTables = [
   'empresas',
   'tabela_falsa'
 ];
+
+

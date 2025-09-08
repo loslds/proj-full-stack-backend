@@ -11,7 +11,8 @@ import { HttpException } from '../../middlewares/HttpException';
 export class SystablesController {
   constructor(private readonly systablesRepository: SystablesRepository) {}
 
-/** POST Cria um novo registro de systables */
+  
+  /** POST Cria um novo registro de systables */
   async create(
     req: Request<{}, {}, SystablesCreate>,
     res: Response,
@@ -64,10 +65,10 @@ export class SystablesController {
   ) {
     const systablesId = Number(req.params.systablesId);
     if (isNaN(systablesId) || systablesId <= 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid systablesId' })
-        .end();
+    return res
+      .status(400)
+      .send({ success: false, message: 'Invalid systablesId' })
+      .end();
     }
     try {
       await this.systablesRepository.deleteSystable(systablesId);
@@ -179,11 +180,11 @@ export class SystablesController {
   }
 
   /** GET Busca todos os registros de systables por nome */
-async findAllNome(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+  async findAllNome(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
   try {
     const nome = req.query?.nome as string;
     if (!nome) {
@@ -201,67 +202,55 @@ async findAllNome(
 
   
   /** GET Busca todos os registros de systables por chkdb */
-async findAllChkdb(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const chkdbStr = req.query?.chkdb as string;
-    if (!chkdbStr) {
-      return res.status(400).send({ success: false, message: "chkdb parameter is required" });
+  async findAllChkdb(
+    req: Request,
+    res: Response,
+    next: NextFunction
+    ) {
+    try {
+      const chkdbStr = req.query?.chkdb as string;
+      if (!chkdbStr) {
+        return res.status(400).send({ success: false, message: "chkdb parameter is required" });
+      }
+      const chkdb = Number(chkdbStr);
+      if (isNaN(chkdb)) {
+        return res.status(400).send({ success: false, message: "chkdb must be a number" });
+      }
+      const systables = await this.systablesRepository.findAllChkdbSystables(chkdb);
+      if (systables.length === 0) {
+        return res.status(404).send({ success: false, message: "Nenhuma systables encontrada com esse chkdb" });
+      }
+      return res.status(200).send({ success: true, systables });
+    } catch (error) {
+      next(error);
     }
-
-    const chkdb = Number(chkdbStr);
-    if (isNaN(chkdb)) {
-      return res.status(400).send({ success: false, message: "chkdb must be a number" });
-    }
-
-    const systables = await this.systablesRepository.findAllChkdbSystables(chkdb);
-
-    if (systables.length === 0) {
-      return res.status(404).send({ success: false, message: "Nenhuma systables encontrada com esse chkdb" });
-    }
-
-    return res.status(200).send({ success: true, systables });
-  } catch (error) {
-    next(error);
   }
-}
-
 
   /** GET Busca todos os registros de systables por numberregs */
-async findAllNumberregs(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const numberregsStr = req.query?.numberregs as string;
-    if (!numberregsStr) {
-      return res.status(400).send({ success: false, message: "numberregs parameter is required" });
+  async findAllNumberregs(
+    req: Request,
+    res: Response,
+    next: NextFunction
+    ) {
+    try {
+      const numberregsStr = req.query?.numberregs as string;
+      if (!numberregsStr) {
+        return res.status(400).send({ success: false, message: "numberregs parameter is required" });
+      }
+      const numberregs = Number(numberregsStr);
+      if (isNaN(numberregs)) {
+        return res.status(400).send({ success: false, message: "numberregs must be a number" });
+      }
+      const systables = await this.systablesRepository.findAllNumberRegSystables(numberregs);
+      if (systables.length === 0) {
+        return res.status(404).send({ success: false, message: "Nenhuma systables encontrada com esse numberregs" });
+      }
+      return res.status(200).send({ success: true, systables });
+    } catch (error) {
+      next(error);
     }
-
-    const numberregs = Number(numberregsStr);
-    if (isNaN(numberregs)) {
-      return res.status(400).send({ success: false, message: "numberregs must be a number" });
-    }
-
-    const systables = await this.systablesRepository.findAllNumberRegSystables(numberregs);
-
-    if (systables.length === 0) {
-      return res.status(404).send({ success: false, message: "Nenhuma systables encontrada com esse numberregs" });
-    }
-
-    return res.status(200).send({ success: true, systables });
-  } catch (error) {
-    next(error);
   }
 }
 
-
-
-  /////////////////////
-}
 
 

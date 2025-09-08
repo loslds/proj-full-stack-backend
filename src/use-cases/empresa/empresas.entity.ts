@@ -1,4 +1,5 @@
 
+//C:\repository\proj-full-stack-backend\src\use-cases\empresa\empresas.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm'; 
 import { PessoasEntity } from '../pessoa/pessoas.entity';
 @Entity('empresas')
@@ -14,10 +15,10 @@ export class EmpresasEntity {
   @Column({ type: 'int', nullable: false, unsigned: true })
   id_pessoa: number;
 
-  @Column({ type: 'varchar', length: 45, nullable: false })
+  @Column({ type: 'varchar', length: 60, nullable: false })
   nome: string;
 
-  @Column({ type: 'varchar', length: 45, nullable: false })
+  @Column({ type: 'varchar', length: 60, nullable: false })
   fantasy: string;
 
   @Column({ type: 'varchar', length: 200, nullable: true })
