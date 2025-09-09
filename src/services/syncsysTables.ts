@@ -1,13 +1,12 @@
  
-// backend/services/syncsysTables.ts
+// C:\repository\proj-full-stack-backend\src\services\syncsysTables.ts
 import { dbSource } from '../use-cases/start/dbSource';
-
 export interface TableStatus {
   table_name: string;
   exists: boolean;
 }
 
-export async function syncSysTables(requiredTables: string[]): Promise<TableStatus[]> {
+export async function syncsysTables(requiredTables: string[]): Promise<TableStatus[]> {
   if (!dbSource.isInitialized) {
     await dbSource.initialize();
   }

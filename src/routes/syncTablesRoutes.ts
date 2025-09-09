@@ -3,14 +3,14 @@
 
 // routes/syncTablesRoutes.ts
 import { Router } from "express";
-import { syncSysTables } from "../services/syncsysTables";
+import { syncsysTables } from "../services/syncsysTables";
 import { requiredTables } from "../config/tables";
 
 export const syncTablesRoutes = Router();
 
 syncTablesRoutes.get("/", async (req, res) => {
   try {
-    const result = await syncSysTables(requiredTables);
+    const result = await syncsysTables(requiredTables);
     res.json({ success: true, data: result });
   } catch (err: unknown) {
     if (err instanceof Error) {

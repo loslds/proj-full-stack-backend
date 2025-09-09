@@ -3,7 +3,7 @@
 import { Router } from 'express';
 import { dbSource } from '../../database';
 import { checkDatabases } from './dbController';
-import { syncSysTables } from '../../services/syncsysTables';
+import { syncsysTables } from '../../services/syncsysTables';
 
 const router = Router();
 
@@ -118,7 +118,7 @@ router.post('/sync-systables', async (req, res) => {
       });
     }
 
-    const results = await syncSysTables(requiredTables);
+    const results = await syncsysTables(requiredTables);
 
     return res.status(200).json({
       success: true,
