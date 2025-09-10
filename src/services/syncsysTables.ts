@@ -1,12 +1,13 @@
- 
-// C:\repository\proj-full-stack-backend\src\services\syncsysTables.ts
+// src/services/syncsysTables.ts
 import { dbSource } from '../use-cases/start/dbSource';
+import { requiredTables } from '../config/tables';
+
 export interface TableStatus {
   table_name: string;
   exists: boolean;
 }
 
-export async function syncsysTables(requiredTables: string[]): Promise<TableStatus[]> {
+export async function syncsysTables(): Promise<TableStatus[]> {
   if (!dbSource.isInitialized) {
     await dbSource.initialize();
   }
@@ -25,20 +26,20 @@ export async function syncsysTables(requiredTables: string[]): Promise<TableStat
 
       const exists = rows.length > 0;
 
-      // Atualiza ou insere na tabela systables
+      // Atualiza ou insere na tabela systables usando a coluna 'nome'
       const [existingEntry]: any = await queryRunner.query(
-        `SELECT * FROM systables WHERE table_name = ?`, [table]
+        `SELECT * FROM systables WHERE nome = ?`, [table]
       );
 
       if (existingEntry) {
         await queryRunner.query(
-          `UPDATE systables SET chkdb = ? WHERE table_name = ?`,
-          [exists ? 1 : 0, table]
+          `UPDATE systables SET chkdb = ?, numberregs = ? WHERE nome = ?`,
+          [exists ? 1 : 0, exists ? await getRowCount(queryRunner, table) : 0, table]
         );
       } else {
         await queryRunner.query(
-          `INSERT INTO systables (table_name, chkdb) VALUES (?, ?)`,
-          [table, exists ? 1 : 0]
+          `INSERT INTO systables (nome, chkdb, numberregs) VALUES (?, ?, ?)`,
+          [table, exists ? 1 : 0, exists ? await getRowCount(queryRunner, table) : 0]
         );
       }
 
@@ -48,9 +49,14 @@ export async function syncsysTables(requiredTables: string[]): Promise<TableStat
     return results;
   } catch (error) {
     console.error('Erro ao sincronizar systables:', error);
-    throw new Error('Falha na sincronização das tabelas do sistema.(systables)');
+    throw new Error('Falha na sincronização das tabelas do sistema (systables).');
   } finally {
     await queryRunner.release();
   }
 }
 
+// Função auxiliar para contar registros de uma tabela
+async function getRowCount(queryRunner: any, table: string): Promise<number> {
+  const [result]: any = await queryRunner.query(`SELECT COUNT(*) AS count FROM ??`, [table]);
+  return result?.count || 0;
+}

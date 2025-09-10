@@ -3,7 +3,7 @@
 import { checkConnectionService } from "./checkConectionService";
 import { checkTables } from "./checkTables";
 import { syncsysTables } from "./syncsysTables";
-import { requiredTables } from "../config/tables";
+//mport { requiredTables } from "../config/tables";
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -61,7 +61,7 @@ export async function initSystem(): Promise<InitResult> {
     await delay(800);
 
     try {
-      await syncsysTables(requiredTables);
+      await syncsysTables();
       steps.push({ message: "✅ Sincronismo concluído.", success: true });
     } catch {
       steps.push({ message: "⚠️ Falha no sincronismo, mas sistema pode continuar.", success: false });
