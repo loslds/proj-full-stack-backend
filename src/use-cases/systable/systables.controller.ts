@@ -111,6 +111,30 @@ export class SystablesController {
     }
   }
 
+
+  /** GET Lista um reg. nome em systable */
+  async findByNomeSystables(
+    req: Request<{}, {}, {}, Partial<{ nome: string }>>, 
+    res: Response, 
+    next: NextFunction
+  ) {
+    const { nome } = req.query;
+
+    if (!nome) {
+      return res
+        .status(400)
+        .send({ success: false, message: 'Name em tabela systable em parameter is required' })
+        .end();
+    }
+
+    try {
+      const systables = await this.systablesRepository.findOneNomeSystable(nome);
+      return res.status(200).send({ success: true, systables }).end();
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async search(req: Request, res: Response, next: NextFunction) {
     try {
       // Extraindo parâmetros opcionais da query
@@ -130,6 +154,8 @@ export class SystablesController {
       next(error); // Passa o erro para o middleware de tratamento
     }
   }
+
+
 
   /** GET Pesquisa registros de systables por nome */
   async searchByName(

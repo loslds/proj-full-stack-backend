@@ -31,29 +31,29 @@ export async function initSystem(): Promise<InitResult> {
 
     const connResult = await checkConnectionService();
     if (!connResult.success) {
-      steps.push({ message: "❌ [Conexão] Falha ao conectar ao banco de dados.", success: false });
+      steps.push({ message: "❌ Falha com a Conexão de Banco de Dados.", success: false });
       return { success: false, steps, message: "❌ Erro na inicialização: Conexão falhou" };
     }
 
-    steps.push({ message: "✅ [Conexão] Conexão realizada com sucesso.", success: true });
+    steps.push({ message: "✅ Conexão com Banco de Dados realizada com sucesso.", success: true });
     await delay(500);
 
     // === Etapa 2: Tabelas ===
-    steps.push({ message: "⏳ Checando Banco de Dados...", success: true });
+    steps.push({ message: "⏳ Checando Existência de Dados...", success: true });
     await delay(800);
 
     const tablesResult = await checkTables();
     if (!tablesResult.success && tablesResult.missingTables?.length) {
-      steps.push({ message: `❌ ${tablesResult.missingTables[0]} não foi possível constatar.`, success: false });
+      steps.push({ message: `❌ ${tablesResult.missingTables[0]} não foi possível checar!`, success: false });
       return {
         success: false,
         steps,
-        message: "❌ Falha na verificação das tabelas",
+        message: "❌ Falha na verificação: [Inexistênte, Corrompido ou erro na busca.].",
         missingTables: tablesResult.missingTables
       };
     }
 
-    tablesResult.checkedTables?.forEach(tbl => steps.push({ message: `✅ ${tbl} Sucesso.`, success: true }));
+    tablesResult.checkedTables?.forEach(tbl => steps.push({ message: `✅ ${tbl} Sucesso ao Lista de Dados.`, success: true }));
     await delay(500);
 
     // === Etapa 3: Sincronismo ===

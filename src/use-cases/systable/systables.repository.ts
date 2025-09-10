@@ -73,6 +73,8 @@ export class SystablesRepository {
     return this.repo.findOne({ where: { id: systablesId } });
   }
   
+  
+
   // Busca um registro de systables pelo ID?,nome?,sigla?
   async searchSystable(params: { id?: number; nome?: string; chkdb?: number; numberregs?: number }) {
     const query = this.repo.createQueryBuilder('systables')
@@ -130,6 +132,7 @@ export class SystablesRepository {
   async findAllNomeSystables(nome: string): Promise<SystablesEntity[]>  {
     return this.repo.find({ where: { nome } });
   }
+
 
   // Busca todos registros de systables pelo campo chkdb
   async findAllChkdbSystables(chkdb: number): Promise<SystablesEntity[]> {

@@ -3,14 +3,14 @@
 import express from 'express';
 import cors from 'cors';
 import { dbSource } from './database';
+
 import { indexRoute } from './routes/indexRoute';
+import { initRoutes } from "./routes/initRoutes";
+
 import { errorHandler } from './middlewares/errorHandler';
 import { appPort, frontendPort } from './config/app';
 
-import { initRoutes } from "./routes/initRoutes";
 
-import { checkConnection } from "./use-cases/start/checkConnection";
-import { checkTablesRoutes } from "./routes/checkTablesRoutes";
 
 const app = express();
 
@@ -35,10 +35,6 @@ app.use(express.json());
 
 // Rotas
 app.use('/api', indexRoute);
-
-//app.use("/api/db", checkConnection);
-
-//app.use("/api/db/check-tables", checkTablesRoutes);
 
 app.use("/api/db/init", initRoutes);
 
