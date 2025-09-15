@@ -19,3 +19,4 @@ syncTablesRoutes.get("/", async (req, res) => {
     }
   }
 });
+

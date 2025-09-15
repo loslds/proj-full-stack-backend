@@ -6,6 +6,7 @@ import { dbSource } from './database';
 import { indexRoute } from './routes/indexRoute';
 import { errorHandler } from './middlewares/errorHandler';
 import { appPort, frontendPort, frontendDomain } from "./config/app";
+import logsRoute from "./use-cases/system/logs.route";
 import { initRoutes } from "./routes/initRoutes";
 
 const app = express();
@@ -20,6 +21,11 @@ const corsOptions = {
     if (/^http:\/\/localhost:\d+$/.test(origin)) {
       return callback(null, true);
     }
+
+    
+
+// depois de app.use(express.json()) e cors()
+app.use("/api/logs", logsRoute);
 
     // Permite seu domínio de produção
     const allowedProduction = ["https://meusite.com"];
