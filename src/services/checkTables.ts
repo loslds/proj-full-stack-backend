@@ -1,10 +1,10 @@
-// src/services/checkTables.ts
 import { requiredTables } from '../config/tables';
 import { dbSource } from '../database';
 import { SystablesRepository } from '../use-cases/systable/systables.repository';
 import { PessoasRepository } from '../use-cases/pessoa/pessoas.repository';
 import { EmpresasRepository } from '../use-cases/empresa/empresas.repository';
-// adicionar outras tabelas
+// importar outras tabelas se necessário
+import { insertDefaultPessoas } from '../use-cases/pessoa/updatePessoas';
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -53,10 +53,7 @@ export async function checkTables(): Promise<{
     } catch (err: any) {
       steps.push(`❌ Falha ao criar/verificar systables: ${err.message || err}`);
       console.error('Erro ao criar/verificar systables:', err);
-      // Opcional: se quiser abortar a execução se systables não puder ser criada
-      // throw err;
     }
-
 
     // 2️⃣ Checagem e criação das demais tabelas
     for (const table of requiredTables.filter(t => t !== 'systables')) {
@@ -66,18 +63,31 @@ export async function checkTables(): Promise<{
           if (table === 'pessoas') {
             const repo = new PessoasRepository(dbSource);
             count = (await repo.findPessoasAll({})).length;
+
+            // ✅ Inserir registros padrão caso não existam
+            if (count === 0) {
+              await insertDefaultPessoas(repo);
+              count = (await repo.findPessoasAll({})).length;
+              steps.push(`✅ Inseridos registros padrão na tabela ${table}.`);
+            }
+          
           } else if (table === 'empresas') {
             const repo = new EmpresasRepository(dbSource);
             count = (await repo.findEmpresasAll({})).length;
           }
-          // adicionar outras tabelas.....
-          ////////////////
           steps.push(`✅ ${table} existe. Registros: ${count}`);
         } else if (tableCreationMap[table]) {
           const { repoClass, createMethod } = tableCreationMap[table];
           const repoInstance = new repoClass(dbSource);
           await repoInstance[createMethod]();
           steps.push(`✅ ${table} criada com sucesso.`);
+
+          // ✅ Inserir registros padrão logo após criar
+          if (table === 'pessoas') {
+            await insertDefaultPessoas(repoInstance);
+            count = (await repoInstance.findPessoasAll({})).length;
+            steps.push(`✅ Inseridos registros padrão na tabela ${table}.`);
+          }
         } else {
           missingTables.push(table);
           steps.push(`❌ Não foi possível criar a tabela ${table}.`);

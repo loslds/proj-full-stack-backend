@@ -1,40 +1,28 @@
 
 //C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.entity.ts
-import { Column, Entity, PrimaryGeneratedColumn, Unique} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity('pessoas')
-@Unique(['nome']) // Adiciona a restrição de unicidade composta
-
+@Unique(['nome', 'sigla'])
 export class PessoasEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
-  id: number; // O campo 'id' será autoincremento
+  id: number;
 
-  @Column({ name:'nome', type: 'varchar', length: 60, nullable: false, collation:'utf8mb4_general_ci' })
+  @Column({ type: 'varchar', length: 60, nullable: false, collation: 'utf8mb4_general_ci' })
   nome: string;
 
   @Column({ type: 'varchar', length: 5, nullable: false })
   sigla: string;
 
-  @Column({ type: 'int', nullable: true, default: null })
-  createdBy?: number;
+  @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
+  createBy: number;
 
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
+  @Column({ type: 'datetime', nullable: true, default: () => 'CURRENT_TIMESTAMP' })
+  createAt: Date;
 
-  @Column({ type: 'int', nullable: true })
-  updatedBy?: number;
+  @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
+  updateBy: number;
 
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-    default: () => 'CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP',
-  })
-  updatedAt?: Date;
+  @Column({ type: 'datetime', nullable: true, default: () => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' })
+  updateAt: Date;
 }
-
