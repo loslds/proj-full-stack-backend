@@ -10,7 +10,7 @@ export class PessoasRepository {
     this.repo = this.dataSource.getRepository(PessoasEntity);
   }
 
-  /** ✅ Cria a tabela 'pessoas' caso não exista */
+  /** Cria a tabela 'pessoas' caso não exista */
   async createNotExistsPessoas(): Promise<void> {
     await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS pessoas (
@@ -60,16 +60,29 @@ export class PessoasRepository {
     return this.repo.save(data);
   }
 
-  /** Atualiza registro em pessoas */
-  async updatePessoas(pessoasId: number, pessoas: DeepPartial<PessoasEntity>): Promise<PessoasEntity> {
-    const data = this.repo.create({ id: pessoasId, ...pessoas });
-    return this.repo.save(data);
+  /** Atualiza registro em pessoas (seguro com preload) */
+  async updatePessoas(
+    pessoasId: number, 
+    pessoas: DeepPartial<PessoasEntity>
+    ): Promise<PessoasEntity> {
+    if (!pessoasId || isNaN(pessoasId) || pessoasId <= 0) {
+      throw new Error('Invalid pessoasId');
+    }
+
+    const entity = await this.repo.preload({ id: pessoasId, ...pessoas });
+    if (!entity) {
+      throw new Error(`Pessoa com id ${pessoasId} não encontrada`);
+    }
+
+    return this.repo.save(entity);
   }
 
   /** Deleta registro em pessoas */
-  async deletePessoas(pessoasId: number) {
-    return this.repo.delete(pessoasId);
-  }
+  async deletePessoas(pessoasId: number): Promise<void> {
+  const entity = await this.repo.findOne({ where: { id: pessoasId } });
+  if (!entity) throw new Error(`Pessoa com id ${pessoasId} não encontrada`);
+  await this.repo.remove(entity);
+}
 
   /** Busca todos os registros de Pessoas */
   async findPessoasAll(
@@ -124,9 +137,13 @@ export class PessoasRepository {
     return this.repo.findOne({ where: { nome } });
   }
 
-  /** Busca todos registros pelo nome */
+  /** Busca todos registros pelo nome (igualdade exata, limitado a 100) */
   async findAllNomePessoas(nome: string): Promise<PessoasEntity[]> {
-    return this.repo.find({ where: { nome } });
+    return this.repo.find({
+      where: { nome },
+      take: 100,
+      order: { id: "ASC" }
+    });
   }
 
   /** Busca um registro pela sigla */
@@ -134,8 +151,12 @@ export class PessoasRepository {
     return this.repo.findOne({ where: { sigla } });
   }
 
-  /** Busca todos registros pela sigla */
+  /** Busca todos registros pelo nome (igualdade exata, limitado a 100) */
   async findAllSiglaPessoas(sigla: string): Promise<PessoasEntity[]> {
-    return this.repo.find({ where: { sigla } });
+    return this.repo.find({
+      where: { sigla },
+      take: 100,
+      order: { id: "ASC" }
+    });
   }
 }

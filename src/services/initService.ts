@@ -3,7 +3,6 @@
 import { checkConnectionService } from "./checkConectionService";
 import { checkTables } from "./checkTables";
 import { syncsysTables } from "./syncsysTables";
-//mport { requiredTables } from "../config/tables";
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
