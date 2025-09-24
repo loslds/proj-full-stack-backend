@@ -6,6 +6,8 @@ import { PessoasRepository } from "./pessoas.repository";
 import { PessoasCreate, PessoasUpdate } from "./pessoas.dto";
 import { PessoasEntity } from "./pessoas.entity";
 import { FindOptionsWhere } from "typeorm";
+import { DeepPartial } from "typeorm";
+export type PessoasDto = DeepPartial<PessoasEntity>;
 import { HttpException } from "../../middlewares/HttpException";
 
 export class PessoasController {
@@ -76,6 +78,7 @@ export class PessoasController {
 
       const pessoas = await this.pessoasRepository.findPessoasAll(where, { nome: "ASC" });
       return res.status(200).send({ success: true, pessoas });
+
     } catch (error) {
       next(error);
     }
@@ -91,12 +94,14 @@ export class PessoasController {
 
       const pessoas = await this.pessoasRepository.findPessoasById(pessoasId);
       return res.status(200).send({ success: true, pessoas });
+
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca registros de Pessoa por ID/nome/sigla (query) */
+
+  /** GET pesquisa Buscar registros de Pessoa por ID/nome/sigla (query) */
   async search(req: Request, res: Response, next: NextFunction) {
     try {
       const { id, nome, sigla } = req.query;
@@ -111,22 +116,22 @@ export class PessoasController {
     }
   }
 
-  /** GET Pesquisa registros de Pessoa por nome */
-  async searchByName(req: Request, res: Response, next: NextFunction) {
+  /** GET pesquisa Buscar por nome em Pessoas */
+  async searchName(req: Request, res: Response, next: NextFunction) {
     try {
       const text = req.query?.text as string;
-      const pessoas = await this.pessoasRepository.searchName(text);
+      const pessoas = await this.pessoasRepository.searchNamePessoas(text);
       return res.status(200).send({ success: true, pessoas });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Pesquisa registros de Pessoa por sigla */
-  async searchBySigla(req: Request, res: Response, next: NextFunction) {
+  /** GET pesquisa Buscar por Sigla em Pessoas */
+  async searchSigla(req: Request, res: Response, next: NextFunction) {
     try {
       const text = req.query?.text as string;
-      const pessoas = await this.pessoasRepository.searchSigla(text);
+      const pessoas = await this.pessoasRepository.searchSiglaPessoas(text);
       return res.status(200).send({ success: true, pessoas });
     } catch (error) {
       next(error);

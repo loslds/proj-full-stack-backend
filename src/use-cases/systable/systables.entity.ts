@@ -7,34 +7,28 @@ import { Column, Entity, PrimaryGeneratedColumn, Unique} from 'typeorm';
 
 export class SystablesEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
-  id: number; // O campo 'id' será autoincremento
+  id: number;
 
-  @Column({ name:'nome', type: 'varchar', length: 60, nullable: false, collation:'utf8mb4_general_ci' })
+  @Column({ type: 'varchar', length: 60, nullable: false, collation: 'utf8mb4_general_ci' })
   nome: string;
-
+  
   @Column({ type: 'tinyint', nullable: false, unsigned: true, default: 0 })
   chkdb: number;
 
-  @Column({ type: 'int', nullable: true, unsigned: true, default: 0 })
-  numberregs?: number;
+  @Column({ type: 'tinyint', nullable: false, unsigned: true, default: 0 })
+  numberregs: number;
 
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
+  @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
+  createBy: number;
 
-  @Column({ type: 'int', nullable: true })
-  updatedBy?: number;
+  @Column({ type: 'datetime', nullable: true, default: () => 'CURRENT_TIMESTAMP' })
+  createAt: Date;
 
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-    default: () => 'CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP',
-  })
-  updatedAt?: Date;
+  @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
+  updateBy: number;
+
+  @Column({ type: 'datetime', nullable: true, default: () => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' })
+  updateAt: Date;
 }
+
 

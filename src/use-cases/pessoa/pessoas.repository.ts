@@ -79,10 +79,10 @@ export class PessoasRepository {
 
   /** Deleta registro em pessoas */
   async deletePessoas(pessoasId: number): Promise<void> {
-  const entity = await this.repo.findOne({ where: { id: pessoasId } });
-  if (!entity) throw new Error(`Pessoa com id ${pessoasId} não encontrada`);
-  await this.repo.remove(entity);
-}
+    const entity = await this.repo.findOne({ where: { id: pessoasId } });
+    if (!entity) throw new Error(`Pessoa com id ${pessoasId} não encontrada`);
+    await this.repo.remove(entity);
+  }
 
   /** Busca todos os registros de Pessoas */
   async findPessoasAll(
@@ -114,7 +114,7 @@ export class PessoasRepository {
   }
 
   /** Busca pelo nome */
-  async searchName(text?: string) {
+  async searchNamePessoas(text?: string) {
     const query = this.repo.createQueryBuilder('pessoas')
       .select(['pessoas.id', 'pessoas.nome'])
       .orderBy('pessoas.id', 'ASC')
@@ -124,13 +124,14 @@ export class PessoasRepository {
   }
 
   /** Busca pela sigla */
-  async searchSigla(text?: string) {
+  async searchSiglaPessoas(text?: string) {
     const query = this.repo.createQueryBuilder('pessoas')
       .select(['pessoas.id', 'pessoas.sigla'])
       .limit(100);
     if (text) query.andWhere('pessoas.sigla LIKE :text', { text: `%${text}%` });
     return query.getMany();
   }
+
 
   /** Busca um registro pelo nome */
   async findOneNomePessoas(nome: string): Promise<PessoasEntity | null> {

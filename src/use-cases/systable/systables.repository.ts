@@ -1,12 +1,13 @@
 
 //C:\repository\proj-full-stack-backend\src\use-cases\systable\systables.repository.ts
-import { dbSource } from '../../database';
-import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
+import { DataSource, DeepPartial, Repository, FindOptionsWhere, FindOptionsOrder } from 'typeorm';
 import { SystablesEntity } from './systables.entity';
 import type { SystablesCreate } from './systables.dto';
+
+
 export class SystablesRepository {
   private repo: Repository<SystablesEntity>;
-
+  
   constructor(private readonly dataSource: DataSource) {
     this.repo = this.dataSource.getRepository(SystablesEntity);
   }
@@ -42,70 +43,80 @@ export class SystablesRepository {
   }
 
   // Cria novo registros em systables
-  async createSystable(systables : SystablesCreate): Promise<SystablesEntity> {
+  async createSystables(systables : SystablesCreate): Promise<SystablesEntity> {
     const data = this.repo.create(systables);
     return this.repo.save(data);
   }
-
+ 
   // Altera registros em systables atraves do id selecionado
-  async updateSystable(systablesId: number, systables: DeepPartial<SystablesEntity>): Promise<SystablesEntity> {
-    const data = this.repo.create({ id: systablesId, ...systables });
-    return this.repo.save(data);
+  async updateSystables(
+    systablesId: number, 
+    systables: DeepPartial<SystablesEntity>
+  ): Promise<SystablesEntity> {
+    if (!systablesId || isNaN(systablesId) || systablesId <= 0) {
+      throw new Error('Invalid systablesId');
+    }
+
+    const entity = await this.repo.preload({ id: systablesId, ...systables });
+    if (!entity) {
+      throw new Error(`systables com id ${systablesId} não encontrada`);
+    }
+
+    return this.repo.save(entity);
   }
-  
+
+    
   // Deleta registros em systables atraves do id selecionado
-  async deleteSystable(systablesId: number) {
-    return this.repo.delete(systablesId);
+  async deleteSystables(systablesId: number): Promise<void> {
+    const entity = await this.repo.findOne({ where: { id: systablesId } });
+    if (!entity) throw new Error(`systables com id ${systablesId} não encontrada`);
+    await this.repo.remove(entity);
   }
-  
-  /////////////////////////////////
-  
-  // Busca todos os registros de systables com condição opcional
-  async findSystableAll(where?: FindOptionsWhere<SystablesEntity>): Promise<SystablesEntity[]> {
-    return this.repo.find({ where });
+
+   ///////////////////////////////////////////////
+  // Busca todos os registros de systables 
+  async findSystablesAll(
+    where?: FindOptionsWhere<SystablesEntity>,
+    order?: FindOptionsOrder<SystablesEntity>
+  ): Promise<SystablesEntity[]> {
+    return this.repo.find({ where, order });
   }
 
   // Busca um registro de systables pelo ID
-  async findSystableById(systablesId: number): Promise<SystablesEntity | null> {
+  async findSystablesById(systablesId: number): Promise<SystablesEntity | null> {
     if (!systablesId || isNaN(systablesId) || systablesId <= 0) {
       throw new Error('Invalid systablesId');
     }
     return this.repo.findOne({ where: { id: systablesId } });
   }
   
-  
-
   // Busca um registro de systables pelo ID?,nome?,sigla?
-  async searchSystable(params: { id?: number; nome?: string; chkdb?: number; numberregs?: number }) {
+  async searchSystables(params: { id?: number; nome?: string; chkdb?: number; numberregs?: number }) {
     const query = this.repo.createQueryBuilder('systables')
       .select(['systables.id', 'systables.nome', 'systables.chkdb', 'systables.numberregs'])
-      .orderBy('systables.id', 'ASC'); // Ordenação padrão
-  
-    // Filtrar por ID (caso seja informado)
-    if (params.id) {
+      .orderBy('systables.id', 'ASC');
+
+    if (params.id !== undefined) {
       query.andWhere('systables.id = :id', { id: params.id });
     }
-  
-    // Filtrar por nome (caso seja informado)
+
     if (params.nome) {
-      query.andWhere('systables.nome LIKE : nome', { nome: `%${params.nome}%` });
-    }
-  
-    // Filtrar por chkdb (caso seja informado)
-    if (params.chkdb) {
-      query.andWhere('systables.chkdb LIKE : chkdb', { chkdb: `%${params.chkdb}%` });
+      query.andWhere('systables.nome LIKE :nome', { nome: `%${params.nome}%` });
     }
 
-    // Filtrar por numberregs (caso seja informado)
-    if (params.numberregs) {
-      query.andWhere('systables.numberregs LIKE : numberregs', { numberregs: `%${params.numberregs}%` });
+    if (params.chkdb !== undefined) {
+      query.andWhere('systables.chkdb = :chkdb', { chkdb: params.chkdb });
     }
-    
+
+    if (params.numberregs !== undefined) {
+      query.andWhere('systables.numberregs = :numberregs', { numberregs: params.numberregs });
+    }
+
     return query.getMany();
   }
-  
+
   // Busca todos os registros de systables pelo campo nome
-  async searchName(text?: string) {
+  async searchNameSystables(text?: string) {
     const query = this.repo.createQueryBuilder('systables')
     .select(['systable.id', 'systable.nome', 'systables.chkdb', 'systables.numberregs'])
     .orderBy('systable.id', 'ASC') // Ordena pelo ID de forma crescente
@@ -115,7 +126,7 @@ export class SystablesRepository {
   }
   
   // Busca todos os registros de systables pelo campo chkdb
-  async searchChkbd(text?: string) {
+  async searchChkdbSystables(text?: string) {
     const query = this.repo.createQueryBuilder('systables')
     .select(['systables.id', 'systables.name', 'systables.chkdb', 'systables.numberregs'])
     .limit(100)
@@ -123,38 +134,58 @@ export class SystablesRepository {
     return query.getMany()
   }
 
+  // Busca todos os registros de systables pelo campo numberregs
+  async searchNumberregsSystables(text?: string) {
+    const query = this.repo.createQueryBuilder('systables')
+    .select(['systables.id', 'systables.name', 'systables.chkdb', 'systables.numberregs'])
+    .limit(100)
+    if(!!text) query.andWhere('systables.numberregs LIKE : text', { text: `%${text}%`})
+    return query.getMany()
+  }
+
+
   // Busca um registro de systables pelo campo nome
-  async findOneNomeSystable(nome: string): Promise<SystablesEntity | null> {
+  async findOneNomeSystables(nome: string): Promise<SystablesEntity | null> {
     return this.repo.findOne({ where: { nome } });
   }
 
+
   // Busca todos registros de systables pelo campo nome
-  async findAllNomeSystables(nome: string): Promise<SystablesEntity[]>  {
-    return this.repo.find({ where: { nome } });
+  /** Retorna lista de todos os id e nome de systables */
+  async findAllNomesSystables(): Promise<{ id: number; nome: string }[]> {
+    return this.repo
+      .createQueryBuilder('systables')
+      .select(['systables.id', 'systables.nome'])
+      .orderBy('systables.nome', 'ASC') // opcional, ordena por nome
+      .getRawMany(); // retorna um array de objetos { id, nome }
   }
 
+  /** Retorna lista de id, nome e chkdb de systables, opcionalmente filtrando por chkdb */
+  async findAllNomeChkdbSystables(chkdb?: number): Promise<{ id: number; nome: string; chkdb: number }[]> {
+    const query = this.repo
+      .createQueryBuilder('systables')
+      .select(['systables.id', 'systables.nome', 'systables.chkdb'])
+      .orderBy('systables.nome', 'ASC');
 
-  // Busca todos registros de systables pelo campo chkdb
-  async findAllChkdbSystables(chkdb: number): Promise<SystablesEntity[]> {
-    return this.repo.find({ where: { chkdb } });
+    if (chkdb !== undefined) {
+      query.where('systables.chkdb = :chkdb', { chkdb });
+    }
+
+    return query.getRawMany(); // retorna array de objetos { id, nome, chkdb }
   }
-  
-  // Busca todos registros de systables pelo campo numberregs
-  async findAllNumberRegSystables( numberregs: number ): Promise<SystablesEntity[]> {
-    return this.repo.find({ where: { numberregs } });
-  }
-}  
-
-// // Busca somente um registro de systables pelo campo chkdb
-  //   async findOneChkdbSystables(chkdb: number): Promise<SystablesEntity | null> {
-  //     return this.repo.findOne({ where: { chkdb } });
-  //   }
-  
-  // // Busca somente um registro de systables pelo campo numberregs
-  //   async findOneNumberregsSystables(numberregs: number): Promise<SystablesEntity | null> {
-  //     return this.repo.findOne({ where: { numberregs } });
-  //   }
-
-
-
  
+  /** Retorna lista de id, nome, chkdb e numberregs de systables, opcionalmente filtrando por numberregs */
+  async findAllNomeNumberregsSystables(
+    numberregs?: number
+  ): Promise<{ id: number; nome: string; chkdb: number; numberregs: number }[]> {
+    const query = this.repo
+      .createQueryBuilder('systables')
+      .select(['systables.id', 'systables.nome', 'systables.chkdb', 'systables.numberregs'])
+      .orderBy('systables.nome', 'ASC');
+
+    if (numberregs !== undefined) {
+      query.where('systables.numberregs = :numberregs', { numberregs });
+    }
+    return query.getRawMany(); // retorna array de objetos { id, nome, chkdb, numberregs }
+  }
+}

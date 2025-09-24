@@ -10,11 +10,10 @@ const pessoasRepository = new PessoasRepository(dbSource);
 const controller = new PessoasController(pessoasRepository);
 const pessoasRoute = Router();
 
-// Opcional: insere registros default ao iniciar (se tabela vazia)
-// (async () => {
-//  await pessoasRepository.createNotExistsPessoas();
-//  await pessoasRepository.insertDefaultPessoas();
-//})();
+
+
+
+
 
 // ======================= ROTAS =======================
 // GET todos os registros
@@ -64,6 +63,11 @@ export { pessoasRoute, pessoasRepository };
 // import { PessoasRepository } from "./pessoas.repository";
 // import { createValidation, updateValidation } from "./pessoas.validation";
 // import { dbSource } from "../../database";
+import { dbSource } from '../../database';
+import { Router, Request, Response, NextFunction } from 'express';
+import { SystablesController } from './systables.controller';
+import { SystablesRepository } from './systables.repository';
+import { createValidation, updateValidation } from './systables.validation';
 
 // export const initPessoasRoutes = async (app: any) => {
 //   const repo = new PessoasRepository(dbSource);

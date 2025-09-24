@@ -21,3 +21,4 @@ export const pessoasUpdateSchema = z.object({
 export type PessoasCreate = z.infer<typeof pessoasCreateSchema>;
 export type PessoasUpdate = z.infer<typeof pessoasUpdateSchema>;
 export type PessoasDto = DeepPartial<PessoasEntity>;
+

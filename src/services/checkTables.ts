@@ -25,7 +25,9 @@ export async function checkTables(): Promise<{
   const queryRunner = dbSource.createQueryRunner();
 
   const tableCreationMap: Record<string, { repoClass: any; createMethod: string; insertDefaults?: () => Promise<void> }> = {
+    
     systables: { repoClass: SystablesRepository, createMethod: 'createNotExistsSystables' },
+    
     pessoas: { 
       repoClass: PessoasRepository, 
       createMethod: 'createNotExistsPessoas',
@@ -34,6 +36,7 @@ export async function checkTables(): Promise<{
         await repo.insertDefaultPessoas();
       }
     },
+    
     empresas: { repoClass: EmpresasRepository, createMethod: 'createNotExistsEmpresas' },
     // outras tabelas...
   };

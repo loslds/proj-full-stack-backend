@@ -10,8 +10,8 @@ export class PessoasEntity {
 
   @Column({ type: 'varchar', length: 60, nullable: false, collation: 'utf8mb4_general_ci' })
   nome: string;
-
-  @Column({ type: 'varchar', length: 5, nullable: false })
+  
+  @Column({ type: 'varchar', length: 5, nullable: false, collation: 'utf8mb4_general_ci' })
   sigla: string;
 
   @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })

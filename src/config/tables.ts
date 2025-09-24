@@ -1,7 +1,7 @@
 
 // src/config/tables.ts
 export const requiredTables = [
-  //'systables',
+  'systables',
   'pessoas',
   'empresas'
 ];
