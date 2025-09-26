@@ -19,11 +19,12 @@ systableRoute.delete('/:systablesId', (req: Request<{ systablesId: string }>, re
 systableRoute.get('/search', (req, res, next) => controller.searchSystables(req, res, next));
 systableRoute.get('/search-name', (req, res, next) => controller.searchByNameSystables(req, res, next));
 systableRoute.get('/search-chkdb', (req, res, next) => controller.searchByChkdbSystables(req, res, next));
+systableRoute.get('/search-regs', (req, res, next) => controller.searchByNumberregsSystables(req, res, next));
 
 systableRoute.get('/one-nome', (req, res, next) => controller.findOneNomeSystables(req, res, next));
-systableRoute.get('/all-nome', (req, res, next) => controller.findAllNomeSystables(req, res, next));
-systableRoute.get('/all-chkdb', (req, res, next) => controller.findAllNomeByChkdbSystables(req, res, next));
-systableRoute.get('/all-NumberReg', (req, res, next) => controller.findAllNomeByNumberregsSystables(req, res, next));
+systableRoute.get('/all-nome', (req, res, next) => controller.findListByNomeSystables(req, res, next));
+systableRoute.get('/all-chkdb', (req, res, next) => controller.findListNomeByChkdbSystables(req, res, next));
+systableRoute.get('/all-regs', (req, res, next) => controller.findListNomeByNumberregsSystables(req, res, next));
 
 
 ////////////////////////////

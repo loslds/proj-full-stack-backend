@@ -6,13 +6,13 @@ import { EmpresasEntity} from './empresas.entity';
 export const empresasCreateSchema = z.object({
   name: z.string().min(3),
   fantasy: z.string().min(3),  // Torna o campo fantasy obrigatório para a criação
-  id_pessoa: z.number(),
+  id_pessoa: z.number().optional(), // adicionado,
+  createdBy: z.number().optional(), // adicionado
+  updatedBy: z.number().optional(), // adicionado
 });
 
-export const empresasUpdateSchema = z.object({
-  name: z.string().min(3),
-  fantasy: z.string().min(3).optional(),  // Permite que fantasy seja opcional na atualização
-  id_pessoa: z.number().optional(),  // Permite que id_pessoa seja opcional na atualização
+export const empresasUpdateSchema = empresasCreateSchema.partial().extend({
+  id: z.number().int().positive().optional(),
 });
 
 export type EmpresasCreate = z.infer<typeof empresasCreateSchema>;

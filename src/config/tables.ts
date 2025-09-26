@@ -3,7 +3,7 @@
 export const requiredTables = [
   'systables',
   'pessoas',
-  'empresas'
+  'imagens',
 ];
 
 

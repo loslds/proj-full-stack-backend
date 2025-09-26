@@ -199,9 +199,9 @@ async searchByNumberregsSystables(req: Request, res: Response, next: NextFunctio
   }
 
   /** GET Lista todos os id e nome de systables */
-  async findAllNomeSystables(req: Request, res: Response, next: NextFunction) {
+  async findListByNomeSystables(req: Request, res: Response, next: NextFunction) {
     try {
-      const nomes = await this.systablesRepository.findAllNomesSystables();
+      const nomes = await this.systablesRepository.findListNomeSystables();
       return res.status(200).send({ success: true, nomes });
     } catch (error) {
       next(error);
@@ -209,11 +209,11 @@ async searchByNumberregsSystables(req: Request, res: Response, next: NextFunctio
   }
 
   /** GET Lista todos os id, nome e chkdb de systables, com filtro opcional por chkdb */
-  async findAllNomeByChkdbSystables(req: Request, res: Response, next: NextFunction) {
+  async findListNomeByChkdbSystables(req: Request, res: Response, next: NextFunction) {
     try {
       const { chkdb } = req.query;
 
-      const lista = await this.systablesRepository.findAllNomeChkdbSystables(
+      const lista = await this.systablesRepository.findListNomeChkdbSystables(
         chkdb !== undefined ? (chkdb === 'true' ? 1 : 0) : undefined
       );
 
@@ -224,11 +224,11 @@ async searchByNumberregsSystables(req: Request, res: Response, next: NextFunctio
   }
 
   /** GET Lista todos os id, nome, chkdb e numberregs de systables, com filtro opcional por numberregs */
-  async findAllNomeByNumberregsSystables(req: Request, res: Response, next: NextFunction) {
+  async findListNomeByNumberregsSystables(req: Request, res: Response, next: NextFunction) {
     try {
       const { numberregs } = req.query;
 
-      const lista = await this.systablesRepository.findAllNomeNumberregsSystables(
+      const lista = await this.systablesRepository.findListNomeNumberregsSystables(
         numberregs !== undefined ? Number(numberregs) : undefined
       );
 

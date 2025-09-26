@@ -4,7 +4,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { EmpresasController } from './empresas.controller';
 import { EmpresasRepository } from './empresas.repository';
 import { dbSource } from '../start/dbSource';
-import { createValidation, updateValidation } from './empresas.validation';
+import { empresascreateValidation, empresasupdateValidation } from './empresas.validation';
 import { ParsedQs } from 'qs';
 
 interface SearchQuery extends ParsedQs {
@@ -26,13 +26,13 @@ interface SearchQuery {
 empresasRoute.get('/', (req: Request, res: Response, next: NextFunction) => controller.findAll(req, res, next));
 
 // cria nomo registro 
-empresasRoute.post('/', createValidation, (req: Request, res: Response, next: NextFunction) => controller.create(req, res, next));
+empresasRoute.post('/', empresascreateValidation, (req: Request, res: Response, next: NextFunction) => controller.create(req, res, next));
 
 // pega registro setado ID
 empresasRoute.get('/:empresasId', (req: Request<{ empresasId: string }>, res: Response, next: NextFunction) => controller.getOne(req, res, next));
 
 // pega o registro setado ID e altera  
-empresasRoute.patch('/:empresasId', updateValidation, (req: Request<{ empresasId: string }>, res: Response, next: NextFunction) => controller.update(req, res, next));
+empresasRoute.patch('/:empresasId', empresasupdateValidation, (req: Request<{ empresasId: string }>, res: Response, next: NextFunction) => controller.update(req, res, next));
 
 // pega o registro setado ID e deleta
 empresasRoute.delete('/:empresasId', (req: Request<{ empresasId: string }>, res: Response, next: NextFunction) => controller.remove(req, res, next));

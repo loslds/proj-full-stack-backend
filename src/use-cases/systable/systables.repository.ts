@@ -150,9 +150,9 @@ export class SystablesRepository {
   }
 
 
-  // Busca todos registros de systables pelo campo nome
+  
   /** Retorna lista de todos os id e nome de systables */
-  async findAllNomesSystables(): Promise<{ id: number; nome: string }[]> {
+  async findListNomeSystables(): Promise<{ id: number; nome: string }[]> {
     return this.repo
       .createQueryBuilder('systables')
       .select(['systables.id', 'systables.nome'])
@@ -161,7 +161,7 @@ export class SystablesRepository {
   }
 
   /** Retorna lista de id, nome e chkdb de systables, opcionalmente filtrando por chkdb */
-  async findAllNomeChkdbSystables(chkdb?: number): Promise<{ id: number; nome: string; chkdb: number }[]> {
+  async findListNomeChkdbSystables(chkdb?: number): Promise<{ id: number; nome: string; chkdb: number }[]> {
     const query = this.repo
       .createQueryBuilder('systables')
       .select(['systables.id', 'systables.nome', 'systables.chkdb'])
@@ -175,7 +175,7 @@ export class SystablesRepository {
   }
  
   /** Retorna lista de id, nome, chkdb e numberregs de systables, opcionalmente filtrando por numberregs */
-  async findAllNomeNumberregsSystables(
+  async findListNomeNumberregsSystables(
     numberregs?: number
   ): Promise<{ id: number; nome: string; chkdb: number; numberregs: number }[]> {
     const query = this.repo

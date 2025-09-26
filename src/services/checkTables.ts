@@ -99,12 +99,12 @@ export async function checkTables(): Promise<{
     const systablesRepo = new SystablesRepository(dbSource);
     for (const tbl of requiredTablesOff) {
       try {
-        const record = await systablesRepo.findOneNomeSystable(tbl.nome);
+        const record = await systablesRepo.findOneNomeSystables(tbl.nome);
         if (record) {
-          await systablesRepo.updateSystable(record.id, { chkdb: 1, numberregs: tbl.numberregs });
+          await systablesRepo.updateSystables(record.id, { chkdb: 1, numberregs: tbl.numberregs });
           steps.push(`⏳ Sincronismo (UPDATE) em ${tbl.nome} concluído. Registros: ${tbl.numberregs}`);
         } else {
-          await systablesRepo.createSystable({ nome: tbl.nome, chkdb: 1, numberregs: tbl.numberregs });
+          await systablesRepo.createSystables({ nome: tbl.nome, chkdb: 1, numberregs: tbl.numberregs });
           steps.push(`⏳ Sincronismo (INSERT) em ${tbl.nome} concluído. Registros: ${tbl.numberregs}`);
         }
         await delay(400);
@@ -115,7 +115,7 @@ export async function checkTables(): Promise<{
       }
     }
 
-    const systablesRecords = await systablesRepo.findSystableAll({});
+    const systablesRecords = await systablesRepo.findSystablesAll({});
 
     return {
       success: missingTables.length === 0 && !syncFailed,

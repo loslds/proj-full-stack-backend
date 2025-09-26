@@ -11,11 +11,8 @@ export const pessoasCreateSchema = z.object({
   updatedBy: z.number().optional(), // adicionado
 });
 
-export const pessoasUpdateSchema = z.object({
-  nome: z.string().min(3).optional(),
-  sigla: z.string().min(2).optional(),
-  createdBy: z.number().optional(),
-  updatedBy: z.number().optional(),
+export const pessoasUpdateSchema = pessoasCreateSchema.partial().extend({
+  id: z.number().int().positive().optional(),
 });
 
 export type PessoasCreate = z.infer<typeof pessoasCreateSchema>;

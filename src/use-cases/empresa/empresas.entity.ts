@@ -1,19 +1,22 @@
 
 //C:\repository\proj-full-stack-backend\src\use-cases\empresa\empresas.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm'; 
+import { Column, Entity, PrimaryGeneratedColumn, Unique, ManyToOne, JoinColumn } from 'typeorm'; 
+
 import { PessoasEntity } from '../pessoa/pessoas.entity';
 @Entity('empresas')
 
 export class EmpresasEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
-
+  
   @ManyToOne(() => PessoasEntity)
   @JoinColumn({ name: 'id_pessoa' })
   pessoa: PessoasEntity;
 
-  @Column({ type: 'int', nullable: false, unsigned: true })
+  @Column({ type: 'int', nullable: false, unsigned: true, default: 0 })
   id_pessoa: number;
+
+
 
   @Column({ type: 'varchar', length: 60, nullable: false })
   nome: string;
