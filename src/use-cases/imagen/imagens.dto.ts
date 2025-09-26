@@ -1,3 +1,4 @@
+
 // C:\repository\proj-full-stack-backend\src\use-cases\imagen\imagens.dto.ts
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
@@ -23,3 +24,4 @@ export const imagensUpdateSchema = imagensCreateSchema.partial().extend({
 export type ImagensCreate = z.infer<typeof imagensCreateSchema>;
 export type ImagensUpdate = z.infer<typeof imagensUpdateSchema>;
 export type ImagensDto = DeepPartial<ImagensEntity>;
+

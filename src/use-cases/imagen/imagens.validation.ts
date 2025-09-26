@@ -3,5 +3,5 @@
 import { zodBodyValidation } from '../../helpers/zod-validation';
 import { imagensCreateSchema, imagensUpdateSchema } from './imagens.dto';
 
-export const createValidation = zodBodyValidation(imagensCreateSchema);
-export const updateValidation = zodBodyValidation(imagensUpdateSchema);
+export const imagenscreateValidation = zodBodyValidation(imagensCreateSchema);
+export const imagensupdateValidation = zodBodyValidation(imagensUpdateSchema);
