@@ -1,3 +1,4 @@
+import { ImagensRepository } from './imagens.repository';
 
 
 // C:\repository\proj-full-stack-backend\src\use-cases\imagen\index.ts
@@ -10,3 +11,10 @@ export * from './imagens.dto';
 export * from './imagens.validation';
 export { initImagensRoutes } from './initImagensRoutes';
 
+export const imagensConfig = {
+  tableName: 'imagens',
+  repoClass: ImagensRepository,
+  createMethod: 'createNotExistsImagens',
+  findAll: 'findImagensAll',
+  insertDefaults: 'insertDefaultImagens',
+};

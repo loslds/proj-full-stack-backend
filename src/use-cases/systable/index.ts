@@ -5,8 +5,15 @@ export { SystablesController } from './systables.controller';
 export type { SystablesDto } from './systables.dto';
 export { SystablesEntity } from './systables.entity';
 export { SystablesRepository } from './systables.repository';
+
 export * from './systables.dto';
 export * from './systables.validation';
 
-
+import { SystablesRepository } from './systables.repository';
+export const systablesConfig = {
+  tableName: 'systables',
+  repoClass: SystablesRepository,
+  createMethod: 'createNotExistsSystables',
+  findAll: 'findSystablesAll',
+};
 

@@ -4,6 +4,6 @@ export const requiredTables = [
   'systables',
   'pessoas',
   'imagens',
+  'empresas',
 ];
-
 

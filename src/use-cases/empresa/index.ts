@@ -1,3 +1,4 @@
+import { EmpresasRepository } from './empresas.repository';
 
 //use-cases/empresa/index.ts
 export { empresasRoute } from './empresas.route';
@@ -8,3 +9,10 @@ export { EmpresasRepository } from './empresas.repository';
 export * from './empresas.dto';
 export * from './empresas.validation';
 
+export const empresasConfig = {
+  tableName: 'empresas',
+  repoClass: EmpresasRepository,
+  createMethod: 'createNotExistsEmpresas',
+  findAll: 'findEmpresasAll',
+  //insertDefaults: 'insertDefaultImagens',
+};
