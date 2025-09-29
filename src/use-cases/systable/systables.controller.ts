@@ -14,7 +14,7 @@ export class SystablesController {
   constructor(private readonly systablesRepository: SystablesRepository) {}
   
   /** POST Cria um novo registro de systables */
-  async createSystables(
+  async createSysTables(
     req: Request<{}, {}, SystablesCreate>,
     res: Response,
     next: NextFunction
@@ -34,7 +34,7 @@ export class SystablesController {
   }
   
   /** PATCH Atualiza um registro de systables */
-async updateIdSystables(
+async updateIdSysTables(
   req: Request<{ systablesId: string }, {}, SystablesUpdate>,
   res: Response,
   next: NextFunction
@@ -68,7 +68,7 @@ async updateIdSystables(
 }
 
 //   /** DELETE Remove um registro de systables */
-async removeIdSystables(
+async removeIdSysTables(
   req: Request<{ systablesId: string }>,
   res: Response,
   next: NextFunction
@@ -92,7 +92,7 @@ async removeIdSystables(
 
 
 /** GET Busca todos os registros de systables */
-async findAllSystables(req: Request, res: Response, next: NextFunction) {
+async findAllSysTables(req: Request, res: Response, next: NextFunction) {
   try {
     const { ativo } = req.query;
     let where: FindOptionsWhere<SystablesEntity> | undefined;
@@ -109,7 +109,7 @@ async findAllSystables(req: Request, res: Response, next: NextFunction) {
 }
 
 //   /** GET Busca um registro de systables por ID */
-async getOneSystables(req: Request<{ systablesId: string }>, res: Response, next: NextFunction) {
+async getOneSysTables(req: Request<{ systablesId: string }>, res: Response, next: NextFunction) {
   try {
     const systablesId = Number(req.params.systablesId<SystablesDto>);
     if (isNaN(systablesId) || systablesId <= 0) {
@@ -126,7 +126,7 @@ async getOneSystables(req: Request<{ systablesId: string }>, res: Response, next
 
 
 /** GET Busca registros de systables por ID/nome/chkdb/numberregs (query) */
-async searchSystables(req: Request, res: Response, next: NextFunction) {
+async searchSysTables(req: Request, res: Response, next: NextFunction) {
   try {
     const { id, nome, chkdb, numberregs } = req.query;
 
@@ -144,7 +144,7 @@ async searchSystables(req: Request, res: Response, next: NextFunction) {
 }
 
 /** GET pesquisa Buscar por nome em systables */
-async searchByNameSystables(req: Request, res: Response, next: NextFunction) {
+async searchByNameSysTables(req: Request, res: Response, next: NextFunction) {
   try {
     const text = req.query?.text as string;
     const systables = await this.systablesRepository.searchNameSystables(text);
@@ -155,7 +155,7 @@ async searchByNameSystables(req: Request, res: Response, next: NextFunction) {
 }
 
 /** GET pesquisa Buscar por chkdb em systables */
-async searchByChkdbSystables(req: Request, res: Response, next: NextFunction) {
+async searchByChkdbSysTables(req: Request, res: Response, next: NextFunction) {
   try {
     const text = req.query?.text as string;
     const systables = await this.systablesRepository.searchChkdbSystables(text);
@@ -166,7 +166,7 @@ async searchByChkdbSystables(req: Request, res: Response, next: NextFunction) {
 }
 
 /** GET pesquisa Buscar por numberregs em systables */
-async searchByNumberregsSystables(req: Request, res: Response, next: NextFunction) {
+async searchByNumberregsSysTables(req: Request, res: Response, next: NextFunction) {
   try {
     const text = req.query?.text as string;
     const systables = await this.systablesRepository.searchNumberregsSystables(text);
@@ -178,7 +178,7 @@ async searchByNumberregsSystables(req: Request, res: Response, next: NextFunctio
 
 
 /** GET Lista um reg. nome em systable */
-  async findOneNomeSystables(
+  async findOneNomeSysTables(
     req: Request<{}, {}, {}, Partial<{ nome: string }>>, 
     res: Response, 
     next: NextFunction
@@ -199,7 +199,7 @@ async searchByNumberregsSystables(req: Request, res: Response, next: NextFunctio
   }
 
   /** GET Lista todos os id e nome de systables */
-  async findListByNomeSystables(req: Request, res: Response, next: NextFunction) {
+  async findListByNomeSysTables(req: Request, res: Response, next: NextFunction) {
     try {
       const nomes = await this.systablesRepository.findListNomeSystables();
       return res.status(200).send({ success: true, nomes });
@@ -209,7 +209,7 @@ async searchByNumberregsSystables(req: Request, res: Response, next: NextFunctio
   }
 
   /** GET Lista todos os id, nome e chkdb de systables, com filtro opcional por chkdb */
-  async findListNomeByChkdbSystables(req: Request, res: Response, next: NextFunction) {
+  async findListNomeByChkdbSysTables(req: Request, res: Response, next: NextFunction) {
     try {
       const { chkdb } = req.query;
 
@@ -224,7 +224,7 @@ async searchByNumberregsSystables(req: Request, res: Response, next: NextFunctio
   }
 
   /** GET Lista todos os id, nome, chkdb e numberregs de systables, com filtro opcional por numberregs */
-  async findListNomeByNumberregsSystables(req: Request, res: Response, next: NextFunction) {
+  async findListNomeByNumberregsSysTables(req: Request, res: Response, next: NextFunction) {
     try {
       const { numberregs } = req.query;
 

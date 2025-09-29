@@ -1,6 +1,7 @@
 
 //C:\repository\proj-full-stack-backend\src\config\imagens.ts
 export const requiredAvatar = [
+  'dlogo00',
   'dvatar00',
   'fvatar01',
   'fvatar02',

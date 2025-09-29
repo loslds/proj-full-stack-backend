@@ -10,21 +10,21 @@ const systablesRepository = new SystablesRepository(dbSource);
 const controller = new SystablesController(systablesRepository);
 const systableRoute = Router();
 
-systableRoute.get('/', (req: Request, res: Response, next: NextFunction) => controller.findAllSystables(req, res, next));
-systableRoute.get('/:systablesId', (req: Request<{ systablesId: string }>, res: Response, next: NextFunction) => controller.getOneSystables(req, res, next));
-systableRoute.post('/', createValidation, (req: Request, res: Response, next: NextFunction) => controller.createSystables(req, res, next));
-systableRoute.patch('/:systablesId', updateValidation, (req: Request<{ systablesId: string }>, res: Response, next: NextFunction) => controller.updateIdSystables(req, res, next));
-systableRoute.delete('/:systablesId', (req: Request<{ systablesId: string }>, res: Response, next: NextFunction) => controller.removeIdSystables(req, res, next));
+systableRoute.get('/', (req: Request, res: Response, next: NextFunction) => controller.findAllSysTables(req, res, next));
+systableRoute.get('/:systablesId', (req: Request<{ systablesId: string }>, res: Response, next: NextFunction) => controller.getOneSysTables(req, res, next));
+systableRoute.post('/', createValidation, (req: Request, res: Response, next: NextFunction) => controller.createSysTables(req, res, next));
+systableRoute.patch('/:systablesId', updateValidation, (req: Request<{ systablesId: string }>, res: Response, next: NextFunction) => controller.updateIdSysTables(req, res, next));
+systableRoute.delete('/:systablesId', (req: Request<{ systablesId: string }>, res: Response, next: NextFunction) => controller.removeIdSysTables(req, res, next));
 
-systableRoute.get('/search', (req, res, next) => controller.searchSystables(req, res, next));
-systableRoute.get('/search-name', (req, res, next) => controller.searchByNameSystables(req, res, next));
-systableRoute.get('/search-chkdb', (req, res, next) => controller.searchByChkdbSystables(req, res, next));
-systableRoute.get('/search-regs', (req, res, next) => controller.searchByNumberregsSystables(req, res, next));
+systableRoute.get('/search', (req, res, next) => controller.searchSysTables(req, res, next));
+systableRoute.get('/search-name', (req, res, next) => controller.searchByNameSysTables(req, res, next));
+systableRoute.get('/search-chkdb', (req, res, next) => controller.searchByChkdbSysTables(req, res, next));
+systableRoute.get('/search-regs', (req, res, next) => controller.searchByNumberregsSysTables(req, res, next));
 
-systableRoute.get('/one-nome', (req, res, next) => controller.findOneNomeSystables(req, res, next));
-systableRoute.get('/all-nome', (req, res, next) => controller.findListByNomeSystables(req, res, next));
-systableRoute.get('/all-chkdb', (req, res, next) => controller.findListNomeByChkdbSystables(req, res, next));
-systableRoute.get('/all-regs', (req, res, next) => controller.findListNomeByNumberregsSystables(req, res, next));
+systableRoute.get('/one-nome', (req, res, next) => controller.findOneNomeSysTables(req, res, next));
+systableRoute.get('/all-nome', (req, res, next) => controller.findListByNomeSysTables(req, res, next));
+systableRoute.get('/all-chkdb', (req, res, next) => controller.findListNomeByChkdbSysTables(req, res, next));
+systableRoute.get('/all-regs', (req, res, next) => controller.findListNomeByNumberregsSysTables(req, res, next));
 
 
 ////////////////////////////

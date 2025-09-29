@@ -22,17 +22,17 @@ export async function initImagensRoutes(app: Application) {
   // 4️⃣ Router
   const router = Router();
 
-  router.get("/", controller.findAll.bind(controller));
-  router.get("/search", controller.search.bind(controller));
-  router.get("/search-arqTipo", controller.searchArqName.bind(controller));
-  router.get("/search-arqNome", controller.searchArqTipo.bind(controller));
-  router.get("/one-arqNome", controller.findOneArqNome.bind(controller));
-  router.get("/all-arqNome", controller.findAllArqNome.bind(controller));
-  router.get("/all-arqTipo", controller.findAllArqTipo.bind(controller));
-  router.get("/:imagensId", controller.getOne.bind(controller));
-  router.post("/", imagenscreateValidation, controller.create.bind(controller));
-  router.patch("/:imagensId", imagensupdateValidation, controller.update.bind(controller));
-  router.delete("/:imagensId", controller.remove.bind(controller));
+  router.get("/", controller.findAllImagens.bind(controller));
+  router.post("/", imagenscreateValidation, controller.createNewImagens.bind(controller));
+  router.get("/:imagensId", controller.getOneImagensId.bind(controller));
+  router.patch("/:imagensId", imagensupdateValidation, controller.updateIdImagens.bind(controller));
+  router.delete("/:imagensId", controller.removeIdImagens.bind(controller));
+  router.get("/search", controller.searchImagens.bind(controller));
+  router.get("/search-arqNome", controller.searchImagensArqTipo.bind(controller));
+  router.get("/search-arqTipo", controller.searchImagensArqName.bind(controller));
+  router.get("/one-arqNome", controller.findOneImagensArqNome.bind(controller));
+  router.get("/all-arqTipo", controller.findAllImagensArqTipo.bind(controller));
+  router.get("/all-arqNome", controller.findAllImagensArqNome.bind(controller));
 
   // 5️⃣ Monta na app
   app.use("/api/imagens", router);

@@ -5,5 +5,10 @@ export const requiredTables = [
   'pessoas',
   'imagens',
   'empresas',
+  'consumidores',
+
+  'clientes',
+  'fornecedores',
+  'funcionsrios',
 ];
 

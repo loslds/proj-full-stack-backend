@@ -22,19 +22,20 @@ export async function initPessoasRoutes(app: Application) {
   // 4️⃣ Router
   const router = Router();
 
-  router.get("/", controller.findAll.bind(controller));
-  router.get("/search", controller.search.bind(controller));
-  router.get("/search-name", controller.searchName.bind(controller));
-  router.get("/search-sigla", controller.searchSigla.bind(controller));
-  router.get("/one-nome", controller.findOneNome.bind(controller));
-  router.get("/all-nome", controller.findAllNome.bind(controller));
-  router.get("/one-sigla", controller.findOneSigla.bind(controller));
-  router.get("/all-sigla", controller.findAllSigla.bind(controller));
-  router.get("/:pessoasId", controller.getOne.bind(controller));
-  router.post("/", pessoascreateValidation, controller.create.bind(controller));
-  router.patch("/:pessoasId", pessoasupdateValidation, controller.update.bind(controller));
-  router.delete("/:pessoasId", controller.remove.bind(controller));
+  router.get("/", controller.findAllPessoas.bind(controller));
+  router.post('/', pessoascreateValidation, controller.createNewPessoas.bind(controller));
+  router.get('/:pessoasId', controller.getOnePessoasId.bind(controller));
+  router.patch('/:pessoasId', pessoasupdateValidation, controller.updateIdPessoas.bind(controller));
+  router.delete('/:pessoasId', controller.removeIdPessoas.bind(controller));
+  router.get("/search", controller.searchPessoasAll.bind(controller));
+  router.get("/search-name", controller.searchPessoasName.bind(controller));
+  router.get("/search-sigla", controller.searchPessoasSigla.bind(controller));
+  router.get("/one-nome", controller.findOnePessoasNome.bind(controller));
+  router.get("/all-nome", controller.findAllPessoas.bind(controller));
+  router.get("/one-sigla", controller.findOnePessoasSigla.bind(controller));
+  router.get("/all-sigla", controller.findAllPessoasSigla.bind(controller));
 
   // 5️⃣ Monta na app
   app.use("/api/pessoas", router);
 }
+

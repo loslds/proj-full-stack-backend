@@ -6,6 +6,11 @@ import { systablesConfig } from '../use-cases/systable';
 import { pessoasConfig } from '../use-cases/pessoa';
 import { imagensConfig } from '../use-cases/imagen';
 import { empresasConfig } from '../use-cases/empresa';
+import { consumidoresConfig } from '../use-cases/consumidor';
+import { clientesConfig } from '../use-cases/cliente';
+import { fornecedoresConfig } from '../use-cases/fornecedor';
+import { funcionariosConfig } from '../use-cases/funcionario';
+
 
 type TableConfig = {
   tableName: string;
@@ -21,6 +26,12 @@ const allConfigs: TableConfig[] = [
   pessoasConfig,
   imagensConfig,
   empresasConfig,
+
+  consumidoresConfig,
+  clientesConfig,
+  fornecedoresConfig,
+  funcionariosConfig
+
   // futuramente outras tabelas
 ];
 

@@ -1,6 +1,7 @@
+//use-cases/empresa/index.ts
+
 import { EmpresasRepository } from './empresas.repository';
 
-//use-cases/empresa/index.ts
 export { empresasRoute } from './empresas.route';
 export { EmpresasController } from './empresas.controller';
 export type { EmpresasDto } from './empresas.dto';

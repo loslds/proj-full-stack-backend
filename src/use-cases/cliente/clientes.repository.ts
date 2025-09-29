@@ -1,18 +1,20 @@
-import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
-import { EmpresasEntity } from './empresas.entity';
-import type { EmpresasCreate } from './empresas.dto';
+//C:\repository\proj-full-stack-backend\src\use-cases\consumidor\consumidores.repository.ts
 
-export class EmpresasRepository {
-  private repo: Repository<EmpresasEntity>;
+import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
+import { ClientesEntity } from './clientes.entity';
+import type { ClientesCreate } from './clientes.dto';
+
+export class ClientesRepository {
+  private repo: Repository<ClientesEntity>;
 
   constructor(private readonly dataSource: DataSource) {
-    this.repo = this.dataSource.getRepository(EmpresasEntity);
+    this.repo = this.dataSource.getRepository(ClientesEntity);
   }
 
   // Criação da tabela (raw query) - manter FK
-  async createNotExistsEmpresas(): Promise<void> {
+  async createNotExistsClientes(): Promise<void> {
     await this.dataSource.query(`
-      CREATE TABLE IF NOT EXISTS empresas (
+      CREATE TABLE IF NOT EXISTS clientes (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         id_pessoas INT UNSIGNED NOT NULL,
         id_imagens INT UNSIGNED NOT NULL,
@@ -30,43 +32,43 @@ export class EmpresasRepository {
 
   // Verifica duplicidade por nome/fantasy
   async hasDuplicated(nome?: string, fantasy?: string, excludes: number[] = []) {
-    const query = this.repo.createQueryBuilder('empresas');
+    const query = this.repo.createQueryBuilder('clientes');
 
-    if (nome) query.andWhere('empresas.nome LIKE :nome', { nome });
-    if (fantasy) query.andWhere('empresas.fantasy LIKE :fantasy', { fantasy });
+    if (nome) query.andWhere('clientes.nome LIKE :nome', { nome });
+    if (fantasy) query.andWhere('clientes.fantasy LIKE :fantasy', { fantasy });
 
     if (excludes.length) {
-      query.andWhere('empresas.id NOT IN (:...excludes)', { excludes });
+      query.andWhere('clientes.id NOT IN (:...excludes)', { excludes });
     }
 
     return query.getOne();
   }
 
   // Cria registro 1
-  async createEmpresas(empresas: EmpresasCreate): Promise<EmpresasEntity> {
-    const data = this.repo.create(empresas);
+  async createClientes(clientes: ClientesCreate): Promise<ClientesEntity> {
+    const data = this.repo.create(clientes);
     return this.repo.save(data);
   }
 
   // 2 Atualiza registro 
-  async updateEmpresas(
-    empresasId: number,
-    empresas: DeepPartial<EmpresasEntity>,
-  ): Promise<EmpresasEntity> {
-    const data = this.repo.create({ id: empresasId, ...empresas });
+  async updateClientes(
+    clientesId: number,
+    clientes: DeepPartial<ClientesEntity>,
+  ): Promise<ClientesEntity> {
+    const data = this.repo.create({ id: clientesId, ...clientes });
     return this.repo.save(data);
   }
 
   // 3 Deleta registro 
-  async deleteEmpresas(empresasId: number) {
-    return this.repo.delete(empresasId);
+  async deleteClientes(clientesId: number) {
+    return this.repo.delete(clientesId);
   }
 
   // 4 Busca todos registros com filtro opcional 
-  async findEmpresasAll(
-    where?: FindOptionsWhere<EmpresasEntity>,
+  async findClientesAll(
+    where?: FindOptionsWhere<ClientesEntity>,
     orderBy: Record<string, "ASC" | "DESC"> = { id: "ASC" }
-  ): Promise<EmpresasEntity[]> {
+  ): Promise<ClientesEntity[]> {
     return this.repo.find({
       where,
       relations: ['pessoas', 'imagens'],
@@ -74,16 +76,16 @@ export class EmpresasRepository {
     });
   }
 
-  // 5 Busca por ID em empesas 
-  async findOneEmpresasById(empresasId: number) {
+  // 5 Busca por ID em consumidores 
+  async findOneClientesById(clientesId: number) {
     return this.repo.findOne({
-      where: { id: empresasId },
+      where: { id: clientesId },
       relations: ['pessoas', 'imagens'],
     });
   }
 
   // Busca por nome 6
-  async findOneEmpresasByNome(nome: string) {
+  async findOneClientesByNome(nome: string) {
     return this.repo.findOne({
       where: { nome },
       relations: ['pessoas', 'imagens'],
@@ -92,7 +94,7 @@ export class EmpresasRepository {
 
 
   // Busca por fantasy 7
-  async findOneEmpresasByFantasy(fantasy: string) {
+  async findOneClientesByFantasy(fantasy: string) {
     return this.repo.findOne({
       where: { fantasy },
       relations: ['pessoas', 'imagens'],
@@ -101,35 +103,35 @@ export class EmpresasRepository {
 
 
   // 8 Pesquisa empresas por ID, nome ou fantasy 
-  async searchEmpresas(params: { id?: number; nome?: string; fantasy?: string }) {
-    const query = this.repo.createQueryBuilder('empresas')
-      .leftJoinAndSelect('empresas.pessoas', 'pessoas')
-      .leftJoinAndSelect('empresas.imagens', 'imagens')
-      .orderBy('empresas.id', 'ASC');
+  async searchAllClientes(params: { id?: number; nome?: string; fantasy?: string }) {
+    const query = this.repo.createQueryBuilder('clientes')
+      .leftJoinAndSelect('clientes.pessoas', 'pessoas')
+      .leftJoinAndSelect('clientes.imagens', 'imagens')
+      .orderBy('clientes.id', 'ASC');
 
-    if (params.id) query.andWhere('empresas.id = :id', { id: params.id });
-    if (params.nome) query.andWhere('empresas.nome LIKE :nome', { nome: `%${params.nome}%` });
-    if (params.fantasy) query.andWhere('empresas.fantasy LIKE :fantasy', { fantasy: `%${params.fantasy}%` });
+    if (params.id) query.andWhere('clientes.id = :id', { id: params.id });
+    if (params.nome) query.andWhere('clientes.nome LIKE :nome', { nome: `%${params.nome}%` });
+    if (params.fantasy) query.andWhere('clientes.fantasy LIKE :fantasy', { fantasy: `%${params.fantasy}%` });
 
     return query.getMany();
   }
 
   // 9
-  async findAllEmpresasByPessoasId(pessoasId: number) {
+  async findAllClientesByPessoasId(pessoasId: number) {
     return this.repo.find({ where: { id_pessoas: pessoasId } });
   }
 
   // 10
-  async findAllEmpresasByImagensId(imagensId: number) {
+  async findAllClientesByImagensId(imagensId: number) {
     return this.repo.find({ where: { id_imagens: imagensId } });
   }
 
-  /** 11 Lista todas empresas com pessoa + imagem  13*/
-  async listAllEmpresasDetails() {
+  /** 11 Lista todas consumidores com pessoa + imagem  13*/
+  async listAllClientesDetails() {
     return this.repo
-      .createQueryBuilder('empresas')
-      .leftJoinAndSelect('empresas.pessoas', 'pessoas')
-      .leftJoinAndSelect('empresas.imagens', 'imagens')
+      .createQueryBuilder('clientes')
+      .leftJoinAndSelect('clientes.pessoas', 'pessoas')
+      .leftJoinAndSelect('clientes.imagens', 'imagens')
       .getMany();
   }
 

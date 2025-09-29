@@ -1,10 +1,12 @@
+//
+
 import { NextFunction, Request, Response } from "express";
-import { EmpresasRepository } from "./empresas.repository";
-import { EmpresasCreate, EmpresasUpdate } from './empresas.dto';
-import { EmpresasEntity } from './empresas.entity';
+import { ClientesRepository } from "./clientes.repository";
+import { ClientesCreate, ClientesUpdate } from './clientes.dto';
+import { ClientesEntity } from "./clientes.entity";
 import { FindOptionsWhere } from "typeorm";
 import { DeepPartial } from "typeorm";
-export type EmpresasDto = DeepPartial<EmpresasEntity>;
+export type ClientesDto = DeepPartial<ClientesEntity>;
 import { HttpException } from "../../middlewares/HttpException";
 import { ParsedQs } from 'qs';
 
@@ -15,55 +17,55 @@ interface SearchQuery extends ParsedQs {
   fantasy?: string;
 }
 
-export class EmpresasController {  
-  constructor(private readonly empresasRepository: EmpresasRepository) {}
+export class ClientesController {  
+  constructor(private readonly clientesRepository: ClientesRepository) {}
 
-  /** 1 POST Cria Tabela Empresas */
-  async createNewEmpresas(
-    req: Request<{}, {}, EmpresasCreate>,
+  /** 1 POST Cria Tabela  */
+  async createNewClientes(
+    req: Request<{}, {}, ClientesCreate>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const empresas = await this.empresasRepository.createEmpresas(req.body);
-      return res.status(201).send({ success: true, empresas });
+      const clientes = await this.clientesRepository.createClientes(req.body);
+      return res.status(201).send({ success: true, clientes });
     } catch (error) {
       next(error);
     }
   }
-  /** 2 PATCH Atualiza um registro de Empresas */
-  async updateIdEmpresas(
-    req: Request<{ empresasId: string }, {}, Partial<EmpresasUpdate>>,
+  /** 2 PATCH Atualiza um registro  */
+  async updateIdClientes(
+    req: Request<{ clientesId: string }, {}, Partial<ClientesUpdate>>,
     res: Response,
     next: NextFunction
     ) {
-    const empresasId = Number(req.params.empresasId);
-    if (isNaN(empresasId) || empresasId <= 0) {
+    const clientesId = Number(req.params.clientesId);
+    if (isNaN(clientesId) || clientesId <= 0) {
       return res
         .status(400)
-        .send({ success: false, message: 'Invalid empresasId' })
+        .send({ success: false, message: 'Invalid clientesId' })
         .end();
       }
     try {
-      const empresas = await this.empresasRepository.updateEmpresas(empresasId, req.body);
-        return res.status(200).send({ success: true, empresas }).end();
+      const clientes = await this.clientesRepository.updateClientes(clientesId, req.body);
+        return res.status(200).send({ success: true, clientes }).end();
     } catch (error) {
       next(error);
     }
   }
 
-  /** 3 DELETE Remove um registro de Empresas */
-  async removeIdEmpresas(
-    req: Request<{ empresasId: string }>,
+  /** 3 DELETE Remove um registro id */
+  async removeIdClientes(
+    req: Request<{ clientesId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const empresasId = Number(req.params.empresasId);
-    if (isNaN(empresasId) || empresasId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid empresasId' }).end();
+    const clientesId = Number(req.params.clientesId);
+    if (isNaN(clientesId) || clientesId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid clientesId' }).end();
     }
     try {
-      const deleted = await this.empresasRepository.deleteEmpresas(empresasId);
+      const deleted = await this.clientesRepository.deleteClientes(clientesId);
         return res.status(200).send({ success: !!deleted?.affected });
     } catch (error) {
       next(error);
@@ -72,18 +74,18 @@ export class EmpresasController {
 
   
   /** 4 GET Busca todos os registros de imagens */
-  async findAllEmpresas(req: Request, res: Response, next: NextFunction) {
+  async findAllClientes(req: Request, res: Response, next: NextFunction) {
     
     try {
       const { ativo } = req.query;
-      let where: FindOptionsWhere<EmpresasEntity> | undefined;
+      let where: FindOptionsWhere<ClientesEntity> | undefined;
   
       if (ativo !== undefined) {
-        where = { ativo: ativo === "true" } as FindOptionsWhere<EmpresasEntity>;
+        where = { ativo: ativo === "true" } as FindOptionsWhere<ClientesEntity>;
       }
   
-      const empresas = await this.empresasRepository.findEmpresasAll(where, { nome: "ASC" });
-      return res.status(200).send({ success: true, empresas });
+      const clientes = await this.clientesRepository.findClientesAll(where, { nome: "ASC" });
+      return res.status(200).send({ success: true, clientes });
   
     } catch (error) {
         next(error);
@@ -91,25 +93,25 @@ export class EmpresasController {
   }
   
   /** 5 GET Busca um registro de Empresas por ID */
-  async getOneEmpresasId(
-    req: Request<{ empresasId: string }>,
+  async getOneClientesId(
+    req: Request<{ clientesId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const empresasId = Number(req.params.empresasId);
-    if (isNaN(empresasId) || empresasId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid empresasId' }).end();
+    const clientesId = Number(req.params.clientesId);
+    if (isNaN(clientesId) || clientesId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid clientesId' }).end();
     }
     try {
-      const empresas = await this.empresasRepository.findOneEmpresasById(empresasId);
-      return res.status(200).send({ success: true, empresas });
+      const clientes = await this.clientesRepository.findOneClientesById(clientesId);
+      return res.status(200).send({ success: true, clientes });
     } catch (error) {
       next(error);
     }
   }
   
   /** 6 GET Busca um registro de Empresas por Nome */
-  async findOneEmpresasNome(
+  async findOneClientesNome(
     req: Request<{}, {}, {}, Partial<{ name: string }>>, 
     res: Response, 
     next: NextFunction
@@ -118,19 +120,19 @@ export class EmpresasController {
     if (!name) {
       return res
         .status(400)
-        .send({ success: false, message: 'Name parameter is required' })
+        .send({ success: false, message: 'Nome parameter is required' })
         .end();
     }
     try {
-      const empresas = await this.empresasRepository.findOneEmpresasByNome(name);
-      return res.status(200).send({ success: true, empresas }).end();
+      const clientes = await this.clientesRepository.findOneClientesByNome(name);
+      return res.status(200).send({ success: true, clientes }).end();
     } catch (error) {
       next(error);
     }
   }
 
-  /** 7 GET Busca um registro de Empresas por Nome Fantasia  */
-  async findOneEmpresasFantasy(
+  /** 7 GET Busca um registro de consumidores por Nome Fantasia  */
+  async findOneClientesFantasy(
     req: Request<{}, {}, {}, Partial<{ fantasy: string }>>, 
     res: Response, 
     next: NextFunction
@@ -141,18 +143,18 @@ export class EmpresasController {
         .status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
     }
     try {
-      const empresas = await this.empresasRepository.findOneEmpresasByFantasy(fantasy);
-      return res.status(200).send({ success: true, empresas }).end();
+      const clientes = await this.clientesRepository.findOneClientesByFantasy(fantasy);
+      return res.status(200).send({ success: true, clientes }).end();
     } catch (error) {
       next(error);
     }
   }
 
   /** 8 pesquisaregistro de Empresas através do ID ou NOME ou FANTASY */
-  async searchEmpresas(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
+  async searchClientes(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
     try {
       const { id, nome, fantasy } = req.query;
-      const results = await this.empresasRepository.searchEmpresas({
+      const results = await this.clientesRepository.searchAllClientes({
         id: id ? Number(id) : undefined,
         nome,
         fantasy,
@@ -164,7 +166,7 @@ export class EmpresasController {
   }
 
   /** 9 GET todos refistros com id_pessoas em empresa */
-  async findAllEmpresasPessoasId(
+  async findAllClientesPessoasId(
     req: Request<{ pessoasId: string }>,
     res: Response,
     next: NextFunction
@@ -175,8 +177,8 @@ export class EmpresasController {
     }
 
     try {
-      const empresas = await this.empresasRepository.findAllEmpresasByPessoasId(pessoasId);
-      return res.status(200).send({ success: true, empresas });
+      const clientes = await this.clientesRepository.findAllClientesByPessoasId(pessoasId);
+      return res.status(200).send({ success: true, clientes });
     } catch (error) {
       next(error);
     }
@@ -184,7 +186,7 @@ export class EmpresasController {
 
   
   /** 10 GET Busca todas as empresas com mesmo ID de imagens */
-  async findAllEmpresasImagensId(
+  async findAllClientesImagensId(
     req: Request<{ imagensId: string }>,
     res: Response,
     next: NextFunction
@@ -195,19 +197,19 @@ export class EmpresasController {
     }
 
     try {
-      const empresas = await this.empresasRepository.findAllEmpresasByImagensId(imagensId);
-      return res.status(200).send({ success: true, empresas });
+      const clientes = await this.clientesRepository.findAllClientesByImagensId(imagensId);
+      return res.status(200).send({ success: true, clientes });
     } catch (error) {
       next(error);
     }
   }
 
     /** 11 Lista todas empresas com todos os detalhes */
-  async findAllEmpresasByDetails(req: Request, res: Response) {
+  async findAllClientesByDetails(req: Request, res: Response) {
 
     try {
-      const empresas = await this.empresasRepository.listAllEmpresasDetails();
-      res.json({ success: true, data: empresas });
+      const clientes = await this.clientesRepository.listAllClientesDetails();
+      res.json({ success: true, data: clientes });
     } catch (err: any) {
       console.error('Erro ao listar empresas:', err);
       res.status(500).json({ success: false, message: err.message });

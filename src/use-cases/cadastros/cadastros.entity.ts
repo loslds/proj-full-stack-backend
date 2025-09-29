@@ -3,8 +3,8 @@ import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn, OneToMan
 import { PessoasEntity } from '../pessoa/pessoas.entity';
 import { EmpresasEntity } from '../empresa/empresas.entity';
 import { FornecedoresEntity } from '../fornecedores/fornecedores.entity';
-import { ConsumidoresEntity } from '../consumidores/consumidores.entity';
-import { ClientesEntity } from '../clientes/clientes.entity';
+import { ConsumidoresEntity } from '../consumidor/consumidores.entity';
+import { ClientesEntity } from '../cliente/clientes.entity';
 import { FuncionariosEntity } from '../funcionarios/funcionarios.entity';
 import { UsersEntity } from '../users/users.entity';
 

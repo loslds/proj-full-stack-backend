@@ -1,3 +1,4 @@
+//C:\repository\proj-full-stack-backend\src\use-cases\empresa\empresas.dto.ts
 
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
@@ -6,7 +7,8 @@ import { EmpresasEntity} from './empresas.entity';
 export const empresasCreateSchema = z.object({
   name: z.string().min(3),
   fantasy: z.string().min(3),  // Torna o campo fantasy obrigatório para a criação
-  id_pessoa: z.number().optional(), // adicionado,
+  id_pessoas: z.number().optional(), // adicionado,
+  id_imagens: z.number().optional(), // adicionado,
   createdBy: z.number().optional(), // adicionado
   updatedBy: z.number().optional(), // adicionado
 });

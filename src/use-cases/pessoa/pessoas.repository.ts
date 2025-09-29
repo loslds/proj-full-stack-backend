@@ -54,10 +54,27 @@ export class PessoasRepository {
     }
   }
 
+//////////////////////////////////////////////
+
+  /** Busca todos os registros de Pessoas */
+  async findPessoasAll(
+    where?: FindOptionsWhere<PessoasEntity>, 
+    order?: FindOptionsOrder<PessoasEntity>
+  ): Promise<PessoasEntity[]> {
+    return this.repo.find({ where, order });
+  }
   /** Cria novo registro em pessoas */
   async createPessoas(pessoas: PessoasCreate): Promise<PessoasEntity> {
     const data = this.repo.create(pessoas);
     return this.repo.save(data);
+  }
+
+  /** Busca registro de pessoas pelo ID */
+  async findPessoasById(pessoasId: number): Promise<PessoasEntity | null> {
+    if (!pessoasId || isNaN(pessoasId) || pessoasId <= 0) {
+      throw new Error('Invalid pessoasId');
+    }
+    return this.repo.findOne({ where: { id: pessoasId } });
   }
 
   /** Atualiza registro em pessoas (seguro com preload) */
@@ -83,23 +100,7 @@ export class PessoasRepository {
     if (!entity) throw new Error(`Pessoa com id ${pessoasId} não encontrada`);
     await this.repo.remove(entity);
   }
-
-  /** Busca todos os registros de Pessoas */
-  async findPessoasAll(
-    where?: FindOptionsWhere<PessoasEntity>, 
-    order?: FindOptionsOrder<PessoasEntity>
-  ): Promise<PessoasEntity[]> {
-    return this.repo.find({ where, order });
-  }
-
-  /** Busca registro de pessoas pelo ID */
-  async findPessoasById(pessoasId: number): Promise<PessoasEntity | null> {
-    if (!pessoasId || isNaN(pessoasId) || pessoasId <= 0) {
-      throw new Error('Invalid pessoasId');
-    }
-    return this.repo.findOne({ where: { id: pessoasId } });
-  }
-
+  
   /** Busca por ID, nome ou sigla */
   async searchPessoas(params: { id?: number; nome?: string; sigla?: string }) {
     const query = this.repo.createQueryBuilder('pessoas')
@@ -131,7 +132,6 @@ export class PessoasRepository {
     if (text) query.andWhere('pessoas.sigla LIKE :text', { text: `%${text}%` });
     return query.getMany();
   }
-
 
   /** Busca um registro pelo nome */
   async findOneNomePessoas(nome: string): Promise<PessoasEntity | null> {

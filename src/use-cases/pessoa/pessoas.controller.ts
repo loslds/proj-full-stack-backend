@@ -13,8 +13,133 @@ import { HttpException } from "../../middlewares/HttpException";
 export class PessoasController {
   constructor(private readonly pessoasRepository: PessoasRepository) {}
 
+  /** GET Busca todos os registros de Pessoas */
+  async findAllPessoas(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { ativo } = req.query;
+      let where: FindOptionsWhere<PessoasEntity> | undefined;
+
+      if (ativo !== undefined) {
+        where = { ativo: ativo === "true" } as FindOptionsWhere<PessoasEntity>;
+      }
+
+      const pessoas = await this.pessoasRepository.findPessoasAll(where, { nome: "ASC" });
+      return res.status(200).send({ success: true, pessoas });
+
+    } catch (error) {
+      next(error);
+    }
+  }
+
+    /** GET pesquisa Buscar registros de Pessoa por ID/nome/sigla (query) */
+  async searchPessoasAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id, nome, sigla } = req.query;
+      const pessoas = await this.pessoasRepository.searchPessoas({
+        id: id ? Number(id) : undefined,
+        nome: nome as string,
+        sigla: sigla as string,
+      });
+      return res.status(200).send({ success: true, pessoas });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET pesquisa Buscar por nome em Pessoas */
+  async searchPessoasName(req: Request, res: Response, next: NextFunction) {
+    try {
+      const text = req.query?.text as string;
+      const pessoas = await this.pessoasRepository.searchNamePessoas(text);
+      return res.status(200).send({ success: true, pessoas });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET pesquisa Buscar por Sigla em Pessoas */
+  async searchPessoasSigla(req: Request, res: Response, next: NextFunction) {
+    try {
+      const text = req.query?.text as string;
+      const pessoas = await this.pessoasRepository.searchSiglaPessoas(text);
+      return res.status(200).send({ success: true, pessoas });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca um registro de Pessoa por nome */
+  async findOnePessoasNome(req: Request, res: Response, next: NextFunction) {
+    try {
+      const nome = req.query?.nome as string;
+      if (!nome) {
+        return res.status(400).send({ success: false, message: "Parâmetro 'nome' é obrigatório" });
+      }
+
+      const pessoas = await this.pessoasRepository.findOneNomePessoas(nome);
+      return res.status(200).send({ success: true, pessoas });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca todos os registros de Pessoa por nome */
+  async findAllPessoasNome(req: Request, res: Response, next: NextFunction) {
+    try {
+      const nome = req.query?.nome as string;
+      if (!nome) {
+        return res.status(400).send({ success: false, message: "Parâmetro 'nome' é obrigatório" });
+      }
+
+      const pessoas = await this.pessoasRepository.findAllNomePessoas(nome);
+      if (pessoas.length === 0) {
+        return res.status(404).send({ success: false, message: "Nenhuma pessoa encontrada com esse nome" });
+      }
+
+      return res.status(200).send({ success: true, pessoas });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca um registro de Pessoa por sigla */
+  async findOnePessoasSigla(req: Request, res: Response, next: NextFunction) {
+    try {
+      const sigla = req.query?.sigla as string;
+      if (!sigla) {
+        return res.status(400).send({ success: false, message: "Parâmetro 'sigla' é obrigatório" });
+      }
+
+      const pessoas = await this.pessoasRepository.findOneSiglaPessoas(sigla);
+      return res.status(200).send({ success: true, pessoas });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca todos os registros de Pessoa por sigla */
+  async findAllPessoasSigla(req: Request, res: Response, next: NextFunction) {
+    try {
+      const sigla = req.query?.sigla as string;
+      if (!sigla) {
+        return res.status(400).send({ success: false, message: "Parâmetro 'sigla' é obrigatório" });
+      }
+
+      const pessoas = await this.pessoasRepository.findAllSiglaPessoas(sigla);
+      if (pessoas.length === 0) {
+        return res.status(404).send({ success: false, message: "Nenhuma pessoa encontrada com essa sigla" });
+      }
+
+      return res.status(200).send({ success: true, pessoas });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
+
   /** POST Cria um novo registro de Pessoas */
-  async create(
+  async createNewPessoas(
     req: Request<{}, {}, PessoasCreate>,
     res: Response,
     next: NextFunction
@@ -32,7 +157,7 @@ export class PessoasController {
   }
 
   /** PATCH Atualiza um registro de Pessoa */
-  async update(
+  async updateIdPessoas(
     req: Request<{ pessoasId: string }, {}, PessoasUpdate>,
     res: Response,
     next: NextFunction
@@ -52,8 +177,9 @@ export class PessoasController {
     }
   }
 
+  
   /** DELETE Remove um registro de Pessoas */
-  async remove(req: Request<{ pessoasId: string }>, res: Response, next: NextFunction) {
+  async removeIdPessoas(req: Request<{ pessoasId: string }>, res: Response, next: NextFunction) {
     try {
       const pessoasId = Number(req.params.pessoasId);
       if (isNaN(pessoasId) || pessoasId <= 0) {
@@ -66,26 +192,11 @@ export class PessoasController {
     }
   }
 
-  /** GET Busca todos os registros de Pessoas */
-  async findAll(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { ativo } = req.query;
-      let where: FindOptionsWhere<PessoasEntity> | undefined;
 
-      if (ativo !== undefined) {
-        where = { ativo: ativo === "true" } as FindOptionsWhere<PessoasEntity>;
-      }
 
-      const pessoas = await this.pessoasRepository.findPessoasAll(where, { nome: "ASC" });
-      return res.status(200).send({ success: true, pessoas });
-
-    } catch (error) {
-      next(error);
-    }
-  }
-
+  
   /** GET Busca um registro de Pessoas por ID */
-  async getOne(req: Request<{ pessoasId: string }>, res: Response, next: NextFunction) {
+  async getOnePessoasId(req: Request<{ pessoasId: string }>, res: Response, next: NextFunction) {
     try {
       const pessoasId = Number(req.params.pessoasId);
       if (isNaN(pessoasId) || pessoasId <= 0) {
@@ -101,108 +212,7 @@ export class PessoasController {
   }
 
 
-  /** GET pesquisa Buscar registros de Pessoa por ID/nome/sigla (query) */
-  async search(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id, nome, sigla } = req.query;
-      const pessoas = await this.pessoasRepository.searchPessoas({
-        id: id ? Number(id) : undefined,
-        nome: nome as string,
-        sigla: sigla as string,
-      });
-      return res.status(200).send({ success: true, pessoas });
-    } catch (error) {
-      next(error);
-    }
-  }
 
-  /** GET pesquisa Buscar por nome em Pessoas */
-  async searchName(req: Request, res: Response, next: NextFunction) {
-    try {
-      const text = req.query?.text as string;
-      const pessoas = await this.pessoasRepository.searchNamePessoas(text);
-      return res.status(200).send({ success: true, pessoas });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** GET pesquisa Buscar por Sigla em Pessoas */
-  async searchSigla(req: Request, res: Response, next: NextFunction) {
-    try {
-      const text = req.query?.text as string;
-      const pessoas = await this.pessoasRepository.searchSiglaPessoas(text);
-      return res.status(200).send({ success: true, pessoas });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** GET Busca um registro de Pessoa por nome */
-  async findOneNome(req: Request, res: Response, next: NextFunction) {
-    try {
-      const nome = req.query?.nome as string;
-      if (!nome) {
-        return res.status(400).send({ success: false, message: "Parâmetro 'nome' é obrigatório" });
-      }
-
-      const pessoas = await this.pessoasRepository.findOneNomePessoas(nome);
-      return res.status(200).send({ success: true, pessoas });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** GET Busca todos os registros de Pessoa por nome */
-  async findAllNome(req: Request, res: Response, next: NextFunction) {
-    try {
-      const nome = req.query?.nome as string;
-      if (!nome) {
-        return res.status(400).send({ success: false, message: "Parâmetro 'nome' é obrigatório" });
-      }
-
-      const pessoas = await this.pessoasRepository.findAllNomePessoas(nome);
-      if (pessoas.length === 0) {
-        return res.status(404).send({ success: false, message: "Nenhuma pessoa encontrada com esse nome" });
-      }
-
-      return res.status(200).send({ success: true, pessoas });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** GET Busca um registro de Pessoa por sigla */
-  async findOneSigla(req: Request, res: Response, next: NextFunction) {
-    try {
-      const sigla = req.query?.sigla as string;
-      if (!sigla) {
-        return res.status(400).send({ success: false, message: "Parâmetro 'sigla' é obrigatório" });
-      }
-
-      const pessoas = await this.pessoasRepository.findOneSiglaPessoas(sigla);
-      return res.status(200).send({ success: true, pessoas });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** GET Busca todos os registros de Pessoa por sigla */
-  async findAllSigla(req: Request, res: Response, next: NextFunction) {
-    try {
-      const sigla = req.query?.sigla as string;
-      if (!sigla) {
-        return res.status(400).send({ success: false, message: "Parâmetro 'sigla' é obrigatório" });
-      }
-
-      const pessoas = await this.pessoasRepository.findAllSiglaPessoas(sigla);
-      if (pessoas.length === 0) {
-        return res.status(404).send({ success: false, message: "Nenhuma pessoa encontrada com essa sigla" });
-      }
-
-      return res.status(200).send({ success: true, pessoas });
-    } catch (error) {
-      next(error);
-    }
-  }
+  
+  
 }

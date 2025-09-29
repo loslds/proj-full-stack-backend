@@ -1,4 +1,4 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\empresa\empresas.entity.ts
+//C:\repository\proj-full-stack-backend\src\use-cases\cliente\clientes.entity.ts
 
 import {
   Entity,
@@ -14,14 +14,15 @@ import {
 import { PessoasEntity } from '../pessoa/pessoas.entity';
 import { ImagensEntity } from '../imagen/imagens.entity';
 
-@Entity('empresas')
+@Entity('clientes')
 @Unique(['nome']) // garante que não tenha dois iguais
 
-export class EmpresasEntity {
+export class ClientesEntity {
+  
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-   // 🔹 Campo para armazenar o id da pessoa
+   // 🔹 Campo para armazenar o id da tabela
   @Column({ type: 'int', nullable: false })
   id_pessoas: number;
   // 🔹 Relacionamento com Pessoas
