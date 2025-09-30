@@ -35,6 +35,6 @@ export async function initEmpresasRoutes(app: Application) {
   router.get('/details', controller.findAllEmpresasByDetails.bind(controller));
 
   // 5️⃣ Monta na app
-  app.use("/api/pessoas", router);
+  app.use("/api/empresas", router);
 }
 

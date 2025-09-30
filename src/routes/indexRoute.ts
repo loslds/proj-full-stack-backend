@@ -3,10 +3,16 @@
 import { Router } from 'express';
 import { systemRoutes } from './systemRoutes';
 import { systableRoute } from '../use-cases/systable';
-import { imagensRoute } from '../use-cases/imagen';
-import { pessoasRoute } from '../use-cases/pessoa';
-import { empresasRoute } from '../use-cases/empresa';
 import { syncTablesRoutes } from './syncTablesRoutes'; // nova
+
+import { pessoasRoute } from '../use-cases/pessoa';
+import { imagensRoute } from '../use-cases/imagen';
+import { empresasRoute } from '../use-cases/empresa';
+import { consumidoresRoute } from '../use-cases/consumidor';
+import { clientesRoute }from '../use-cases/cliente';
+import { fornecedoresRoute }from '../use-cases/fornecedor';
+import { funcionariosRoute }from '../use-cases/funcionario';
+import { cadastrosRoute }from '../use-cases/cadastro';
 
 import  cepRoutes  from "./cepRoutes"; // rota do CEP numero
 import logradouroRoutes from "./logradouroRoutes"; // rota do CEP logradouro
@@ -18,6 +24,12 @@ indexRoute.use('/pessoas', pessoasRoute);
 indexRoute.use('/imagens', imagensRoute);
 
 indexRoute.use('/empresas', empresasRoute);
+indexRoute.use('/consumidores', consumidoresRoute);
+indexRoute.use('/clientes', clientesRoute);
+indexRoute.use('/fornecedores', fornecedoresRoute);
+indexRoute.use('/funcionarios', funcionariosRoute);
+indexRoute.use('/cadastros', cadastrosRoute);
+
 
 // novas rotas
 indexRoute.use('/system', systemRoutes);

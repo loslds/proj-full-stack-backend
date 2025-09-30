@@ -1,6 +1,6 @@
 
 import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { CadastrosEntity } from '../cadastros/cadastros.entity';
+import { CadastrosEntity } from '../cadastro/cadastros.entity';
 
 @Entity('docs')
 

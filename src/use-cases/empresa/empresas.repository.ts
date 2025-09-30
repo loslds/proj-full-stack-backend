@@ -48,15 +48,29 @@ export class EmpresasRepository {
     return this.repo.save(data);
   }
 
-  // 2 Atualiza registro 
+  // 2 Atualiza registro com validação de duplicidade
   async updateEmpresas(
     empresasId: number,
     empresas: DeepPartial<EmpresasEntity>,
   ): Promise<EmpresasEntity> {
+    // Verifica duplicidade
+    const duplicated = await this.repo.createQueryBuilder('empresas')
+      .where('(empresas.nome LIKE :nome OR empresas.fantasy LIKE :fantasy)', { 
+        nome: empresas.nome, 
+        fantasy: empresas.fantasy 
+      })
+      .andWhere('empresas.id != :id', { id: empresasId }) // exclui o próprio
+      .getOne();
+
+    if (duplicated) {
+      throw new Error('Eempresa duplicado! Nome ou Fantasia já existentes.');
+    }
+
+    // Se passou pela validação, segue o update
     const data = this.repo.create({ id: empresasId, ...empresas });
     return this.repo.save(data);
-  }
-
+  }  
+  
   // 3 Deleta registro 
   async deleteEmpresas(empresasId: number) {
     return this.repo.delete(empresasId);

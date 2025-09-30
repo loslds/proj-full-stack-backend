@@ -171,7 +171,7 @@ export class ConsumidoresController {
     res: Response,
     next: NextFunction
   ) {
-    const pessoasId = Number(req.params.pessoaId);
+    const pessoasId = Number(req.params.pessoasId);
     if (isNaN(pessoasId) || pessoasId <= 0) {
       return res.status(400).send({ success: false, message: 'Invalid pessoasId' }).end();
     }

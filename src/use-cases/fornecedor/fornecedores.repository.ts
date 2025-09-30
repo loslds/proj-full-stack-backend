@@ -1,20 +1,20 @@
 //C:\repository\proj-full-stack-backend\src\use-cases\consumidor\consumidores.repository.ts
 
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
-import { ConsumidoresEntity } from './consumidores.entity';
-import type { ConsumidoresCreate } from './consumidores.dto';
+import { FornecedoresEntity } from './fornecedores.entity';
+import type { FornecedoresCreate } from './fornecedores.dto';
 
-export class ConsumidoresRepository {
-  private repo: Repository<ConsumidoresEntity>;
+export class FornecedoresRepository {
+  private repo: Repository<FornecedoresEntity>;
 
   constructor(private readonly dataSource: DataSource) {
-    this.repo = this.dataSource.getRepository(ConsumidoresEntity);
+    this.repo = this.dataSource.getRepository(FornecedoresEntity);
   }
 
   // Criação da tabela (raw query) - manter FK
-  async createNotExistsConsumidores(): Promise<void> {
+  async createNotExistsFornecedores(): Promise<void> {
     await this.dataSource.query(`
-      CREATE TABLE IF NOT EXISTS consumidores (
+      CREATE TABLE IF NOT EXISTS fornecedores (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         id_pessoas INT UNSIGNED NOT NULL,
         id_imagens INT UNSIGNED NOT NULL,
@@ -32,58 +32,58 @@ export class ConsumidoresRepository {
 
   // Verifica duplicidade por nome/fantasy
   async hasDuplicated(nome?: string, fantasy?: string, excludes: number[] = []) {
-    const query = this.repo.createQueryBuilder('consumidores');
+    const query = this.repo.createQueryBuilder('fornecedores');
 
-    if (nome) query.andWhere('consumidores.nome LIKE :nome', { nome });
-    if (fantasy) query.andWhere('consumidores.fantasy LIKE :fantasy', { fantasy });
+    if (nome) query.andWhere('fornecedores.nome LIKE :nome', { nome });
+    if (fantasy) query.andWhere('fornecedores.fantasy LIKE :fantasy', { fantasy });
 
     if (excludes.length) {
-      query.andWhere('consumidores.id NOT IN (:...excludes)', { excludes });
+      query.andWhere('fornecedores.id NOT IN (:...excludes)', { excludes });
     }
 
     return query.getOne();
   }
 
   // Cria registro 1
-  async createConsumidores(consumidores: ConsumidoresCreate): Promise<ConsumidoresEntity> {
-    const data = this.repo.create(consumidores);
+  async createFornecedores(fornecedores: FornecedoresCreate): Promise<FornecedoresEntity> {
+    const data = this.repo.create(fornecedores);
     return this.repo.save(data);
   }
 
   // 2 Atualiza registro com validação de duplicidade
-  async updateConsumidores(
-    consumidoresId: number,
-    consumidores: DeepPartial<ConsumidoresEntity>,
-  ): Promise<ConsumidoresEntity> {
-    // Verifica duplicidade
-    const duplicated = await this.repo.createQueryBuilder('consumidores')
-      .where('(consumidores.nome LIKE :nome OR consumidores.fantasy LIKE :fantasy)', { 
-        nome: consumidores.nome, 
-        fantasy: consumidores.fantasy 
+  async updateFornecedores(
+    fornecedoresId: number,
+    fornecedores: DeepPartial<FornecedoresEntity>,
+  ): Promise<FornecedoresEntity> {
+  // Verifica duplicidade
+    const duplicated = await this.repo.createQueryBuilder('fornecedores')
+      .where('(fornecedores.nome LIKE :nome OR fornecedores.fantasy LIKE :fantasy)', { 
+        nome: fornecedores.nome, 
+        fantasy: fornecedores.fantasy 
       })
-      .andWhere('consumidores.id != :id', { id: consumidoresId }) // exclui o próprio
+      .andWhere('fornecedores.id != :id', { id: fornecedoresId }) // exclui o próprio
       .getOne();
 
     if (duplicated) {
-      throw new Error('Consumidor duplicado! Nome ou Fantasia já existentes.');
+      throw new Error('Fornecedor duplicado! Nome ou Fantasia já existentes.');
     }
 
     // Se passou pela validação, segue o update
-    const data = this.repo.create({ id: consumidoresId, ...consumidores });
+    const data = this.repo.create({ id: fornecedoresId, ...fornecedores });
     return this.repo.save(data);
   }
 
 
   // 3 Deleta registro 
-  async deleteConsumidores(consumidoresId: number) {
-    return this.repo.delete(consumidoresId);
+  async deleteFornecedores(fornecedoresId: number) {
+    return this.repo.delete(fornecedoresId);
   }
 
   // 4 Busca todos registros com filtro opcional 
-  async findConsumidoresAll(
-    where?: FindOptionsWhere<ConsumidoresEntity>,
+  async findFornecedoresAll(
+    where?: FindOptionsWhere<FornecedoresEntity>,
     orderBy: Record<string, "ASC" | "DESC"> = { id: "ASC" }
-  ): Promise<ConsumidoresEntity[]> {
+  ): Promise<FornecedoresEntity[]> {
     return this.repo.find({
       where,
       relations: ['pessoas', 'imagens'],
@@ -91,16 +91,16 @@ export class ConsumidoresRepository {
     });
   }
 
-  // 5 Busca por ID em consumidores 
-  async findOneConsumidoresById(consumidoresId: number) {
+  // 5 Busca por ID  
+  async findOneFornecedoresById(fornecedoresId: number) {
     return this.repo.findOne({
-      where: { id: consumidoresId },
+      where: { id: fornecedoresId },
       relations: ['pessoas', 'imagens'],
     });
   }
 
   // Busca por nome 6
-  async findOneConsumidoresByNome(nome: string) {
+  async findOneFornecedoresByNome(nome: string) {
     return this.repo.findOne({
       where: { nome },
       relations: ['pessoas', 'imagens'],
@@ -109,7 +109,7 @@ export class ConsumidoresRepository {
 
 
   // Busca por fantasy 7
-  async findOneConsumidoresByFantasy(fantasy: string) {
+  async findOneFornecedoresByFantasy(fantasy: string) {
     return this.repo.findOne({
       where: { fantasy },
       relations: ['pessoas', 'imagens'],
@@ -118,35 +118,35 @@ export class ConsumidoresRepository {
 
 
   // 8 Pesquisa empresas por ID, nome ou fantasy 
-  async searchConsumidores(params: { id?: number; nome?: string; fantasy?: string }) {
-    const query = this.repo.createQueryBuilder('consumidores')
-      .leftJoinAndSelect('consumidores.pessoas', 'pessoas')
-      .leftJoinAndSelect('consumidores.imagens', 'imagens')
-      .orderBy('consumidores.id', 'ASC');
+  async searchAllFornecedores(params: { id?: number; nome?: string; fantasy?: string }) {
+    const query = this.repo.createQueryBuilder('fornecedores')
+      .leftJoinAndSelect('fornecedores.pessoas', 'pessoas')
+      .leftJoinAndSelect('fornecedores.imagens', 'imagens')
+      .orderBy('fornecedores.id', 'ASC');
 
-    if (params.id) query.andWhere('consumidores.id = :id', { id: params.id });
-    if (params.nome) query.andWhere('consumidores.nome LIKE :nome', { nome: `%${params.nome}%` });
-    if (params.fantasy) query.andWhere('consumidores.fantasy LIKE :fantasy', { fantasy: `%${params.fantasy}%` });
+    if (params.id) query.andWhere('fornecedores.id = :id', { id: params.id });
+    if (params.nome) query.andWhere('fornecedores.nome LIKE :nome', { nome: `%${params.nome}%` });
+    if (params.fantasy) query.andWhere('fornecedores.fantasy LIKE :fantasy', { fantasy: `%${params.fantasy}%` });
 
     return query.getMany();
   }
 
   // 9
-  async findAllConsumidoresByPessoasId(pessoasId: number) {
+  async findAllFornecedoresByPessoasId(pessoasId: number) {
     return this.repo.find({ where: { id_pessoas: pessoasId } });
   }
 
   // 10
-  async findAllConsumidoresByImagensId(imagensId: number) {
+  async findAllFornecedoresByImagensId(imagensId: number) {
     return this.repo.find({ where: { id_imagens: imagensId } });
   }
 
   /** 11 Lista todas consumidores com pessoa + imagem  13*/
-  async listAllConsumidoresDetails() {
+  async listAllFornecedoresDetails() {
     return this.repo
-      .createQueryBuilder('consumidores')
-      .leftJoinAndSelect('consumidores.pessoas', 'pessoas')
-      .leftJoinAndSelect('consumidores.imagens', 'imagens')
+      .createQueryBuilder('fornecedores')
+      .leftJoinAndSelect('fornecedores.pessoas', 'pessoas')
+      .leftJoinAndSelect('fornecedores.imagens', 'imagens')
       .getMany();
   }
 

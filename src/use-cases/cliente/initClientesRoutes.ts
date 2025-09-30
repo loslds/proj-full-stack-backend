@@ -1,4 +1,4 @@
-import { CadastrosRepository } from '../cadastros/cadastros.repository';
+import { CadastrosRepository } from '../cadastro/cadastros.repository';
 //C:\repository\proj-full-stack-backend\src\use-cases\consumidor\initConsumidoresRoutes.ts
 
 import { Application } from "express";

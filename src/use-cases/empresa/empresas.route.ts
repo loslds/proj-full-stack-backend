@@ -1,6 +1,6 @@
 
 // /use-cases/empresa/empresas.route.ts
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router} from 'express';
 import { EmpresasController } from './empresas.controller';
 import { EmpresasRepository } from './empresas.repository';
 import { dbSource } from '../start/dbSource';

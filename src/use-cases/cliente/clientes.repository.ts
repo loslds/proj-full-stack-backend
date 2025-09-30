@@ -50,11 +50,23 @@ export class ClientesRepository {
     return this.repo.save(data);
   }
 
-  // 2 Atualiza registro 
+  // 2 Atualiza registro com validação de duplicidade
   async updateClientes(
     clientesId: number,
     clientes: DeepPartial<ClientesEntity>,
   ): Promise<ClientesEntity> {
+    // Verifica duplicidade
+    const duplicated = await this.repo.createQueryBuilder('clientes')
+      .where('(clientes.nome LIKE :nome OR clientes.fantasy LIKE :fantasy)', { 
+        nome: clientes.nome, 
+        fantasy: clientes.fantasy 
+      })
+      .andWhere('clientes.id != :id', { id: clientesId }) // exclui o próprio
+      .getOne();
+      if (duplicated) {
+      throw new Error('Cliente duplicado! Nome ou Fantasia já existentes.');
+    }
+    // Se passou pela validação, segue o update
     const data = this.repo.create({ id: clientesId, ...clientes });
     return this.repo.save(data);
   }
