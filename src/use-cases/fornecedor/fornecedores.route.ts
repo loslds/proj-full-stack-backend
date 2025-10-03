@@ -3,7 +3,7 @@
 import { Router } from 'express';
 import { FornecedoresController } from './fornecedores.controller';
 import { FornecedoresRepository } from './fornecedores.repository';
-import { dbSource } from '../start/dbSource';
+import { dbSource } from '../../database';
 import { fornecedorescreateValidation, fornecedoresupdateValidation } from './fornecedores.validation';
 import { ParsedQs } from 'qs';
 

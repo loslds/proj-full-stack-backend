@@ -28,12 +28,23 @@ export class EmpresasRepository {
     `);
   }
 
-  // Verifica duplicidade por nome/fantasy
-  async hasDuplicated(nome?: string, fantasy?: string, excludes: number[] = []) {
+  async hasDuplicated(
+    nome?: string,
+    fantasy?: string,
+    id_pessoa?: number,
+    excludes: number[] = []
+  ) {
     const query = this.repo.createQueryBuilder('empresas');
 
-    if (nome) query.andWhere('empresas.nome LIKE :nome', { nome });
-    if (fantasy) query.andWhere('empresas.fantasy LIKE :fantasy', { fantasy });
+    if (nome) {
+      query.andWhere('empresas.nome = :nome', { nome });
+    }
+    if (fantasy) {
+      query.andWhere('empresas.fantasy = :fantasy', { fantasy });
+    }
+    if (id_pessoa) {
+      query.andWhere('empresas.id_pessoa = :id_pessoa', { id_pessoa });
+    }
 
     if (excludes.length) {
       query.andWhere('empresas.id NOT IN (:...excludes)', { excludes });
@@ -42,8 +53,21 @@ export class EmpresasRepository {
     return query.getOne();
   }
 
+
   // Cria registro 1
   async createEmpresas(empresas: EmpresasCreate): Promise<EmpresasEntity> {
+    // Verifica duplicidade apenas pelos campos da chave lógica
+    const duplicated = await this.hasDuplicated(
+      empresas.name,
+      empresas.fantasy,
+      empresas.id_pessoas
+    );
+
+    if (duplicated) {
+      throw new Error('Empresa duplicada! Nome, Fantasia e Pessoa já existentes.');
+    }
+
+    // Cria e salva a entidade incluindo id_imagens se fornecido
     const data = this.repo.create(empresas);
     return this.repo.save(data);
   }
@@ -51,38 +75,42 @@ export class EmpresasRepository {
   // 2 Atualiza registro com validação de duplicidade
   async updateEmpresas(
     empresasId: number,
-    empresas: DeepPartial<EmpresasEntity>,
-  ): Promise<EmpresasEntity> {
+    empresas: DeepPartial<EmpresasEntity>
+    ): Promise<EmpresasEntity> {
     // Verifica duplicidade
     const duplicated = await this.repo.createQueryBuilder('empresas')
-      .where('(empresas.nome LIKE :nome OR empresas.fantasy LIKE :fantasy)', { 
-        nome: empresas.nome, 
-        fantasy: empresas.fantasy 
-      })
-      .andWhere('empresas.id != :id', { id: empresasId }) // exclui o próprio
+      .where('empresas.nome = :nome', { nome: empresas.nome })
+      .andWhere('empresas.fantasy = :fantasy', { fantasy: empresas.fantasy })
+      .andWhere('empresas.id_pessoa = :id_pessoa', { id_pessoa: empresas.id_pessoas })
+      .andWhere('empresas.id != :id', { id: empresasId }) // ignora o próprio registro
       .getOne();
 
     if (duplicated) {
-      throw new Error('Eempresa duplicado! Nome ou Fantasia já existentes.');
+      // lança erro e não continua
+      return Promise.reject(new Error('Empresa duplicada! Nome, Fantasia e Pessoa já existentes.'));
     }
 
     // Se passou pela validação, segue o update
     const data = this.repo.create({ id: empresasId, ...empresas });
     return this.repo.save(data);
-  }  
-  
-  // 3 Deleta registro 
-  async deleteEmpresas(empresasId: number) {
-    return this.repo.delete(empresasId);
   }
+
+  // 3 Deleta registro 
+  async deleteEmpresas(empresasId: number): Promise<boolean> {
+  const result = await this.repo.delete(empresasId);
+  if (result.affected === 0) {
+    throw new Error(`Empresa com ID ${empresasId} não encontrada.`);
+  }
+  return true;
+}
 
   // 4 Busca todos registros com filtro opcional 
   async findEmpresasAll(
-    where?: FindOptionsWhere<EmpresasEntity>,
+    where?: FindOptionsWhere<EmpresasEntity> | FindOptionsWhere<EmpresasEntity>[],
     orderBy: Record<string, "ASC" | "DESC"> = { id: "ASC" }
   ): Promise<EmpresasEntity[]> {
     return this.repo.find({
-      where,
+      where: where ?? {},
       relations: ['pessoas', 'imagens'],
       order: orderBy,
     });

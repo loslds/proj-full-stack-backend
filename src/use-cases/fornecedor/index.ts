@@ -1,4 +1,4 @@
-//use-cases/ccliente/index.ts
+//C:\repository\proj-full-stack-backend\src\use-cases\fornecedor\index.ts
 
 import { FornecedoresRepository } from './fornecedores.repository';
 export { fornecedoresRoute } from './fornecedores.route';

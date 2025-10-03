@@ -1,9 +1,8 @@
-
-// /use-cases/empresa/empresas.route.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.route.ts
 import { Router } from 'express';
 import { FuncionariosController } from './funcionarios.controller';
 import { FuncionariosRepository } from './funcionarios.repository';
-import { dbSource } from '../start/dbSource';
+import { dbSource } from '../../database';
 import { funcionarioscreateValidation, funcionariosupdateValidation } from './funcionarios.validation';
 import { ParsedQs } from 'qs';
 

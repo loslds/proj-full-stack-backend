@@ -9,7 +9,10 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix"
+    "lint:fix": "eslint src --ext .ts --fix",
+    "ts:clean": "tsc --build --clean",
+    "ts:check": "tsc --noEmit",
+    "ts:build": "tsc"
   },
   "author": "Seu Nome",
   "license": "MIT",

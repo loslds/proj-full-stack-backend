@@ -3,7 +3,7 @@
 import { Router } from 'express';
 import { ClientesController } from './clientes.controller';
 import { ClientesRepository } from './clientes.repository';
-import { dbSource } from '../start/dbSource';
+import { dbSource } from '../../database';
 import { clientescreateValidation, clientesupdateValidation } from './clientes.validation';
 import { ParsedQs } from 'qs';
 

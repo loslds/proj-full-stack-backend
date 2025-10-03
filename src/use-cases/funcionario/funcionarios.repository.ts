@@ -1,3 +1,5 @@
+//C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.repository.ts
+
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { FuncionariosEntity } from './funcionarios.entity';
 import type { FuncionariosCreate } from './funcionarios.dto';

@@ -1,14 +1,17 @@
-
 // src/config/tables.ts
+
 export const requiredTables = [
   'systables',
   'pessoas',
   'imagens',
   'empresas',
-  'consumidores',
 
+  'consumidores',
   'clientes',
   'fornecedores',
-  'funcionsrios',
+  'funcionarios',
+  'estados',
+  'cidades'
+  //'cadastros',
 ];
 

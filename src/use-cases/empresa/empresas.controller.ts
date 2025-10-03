@@ -59,12 +59,14 @@ export class EmpresasController {
     next: NextFunction
   ) {
     const empresasId = Number(req.params.empresasId);
+
     if (isNaN(empresasId) || empresasId <= 0) {
       return res.status(400).send({ success: false, message: 'Invalid empresasId' }).end();
     }
+
     try {
-      const deleted = await this.empresasRepository.deleteEmpresas(empresasId);
-        return res.status(200).send({ success: !!deleted?.affected });
+      const success = await this.empresasRepository.deleteEmpresas(empresasId);
+      return res.status(200).send({ success });
     } catch (error) {
       next(error);
     }

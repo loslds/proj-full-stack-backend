@@ -1,5 +1,7 @@
 // src/services/checkTables.ts
 import { requiredTables } from '../config/tables';
+// import { requiredPessoas } from '../config/pessoas';
+
 import { dbSource } from '../database';
 
 import { systablesConfig } from '../use-cases/systable';
@@ -10,6 +12,10 @@ import { consumidoresConfig } from '../use-cases/consumidor';
 import { clientesConfig } from '../use-cases/cliente';
 import { fornecedoresConfig } from '../use-cases/fornecedor';
 import { funcionariosConfig } from '../use-cases/funcionario';
+import { estadosConfig } from '../use-cases/estado';
+
+//import { cidadesConfig } from '../use-cases/cidade';
+//import { cadastrosConfig } from '../use-cases/cadastro';
 
 
 type TableConfig = {
@@ -26,11 +32,11 @@ const allConfigs: TableConfig[] = [
   pessoasConfig,
   imagensConfig,
   empresasConfig,
-
   consumidoresConfig,
   clientesConfig,
   fornecedoresConfig,
-  funcionariosConfig
+  funcionariosConfig,
+  estadosConfig
 
   // futuramente outras tabelas
 ];

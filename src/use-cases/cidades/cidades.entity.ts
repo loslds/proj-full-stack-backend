@@ -1,48 +1,29 @@
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { CadastrosEntity } from '../cadastro/cadastros.entity';
+//C:\repository\proj-full-stack-backend\src\use-cases\cidades\cidades.entity.ts
+
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { EstadosEntity } from '../estado/estados.entity'; // ajuste o caminho conforme sua estrutura
 
 @Entity('cidades')
 export class CidadesEntity {
-  @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
-  id: number; // O campo 'id' será autoincremento
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  // Relacionamento com a entidade CadastroEntity
-  @ManyToOne(() => CadastrosEntity)
-  @JoinColumn({ name: 'id_cadastros' })
-  cadastros: CadastrosEntity;
+  @Column()
+  id_estados: number;
+
+  @ManyToOne(() => EstadosEntity)
+  @JoinColumn({ name: 'id_estados' })
+  estado: EstadosEntity;
   
-  @Column({ type: 'int', nullable: false })
-  id_cadastros: number;
+  @Column({ length: 255 })
+  nome: string;
 
-  ///////////////////////////////////
-  
-  @Column({ unique: true, type: 'varchar', length: 45, nullable: false })
-  nmcidade: string;
+  @Column({ length: 2 })
+  sigla: string;
 
-  @Column({ unique: true, type: 'varchar', length: 45, nullable: false })
-  nmestado: string;
+  @Column({ default: 0 })
+  createdBy: number;
 
-  @Column({ unique: true, type: 'varchar', length: 5, nullable: false })
-  uf: string;
-
-  @Column({ type: 'int', nullable: true, default: null })
-  createdBy?: number;
-
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
-
-  @Column({ type: 'int', nullable: true })
-  updatedBy?: number;
-
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-  })
-  updatedAt?: Date;
+  @Column({ default: 0 })
+  updatedBy: number;
 }

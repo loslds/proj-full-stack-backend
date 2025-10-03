@@ -1,5 +1,6 @@
+//C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.controller.ts
 import { NextFunction, Request, Response } from "express";
-import { FuncionariosRepository } from "./funcionarios.repository";
+import { FuncionariosRepository } from '../funcionario/funcionarios.repository';
 import { FuncionariosCreate, FuncionariosUpdate } from './funcionarios.dto';
 import { FuncionariosEntity } from './funcionarios.entity';
 import { FindOptionsWhere } from "typeorm";
@@ -16,7 +17,7 @@ interface SearchQuery extends ParsedQs {
 }
 
 export class FuncionariosController {  
-  constructor(private readonly funcionariosRepository: FuncionariosRepository) {}
+  constructor(private readonly funcionariosRepository: FuncionariosRepository) {} 
 
   /** 1 POST Cria Tabela  */
   async createNewFuncionarios(

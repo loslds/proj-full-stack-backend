@@ -8,6 +8,8 @@ import { ConsumidoresEntity } from '../use-cases/consumidor/consumidores.entity'
 import { ClientesEntity } from '../use-cases/cliente/clientes.entity';
 import { FornecedoresEntity } from '../use-cases/fornecedor/fornecedores.entity';
 import { FuncionariosEntity } from '../use-cases/funcionario/funcionarios.entity';
+import { EstadosEntity } from '../use-cases/estado/estados.entity';
+//import { CidadesEntity } from '../use-cases/cidade/cidades.entity';
 //import { CadastrosEntity } from '../use-cases/cadastro/cadastros.entity';
 
 
@@ -20,7 +22,11 @@ export const dbEntity = [
   ClientesEntity,
   FornecedoresEntity,
   FuncionariosEntity,
+  EstadosEntity,
+  //CidadesEntity,
   //CadastrosEntity,
+
+  
   //
 ];
 

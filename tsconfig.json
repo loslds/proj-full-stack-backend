@@ -1,3 +1,4 @@
+// C:\repository\proj-full-stack-backend\tsconfig.json
 {
   "compilerOptions": {
     "target": "ES2020", // Código de saída moderno, compatível com Node 14+

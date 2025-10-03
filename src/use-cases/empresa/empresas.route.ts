@@ -3,7 +3,7 @@
 import { Router} from 'express';
 import { EmpresasController } from './empresas.controller';
 import { EmpresasRepository } from './empresas.repository';
-import { dbSource } from '../start/dbSource';
+import { dbSource } from '../../database';
 import { empresascreateValidation, empresasupdateValidation } from './empresas.validation';
 import { ParsedQs } from 'qs';
 

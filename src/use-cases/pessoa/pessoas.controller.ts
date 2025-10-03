@@ -136,8 +136,6 @@ export class PessoasController {
     }
   }
 
-
-
   /** POST Cria um novo registro de Pessoas */
   async createNewPessoas(
     req: Request<{}, {}, PessoasCreate>,
@@ -146,11 +144,17 @@ export class PessoasController {
   ) {
     try {
       const { nome, sigla } = req.body;
+      
       const exists = await this.pessoasRepository.hasDuplicated(nome, sigla);
-      if (exists) throw new HttpException(400, "Pessoa já existe");
+      
+      if (exists) {
+        throw new HttpException(400, "Pessoa já existe");
+      }
 
       const pessoas = await this.pessoasRepository.createPessoas(req.body);
+
       return res.status(201).send({ success: true, pessoas });
+
     } catch (error) {
       next(error);
     }
@@ -167,7 +171,7 @@ export class PessoasController {
       if (!pessoasId) throw new HttpException(400, "ID da pessoa inválido");
 
       const { nome, sigla } = req.body;
-      const exists = await this.pessoasRepository.hasDuplicated(nome, sigla, [pessoasId]);
+      const exists = await this.pessoasRepository.hasDuplicated(nome, sigla [pessoasId]);
       if (exists) throw new HttpException(400, "Pessoa já existe");
 
       const pessoas = await this.pessoasRepository.updatePessoas(pessoasId, req.body);
@@ -192,9 +196,6 @@ export class PessoasController {
     }
   }
 
-
-
-  
   /** GET Busca um registro de Pessoas por ID */
   async getOnePessoasId(req: Request<{ pessoasId: string }>, res: Response, next: NextFunction) {
     try {

@@ -2,6 +2,7 @@
 import { DataSource, DeepPartial, Repository, FindOptionsWhere, FindOptionsOrder } from 'typeorm';
 import { PessoasEntity } from './pessoas.entity';
 import type { PessoasCreate } from './pessoas.dto';
+import { requiredPessoas } from '../../config/pessoas'
 
 export class PessoasRepository {
   private repo: Repository<PessoasEntity>;
@@ -26,32 +27,50 @@ export class PessoasRepository {
   }
 
   /** Verifica duplicidade de registro em pessoas */
-  async hasDuplicated(name?: string, sigla?: string, excludes: number[] = []) { 
-    const query = this.repo.createQueryBuilder('pessoas')
-      .select()
-      .where('pessoas.nome LIKE :name', { name })
-      .andWhere('pessoas.sigla LIKE :sigla', { sigla });
+  async hasDuplicated(
+    nome?: string,
+    fantasy?: string,
+    id_pessoa?: number,
+    excludes: number[] = []
+  ) {
+    const query = this.repo.createQueryBuilder('empresas');
+
+    if (nome) {
+      query.andWhere('empresas.nome = :nome', { nome });
+    }
+    if (fantasy) {
+      query.andWhere('empresas.fantasy = :fantasy', { fantasy });
+    }
+  
+    if (id_pessoa) {
+      query.andWhere('empresas.id_pessoa = :id_pessoa', { id_pessoa });
+    }
 
     if (excludes.length) {
-      query.andWhere('pessoas.id NOT IN(:...excludes)', { excludes });
+      query.andWhere('empresas.id NOT IN (:...excludes)', { excludes });
     }
 
     return query.getOne();
   }
 
-  /** Insere registros padrão de Pessoas */
-  async insertDefaultPessoas(): Promise<void> {
-    const defaults: PessoasCreate[] = [
-      { nome: 'Pessoa Física', sigla: 'PF', createdBy: 0, updatedBy: 0 },
-      { nome: 'Pessoa Jurídica', sigla: 'PJ', createdBy: 0, updatedBy: 0 }
-    ];
+  async insertDefaultPessoas() {
+    const batchSize = 500; // para não estourar limite do MySQL
+    for (let i = 0; i < requiredPessoas.length; i += batchSize) {
+      const batch = requiredPessoas.slice(i, i + batchSize);
 
-    for (const pessoa of defaults) {
-      const exists = await this.hasDuplicated(pessoa.nome, pessoa.sigla);
-      if (!exists) {
-        await this.createPessoas(pessoa);
+      for (const pessoa of batch) {
+        // 1️⃣ Verifica duplicidade
+        const exists = await this.hasDuplicated(pessoa.nome, pessoa.sigla);
+        
+        if (exists) continue; // pula se já existir
+
+        // 2️⃣ Insere o registro
+        const entity = this.repo.create(pessoa);
+        await this.repo.save(entity);
       }
     }
+
+    console.log(`✅ Pessoas padrão inseridas com verificação de duplicidade`);
   }
 
 //////////////////////////////////////////////
@@ -63,6 +82,7 @@ export class PessoasRepository {
   ): Promise<PessoasEntity[]> {
     return this.repo.find({ where, order });
   }
+  
   /** Cria novo registro em pessoas */
   async createPessoas(pessoas: PessoasCreate): Promise<PessoasEntity> {
     const data = this.repo.create(pessoas);
@@ -96,9 +116,13 @@ export class PessoasRepository {
 
   /** Deleta registro em pessoas */
   async deletePessoas(pessoasId: number): Promise<void> {
-    const entity = await this.repo.findOne({ where: { id: pessoasId } });
-    if (!entity) throw new Error(`Pessoa com id ${pessoasId} não encontrada`);
-    await this.repo.remove(entity);
+    const pessoas = await this.repo.findOne({ where: { id: pessoasId } });
+
+    if (!pessoas) {
+      throw new Error(`Pessoa com id ${pessoasId} não encontrada`);
+    }
+
+    await this.repo.remove(pessoas);
   }
   
   /** Busca por ID, nome ou sigla */
@@ -117,7 +141,7 @@ export class PessoasRepository {
   /** Busca pelo nome */
   async searchNamePessoas(text?: string) {
     const query = this.repo.createQueryBuilder('pessoas')
-      .select(['pessoas.id', 'pessoas.nome'])
+      .select(['pessoas.id', 'pessoas.nome', 'pessoas.sigla'])
       .orderBy('pessoas.id', 'ASC')
       .limit(100);
     if (text) query.andWhere('pessoas.nome LIKE :text', { text: `%${text}%` });
@@ -127,7 +151,7 @@ export class PessoasRepository {
   /** Busca pela sigla */
   async searchSiglaPessoas(text?: string) {
     const query = this.repo.createQueryBuilder('pessoas')
-      .select(['pessoas.id', 'pessoas.sigla'])
+      .select(['pessoas.id', 'pessoas.nome', 'pessoas.sigla'])
       .limit(100);
     if (text) query.andWhere('pessoas.sigla LIKE :text', { text: `%${text}%` });
     return query.getMany();

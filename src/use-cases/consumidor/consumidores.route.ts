@@ -3,7 +3,7 @@
 import { Router } from 'express';
 import { ConsumidoresController } from './consumidores.controller';
 import { ConsumidoresRepository } from './consumidores.repository';
-import { dbSource } from '../start/dbSource';
+import { dbSource } from '../../database';
 import { consumidorescreateValidation, consumidoresupdateValidation } from './consumidores.validation';
 import { ParsedQs } from 'qs';
 
