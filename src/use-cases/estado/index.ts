@@ -3,7 +3,7 @@
 import { EstadosRepository } from './estados.repository';
 export { EstadosController } from './estados.controller';
 export type { EstadosDto } from './estados.dto';
-export { estadosRoute } from './estados.route'
+export { estadosRoutes } from './estados.route'
 export { EstadosEntity } from './estados.entity';
 
 export * from './estados.dto';

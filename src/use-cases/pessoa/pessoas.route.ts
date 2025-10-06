@@ -26,6 +26,6 @@ pessoasRoute.get('/one-sigla', controller.findOnePessoasSigla.bind(controller));
 pessoasRoute.get('/all-sigla', controller.findAllPessoasSigla.bind(controller));
 
 
-export { pessoasRoute, pessoasRepository };
+export { pessoasRoute as pessoasRoutes };
 
 

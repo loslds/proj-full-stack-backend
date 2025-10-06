@@ -2,7 +2,7 @@
 
 import { EmpresasRepository } from './empresas.repository';
 
-export { empresasRoute } from './empresas.route';
+export { empresasRoutes } from './empresas.route';
 export { EmpresasController } from './empresas.controller';
 export type { EmpresasDto } from './empresas.dto';
 export { EmpresasEntity } from './empresas.entity';

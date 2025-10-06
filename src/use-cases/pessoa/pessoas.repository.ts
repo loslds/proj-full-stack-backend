@@ -29,25 +29,20 @@ export class PessoasRepository {
   /** Verifica duplicidade de registro em pessoas */
   async hasDuplicated(
     nome?: string,
-    fantasy?: string,
-    id_pessoa?: number,
+    sigla?: string,
     excludes: number[] = []
   ) {
-    const query = this.repo.createQueryBuilder('empresas');
+    const query = this.repo.createQueryBuilder('pessoas');
 
     if (nome) {
-      query.andWhere('empresas.nome = :nome', { nome });
+      query.andWhere('pessoas.nome = :nome', { nome });
     }
-    if (fantasy) {
-      query.andWhere('empresas.fantasy = :fantasy', { fantasy });
+    if (sigla) {
+      query.andWhere('pessoas.sigla = :sigla', { sigla });
     }
   
-    if (id_pessoa) {
-      query.andWhere('empresas.id_pessoa = :id_pessoa', { id_pessoa });
-    }
-
     if (excludes.length) {
-      query.andWhere('empresas.id NOT IN (:...excludes)', { excludes });
+      query.andWhere('pessoas.id NOT IN (:...excludes)', { excludes });
     }
 
     return query.getOne();

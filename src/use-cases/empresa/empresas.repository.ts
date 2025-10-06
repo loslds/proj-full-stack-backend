@@ -58,7 +58,7 @@ export class EmpresasRepository {
   async createEmpresas(empresas: EmpresasCreate): Promise<EmpresasEntity> {
     // Verifica duplicidade apenas pelos campos da chave lógica
     const duplicated = await this.hasDuplicated(
-      empresas.name,
+      empresas.nome,
       empresas.fantasy,
       empresas.id_pessoas
     );
@@ -96,15 +96,23 @@ export class EmpresasRepository {
   }
 
   // 3 Deleta registro 
-  async deleteEmpresas(empresasId: number): Promise<boolean> {
-  const result = await this.repo.delete(empresasId);
-  if (result.affected === 0) {
-    throw new Error(`Empresa com ID ${empresasId} não encontrada.`);
+  async deleteEmpresasId(empresasId: number): Promise<boolean> {
+    const result = await this.repo.delete(empresasId);
+    if (result.affected === 0) {
+      throw new Error(`Empresa com ID ${empresasId} não encontrada.`);
+    }
+    return true;
   }
-  return true;
-}
 
-  // 4 Busca todos registros com filtro opcional 
+  // 4 Busca por ID em empesas 
+  async findOneEmpresasById(empresasId: number) {
+    return this.repo.findOne({
+      where: { id: empresasId },
+      relations: ['pessoas', 'imagens'],
+    });
+  }
+
+  // 5 Busca todos registros com filtro opcional 
   async findEmpresasAll(
     where?: FindOptionsWhere<EmpresasEntity> | FindOptionsWhere<EmpresasEntity>[],
     orderBy: Record<string, "ASC" | "DESC"> = { id: "ASC" }
@@ -113,14 +121,6 @@ export class EmpresasRepository {
       where: where ?? {},
       relations: ['pessoas', 'imagens'],
       order: orderBy,
-    });
-  }
-
-  // 5 Busca por ID em empesas 
-  async findOneEmpresasById(empresasId: number) {
-    return this.repo.findOne({
-      where: { id: empresasId },
-      relations: ['pessoas', 'imagens'],
     });
   }
 

@@ -28,28 +28,27 @@ export class EstadosRepository {
   }
 
   /** Verifica duplicidade de registro */
-  async hasDuplicated(name?: string, uf?: string, excludes: number[] = []) { 
-    const query = this.repo.createQueryBuilder('estados')
-      .select()
-      .where('estados.nome LIKE :name', { name })
-      .andWhere('estados.uf LIKE :uf', { uf });
+  async hasDuplicated(
+    nome?: string,
+    uf?: string,
+    excludes: number[] = []
+  ) {
+    const query = this.repo.createQueryBuilder('estados');
 
+    if (nome) {
+      query.andWhere('estados.nome = :nome', { nome });
+    }
+    if (uf) {
+      query.andWhere('estados.uf = :uf', { uf });
+    }
+  
     if (excludes.length) {
-      query.andWhere('estados.id NOT IN(:...excludes)', { excludes });
+      query.andWhere('estados.id NOT IN (:...excludes)', { excludes });
     }
 
     return query.getOne();
   }
 
-  async insertDefaultEstados(): Promise<void> {
-    
-    for (const estados of requiredEstados) {
-      const exists = await this.hasDuplicated(estados.nome, estados.uf);
-      if (!exists) {
-        await this.createEstados(estados);
-      }
-    }
-  }
 
 //////////////////////////////////////////////
 

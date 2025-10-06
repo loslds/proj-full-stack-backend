@@ -8,11 +8,14 @@ import { systablesConfig } from '../use-cases/systable';
 import { pessoasConfig } from '../use-cases/pessoa';
 import { imagensConfig } from '../use-cases/imagen';
 import { empresasConfig } from '../use-cases/empresa';
+import { estadosConfig } from '../use-cases/estado';
+import { cidadesConfig } from '../use-cases/cidade';
+
 import { consumidoresConfig } from '../use-cases/consumidor';
 import { clientesConfig } from '../use-cases/cliente';
 import { fornecedoresConfig } from '../use-cases/fornecedor';
 import { funcionariosConfig } from '../use-cases/funcionario';
-import { estadosConfig } from '../use-cases/estado';
+
 
 //import { cidadesConfig } from '../use-cases/cidade';
 //import { cadastrosConfig } from '../use-cases/cadastro';
@@ -28,15 +31,18 @@ type TableConfig = {
 
 // 🔹 monta array com todas as configs
 const allConfigs: TableConfig[] = [
-  systablesConfig,
-  pessoasConfig,
-  imagensConfig,
-  empresasConfig,
-  consumidoresConfig,
-  clientesConfig,
-  fornecedoresConfig,
-  funcionariosConfig,
-  estadosConfig
+  systablesConfig, //unico
+  pessoasConfig,   // 0 reg.
+  imagensConfig,   // 43 reg
+  empresasConfig,  // 0 reg.
+  estadosConfig,   // 27 reg.
+  cidadesConfig,   // 5.615 reg.
+
+  consumidoresConfig, // 0 reg.
+  clientesConfig,     // 0 reg.
+  fornecedoresConfig, // 0 reg.
+  funcionariosConfig  // 0 reg.
+  
 
   // futuramente outras tabelas
 ];

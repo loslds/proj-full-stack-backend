@@ -5,17 +5,18 @@ import { systemRoutes } from './systemRoutes';
 import { systableRoute } from '../use-cases/systable';
 import { syncTablesRoutes } from './syncTablesRoutes'; // nova
 
-import { pessoasRoute } from '../use-cases/pessoa';
-import { imagensRoute } from '../use-cases/imagen';
-import { empresasRoute } from '../use-cases/empresa';
-import { consumidoresRoute } from '../use-cases/consumidor';
-import { clientesRoute }from '../use-cases/cliente';
-import { fornecedoresRoute }from '../use-cases/fornecedor';
-import { funcionariosRoute }from '../use-cases/funcionario';
-import { estadosRoute }from '../use-cases/estado';
+import { pessoasRoutes } from '../use-cases/pessoa';
+import { imagensRoutes } from '../use-cases/imagen';
+import { empresasRoutes } from '../use-cases/empresa';
+import { estadosRoutes } from '../use-cases/estado';
+import { cidadesRoutes } from '../use-cases/cidade';
 
-//import { cidadesRoute }from '../use-cases/cidade';
-import { cadastrosRoute }from '../use-cases/cadastro';
+import { consumidoresRoute } from '../use-cases/consumidor';
+import { clientesRoute } from '../use-cases/cliente';
+import { fornecedoresRoute } from '../use-cases/fornecedor';
+import { funcionariosRoute } from '../use-cases/funcionario';
+
+//import { cadastrosRoutes } from '../use-cases/cadastro';
 
 import  cepRoutes  from "./cepRoutes"; // rota do CEP numero
 import logradouroRoutes from "./logradouroRoutes"; // rota do CEP logradouro
@@ -23,15 +24,17 @@ import logradouroRoutes from "./logradouroRoutes"; // rota do CEP logradouro
 const indexRoute = Router();
 
 indexRoute.use('/systables', systableRoute);
-indexRoute.use('/pessoas', pessoasRoute);
-indexRoute.use('/imagens', imagensRoute);
+indexRoute.use('/pessoas', pessoasRoutes);
+indexRoute.use('/imagens', imagensRoutes);
+indexRoute.use('/empresas', empresasRoutes);
+indexRoute.use('/estados', estadosRoutes);
+indexRoute.use('/cidades', cidadesRoutes);
 
-indexRoute.use('/empresas', empresasRoute);
 indexRoute.use('/consumidores', consumidoresRoute);
 indexRoute.use('/clientes', clientesRoute);
 indexRoute.use('/fornecedores', fornecedoresRoute);
 indexRoute.use('/funcionarios', funcionariosRoute);
-indexRoute.use('/estados', estadosRoute);
+
 {/** 
 
 indexRoute.use('/cidades', cidadesRoute);

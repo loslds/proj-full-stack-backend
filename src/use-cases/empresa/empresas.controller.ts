@@ -31,6 +31,8 @@ export class EmpresasController {
       next(error);
     }
   }
+
+
   /** 2 PATCH Atualiza um registro de Empresas */
   async updateIdEmpresas(
     req: Request<{ empresasId: string }, {}, Partial<EmpresasUpdate>>,
@@ -52,7 +54,7 @@ export class EmpresasController {
     }
   }
 
-  /** 3 DELETE Remove um registro de Empresas */
+  /** 3 DELETE Remove um registro ID */
   async removeIdEmpresas(
     req: Request<{ empresasId: string }>,
     res: Response,
@@ -65,7 +67,7 @@ export class EmpresasController {
     }
 
     try {
-      const success = await this.empresasRepository.deleteEmpresas(empresasId);
+      const success = await this.empresasRepository.deleteEmpresasId(empresasId);
       return res.status(200).send({ success });
     } catch (error) {
       next(error);
@@ -73,8 +75,12 @@ export class EmpresasController {
   }
 
   
-  /** 4 GET Busca todos os registros de imagens */
-  async findAllEmpresas(req: Request, res: Response, next: NextFunction) {
+  /** 4 GET Busca todos os registros */
+  async findAllEmpresas(
+    req: Request, 
+    res: Response, 
+    next: NextFunction
+  ) {
     
     try {
       const { ativo } = req.query;
@@ -151,7 +157,7 @@ export class EmpresasController {
   }
 
   /** 8 pesquisaregistro de Empresas através do ID ou NOME ou FANTASY */
-  async searchEmpresas(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
+  async searchByEmpresas(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
     try {
       const { id, nome, fantasy } = req.query;
       const results = await this.empresasRepository.searchEmpresas({

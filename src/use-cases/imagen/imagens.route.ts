@@ -26,5 +26,5 @@ imagensRoute.get('/all-arqNome', controller.findAllImagensArqNome.bind(controlle
 
 
 
-export { imagensRoute, imagensRepository };
+export { imagensRoute as imagensRoutes };
 

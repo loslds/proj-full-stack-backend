@@ -4,7 +4,7 @@ import { PessoasRepository } from './pessoas.repository';
 
 export { PessoasController } from './pessoas.controller';
 export type { PessoasDto } from './pessoas.dto';
-export { pessoasRoute } from './pessoas.route'
+export { pessoasRoutes } from './pessoas.route'
 export { PessoasEntity } from './pessoas.entity';
 export { PessoasRepository } from './pessoas.repository';
 export * from './pessoas.dto';

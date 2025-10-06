@@ -31,7 +31,7 @@ export async function initEmpresasRoutes(app: Application) {
   router.get('/by-one-fantasy', controller.findOneEmpresasFantasy.bind(controller));
   router.get('/by-pessoas/:pessoasId', controller.findAllEmpresasPessoasId.bind(controller));
   router.get('/by-imagens/:imagensId', controller.findAllEmpresasImagensId.bind(controller));
-  router.get('/search', controller.searchEmpresas.bind(controller));
+  router.get('/search', controller.searchByEmpresas.bind(controller));
   router.get('/details', controller.findAllEmpresasByDetails.bind(controller));
 
   // 5️⃣ Monta na app

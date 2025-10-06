@@ -26,6 +26,6 @@ estadosRoute.get('/one-uf', controller.findOneEstadosUf.bind(controller));
 estadosRoute.get('/all-uf', controller.findAllEstadosUf.bind(controller));
 
 
-export { estadosRoute, estadosRepository };
+export { estadosRoute as estadosRoutes };
 
 
