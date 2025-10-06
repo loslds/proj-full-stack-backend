@@ -3,7 +3,7 @@
 
 import { ConsumidoresRepository } from './consumidores.repository';
 
-export { consumidoresRoute } from './consumidores.route';
+export { consumidoresRoutes } from './consumidores.route';
 export { ConsumidoresController } from './consumidores.controller';
 export type { ConsumidoresDto } from './consumidores.dto';
 export { ConsumidoresEntity } from './consumidores.entity';

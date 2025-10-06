@@ -31,11 +31,23 @@ export class ConsumidoresRepository {
   }
 
   // Verifica duplicidade por nome/fantasy
-  async hasDuplicated(nome?: string, fantasy?: string, excludes: number[] = []) {
+  async hasDuplicated(
+    nome?: string,
+    fantasy?: string,
+    id_pessoas?: number,
+    excludes: number[] = []
+  ) {
     const query = this.repo.createQueryBuilder('consumidores');
 
-    if (nome) query.andWhere('consumidores.nome LIKE :nome', { nome });
-    if (fantasy) query.andWhere('consumidores.fantasy LIKE :fantasy', { fantasy });
+    if (nome) {
+      query.andWhere('consumidores.nome = :nome', { nome });
+    }
+    if (fantasy) {
+      query.andWhere('consumidores.fantasy = :fantasy', { fantasy });
+    }
+    if (id_pessoas) {
+      query.andWhere('consumidores.id_pessoa = :id_pessoa', { id_pessoas });
+    }
 
     if (excludes.length) {
       query.andWhere('consumidores.id NOT IN (:...excludes)', { excludes });
@@ -43,25 +55,37 @@ export class ConsumidoresRepository {
 
     return query.getOne();
   }
+  
 
   // Cria registro 1
   async createConsumidores(consumidores: ConsumidoresCreate): Promise<ConsumidoresEntity> {
+    // Verifica duplicidade apenas pelos campos da chave lógica
+    const duplicated = await this.hasDuplicated(
+      consumidores.nome,
+      consumidores.fantasy,
+      consumidores.id_pessoas
+    );
+
+    if (duplicated) {
+      throw new Error('Consumidores duplicada! Nome, Fantasia e Pessoa já existentes.');
+    }
+
+    // Cria e salva a entidade incluindo id_imagens se fornecido
     const data = this.repo.create(consumidores);
     return this.repo.save(data);
   }
-
+  
   // 2 Atualiza registro com validação de duplicidade
-  async updateConsumidores(
+  async updateConsumidoresId(
     consumidoresId: number,
-    consumidores: DeepPartial<ConsumidoresEntity>,
-  ): Promise<ConsumidoresEntity> {
+    consumidores: DeepPartial<ConsumidoresEntity>
+        ): Promise<ConsumidoresEntity> {
     // Verifica duplicidade
     const duplicated = await this.repo.createQueryBuilder('consumidores')
-      .where('(consumidores.nome LIKE :nome OR consumidores.fantasy LIKE :fantasy)', { 
-        nome: consumidores.nome, 
-        fantasy: consumidores.fantasy 
-      })
-      .andWhere('consumidores.id != :id', { id: consumidoresId }) // exclui o próprio
+      .where('consumidores.nome = :nome', { nome: consumidores.nome })
+      .andWhere('consumidores.fantasy = :fantasy', { fantasy: consumidores.fantasy })
+      .andWhere('consumidores.id_pessoas = :id_pessoas', { id_pessoas: consumidores.id_pessoas })
+      .andWhere('consumidores.id != :id', { id: consumidoresId }) // ignora o próprio registro
       .getOne();
 
     if (duplicated) {
@@ -75,8 +99,20 @@ export class ConsumidoresRepository {
 
 
   // 3 Deleta registro 
-  async deleteConsumidores(consumidoresId: number) {
-    return this.repo.delete(consumidoresId);
+  async deleteConsumidoresId(consumidoresId: number) {
+    const result = await this.repo.delete(consumidoresId);
+    if (result.affected === 0) {
+      throw new Error(`Consumidor com ID ${consumidoresId} não encontrada.`);
+    }
+    return true;
+  }
+
+  // 4 Busca por ID em consumidores 
+  async findOneConsumidoresById(consumidoresId: number) {
+    return this.repo.findOne({
+      where: { id: consumidoresId },
+      relations: ['pessoas', 'imagens'],
+    });
   }
 
   // 4 Busca todos registros com filtro opcional 
@@ -88,14 +124,6 @@ export class ConsumidoresRepository {
       where,
       relations: ['pessoas', 'imagens'],
       order: orderBy,
-    });
-  }
-
-  // 5 Busca por ID em consumidores 
-  async findOneConsumidoresById(consumidoresId: number) {
-    return this.repo.findOne({
-      where: { id: consumidoresId },
-      relations: ['pessoas', 'imagens'],
     });
   }
 
@@ -150,25 +178,6 @@ export class ConsumidoresRepository {
       .getMany();
   }
 
-  // /** 12 Lista por nome + pessoa  */
-  // async findAllEmpresasByNomeAndPessoaId(nome: string, pessoaId: number) {
-  //   return this.repo.createQueryBuilder('empresas')
-  //     .innerJoinAndSelect('empresas.pessoas', 'pessoas')
-  //     .where('empresas.nome LIKE :nome', { nome: `%${nome}%` })
-  //     .andWhere('empresas.id_pessoas = :pessoaId', { pessoaId })
-  //     .getMany();
-  // }
-
-  // /**  13 Lista por nome + imagem  */
-  // async findEmpresasByNomeAndImagemId(nome: string, imagemId: number) {
-  //   return this.repo.createQueryBuilder('empresas')
-  //     .innerJoinAndSelect('empresas.imagens', 'imagens')
-  //     .where('empresas.nome LIKE :nome', { nome: `%${nome}%` })
-  //     .andWhere('empresas.id_imagens = :imagemId', { imagemId })
-  //     .getMany();
-  // }
-
-  
 }
 
 

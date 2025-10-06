@@ -47,7 +47,7 @@ export class ConsumidoresController {
         .end();
       }
     try {
-      const consumidores = await this.consumidoresRepository.updateConsumidores(consumidoresId, req.body);
+      const consumidores = await this.consumidoresRepository.updateConsumidoresId(consumidoresId, req.body);
         return res.status(200).send({ success: true, consumidores }).end();
     } catch (error) {
       next(error);
@@ -65,8 +65,8 @@ export class ConsumidoresController {
       return res.status(400).send({ success: false, message: 'Invalid consumidoresId' }).end();
     }
     try {
-      const deleted = await this.consumidoresRepository.deleteConsumidores(consumidoresId);
-        return res.status(200).send({ success: !!deleted?.affected });
+      const success = await this.consumidoresRepository.deleteConsumidoresId(consumidoresId);
+      return res.status(200).send({ success });
     } catch (error) {
       next(error);
     }
@@ -139,8 +139,7 @@ export class ConsumidoresController {
   ) {
     const { fantasy } = req.query;
     if (!fantasy) {
-      return res
-        .status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
+      return res.status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
     }
     try {
       const consumidores = await this.consumidoresRepository.findOneConsumidoresByFantasy(fantasy);
@@ -183,7 +182,6 @@ export class ConsumidoresController {
       next(error);
     }
   }
-
   
   /** 10 GET Busca todas as empresas com mesmo ID de imagens */
   async findAllConsumidoresImagensId(
@@ -216,28 +214,3 @@ export class ConsumidoresController {
     }
   }
 }
-
-  // /** 12 Lista todas empresas com todos os detalhes */
-  // async ListAllEmpresasByNomePessoaId(req: Request, res: Response) {
-
-  //   try {
-  //     const empresas = await this.empresasRepository.findAllEmpresasByNomeAndPessoaId());
-  //     res.json({ success: true, data: empresas });
-  //   } catch (err: any) {
-  //     console.error('Erro ao listar empresas:', err);
-  //     res.status(500).json({ success: false, message: err.message });
-  //   }
-  // }
-
-  // /** 13 Lista todas empresas com todos os detalhes */
-  // async ListAllEmpresasByNomeAndImagensId(req: Request, res: Response) {
-
-  //   try {
-  //     const empresas = await this.empresasRepository.listAllEmpresasDetails();
-  //     res.json({ success: true, data: empresas });
-  //   } catch (err: any) {
-  //     console.error('Erro ao listar empresas:', err);
-  //     res.status(500).json({ success: false, message: err.message });
-  //   }
-  // }
-

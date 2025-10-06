@@ -31,7 +31,7 @@ export class EmpresasRepository {
   async hasDuplicated(
     nome?: string,
     fantasy?: string,
-    id_pessoa?: number,
+    id_pessoas?: number,
     excludes: number[] = []
   ) {
     const query = this.repo.createQueryBuilder('empresas');
@@ -42,8 +42,8 @@ export class EmpresasRepository {
     if (fantasy) {
       query.andWhere('empresas.fantasy = :fantasy', { fantasy });
     }
-    if (id_pessoa) {
-      query.andWhere('empresas.id_pessoa = :id_pessoa', { id_pessoa });
+    if (id_pessoas) {
+      query.andWhere('empresas.id_pessoa = :id_pessoa', { id_pessoas });
     }
 
     if (excludes.length) {
@@ -81,7 +81,7 @@ export class EmpresasRepository {
     const duplicated = await this.repo.createQueryBuilder('empresas')
       .where('empresas.nome = :nome', { nome: empresas.nome })
       .andWhere('empresas.fantasy = :fantasy', { fantasy: empresas.fantasy })
-      .andWhere('empresas.id_pessoa = :id_pessoa', { id_pessoa: empresas.id_pessoas })
+      .andWhere('empresas.id_pessoas = :id_pessoas', { id_pessoas: empresas.id_pessoas })
       .andWhere('empresas.id != :id', { id: empresasId }) // ignora o próprio registro
       .getOne();
 
@@ -123,6 +123,7 @@ export class EmpresasRepository {
       order: orderBy,
     });
   }
+
 
   // Busca por nome 6
   async findOneEmpresasByNome(nome: string) {
@@ -175,25 +176,6 @@ export class EmpresasRepository {
       .getMany();
   }
 
-  // /** 12 Lista por nome + pessoa  */
-  // async findAllEmpresasByNomeAndPessoaId(nome: string, pessoaId: number) {
-  //   return this.repo.createQueryBuilder('empresas')
-  //     .innerJoinAndSelect('empresas.pessoas', 'pessoas')
-  //     .where('empresas.nome LIKE :nome', { nome: `%${nome}%` })
-  //     .andWhere('empresas.id_pessoas = :pessoaId', { pessoaId })
-  //     .getMany();
-  // }
-
-  // /**  13 Lista por nome + imagem  */
-  // async findEmpresasByNomeAndImagemId(nome: string, imagemId: number) {
-  //   return this.repo.createQueryBuilder('empresas')
-  //     .innerJoinAndSelect('empresas.imagens', 'imagens')
-  //     .where('empresas.nome LIKE :nome', { nome: `%${nome}%` })
-  //     .andWhere('empresas.id_imagens = :imagemId', { imagemId })
-  //     .getMany();
-  // }
-
-  
 }
 
 

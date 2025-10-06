@@ -35,4 +35,4 @@ consumidoresRoute.get('/by-imagens/:imagensId', controller.findAllConsumidoresIm
 consumidoresRoute.get('/search', controller.searchConsumidores.bind(controller));
 consumidoresRoute.get('/details', controller.findAllConsumidoresByDetails.bind(controller));
 
-export { consumidoresRoute, consumidoresRepository };
+export { consumidoresRoute as consumidoresRoutes };

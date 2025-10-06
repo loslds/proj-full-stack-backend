@@ -26,7 +26,7 @@ export class EmpresasController {
   ) {
     try {
       const empresas = await this.empresasRepository.createEmpresas(req.body);
-      return res.status(201).send({ success: true, empresas });
+      return res.status(201).send({ success: true, empresas }).end();
     } catch (error) {
       next(error);
     }
@@ -126,8 +126,7 @@ export class EmpresasController {
     if (!name) {
       return res
         .status(400)
-        .send({ success: false, message: 'Name parameter is required' })
-        .end();
+        .send({ success: false, message: 'Name parameter is required' }).end();
     }
     try {
       const empresas = await this.empresasRepository.findOneEmpresasByNome(name);
@@ -145,8 +144,7 @@ export class EmpresasController {
   ) {
     const { fantasy } = req.query;
     if (!fantasy) {
-      return res
-        .status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
+      return res.status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
     }
     try {
       const empresas = await this.empresasRepository.findOneEmpresasByFantasy(fantasy);

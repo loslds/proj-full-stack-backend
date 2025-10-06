@@ -7,8 +7,8 @@ import { ConsumidoresEntity } from './consumidores.entity';
 
 
 export const consumidoresCreateSchema = z.object({
-  name: z.string().min(3),
-  fantasy: z.string().min(3),  // Torna o campo fantasy obrigatório para a criação
+  nome: z.string().min(3),
+  fantasy: z.string().min(2),  // Torna o campo fantasy obrigatório para a criação
   id_pessoas: z.number().optional(), // adicionado,
   id_imagens: z.number().optional(), // adicionado,
   createdBy: z.number().optional(), // adicionado

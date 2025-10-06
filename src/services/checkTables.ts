@@ -17,7 +17,7 @@ import { fornecedoresConfig } from '../use-cases/fornecedor';
 import { funcionariosConfig } from '../use-cases/funcionario';
 
 
-//import { cidadesConfig } from '../use-cases/cidade';
+
 //import { cadastrosConfig } from '../use-cases/cadastro';
 
 
