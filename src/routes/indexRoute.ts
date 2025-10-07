@@ -11,10 +11,10 @@ import { empresasRoutes } from '../use-cases/empresa';
 import { estadosRoutes } from '../use-cases/estado';
 import { cidadesRoutes } from '../use-cases/cidade';
 
-import { consumidoresRoute } from '../use-cases/consumidor';
-import { clientesRoute } from '../use-cases/cliente';
-import { fornecedoresRoute } from '../use-cases/fornecedor';
-import { funcionariosRoute } from '../use-cases/funcionario';
+import { consumidoresRoutes } from '../use-cases/consumidor';
+import { clientesRoutes } from '../use-cases/cliente';
+import { fornecedoresRoutes } from '../use-cases/fornecedor';
+import { funcionariosRoutes } from '../use-cases/funcionario';
 
 //import { cadastrosRoutes } from '../use-cases/cadastro';
 
@@ -30,16 +30,12 @@ indexRoute.use('/empresas', empresasRoutes);
 indexRoute.use('/estados', estadosRoutes);
 indexRoute.use('/cidades', cidadesRoutes);
 
-indexRoute.use('/consumidores', consumidoresRoute);
-indexRoute.use('/clientes', clientesRoute);
-indexRoute.use('/fornecedores', fornecedoresRoute);
-indexRoute.use('/funcionarios', funcionariosRoute);
+indexRoute.use('/consumidores', consumidoresRoutes);
+indexRoute.use('/clientes', clientesRoutes);
+indexRoute.use('/fornecedores', fornecedoresRoutes);
+indexRoute.use('/funcionarios', funcionariosRoutes);
 
-{/** 
-
-indexRoute.use('/cidades', cidadesRoute);
-*/}
-indexRoute.use('/cadastros', cadastrosRoute);
+// indexRoute.use('/cadastros', cadastrosRoutes);
 
 
 // novas rotas

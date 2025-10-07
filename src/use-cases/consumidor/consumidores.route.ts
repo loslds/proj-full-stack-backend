@@ -32,7 +32,7 @@ consumidoresRoute.get('/by-one-name', controller.findOneConsumidoresNome.bind(co
 consumidoresRoute.get('/by-one-fantasy', controller.findOneConsumidoresFantasy.bind(controller));
 consumidoresRoute.get('/by-pessoas/:pessoasId', controller.findAllConsumidoresPessoasId.bind(controller));
 consumidoresRoute.get('/by-imagens/:imagensId', controller.findAllConsumidoresImagensId.bind(controller));
-consumidoresRoute.get('/search', controller.searchConsumidores.bind(controller));
+consumidoresRoute.get('/search', controller.searchByConsumidores.bind(controller));
 consumidoresRoute.get('/details', controller.findAllConsumidoresByDetails.bind(controller));
 
 export { consumidoresRoute as consumidoresRoutes };

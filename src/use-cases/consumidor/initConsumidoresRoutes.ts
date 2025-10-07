@@ -31,7 +31,7 @@ export async function initConsumidoresRoutes(app: Application) {
   router.get('/by-one-fantasy', controller.findOneConsumidoresFantasy.bind(controller));
   router.get('/by-pessoas/:pessoasId', controller.findAllConsumidoresPessoasId.bind(controller));
   router.get('/by-imagens/:imagensId', controller.findAllConsumidoresImagensId.bind(controller));
-  router.get('/search', controller.searchConsumidores.bind(controller));
+  router.get('/search', controller.searchByConsumidores.bind(controller));
   router.get('/details', controller.findAllConsumidoresByDetails.bind(controller));
 
   // 5️⃣ Monta na app

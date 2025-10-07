@@ -1,7 +1,9 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\fornecedor\index.ts
+
+//use-cases/consumidor/index.ts
 
 import { FornecedoresRepository } from './fornecedores.repository';
-export { fornecedoresRoute } from './fornecedores.route';
+
+export { fornecedoresRoutes } from './fornecedores.route';
 export { FornecedoresController } from './fornecedores.controller';
 export type { FornecedoresDto } from './fornecedores.dto';
 export { FornecedoresEntity } from './fornecedores.entity';

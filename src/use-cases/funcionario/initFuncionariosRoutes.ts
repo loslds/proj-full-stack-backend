@@ -1,4 +1,4 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\pessoa\initPessoasRoutes.ts
+//C:\repository\proj-full-stack-backend\src\use-cases\funcionario\initFuncionariosRoutes.ts
 
 import { Application } from "express";
 import { FuncionariosController } from "./funcionarios.controller";
@@ -29,9 +29,9 @@ export async function initFuncionariosRoutes(app: Application) {
   router.delete('/:funcionariosId', controller.removeIdFuncionarios.bind(controller));
   router.get('/by-one-name', controller.findOneFuncionariosNome.bind(controller));
   router.get('/by-one-fantasy', controller.findOneFuncionariosFantasy.bind(controller));
-  router.get('/by-empresas/:empresasId', controller.findAllFuncionariosEmpresasId.bind(controller));
+  router.get('/by-pessoas/:pessoasId', controller.findAllFuncionariosPessoasId.bind(controller));
   router.get('/by-imagens/:imagensId', controller.findAllFuncionariosImagensId.bind(controller));
-  router.get('/search', controller.searchFuncionarios.bind(controller));
+  router.get('/search', controller.searchByFuncionarios.bind(controller));
   router.get('/details', controller.findAllFuncionariosByDetails.bind(controller));
 
   // 5️⃣ Monta na app

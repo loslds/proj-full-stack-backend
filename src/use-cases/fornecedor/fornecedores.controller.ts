@@ -20,7 +20,7 @@ interface SearchQuery extends ParsedQs {
 export class FornecedoresController {  
   constructor(private readonly fornecedoresRepository: FornecedoresRepository) {}
 
-  /** 1 POST Cria Tabela  */
+  /** 1 POST Cria reg  */
   async createNewFornecedores(
     req: Request<{}, {}, FornecedoresCreate>,
     res: Response,
@@ -33,6 +33,7 @@ export class FornecedoresController {
       next(error);
     }
   }
+
   /** 2 PATCH Atualiza um registro  */
   async updateIdFornecedores(
     req: Request<{ fornecedoresId: string }, {}, Partial<FornecedoresUpdate>>,
@@ -41,20 +42,17 @@ export class FornecedoresController {
     ) {
     const fornecedoresId = Number(req.params.fornecedoresId);
     if (isNaN(fornecedoresId) || fornecedoresId <= 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid fornecedoresId' })
-        .end();
+      return res.status(400).send({ success: false, message: 'Invalid fornecedoresId' }).end();
       }
     try {
-      const fornecedores = await this.fornecedoresRepository.updateFornecedores(fornecedoresId, req.body);
-        return res.status(200).send({ success: true, fornecedores }).end();
+      const fornecedores = await this.fornecedoresRepository.updateFornecedoresId(fornecedoresId, req.body);
+        return res.status(200).send({ success: true, fornecedores });
     } catch (error) {
       next(error);
     }
   }
 
-  /** 3 DELETE Remove um registro id */
+  /** 3 DELETE Remove um registro  */
   async removeIdFornecedores(
     req: Request<{ fornecedoresId: string }>,
     res: Response,
@@ -65,15 +63,15 @@ export class FornecedoresController {
       return res.status(400).send({ success: false, message: 'Invalid fornecedoresId' }).end();
     }
     try {
-      const deleted = await this.fornecedoresRepository.deleteFornecedores(fornecedoresId);
-        return res.status(200).send({ success: !!deleted?.affected });
+      const success = await this.fornecedoresRepository.deleteFornecedoresId(fornecedoresId);
+      return res.status(200).send({ success });
     } catch (error) {
       next(error);
     }
   }
 
   
-  /** 4 GET Busca todos os registros de imagens */
+  /** 4 GET Busca todos os registros */
   async findAllFornecedores(req: Request, res: Response, next: NextFunction) {
     
     try {
@@ -100,7 +98,7 @@ export class FornecedoresController {
   ) {
     const fornecedoresId = Number(req.params.fornecedoresId);
     if (isNaN(fornecedoresId) || fornecedoresId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid fornecedoresId' }).end();
+      return res.status(400).send({ success: false, message: 'Invalid clientesId' }).end();
     }
     try {
       const fornecedores = await this.fornecedoresRepository.findOneFornecedoresById(fornecedoresId);
@@ -110,28 +108,25 @@ export class FornecedoresController {
     }
   }
   
-  /** 6 GET Busca um registro de Empresas por Nome */
+  /** 6 GET Busca um registro por Nome */
   async findOneFornecedoresNome(
-    req: Request<{}, {}, {}, Partial<{ name: string }>>, 
+    req: Request<{}, {}, {}, Partial<{ nome: string }>>, 
     res: Response, 
     next: NextFunction
   ) {
-    const { name } = req.query;
-    if (!name) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Nome parameter is required' })
-        .end();
+    const { nome } = req.query;
+    if (!nome) {
+      return res.status(400).send({ success: false, message: 'Nome parameter is required' }).end();
     }
     try {
-      const fornecedores = await this.fornecedoresRepository.findOneFornecedoresByNome(name);
+      const fornecedores = await this.fornecedoresRepository.findOneFornecedoresByNome(nome);
       return res.status(200).send({ success: true, fornecedores }).end();
     } catch (error) {
       next(error);
     }
   }
 
-  /** 7 GET Busca um registro por Nome Fantasia  */
+  /** 7 GET Busca um registro por Fantasia  */
   async findOneFornecedoresFantasy(
     req: Request<{}, {}, {}, Partial<{ fantasy: string }>>, 
     res: Response, 
@@ -139,8 +134,7 @@ export class FornecedoresController {
   ) {
     const { fantasy } = req.query;
     if (!fantasy) {
-      return res
-        .status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
+      return res.status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
     }
     try {
       const fornecedores = await this.fornecedoresRepository.findOneFornecedoresByFantasy(fantasy);
@@ -150,11 +144,11 @@ export class FornecedoresController {
     }
   }
 
-  /** 8 pesquisaregistro através do ID ou NOME ou FANTASY */
-  async searchFornecedores(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
+  /** 8 pesquisa registro através do ID ou NOME ou FANTASY */
+  async searchByFornecedores(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
     try {
       const { id, nome, fantasy } = req.query;
-      const results = await this.fornecedoresRepository.searchAllFornecedores({
+      const results = await this.fornecedoresRepository.searchFornecedores({
         id: id ? Number(id) : undefined,
         nome,
         fantasy,
@@ -165,7 +159,7 @@ export class FornecedoresController {
     }
   }
 
-  /** 9 GET todos refistros com id_pessoas em empresa */
+  /** 9 GET todos os reg. com id_pessoas */
   async findAllFornecedoresPessoasId(
     req: Request<{ pessoasId: string }>,
     res: Response,
@@ -183,9 +177,8 @@ export class FornecedoresController {
       next(error);
     }
   }
-
   
-  /** 10 GET Busca todas as empresas com mesmo ID de imagens */
+  /** 10 GET todos os reg, mesmo ID de imagens */
   async findAllFornecedoresImagensId(
     req: Request<{ imagensId: string }>,
     res: Response,
@@ -210,34 +203,10 @@ export class FornecedoresController {
     try {
       const fornecedores = await this.fornecedoresRepository.listAllFornecedoresDetails();
       res.json({ success: true, data: fornecedores });
+      
     } catch (err: any) {
-      console.error('Erro ao listar empresas:', err);
+      console.error('Erro ao listar fornecedores:', err);
       res.status(500).json({ success: false, message: err.message });
     }
   }
 }
-
-  // /** 12 Lista todas empresas com todos os detalhes */
-  // async ListAllEmpresasByNomePessoaId(req: Request, res: Response) {
-
-  //   try {
-  //     const empresas = await this.empresasRepository.findAllEmpresasByNomeAndPessoaId());
-  //     res.json({ success: true, data: empresas });
-  //   } catch (err: any) {
-  //     console.error('Erro ao listar empresas:', err);
-  //     res.status(500).json({ success: false, message: err.message });
-  //   }
-  // }
-
-  // /** 13 Lista todas empresas com todos os detalhes */
-  // async ListAllEmpresasByNomeAndImagensId(req: Request, res: Response) {
-
-  //   try {
-  //     const empresas = await this.empresasRepository.listAllEmpresasDetails();
-  //     res.json({ success: true, data: empresas });
-  //   } catch (err: any) {
-  //     console.error('Erro ao listar empresas:', err);
-  //     res.status(500).json({ success: false, message: err.message });
-  //   }
-  // }
-

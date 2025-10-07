@@ -33,7 +33,7 @@ fornecedoresRoute.get('/by-one-name', controller.findOneFornecedoresNome.bind(co
 fornecedoresRoute.get('/by-one-fantasy', controller.findOneFornecedoresFantasy.bind(controller));
 fornecedoresRoute.get('/by-pessoas/:pessoasId', controller.findAllFornecedoresPessoasId.bind(controller));
 fornecedoresRoute.get('/by-imagens/:imagensId', controller.findAllFornecedoresImagensId.bind(controller));
-fornecedoresRoute.get('/search', controller.searchFornecedores.bind(controller));
+fornecedoresRoute.get('/search', controller.searchByFornecedores.bind(controller));
 fornecedoresRoute.get('/details', controller.findAllFornecedoresByDetails.bind(controller));
 
-export { fornecedoresRoute, fornecedoresRepository };
+export { fornecedoresRoute as fornecedoresRoutes };

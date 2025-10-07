@@ -1,4 +1,5 @@
 // C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.route.ts
+
 import { Router } from 'express';
 import { FuncionariosController } from './funcionarios.controller';
 import { FuncionariosRepository } from './funcionarios.repository';
@@ -13,6 +14,7 @@ interface SearchQuery extends ParsedQs {
 }
 const funcionariosRepository = new FuncionariosRepository(dbSource);
 const controller = new FuncionariosController(funcionariosRepository);
+
 const funcionariosRoute = Router();
 
 // Tipagem para a rota de busca
@@ -29,9 +31,9 @@ funcionariosRoute.patch('/:funcionariosId', funcionariosupdateValidation, contro
 funcionariosRoute.delete('/:funcionariosId', controller.removeIdFuncionarios.bind(controller));
 funcionariosRoute.get('/by-one-name', controller.findOneFuncionariosNome.bind(controller));
 funcionariosRoute.get('/by-one-fantasy', controller.findOneFuncionariosFantasy.bind(controller));
-funcionariosRoute.get('/by-empresas/:empresasId', controller.findAllFuncionariosEmpresasId.bind(controller));
+funcionariosRoute.get('/by-pessoas/:pessoasId', controller.findAllFuncionariosPessoasId.bind(controller));
 funcionariosRoute.get('/by-imagens/:imagensId', controller.findAllFuncionariosImagensId.bind(controller));
-funcionariosRoute.get('/search', controller.searchFuncionarios.bind(controller));
+funcionariosRoute.get('/search', controller.searchByFuncionarios.bind(controller));
 funcionariosRoute.get('/details', controller.findAllFuncionariosByDetails.bind(controller));
 
-export { funcionariosRoute, funcionariosRepository };
+export { funcionariosRoute as funcionariosRoutes };

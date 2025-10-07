@@ -30,7 +30,7 @@ export class ConsumidoresRepository {
     `);
   }
 
-  // Verifica duplicidade por nome/fantasy
+  // Verifica duplicidade por nome/fantasy e id_pessoas
   async hasDuplicated(
     nome?: string,
     fantasy?: string,
@@ -79,7 +79,7 @@ export class ConsumidoresRepository {
   async updateConsumidoresId(
     consumidoresId: number,
     consumidores: DeepPartial<ConsumidoresEntity>
-        ): Promise<ConsumidoresEntity> {
+    ): Promise<ConsumidoresEntity> {
     // Verifica duplicidade
     const duplicated = await this.repo.createQueryBuilder('consumidores')
       .where('consumidores.nome = :nome', { nome: consumidores.nome })

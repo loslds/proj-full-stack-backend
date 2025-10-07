@@ -1,7 +1,9 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\funcionario\index.ts
+
+//use-cases/consumidor/index.ts
 
 import { FuncionariosRepository } from './funcionarios.repository';
-export { funcionariosRoute } from './funcionarios.route';
+
+export { funcionariosRoutes } from './funcionarios.route';
 export { FuncionariosController } from './funcionarios.controller';
 export type { FuncionariosDto } from './funcionarios.dto';
 export { FuncionariosEntity } from './funcionarios.entity';

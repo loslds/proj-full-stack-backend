@@ -30,12 +30,24 @@ export class FornecedoresRepository {
     `);
   }
 
-  // Verifica duplicidade por nome/fantasy
-  async hasDuplicated(nome?: string, fantasy?: string, excludes: number[] = []) {
+  // Verifica duplicidade por nome/fantasy e id_pessoas
+  async hasDuplicated(
+    nome?: string,
+    fantasy?: string,
+    id_pessoas?: number,
+    excludes: number[] = []
+  ) {
     const query = this.repo.createQueryBuilder('fornecedores');
 
-    if (nome) query.andWhere('fornecedores.nome LIKE :nome', { nome });
-    if (fantasy) query.andWhere('fornecedores.fantasy LIKE :fantasy', { fantasy });
+    if (nome) {
+      query.andWhere('fornecedores.nome = :nome', { nome });
+    }
+    if (fantasy) {
+      query.andWhere('fornecedores.fantasy = :fantasy', { fantasy });
+    }
+    if (id_pessoas) {
+      query.andWhere('fornecedores.id_pessoa = :id_pessoa', { id_pessoas });
+    }
 
     if (excludes.length) {
       query.andWhere('fornecedores.id NOT IN (:...excludes)', { excludes });
@@ -43,25 +55,37 @@ export class FornecedoresRepository {
 
     return query.getOne();
   }
+  
 
   // Cria registro 1
   async createFornecedores(fornecedores: FornecedoresCreate): Promise<FornecedoresEntity> {
+    // Verifica duplicidade apenas pelos campos da chave lógica
+    const duplicated = await this.hasDuplicated(
+      fornecedores.nome,
+      fornecedores.fantasy,
+      fornecedores.id_pessoas
+    );
+
+    if (duplicated) {
+      throw new Error('Fornecedor duplicada! Nome, Fantasia e Pessoa já existentes.');
+    }
+
+    // Cria e salva a entidade incluindo id_imagens se fornecido
     const data = this.repo.create(fornecedores);
     return this.repo.save(data);
   }
-
+  
   // 2 Atualiza registro com validação de duplicidade
-  async updateFornecedores(
+  async updateFornecedoresId(
     fornecedoresId: number,
-    fornecedores: DeepPartial<FornecedoresEntity>,
-  ): Promise<FornecedoresEntity> {
-  // Verifica duplicidade
+    fornecedores: DeepPartial<FornecedoresEntity>
+    ): Promise<FornecedoresEntity> {
+    // Verifica duplicidade
     const duplicated = await this.repo.createQueryBuilder('fornecedores')
-      .where('(fornecedores.nome LIKE :nome OR fornecedores.fantasy LIKE :fantasy)', { 
-        nome: fornecedores.nome, 
-        fantasy: fornecedores.fantasy 
-      })
-      .andWhere('fornecedores.id != :id', { id: fornecedoresId }) // exclui o próprio
+      .where('fornecedores.nome = :nome', { nome: fornecedores.nome })
+      .andWhere('fornecedores.fantasy = :fantasy', { fantasy: fornecedores.fantasy })
+      .andWhere('fornecedores.id_pessoas = :id_pessoas', { id_pessoas: fornecedores.id_pessoas })
+      .andWhere('fornecedores.id != :id', { id: fornecedoresId }) // ignora o próprio registro
       .getOne();
 
     if (duplicated) {
@@ -75,8 +99,20 @@ export class FornecedoresRepository {
 
 
   // 3 Deleta registro 
-  async deleteFornecedores(fornecedoresId: number) {
-    return this.repo.delete(fornecedoresId);
+  async deleteFornecedoresId(fornecedoresId: number) {
+    const result = await this.repo.delete(fornecedoresId);
+    if (result.affected === 0) {
+      throw new Error(`Fornecdor com ID ${fornecedoresId} não encontrada.`);
+    }
+    return true;
+  }
+
+  // 4 Busca por ID  
+  async findOneFornecedoresById(fornecedoresId: number) {
+    return this.repo.findOne({
+      where: { id: fornecedoresId },
+      relations: ['pessoas', 'imagens'],
+    });
   }
 
   // 4 Busca todos registros com filtro opcional 
@@ -88,14 +124,6 @@ export class FornecedoresRepository {
       where,
       relations: ['pessoas', 'imagens'],
       order: orderBy,
-    });
-  }
-
-  // 5 Busca por ID  
-  async findOneFornecedoresById(fornecedoresId: number) {
-    return this.repo.findOne({
-      where: { id: fornecedoresId },
-      relations: ['pessoas', 'imagens'],
     });
   }
 
@@ -118,7 +146,7 @@ export class FornecedoresRepository {
 
 
   // 8 Pesquisa empresas por ID, nome ou fantasy 
-  async searchAllFornecedores(params: { id?: number; nome?: string; fantasy?: string }) {
+  async searchFornecedores(params: { id?: number; nome?: string; fantasy?: string }) {
     const query = this.repo.createQueryBuilder('fornecedores')
       .leftJoinAndSelect('fornecedores.pessoas', 'pessoas')
       .leftJoinAndSelect('fornecedores.imagens', 'imagens')
@@ -150,25 +178,6 @@ export class FornecedoresRepository {
       .getMany();
   }
 
-  // /** 12 Lista por nome + pessoa  */
-  // async findAllEmpresasByNomeAndPessoaId(nome: string, pessoaId: number) {
-  //   return this.repo.createQueryBuilder('empresas')
-  //     .innerJoinAndSelect('empresas.pessoas', 'pessoas')
-  //     .where('empresas.nome LIKE :nome', { nome: `%${nome}%` })
-  //     .andWhere('empresas.id_pessoas = :pessoaId', { pessoaId })
-  //     .getMany();
-  // }
-
-  // /**  13 Lista por nome + imagem  */
-  // async findEmpresasByNomeAndImagemId(nome: string, imagemId: number) {
-  //   return this.repo.createQueryBuilder('empresas')
-  //     .innerJoinAndSelect('empresas.imagens', 'imagens')
-  //     .where('empresas.nome LIKE :nome', { nome: `%${nome}%` })
-  //     .andWhere('empresas.id_imagens = :imagemId', { imagemId })
-  //     .getMany();
-  // }
-
-  
 }
 
 

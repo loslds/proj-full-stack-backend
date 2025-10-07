@@ -20,7 +20,7 @@ interface SearchQuery extends ParsedQs {
 export class ClientesController {  
   constructor(private readonly clientesRepository: ClientesRepository) {}
 
-  /** 1 POST Cria Tabela  */
+  /** 1 POST Cria Tabela consumidores */
   async createNewClientes(
     req: Request<{}, {}, ClientesCreate>,
     res: Response,
@@ -33,6 +33,7 @@ export class ClientesController {
       next(error);
     }
   }
+
   /** 2 PATCH Atualiza um registro  */
   async updateIdClientes(
     req: Request<{ clientesId: string }, {}, Partial<ClientesUpdate>>,
@@ -41,20 +42,17 @@ export class ClientesController {
     ) {
     const clientesId = Number(req.params.clientesId);
     if (isNaN(clientesId) || clientesId <= 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid clientesId' })
-        .end();
+      return res.status(400).send({ success: false, message: 'Invalid clientesId' }).end();
       }
     try {
-      const clientes = await this.clientesRepository.updateClientes(clientesId, req.body);
-        return res.status(200).send({ success: true, clientes }).end();
+      const clientes = await this.clientesRepository.updateClientesId(clientesId, req.body);
+        return res.status(200).send({ success: true, clientes });
     } catch (error) {
       next(error);
     }
   }
 
-  /** 3 DELETE Remove um registro id */
+  /** 3 DELETE Remove um registro  */
   async removeIdClientes(
     req: Request<{ clientesId: string }>,
     res: Response,
@@ -65,15 +63,15 @@ export class ClientesController {
       return res.status(400).send({ success: false, message: 'Invalid clientesId' }).end();
     }
     try {
-      const deleted = await this.clientesRepository.deleteClientes(clientesId);
-        return res.status(200).send({ success: !!deleted?.affected });
+      const success = await this.clientesRepository.deleteClientesId(clientesId);
+      return res.status(200).send({ success });
     } catch (error) {
       next(error);
     }
   }
 
   
-  /** 4 GET Busca todos os registros de imagens */
+  /** 4 GET Busca todos os registros */
   async findAllClientes(req: Request, res: Response, next: NextFunction) {
     
     try {
@@ -92,7 +90,7 @@ export class ClientesController {
     }    
   }
   
-  /** 5 GET Busca um registro de Empresas por ID */
+  /** 5 GET Busca um registro por ID */
   async getOneClientesId(
     req: Request<{ clientesId: string }>,
     res: Response,
@@ -110,28 +108,25 @@ export class ClientesController {
     }
   }
   
-  /** 6 GET Busca um registro de Empresas por Nome */
+  /** 6 GET Busca um registro por Nome */
   async findOneClientesNome(
-    req: Request<{}, {}, {}, Partial<{ name: string }>>, 
+    req: Request<{}, {}, {}, Partial<{ nome: string }>>, 
     res: Response, 
     next: NextFunction
   ) {
-    const { name } = req.query;
-    if (!name) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Nome parameter is required' })
-        .end();
+    const { nome } = req.query;
+    if (!nome) {
+      return res.status(400).send({ success: false, message: 'Nome parameter is required' }).end();
     }
     try {
-      const clientes = await this.clientesRepository.findOneClientesByNome(name);
+      const clientes = await this.clientesRepository.findOneClientesByNome(nome);
       return res.status(200).send({ success: true, clientes }).end();
     } catch (error) {
       next(error);
     }
   }
 
-  /** 7 GET Busca um registro de consumidores por Nome Fantasia  */
+  /** 7 GET Busca um registro por Fantasia  */
   async findOneClientesFantasy(
     req: Request<{}, {}, {}, Partial<{ fantasy: string }>>, 
     res: Response, 
@@ -139,8 +134,7 @@ export class ClientesController {
   ) {
     const { fantasy } = req.query;
     if (!fantasy) {
-      return res
-        .status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
+      return res.status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
     }
     try {
       const clientes = await this.clientesRepository.findOneClientesByFantasy(fantasy);
@@ -150,11 +144,11 @@ export class ClientesController {
     }
   }
 
-  /** 8 pesquisaregistro de Empresas através do ID ou NOME ou FANTASY */
-  async searchClientes(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
+  /** 8 pesquisa registro de Empresas através do ID ou NOME ou FANTASY */
+  async searchByClientes(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
     try {
       const { id, nome, fantasy } = req.query;
-      const results = await this.clientesRepository.searchAllClientes({
+      const results = await this.clientesRepository.searchClientes({
         id: id ? Number(id) : undefined,
         nome,
         fantasy,
@@ -165,7 +159,7 @@ export class ClientesController {
     }
   }
 
-  /** 9 GET todos refistros com id_pessoas em empresa */
+  /** 9 GET todos os reg. com id_pessoas */
   async findAllClientesPessoasId(
     req: Request<{ pessoasId: string }>,
     res: Response,
@@ -183,9 +177,8 @@ export class ClientesController {
       next(error);
     }
   }
-
   
-  /** 10 GET Busca todas as empresas com mesmo ID de imagens */
+  /** 10 GET todos os reg, mesmo ID de imagens */
   async findAllClientesImagensId(
     req: Request<{ imagensId: string }>,
     res: Response,
@@ -210,34 +203,10 @@ export class ClientesController {
     try {
       const clientes = await this.clientesRepository.listAllClientesDetails();
       res.json({ success: true, data: clientes });
+      
     } catch (err: any) {
-      console.error('Erro ao listar empresas:', err);
+      console.error('Erro ao listar clientes:', err);
       res.status(500).json({ success: false, message: err.message });
     }
   }
 }
-
-  // /** 12 Lista todas empresas com todos os detalhes */
-  // async ListAllEmpresasByNomePessoaId(req: Request, res: Response) {
-
-  //   try {
-  //     const empresas = await this.empresasRepository.findAllEmpresasByNomeAndPessoaId());
-  //     res.json({ success: true, data: empresas });
-  //   } catch (err: any) {
-  //     console.error('Erro ao listar empresas:', err);
-  //     res.status(500).json({ success: false, message: err.message });
-  //   }
-  // }
-
-  // /** 13 Lista todas empresas com todos os detalhes */
-  // async ListAllEmpresasByNomeAndImagensId(req: Request, res: Response) {
-
-  //   try {
-  //     const empresas = await this.empresasRepository.listAllEmpresasDetails();
-  //     res.json({ success: true, data: empresas });
-  //   } catch (err: any) {
-  //     console.error('Erro ao listar empresas:', err);
-  //     res.status(500).json({ success: false, message: err.message });
-  //   }
-  // }
-

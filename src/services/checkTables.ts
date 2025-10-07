@@ -1,6 +1,5 @@
 // src/services/checkTables.ts
 import { requiredTables } from '../config/tables';
-// import { requiredPessoas } from '../config/pessoas';
 
 import { dbSource } from '../database';
 
@@ -37,13 +36,10 @@ const allConfigs: TableConfig[] = [
   empresasConfig,  // 0 reg.
   estadosConfig,   // 27 reg.
   cidadesConfig,   // 5.615 reg.
-
   consumidoresConfig, // 0 reg.
   clientesConfig,     // 0 reg.
   fornecedoresConfig, // 0 reg.
   funcionariosConfig  // 0 reg.
-  
-
   // futuramente outras tabelas
 ];
 

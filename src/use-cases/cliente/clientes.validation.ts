@@ -1,4 +1,4 @@
-// /use-cases/cliente/clientes.validation.ts 
+// /use-cases/consumidor/consumidores.validation.ts 
 
 import { zodBodyValidation } from '../../helpers/zod-validation';
 import { clientesCreateSchema, clientesUpdateSchema } from './clientes.dto';

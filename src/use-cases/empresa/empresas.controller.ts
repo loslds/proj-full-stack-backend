@@ -41,10 +41,7 @@ export class EmpresasController {
     ) {
     const empresasId = Number(req.params.empresasId);
     if (isNaN(empresasId) || empresasId <= 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid empresasId' })
-        .end();
+      return res.status(400).send({ success: false, message: 'Invalid empresasId' }).end();
       }
     try {
       const empresas = await this.empresasRepository.updateEmpresas(empresasId, req.body);
@@ -118,19 +115,17 @@ export class EmpresasController {
   
   /** 6 GET Busca um registro de Empresas por Nome */
   async findOneEmpresasNome(
-    req: Request<{}, {}, {}, Partial<{ name: string }>>, 
+    req: Request<{}, {}, {}, Partial<{ nome: string }>>, 
     res: Response, 
     next: NextFunction
   ) {
-    const { name } = req.query;
-    if (!name) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Name parameter is required' }).end();
+    const { nome } = req.query;
+    if (!nome) {
+      return res.status(400).send({ success: false, message: 'Name parameter is required' }).end();
     }
     try {
-      const empresas = await this.empresasRepository.findOneEmpresasByNome(name);
-      return res.status(200).send({ success: true, empresas }).end();
+      const empresas = await this.empresasRepository.findOneEmpresasByNome(nome);
+      return res.status(200).send({ success: true, empresas });
     } catch (error) {
       next(error);
     }
@@ -148,7 +143,7 @@ export class EmpresasController {
     }
     try {
       const empresas = await this.empresasRepository.findOneEmpresasByFantasy(fantasy);
-      return res.status(200).send({ success: true, empresas }).end();
+      return res.status(200).send({ success: true, empresas });
     } catch (error) {
       next(error);
     }
@@ -214,6 +209,7 @@ export class EmpresasController {
     try {
       const empresas = await this.empresasRepository.listAllEmpresasDetails();
       res.json({ success: true, data: empresas });
+      
     } catch (err: any) {
       console.error('Erro ao listar empresas:', err);
       res.status(500).json({ success: false, message: err.message });

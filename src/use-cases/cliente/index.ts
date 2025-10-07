@@ -1,8 +1,9 @@
-//use-cases/ccliente/index.ts
+
+//use-cases/consumidor/index.ts
 
 import { ClientesRepository } from './clientes.repository';
 
-export { clientesRoute } from './clientes.route';
+export { clientesRoutes } from './clientes.route';
 export { ClientesController } from './clientes.controller';
 export type { ClientesDto } from './clientes.dto';
 export { ClientesEntity } from './clientes.entity';

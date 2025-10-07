@@ -14,7 +14,6 @@ interface SearchQuery extends ParsedQs {
 }
 const clientesRepository = new ClientesRepository(dbSource);
 const controller = new ClientesController(clientesRepository);
-
 const clientesRoute = Router();
 
 // Tipagem para a rota de busca
@@ -33,7 +32,7 @@ clientesRoute.get('/by-one-name', controller.findOneClientesNome.bind(controller
 clientesRoute.get('/by-one-fantasy', controller.findOneClientesFantasy.bind(controller));
 clientesRoute.get('/by-pessoas/:pessoasId', controller.findAllClientesPessoasId.bind(controller));
 clientesRoute.get('/by-imagens/:imagensId', controller.findAllClientesImagensId.bind(controller));
-clientesRoute.get('/search', controller.searchClientes.bind(controller));
+clientesRoute.get('/search', controller.searchByClientes.bind(controller));
 clientesRoute.get('/details', controller.findAllClientesByDetails.bind(controller));
 
-export { clientesRoute, clientesRepository };
+export { clientesRoute as clientesRoutes };

@@ -1,8 +1,10 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.controller.ts
+//
+
+
 import { NextFunction, Request, Response } from "express";
-import { FuncionariosRepository } from '../funcionario/funcionarios.repository';
+import { FuncionariosRepository } from "./funcionarios.repository";
 import { FuncionariosCreate, FuncionariosUpdate } from './funcionarios.dto';
-import { FuncionariosEntity } from './funcionarios.entity';
+import { FuncionariosEntity } from "./funcionarios.entity";
 import { FindOptionsWhere } from "typeorm";
 import { DeepPartial } from "typeorm";
 export type FuncionariosDto = DeepPartial<FuncionariosEntity>;
@@ -17,9 +19,9 @@ interface SearchQuery extends ParsedQs {
 }
 
 export class FuncionariosController {  
-  constructor(private readonly funcionariosRepository: FuncionariosRepository) {} 
+  constructor(private readonly funcionariosRepository: FuncionariosRepository) {}
 
-  /** 1 POST Cria Tabela  */
+  /** 1 POST Cria reg  */
   async createNewFuncionarios(
     req: Request<{}, {}, FuncionariosCreate>,
     res: Response,
@@ -32,28 +34,26 @@ export class FuncionariosController {
       next(error);
     }
   }
-  /** 2 PATCH Atualiza registro */
+
+  /** 2 PATCH Atualiza um registro  */
   async updateIdFuncionarios(
-    req: Request<{ empresasId: string }, {}, Partial<FuncionariosUpdate>>,
+    req: Request<{ funcionariosId: string }, {}, Partial<FuncionariosUpdate>>,
     res: Response,
     next: NextFunction
     ) {
-    const funcionariosId = Number(req.params.empresasId);
+    const funcionariosId = Number(req.params.funcionariosId);
     if (isNaN(funcionariosId) || funcionariosId <= 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid funcionariosId' })
-        .end();
+      return res.status(400).send({ success: false, message: 'Invalid funcionariosId' }).end();
       }
     try {
       const funcionarios = await this.funcionariosRepository.updateFuncionariosId(funcionariosId, req.body);
-        return res.status(200).send({ success: true, funcionarios }).end();
+        return res.status(200).send({ success: true, funcionarios });
     } catch (error) {
       next(error);
     }
   }
 
-  /** 3 DELETE Remove um registro de Empresas */
+  /** 3 DELETE Remove um registro  */
   async removeIdFuncionarios(
     req: Request<{ funcionariosId: string }>,
     res: Response,
@@ -64,15 +64,15 @@ export class FuncionariosController {
       return res.status(400).send({ success: false, message: 'Invalid funcionariosId' }).end();
     }
     try {
-      const deleted = await this.funcionariosRepository.deleteFuncionarios(funcionariosId);
-        return res.status(200).send({ success: !!deleted?.affected });
+      const success = await this.funcionariosRepository.deleteFuncionariosId(funcionariosId);
+      return res.status(200).send({ success });
     } catch (error) {
       next(error);
     }
   }
 
   
-  /** 4 GET Busca todos os registros de imagens */
+  /** 4 GET Busca todos os registros */
   async findAllFuncionarios(req: Request, res: Response, next: NextFunction) {
     
     try {
@@ -99,7 +99,7 @@ export class FuncionariosController {
   ) {
     const funcionariosId = Number(req.params.funcionariosId);
     if (isNaN(funcionariosId) || funcionariosId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid funcionariosId' }).end();
+      return res.status(400).send({ success: false, message: 'Invalid clientesId' }).end();
     }
     try {
       const funcionarios = await this.funcionariosRepository.findOneFuncionariosById(funcionariosId);
@@ -111,19 +111,16 @@ export class FuncionariosController {
   
   /** 6 GET Busca um registro por Nome */
   async findOneFuncionariosNome(
-    req: Request<{}, {}, {}, Partial<{ name: string }>>, 
+    req: Request<{}, {}, {}, Partial<{ nome: string }>>, 
     res: Response, 
     next: NextFunction
   ) {
-    const { name } = req.query;
-    if (!name) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Name parameter is required' })
-        .end();
+    const { nome } = req.query;
+    if (!nome) {
+      return res.status(400).send({ success: false, message: 'Nome parameter is required' }).end();
     }
     try {
-      const funcionarios = await this.funcionariosRepository.findOneFuncionariosByNome(name);
+      const funcionarios = await this.funcionariosRepository.findOneFuncionariosByNome(nome);
       return res.status(200).send({ success: true, funcionarios }).end();
     } catch (error) {
       next(error);
@@ -138,8 +135,7 @@ export class FuncionariosController {
   ) {
     const { fantasy } = req.query;
     if (!fantasy) {
-      return res
-        .status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
+      return res.status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
     }
     try {
       const funcionarios = await this.funcionariosRepository.findOneFuncionariosByFantasy(fantasy);
@@ -150,7 +146,7 @@ export class FuncionariosController {
   }
 
   /** 8 pesquisa registro através do ID ou NOME ou FANTASY */
-  async searchFuncionarios(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
+  async searchByFuncionarios(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
     try {
       const { id, nome, fantasy } = req.query;
       const results = await this.funcionariosRepository.searchFuncionarios({
@@ -164,27 +160,26 @@ export class FuncionariosController {
     }
   }
 
-  /** 9 GET todos registros com id_empresa */
-  async findAllFuncionariosEmpresasId(
-    req: Request<{ empresasId: string }>,
+  /** 9 GET todos os reg. com id_pessoas */
+  async findAllFuncionariosPessoasId(
+    req: Request<{ pessoasId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const empresasId = Number(req.params.empresasId);
-    if (isNaN(empresasId) || empresasId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid empresasId' }).end();
+    const pessoasId = Number(req.params.pessoasId);
+    if (isNaN(pessoasId) || pessoasId <= 0) {
+      return res.status(400).send({ success: false, message: 'Invalid pessoasId' }).end();
     }
 
     try {
-      const funcionarios = await this.funcionariosRepository.findAllFuncionariosByEmpresasId(empresasId);
+      const funcionarios = await this.funcionariosRepository.findAllFuncionariosByPessoasId(pessoasId);
       return res.status(200).send({ success: true, funcionarios });
     } catch (error) {
       next(error);
     }
   }
-
   
-  /** 10 GET Busca todas as empresas com mesmo ID de imagens */
+  /** 10 GET todos os reg, mesmo ID de imagens */
   async findAllFuncionariosImagensId(
     req: Request<{ imagensId: string }>,
     res: Response,
@@ -203,12 +198,13 @@ export class FuncionariosController {
     }
   }
 
-    /** 11 Lista todas reg. com todos os detalhes */
+    /** 11 Lista todas empresas com todos os detalhes */
   async findAllFuncionariosByDetails(req: Request, res: Response) {
 
     try {
       const funcionarios = await this.funcionariosRepository.listAllFuncionariosDetails();
       res.json({ success: true, data: funcionarios });
+      
     } catch (err: any) {
       console.error('Erro ao listar funcionarios:', err);
       res.status(500).json({ success: false, message: err.message });
@@ -216,27 +212,4 @@ export class FuncionariosController {
   }
 }
 
-  // /** 12 Lista todas empresas com todos os detalhes */
-  // async ListAllEmpresasByNomePessoaId(req: Request, res: Response) {
-
-  //   try {
-  //     const empresas = await this.empresasRepository.findAllEmpresasByNomeAndPessoaId());
-  //     res.json({ success: true, data: empresas });
-  //   } catch (err: any) {
-  //     console.error('Erro ao listar empresas:', err);
-  //     res.status(500).json({ success: false, message: err.message });
-  //   }
-  // }
-
-  // /** 13 Lista todas empresas com todos os detalhes */
-  // async ListAllEmpresasByNomeAndImagensId(req: Request, res: Response) {
-
-  //   try {
-  //     const empresas = await this.empresasRepository.listAllEmpresasDetails();
-  //     res.json({ success: true, data: empresas });
-  //   } catch (err: any) {
-  //     console.error('Erro ao listar empresas:', err);
-  //     res.status(500).json({ success: false, message: err.message });
-  //   }
-  // }
-
+  

@@ -11,23 +11,24 @@ import {
   Unique
 } from 'typeorm';
 
-import { EmpresasEntity } from '../empresa/empresas.entity';
+import { PessoasEntity } from '../pessoa/pessoas.entity';
 import { ImagensEntity } from '../imagen/imagens.entity';
 
 @Entity('funcionarios')
 @Unique(['nome']) // garante que não tenha dois iguais
 
 export class FuncionariosEntity {
+  
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-   // 🔹 Campo para armazenar o id da empresa
+   // 🔹 Campo para armazenar o id da tabela
   @Column({ type: 'int', nullable: false })
-  id_empresas: number;
+  id_pessoas: number;
   // 🔹 Relacionamento com Pessoas
-  @ManyToOne(() => EmpresasEntity)
-  @JoinColumn({ name: 'id_empresas' })
-  empresas: EmpresasEntity;
+  @ManyToOne(() => PessoasEntity)
+  @JoinColumn({ name: 'id_pessoas' })
+  pessoas: PessoasEntity;
 
   // 🔹 Campo para armazenar o id da imagem
   @Column({ type: 'int', nullable: false })

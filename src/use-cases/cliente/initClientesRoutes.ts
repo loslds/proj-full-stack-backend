@@ -1,4 +1,3 @@
-import { CadastrosRepository } from '../cadastro/cadastros.repository';
 //C:\repository\proj-full-stack-backend\src\use-cases\consumidor\initConsumidoresRoutes.ts
 
 import { Application } from "express";
@@ -32,7 +31,7 @@ export async function initClientesRoutes(app: Application) {
   router.get('/by-one-fantasy', controller.findOneClientesFantasy.bind(controller));
   router.get('/by-pessoas/:pessoasId', controller.findAllClientesPessoasId.bind(controller));
   router.get('/by-imagens/:imagensId', controller.findAllClientesImagensId.bind(controller));
-  router.get('/search', controller.searchClientes.bind(controller));
+  router.get('/search', controller.searchByClientes.bind(controller));
   router.get('/details', controller.findAllClientesByDetails.bind(controller));
 
   // 5️⃣ Monta na app

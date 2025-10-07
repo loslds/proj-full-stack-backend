@@ -33,6 +33,7 @@ export class ConsumidoresController {
       next(error);
     }
   }
+
   /** 2 PATCH Atualiza um registro de consumidores */
   async updateIdConsumidores(
     req: Request<{ consumidoresId: string }, {}, Partial<ConsumidoresUpdate>>,
@@ -41,14 +42,11 @@ export class ConsumidoresController {
     ) {
     const consumidoresId = Number(req.params.consumidoresId);
     if (isNaN(consumidoresId) || consumidoresId <= 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid consumidoresId' })
-        .end();
+      return res.status(400).send({ success: false, message: 'Invalid consumidoresId' }).end();
       }
     try {
       const consumidores = await this.consumidoresRepository.updateConsumidoresId(consumidoresId, req.body);
-        return res.status(200).send({ success: true, consumidores }).end();
+        return res.status(200).send({ success: true, consumidores });
     } catch (error) {
       next(error);
     }
@@ -112,19 +110,16 @@ export class ConsumidoresController {
   
   /** 6 GET Busca um registro de Empresas por Nome */
   async findOneConsumidoresNome(
-    req: Request<{}, {}, {}, Partial<{ name: string }>>, 
+    req: Request<{}, {}, {}, Partial<{ nome: string }>>, 
     res: Response, 
     next: NextFunction
   ) {
-    const { name } = req.query;
-    if (!name) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Nome parameter is required' })
-        .end();
+    const { nome } = req.query;
+    if (!nome) {
+      return res.status(400).send({ success: false, message: 'Nome parameter is required' }).end();
     }
     try {
-      const consumidores = await this.consumidoresRepository.findOneConsumidoresByNome(name);
+      const consumidores = await this.consumidoresRepository.findOneConsumidoresByNome(nome);
       return res.status(200).send({ success: true, consumidores }).end();
     } catch (error) {
       next(error);
@@ -150,7 +145,7 @@ export class ConsumidoresController {
   }
 
   /** 8 pesquisaregistro de Empresas através do ID ou NOME ou FANTASY */
-  async searchConsumidores(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
+  async searchByConsumidores(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
     try {
       const { id, nome, fantasy } = req.query;
       const results = await this.consumidoresRepository.searchConsumidores({
@@ -208,8 +203,9 @@ export class ConsumidoresController {
     try {
       const consumidores = await this.consumidoresRepository.listAllConsumidoresDetails();
       res.json({ success: true, data: consumidores });
+
     } catch (err: any) {
-      console.error('Erro ao listar empresas:', err);
+      console.error('Erro ao listar Consumidores:', err);
       res.status(500).json({ success: false, message: err.message });
     }
   }
