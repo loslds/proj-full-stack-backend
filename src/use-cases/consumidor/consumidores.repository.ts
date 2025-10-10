@@ -25,7 +25,7 @@ export class ConsumidoresRepository {
         updatedBy INT DEFAULT NULL,
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         CONSTRAINT fk_pessoas FOREIGN KEY (id_pessoas) REFERENCES pessoas(id),
-        CONSTRAINT fk_imagens FOREIGN KEY (id_imagens) REFERENCES imagens(id)
+        CONSTRAINT fk_imagens FOREIGN KEY (id_imagens) REFERENCES imagens(id),
       )
     `);
   }

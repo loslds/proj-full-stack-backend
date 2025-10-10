@@ -34,11 +34,12 @@ export class EstadosController {
     /** GET pesquisa Buscar registros de Pessoa por ID/nome/sigla (query) */
   async searchEstadosAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id, nome, uf } = req.query;
+      const { id, nome, uf, nrinscre } = req.query;
       const estados = await this.estadosRepository.searchEstados({
         id: id ? Number(id) : undefined,
         nome: nome as string,
         uf: uf as string,
+        nrinscre: nrinscre as number 
       });
       return res.status(200).send({ success: true, estados });
     } catch (error) {

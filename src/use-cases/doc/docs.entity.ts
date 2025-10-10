@@ -1,5 +1,14 @@
+// C:\repository\proj-full-stack-backend\src\use-cases\doc\docs.entity.ts
 
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn
+} from 'typeorm';
 import { CadastrosEntity } from '../cadastro/cadastros.entity';
 
 @Entity('docs')
@@ -15,8 +24,6 @@ export class DocsEntity {
   
   @Column({ type: 'int', nullable: false })
   id_cadastros: number;
-
-  ///////////////////////////////////
   
   @Column({ type: 'varchar', length: 20, nullable: true })
   cpf: string;
@@ -32,28 +39,16 @@ export class DocsEntity {
   
   @Column({ type: 'varchar', length: 20, nullable: true })
   matricula: string;
- 
-  //////////////////////////////
 
-  @Column({ type: 'int', nullable: true, default: null })
-  createdBy?: number;
-
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
-
-  @Column({ type: 'int', nullable: true })
-  updatedBy?: number;
-
-  @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-  })
-  updatedAt?: Date;
-
+  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
+    createdBy?: number;
+  
+  @CreateDateColumn({ type: 'timestamp' })
+    createdAt: Date;
+  
+  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
+    updatedBy?: number;
+  
+  @UpdateDateColumn({ type: 'timestamp' })
+    updatedAt: Date;
 }

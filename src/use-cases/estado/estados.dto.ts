@@ -7,6 +7,7 @@ import { EstadosEntity} from './estados.entity';
 export const estadosCreateSchema = z.object({
   name: z.string().min(3),
   uf: z.string().min(3),
+  //nrinscre: z.number().optional(),
   createdBy: z.number().optional(), // adicionado
   updatedBy: z.number().optional(), // adicionado
 });

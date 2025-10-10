@@ -9,6 +9,30 @@ export class DocsRepository {
     this.repo = this.dataSource.getRepository(DocsEntity);
   }
 
+  // Criação da tabela (raw query) - manter FK
+  async createNotExistsDocs(): Promise<void> {
+    await this.dataSource.query(`
+      CREATE TABLE IF NOT EXISTS docs (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        id_cadastros INT UNSIGNED DEFAULT NULL,
+        doc_cpf VARCHAR(11) DEFAULT NULL,
+        doc_cnpj VARCHAR(14) DEFAULT NULL,
+        doc_email VARCHAR(250) DEFAULT NULL,
+        doc_inscre VARCHAR(20) DEFAULT NULL,
+        doc_inscrm VARCHAR(20) DEFAULT NULL,
+        doc_matricula VARCHAR(20) DEFAULT NULL,
+        createdBy INT DEFAULT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updatedBy INT DEFAULT NULL,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT fk_consumidores FOREIGN KEY (id_consumidores) REFERENCES consumidores(id),
+      )
+    `);
+  }
+
+
+
+
   // Cria um novo registro de Docs
   async createDocs(docs: DocsCreate): Promise<DocsEntity> {
     const data = this.repo.create(docs);

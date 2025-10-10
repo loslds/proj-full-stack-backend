@@ -7,16 +7,18 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
+    "ts:build": "tsc",
+    "copy-assets": "cpx \"src/assets/**\" dist/assets",
+    "build": "yarn ts:build && yarn copy-assets",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "ts:clean": "tsc --build --clean",
-    "ts:check": "tsc --noEmit",
-    "ts:build": "tsc"
+    "ts:check": "tsc --noEmit"
   },
   "author": "Seu Nome",
   "license": "MIT",
   "dependencies": {
+    "adm-zip": "^0.5.16",
     "axios": "^1.12.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",

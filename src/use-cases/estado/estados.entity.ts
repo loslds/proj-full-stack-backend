@@ -15,6 +15,9 @@ export class EstadosEntity {
   @Column({ type: 'varchar', length: 5, nullable: false, collation: 'utf8mb4_general_ci' })
   uf: string;
 
+  @Column({ type: 'int', unsigned: true, nullable:  false, default: 0 })
+  nrinscr: string;
+
   @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
   createBy: number;
 

@@ -19,6 +19,7 @@ export class EstadosRepository {
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         nome VARCHAR(60) NOT NULL COLLATE utf8mb4_general_ci UNIQUE,
         uf VARCHAR(5) NOT NULL,
+        nrinscre INT UNSIGNED DEFAULT NULL,
         createdBy INT UNSIGNED DEFAULT 0,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
         updatedBy INT UNSIGNED DEFAULT 0,
@@ -68,7 +69,7 @@ export class EstadosRepository {
   /** Busca registro pelo ID */
   async findEstadosById(estadosId: number): Promise<EstadosEntity | null> {
     if (!estadosId || isNaN(estadosId) || estadosId <= 0) {
-      throw new Error('Invalid pessoasId');
+      throw new Error('Invalid estadosId');
     }
     return this.repo.findOne({ where: { id: estadosId } });
   }
@@ -79,12 +80,12 @@ export class EstadosRepository {
     estados: DeepPartial<EstadosEntity>
     ): Promise<EstadosEntity> {
     if (!estadosId || isNaN(estadosId) || estadosId <= 0) {
-      throw new Error('Invalid pessoasId');
+      throw new Error('Invalid estadosId');
     }
 
     const entity = await this.repo.preload({ id: estadosId, ...estados });
     if (!entity) {
-      throw new Error(`Pessoa com id ${estadosId} não encontrada`);
+      throw new Error(`Estado com id ${estadosId} não encontrada`);
     }
 
     return this.repo.save(entity);
@@ -93,19 +94,20 @@ export class EstadosRepository {
   /** Deleta registro em pessoas */
   async deleteEstados(estadosId: number): Promise<void> {
     const entity = await this.repo.findOne({ where: { id: estadosId } });
-    if (!entity) throw new Error(`Pessoa com id ${estadosId} não encontrada`);
+    if (!entity) throw new Error(`EStado com id ${estadosId} não encontrada`);
     await this.repo.remove(entity);
   }
   
   /** Busca por ID, nome ou uf */
-  async searchEstados(params: { id?: number; nome?: string; uf?: string }) {
+  async searchEstados(params: { id?: number; nome?: string; uf?: string, nrinscre?: number; }) {
     const query = this.repo.createQueryBuilder('estados')
-      .select(['estados.id', 'estados.nome', 'estados.uf'])
+      .select(['estados.id', 'estados.nome', 'estados.uf', 'estados.ninscre'])
       .orderBy('estados.id', 'ASC');
 
     if (params.id) query.andWhere('estados.id = :id', { id: params.id });
     if (params.nome) query.andWhere('estados.nome LIKE :nome', { nome: `%${params.nome}%` });
-    if (params.uf) query.andWhere('estados.uf LIKE :sigla', { uf: `%${params.uf}%` });
+    if (params.uf) query.andWhere('estados.uf LIKE :uf', { uf: `%${params.uf}%` });
+    if (params.nrinscre) query.andWhere('estados.nrinscre LIKE :nrinscre', { uf: `%${params.nrinscre}%` });
 
     return query.getMany();
   }
