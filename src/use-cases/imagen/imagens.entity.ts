@@ -4,16 +4,67 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  ManyToOne,
+  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  Unique,
+  Unique
 } from 'typeorm';
 
+import { EmpresasEntity } from '../empresa/empresas.entity';
+import { ConsumidoresEntity } from '../consumidor/consumidores.entity';
+import { ClientesEntity } from '../cliente/clientes.entity';
+import { FornecedoresEntity } from '../fornecedor/fornecedores.entity';
+import { FuncionariosEntity } from '../funcionario/funcionarios.entity';
 @Entity('imagens')
 @Unique(['arqNome', 'arqTipo', 'arqPage']) // garante que não existam conflitos por página
 export class ImagensEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
+
+  // 🔹 Campo para armazenar o id relacionados
+  @Column({ type: 'int', unsigned: true, nullable: false })
+  id_empresas: number;
+  // 🔹 Relacionamento com empresas
+  @ManyToOne(() => EmpresasEntity)
+  @JoinColumn({ name: 'id_empresas' })
+  empresas: EmpresasEntity;
+  
+  // 🔹 Campo para armazenar o id consumidores
+  @Column({ type: 'int', unsigned: true, nullable: false })
+  id_consumidores: number;
+  
+  // 🔹 Relacionamento com consumidores
+  @ManyToOne(() => ConsumidoresEntity)
+  @JoinColumn({ name: 'id_consumidores' })
+  consumidores: ConsumidoresEntity;
+  
+  // 🔹 Campo para armazenar o id clientes
+  @Column({ type: 'int', unsigned: true, nullable: false })
+  id_clientes: number;
+  
+  // 🔹 Relacionamento com consumidores
+  @ManyToOne(() => ClientesEntity)
+  @JoinColumn({ name: 'id_clientes' })
+  clientes: ClientesEntity;
+  
+  // 🔹 Campo para armazenar o id fornecedores
+  @Column({ type: 'int', unsigned: true, nullable: false })
+  id_fornecedores: number;
+  
+  // 🔹 Relacionamento com fornecedores
+  @ManyToOne(() => FornecedoresEntity)
+  @JoinColumn({ name: 'id_fornecedores' })
+  fornecedores: FornecedoresEntity;
+  
+  // 🔹 Campo para armazenar o id funcionarios
+  @Column({ type: 'int', unsigned: true, nullable: false })
+  id_funcionarios: number;
+  
+  // 🔹 Relacionamento com consumidores
+  @ManyToOne(() => FuncionariosEntity)
+  @JoinColumn({ name: 'id_funcionarios' })
+  funcionarios: FuncionariosEntity;
 
   @Column({ type: 'int', unsigned: true, default: 0 })
   id_default: number;
@@ -62,22 +113,6 @@ export class ImagensEntity {
 
   @Column({ type: 'longblob', nullable: true })
   arqBlob?: Buffer | string | null;
-
-  // Relações opcionais com outras entidades
-  @Column({ type: 'int', unsigned: true, nullable: true })
-  id_empresas: number | null;
-
-  @Column({ type: 'int', unsigned: true, nullable: true })
-  id_consumidores: number | null;
-
-  @Column({ type: 'int', unsigned: true, nullable: true })
-  id_clientes: number | null;
-
-  @Column({ type: 'int', unsigned: true, nullable: true })
-  id_fornecedores: number | null;
-
-  @Column({ type: 'int', unsigned: true, nullable: true })
-  id_funcionarios: number | null;
 
   @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
   createBy: number;

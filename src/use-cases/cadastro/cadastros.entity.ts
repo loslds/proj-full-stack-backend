@@ -25,8 +25,8 @@ export class CadastrosEntity {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-   // 🔹 Campo para armazenar o id relacionados
-  @Column({ type: 'int', nullable: false })
+  // 🔹 Campo para armazenar o id relacionados
+  @Column({ type: 'int', unsigned: true, nullable: false })
   id_empresas: number;
   // 🔹 Relacionamento com empresas
   @ManyToOne(() => EmpresasEntity)
@@ -34,7 +34,7 @@ export class CadastrosEntity {
   empresas: EmpresasEntity;
 
   // 🔹 Campo para armazenar o id consumidores
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', unsigned: true, nullable: false })
   id_consumidores: number;
 
   // 🔹 Relacionamento com consumidores
@@ -43,7 +43,7 @@ export class CadastrosEntity {
   consumidores: ConsumidoresEntity;
 
   // 🔹 Campo para armazenar o id clientes
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', unsigned: true, nullable: false })
   id_clientes: number;
 
   // 🔹 Relacionamento com consumidores
@@ -52,7 +52,7 @@ export class CadastrosEntity {
   clientes: ClientesEntity;
 
 // 🔹 Campo para armazenar o id fornecedores
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', unsigned: true, nullable: false })
   id_fornecedores: number;
 
   // 🔹 Relacionamento com fornecedores
@@ -61,7 +61,7 @@ export class CadastrosEntity {
   fornecedores: FornecedoresEntity;
 
 // 🔹 Campo para armazenar o id funcionarios
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', unsigned: true, nullable: false })
   id_funcionarios: number;
 
   // 🔹 Relacionamento com consumidores
