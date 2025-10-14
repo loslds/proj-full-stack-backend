@@ -20,13 +20,13 @@ const arqTipoEnum = z.enum([
 // 📌 Schema base para criação
 export const imagensCreateSchema = z.object({
   // Campos relacionais (opcionais)
-  id_default: z.number().int().nonnegative().optional(),
   id_empresas: z.number().int().positive().optional(),
   id_consumidores: z.number().int().positive().optional(),
   id_clientes: z.number().int().positive().optional(),
   id_fornecedores: z.number().int().positive().optional(),
   id_funcionarios: z.number().int().positive().optional(),
-
+  id_default: z.number().int().nonnegative().optional(),
+  
   // Dados da imagem
   arqTipo: arqTipoEnum,
   arqPage: z.string().max(100).optional().nullable(),  // ✅ novo campo
