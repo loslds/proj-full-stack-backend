@@ -1,15 +1,15 @@
 
 
 // src/use-cases/pessoa/pessoas.repository.ts
+
 import { DataSource, DeepPartial, Repository, FindOptionsWhere, FindOptionsOrder } from 'typeorm';
 import {requiredImagens } from './../../config/imagens';
-import { ImagensEntity } from './imagens.entity';
+import { ImagensEntity, ArqTipoEnum, ArqAcaoEnum } from './imagens.entity';
 import { ImagensCreate } from './imagens.dto';
 import fs from 'fs';
 import path from 'path';
 import AdmZip from 'adm-zip';
 
-lista requiredImagens
 export class ImagensRepository {
   private repo: Repository<ImagensEntity>;
 
@@ -18,113 +18,65 @@ export class ImagensRepository {
   }
 
   /** Cria a tabela 'imagens' caso não exista */
-// 📁 src/use-cases/imagens/imagens.repository.ts
-
-async createNotExistsImagens(): Promise<void> {
-  await this.dataSource.query(`
-    CREATE TABLE IF NOT EXISTS imagens (
-      id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-
-      -- Identificador para imagens padrão do sistema (ex: logos default, avatars default)
-      id_default INT UNSIGNED DEFAULT 0,
-
-      -- Relações opcionais com outras tabelas (FKs)
-      id_empresas INT UNSIGNED NULL,
-      id_consumidores INT UNSIGNED NULL,
-      id_clientes INT UNSIGNED NULL,
-      id_fornecedores INT UNSIGNED NULL,
-      id_funcionarios INT UNSIGNED NULL,
-
-      -- Tipo da imagem (enum do banco)
-      arqTipo ENUM(
-        'default',
-        'logo',
-        'avatar',
-        'inclusao',
-        'alteracao',
-        'exclusao',
-        'listagem',
-        'help'
-      ) NOT NULL,
-
-      -- Nome do arquivo (único por tipo + page)
-      arqNome VARCHAR(150) NOT NULL COLLATE utf8mb4_general_ci,
-
-      -- Página ou contexto onde a imagem é usada
-      arqPage VARCHAR(100) NULL COLLATE utf8mb4_general_ci,
-
-      -- Caminho e conteúdo
-      arqPath VARCHAR(255) NOT NULL COLLATE utf8mb4_general_ci,
-      arqBlob LONGBLOB NULL,
-
-      -- Auditoria
-      createBy INT UNSIGNED DEFAULT 0,
-      createAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updateBy INT UNSIGNED DEFAULT 0,
-      updateAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-      -- Unicidade nome+tipo+página
-      UNIQUE KEY uq_arqNome_tipo_page (arqNome, arqTipo, arqPage),
-
-      -- Foreign Keys
-      CONSTRAINT fk_imagens_empresas FOREIGN KEY (id_empresas) REFERENCES empresas(id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
-      CONSTRAINT fk_imagens_consumidores FOREIGN KEY (id_consumidores) REFERENCES consumidores(id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
-      CONSTRAINT fk_imagens_clientes FOREIGN KEY (id_clientes) REFERENCES clientes(id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
-      CONSTRAINT fk_imagens_fornecedores FOREIGN KEY (id_fornecedores) REFERENCES fornecedores(id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
-      CONSTRAINT fk_imagens_funcionarios FOREIGN KEY (id_funcionarios) REFERENCES funcionarios(id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
+  async createNotExistsImagens(): Promise<void> {
+    await this.dataSource.query(`
+      CREATE TABLE IF NOT EXISTS imagens (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        id_empresas INT UNSIGNED NULL,
+        id_consumidores INT UNSIGNED NULL,
+        id_clientes INT UNSIGNED NULL,
+        id_fornecedores INT UNSIGNED NULL,
+        id_funcionarios INT UNSIGNED NULL,
+        id_default INT UNSIGNED DEFAULT 0,
+        arqTipo TINYINT UNSIGNED NOT NULL COMMENT '1=default,2=logo,3=painel,4=avatar,5=botao',
+        arqAcao TINYINT UNSIGNED NOT NULL COMMENT '1=visualiza,2=cadastro,3=inclusao,4=alteracao,5=exclusao,6=listagem,7=help',
+        arqNome VARCHAR(150) NOT NULL COLLATE utf8mb4_general_ci,
+        arqPage VARCHAR(100) NULL COLLATE utf8mb4_general_ci,
+        arqPath VARCHAR(255) NOT NULL COLLATE utf8mb4_general_ci,
+        arqBlob LONGBLOB NULL,
+        createBy INT UNSIGNED DEFAULT 0,
+        createAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updateBy INT UNSIGNED DEFAULT 0,
+        updateAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uq_arqNome_tipo_page (arqNome, arqTipo, arqPage)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     `);
   }
-  
 
-
-  //  * 🔍 Verifica duplicidade de imagem com base em nome, tipo e página
-  //  * @param arqNome Nome do arquivo (obrigatório)
-  //  * @param arqTipo Tipo do arquivo (ex: logo, avatar, listagem, help...)
-  //  * @param arqPage Nome da página ou contexto (pode ser nulo)
-  //  * @param excludes IDs a serem ignorados (ex: na edição)
-  //  *
+  /** Verifica duplicidade de imagem */
   async hasDuplicated(
     arqNome: string,
-    arqTipo: string,
+    arqTipo: number,
+    arqAcao: number,
     arqPage?: string | null,
     excludes: number[] = []
-    ) {
+  ): Promise<ImagensEntity | null> {
     const query = this.repo.createQueryBuilder('img')
-      .select()
       .where('img.arqNome = :arqNome', { arqNome })
-      .andWhere('img.arqTipo = :arqTipo', { arqTipo });
+      .andWhere('img.arqTipo = :arqTipo', { arqTipo })
+      .andWhere('img.arqAcao = :arqAcao', { arqAcao });
 
     if (arqPage) {
       query.andWhere('img.arqPage = :arqPage', { arqPage });
     } else {
-      // Se não tiver página, garantir que a coluna seja NULL
       query.andWhere('img.arqPage IS NULL');
     }
 
     if (excludes.length) {
-      query.andWhere('img.id NOT IN(:...excludes)', { excludes });
+      query.andWhere('img.id NOT IN (:...excludes)', { excludes });
     }
 
     return query.getOne();
   }
 
-
-
-
-  /** Insere registros padrão de Imagens */
-  async insertDefaultImagens(): Promise<void> {
-    const basePath = 'C:/SysBordados/assets/imagens';
+  /** Insere ou atualiza imagens default do sistema */
+  async insertDefaultImagens(this: any): Promise<void> {
+    const basePath = 'C:/SysBordados/default';
 
     // 1️⃣ Cria a pasta se não existir
     if (!fs.existsSync(basePath)) {
-     fs.mkdirSync(basePath, { recursive: true });
-     console.log('Pasta criada:', basePath);
+      fs.mkdirSync(basePath, { recursive: true });
+      console.log('Pasta criada:', basePath);
     }
 
     // 2️⃣ Descompacta o ZIP dos arquivos default
@@ -137,105 +89,170 @@ async createNotExistsImagens(): Promise<void> {
       console.warn('ZIP não encontrado em:', zipPath);
     }
 
-    // 3️⃣ Lista final de arquivos default com extensão incluída
-    const allImages: { name: string; type: 'logo' | 'avatar' }[] = requiredImagens.map(file => {
-      const type: 'logo' | 'avatar' = file.toLowerCase().includes('logo') ? 'logo' : 'avatar';
-      return { name: file, type };
-    });
-
-    for (const img of allImages) {
-      const filepath = path.join(basePath, img.name);
-
-    // 3️⃣a Verifica duplicidade no banco
-    const duplicated = await this.hasDuplicated(img.name, img.type);
-    if (duplicated) {
-      console.log(`Imagem default já existe no banco: ${img.name} (${img.type})`);
-      continue;
+    // 🔹 Funções de mapeamento de string para enums numéricos
+    function mapArqTipo(tipo: string): ArqTipoEnum {
+      switch (tipo.toLowerCase()) {
+        case 'default': return ArqTipoEnum.DEFAULT;
+        case 'logo': return ArqTipoEnum.LOGO;
+        case 'painel': return ArqTipoEnum.PAINEL;
+        case 'avatar': return ArqTipoEnum.AVATAR;
+        case 'botao': return ArqTipoEnum.BOTAO;
+        default: return ArqTipoEnum.DEFAULT;
+      }
     }
 
-    // 3️⃣b Verifica se arquivo existe no disco
-    if (!fs.existsSync(filepath)) {
-      console.warn(`Arquivo default não encontrado no disco: ${filepath}`);
-      continue;
+    function mapArqAcao(acao: string): ArqAcaoEnum {
+      switch (acao.toLowerCase()) {
+        case 'visualiza': return ArqAcaoEnum.VISUALIZA;
+        case 'cadastro': return ArqAcaoEnum.CADASTRO;
+        case 'inclusao': return ArqAcaoEnum.INCLUSAO;
+        case 'alteracao': return ArqAcaoEnum.ALTERACAO;
+        case 'exclusao': return ArqAcaoEnum.EXCLUSAO;
+        case 'listagem': return ArqAcaoEnum.LISTAGEM;
+        case 'help': return ArqAcaoEnum.HELP;
+        default: return ArqAcaoEnum.VISUALIZA;
+      }
     }
 
-    // 3️⃣c Lê o arquivo
-    const buffer = fs.readFileSync(filepath);
+    // 3️⃣ Processa cada arquivo da lista requiredImagens
+    for (const imgDef of requiredImagens) {
+      const filepath = path.join(basePath, imgDef.arqNome);
+
+      // 3️⃣a Verifica se existe no banco
+      const existing = await this.hasDuplicated(
+        imgDef.arqNome,
+        mapArqTipo(imgDef.arqTipo),
+        mapArqAcao(imgDef.arqAcao),
+        imgDef.arqPage ?? null
+      );
+
+      // 3️⃣b Verifica se arquivo existe no disco
+      if (!fs.existsSync(filepath)) {
+        console.warn(`Arquivo default não encontrado no disco: ${filepath}`);
+        continue;
+      }
+
+      const buffer = fs.readFileSync(filepath);
+
+      // 3️⃣c Se existe no banco, compara timestamps
+      if (existing) {
+        const fileMTime = fs.statSync(filepath).mtime.getTime();
+        const dbTime = existing.updatedAt.getTime();
+
+        if (dbTime >= fileMTime) {
+          console.log(`Imagem atualizada no banco: ${imgDef.arqNome}, nada a fazer.`);
+          continue; // banco está mais recente ou igual
+        }
+      }
 
       // 3️⃣d Cria registro usando DTO
       const record: ImagensCreate = {
-        id_default: 1,
-        arqTipo: img.type,
-        arqNome: img.name,
+        id_default: imgDef.id_default,
+        arqTipo: mapArqTipo(imgDef.arqTipo),
+        arqAcao: mapArqAcao(imgDef.arqAcao),
+        arqNome: imgDef.arqNome,
+        arqPage: imgDef.arqPage ?? null,
         arqPath: filepath,
         arqBlob: buffer,
         createBy: 0,
-        updateBy: 0
-        // FK opcionais podem ficar undefined por enquanto
+        updateBy: 0,
+        // FKs opcionais podem ser undefined por enquanto
       };
 
       await this.repo.save(this.repo.create(record as ImagensEntity));
-      console.log(`Imagem default inserida no banco: ${img.name} (${img.type})`);
+      console.log(`Imagem default inserida ou atualizada no banco: ${imgDef.arqNome}`);
     }
   }
-  
-  
+
   /** Atualiza registro em imagens (seguro com preload) */
   async updateImagensId(
-    imagensId: number, 
+    imagensId: number,
     imagens: DeepPartial<ImagensEntity>
   ): Promise<ImagensEntity> {
     if (!imagensId || isNaN(imagensId) || imagensId <= 0) {
-      throw new Error('Invalid imagensId');
+      throw new Error('ID de imagem inválido');
     }
 
+    // Carrega a entidade com pré-carregamento das propriedades existentes
     const entity = await this.repo.preload({ id: imagensId, ...imagens });
     if (!entity) {
       throw new Error(`Imagem com id ${imagensId} não encontrada`);
     }
 
-    // Bloqueia alterações em registros default
+    // Bloqueia alterações em registros default (id_default = 1)
     if (entity.id_default === 1) {
       const allowedFields: (keyof DeepPartial<ImagensEntity>)[] = ['updateBy'];
-      Object.keys(imagens).forEach(key => {
-        if (!allowedFields.includes(key as keyof DeepPartial<ImagensEntity>)) {
+      for (const key of Object.keys(imagens) as (keyof DeepPartial<ImagensEntity>)[]) {
+        if (!allowedFields.includes(key)) {
           delete (entity as any)[key];
         }
-      });
-      console.warn(`Registro default id=${imagensId} não pode ser alterado. Apenas campos permitidos foram atualizados.`);
+      }
+      console.warn(
+        `Registro default (id=${imagensId}) não pode ser alterado. Apenas campos permitidos foram atualizados.`
+      );
     }
 
     return this.repo.save(entity);
   }
-  
-  /** Deleta registro em imagens */
-async deleteImagensId(imagensId: number): Promise<void> {
-  const entity = await this.repo.findOne({ where: { id: imagensId } });
-  if (!entity) throw new Error(`Imagem com id ${imagensId} não encontrada`);
 
-  // Bloqueia remoção de registros default
-  if (entity.id_default === 1) {
-    throw new Error(`Não é permitido deletar registro default (id=${imagensId})`);
+  /** Deleta um registro de imagem pelo ID */
+  async deleteImagensId(imagensId: number): Promise<void> {
+    if (!imagensId || isNaN(imagensId) || imagensId <= 0) {
+      throw new Error('ID de imagem inválido');
+    }
+
+    const entity = await this.repo.findOne({ where: { id: imagensId } });
+    if (!entity) throw new Error(`Imagem com id ${imagensId} não encontrada`);
+
+    // Bloqueia remoção de registros default
+    if (entity.id_default === 1) {
+      throw new Error(`Não é permitido deletar registro default (id=${imagensId})`);
+    }
+
+    await this.repo.remove(entity);
+    console.log(`Imagem id=${imagensId} removida com sucesso.`);
   }
 
-  await this.repo.remove(entity);
-  console.log(`Imagem id=${imagensId} removida com sucesso.`);
-}
+  /////////////////////////////////////////////////////////////
+
+
 
   /** Busca todos os registros de imagens */
   async findImagensAll(
-    where?: FindOptionsWhere<ImagensEntity>, 
-    order?: FindOptionsOrder<ImagensEntity>
+    where?: FindOptionsWhere<ImagensEntity>,
+    orderBy: Record<string, 'ASC' | 'DESC'> = { id: 'ASC' }
   ): Promise<ImagensEntity[]> {
-    return this.repo.find({ where, order });
+    return this.repo.find({
+      where,
+      order: orderBy,
+      relations: [
+        'empresas',
+        'consumidores',
+        'clientes',
+        'fornecedores',
+        'funcionarios',
+      ],
+    });
   }
 
- async findImagensById(imagensId: number): Promise<ImagensEntity | null> {
+  async findImagensById(imagensId: number): Promise<ImagensEntity | null> {
     if (!imagensId || isNaN(imagensId) || imagensId <= 0) {
       throw new Error('Invalid imagensId');
     }
-    return this.repo.findOne({ where: { id: imagensId } });
+    return this.repo.findOne({
+      where: { id: imagensId },
+      relations: [
+        'empresas',
+        'consumidores',
+        'clientes',
+        'fornecedores',
+        'funcionarios',
+      ],
+    });
   }
+
+sadasdaddasdas
+
 
   /** Busca por ID, arqTipo ou arqNome */
   async searchImagens(params: { id?: number; arqTipo?: string; arqNome?: string; }): Promise<ImagensEntity[]> {
