@@ -1,17 +1,17 @@
 
 // /routes/systemRoutes.ts
 import { Router } from "express";
-import { systableRoute } from "../use-cases/systable";
-import { pessoasRoute } from "../use-cases/pessoa";
-import { empresasRoute } from "../use-cases/empresa";
+import { systableRoute } from "../use-cases/systable/systables.route";
+import { pessoasRoutes } from "../use-cases/pessoa/pessoas.route";
+import { empresasRoutes } from "../use-cases/empresa/empresas.route";
 import { syncTablesRoutes } from "./syncTablesRoutes"; // novo
 
 const systemRoutes = Router();
 
 // agora centralizamos as rotas do sistema aqui
 systemRoutes.use("/systables", systableRoute);
-systemRoutes.use("/pessoas", pessoasRoute);
-systemRoutes.use("/empresas", empresasRoute);
+systemRoutes.use("/pessoas", pessoasRoutes);
+systemRoutes.use("/empresas", empresasRoutes);
 systemRoutes.use("/sync", syncTablesRoutes);
 
 export { systemRoutes };

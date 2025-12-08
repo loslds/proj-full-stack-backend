@@ -3,15 +3,15 @@
 export const requiredTables = [
   'systables',
   'pessoas',
-  'imagens',
   'empresas',
 
-  'consumidores',
-  'clientes',
-  'fornecedores',
-  'funcionarios',
-  'estados',
-  'cidades'
+  //'consumidores',
+  //'clientes',
+  //'fornecedores',
+  //'funcionarios',
+  //'estados',
+  //'cidades'
   //'cadastros',
+  //'imagens',
 ];
 

@@ -32,14 +32,16 @@ type TableConfig = {
 const allConfigs: TableConfig[] = [
   systablesConfig, //unico
   pessoasConfig,   // 0 reg.
-  imagensConfig,   // 43 reg
   empresasConfig,  // 0 reg.
+  
   estadosConfig,   // 27 reg.
   cidadesConfig,   // 5.615 reg.
   consumidoresConfig, // 0 reg.
   clientesConfig,     // 0 reg.
   fornecedoresConfig, // 0 reg.
-  funcionariosConfig  // 0 reg.
+  funcionariosConfig,  // 0 reg.
+
+  imagensConfig   // 43 reg
   // futuramente outras tabelas
 ];
 

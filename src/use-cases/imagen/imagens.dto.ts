@@ -1,7 +1,6 @@
 
-// src/use-cases/imagen/imagens.dto.ts
-
 // src/use-cases/imagens/imagens.dto.ts
+
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
 import { Buffer } from 'buffer';
@@ -46,16 +45,11 @@ export const arqAcaoEnumNumeric = z.union([
 // 📌 Schema base para criação
 export const imagensCreateSchema = z.object({
   // IDs relacionais opcionais
-  id_empresas: z.number().int().positive().optional(),
-  id_consumidores: z.number().int().positive().optional(),
-  id_clientes: z.number().int().positive().optional(),
-  id_fornecedores: z.number().int().positive().optional(),
-  id_funcionarios: z.number().int().positive().optional(),
   id_default: z.number().int().nonnegative().optional(),
-
   // Dados da imagem
   arqTipo: arqTipoEnumNumeric,  // ✅ agora número
   arqAcao: arqAcaoEnumNumeric,  // ✅ agora número
+  nome: z.string().max(150),
   arqPage: z.string().max(100).optional().nullable(),
   arqNome: z.string().max(150),
   arqPath: z.string().max(255),

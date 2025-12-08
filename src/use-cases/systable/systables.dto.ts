@@ -8,7 +8,7 @@ export const systablesCreateSchema = z.object({
   nome: z.string().min(3),
   chkdb: z.number().max(1),
   numberregs: z.number().max(7),
-  createdBy: z.number().optional(), // adicionado
+  createddBy: z.number().optional(), // adicionado
   updatedBy: z.number().optional(), // adicionado
 
 });

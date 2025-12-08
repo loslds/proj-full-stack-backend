@@ -19,16 +19,16 @@ export class SystablesEntity {
   numberregs: number;
 
   @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
-  createBy: number;
+  createdBy: number;
 
   @Column({ type: 'datetime', nullable: true, default: () => 'CURRENT_TIMESTAMP' })
-  createAt: Date;
+  createdAt: Date;
 
   @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
-  updateBy: number;
+  updatedBy: number;
 
   @Column({ type: 'datetime', nullable: true, default: () => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' })
-  updateAt: Date;
+  updatedAt: Date;
 }
 
 

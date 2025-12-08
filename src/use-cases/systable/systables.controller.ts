@@ -109,7 +109,7 @@ async findAllSysTables(req: Request, res: Response, next: NextFunction) {
 }
 
 //   /** GET Busca um registro de systables por ID */
-async getOneSysTables(req: Request<{ systablesId: string }>, res: Response, next: NextFunction) {
+async getOneSysTablesId(req: Request<{ systablesId: string }>, res: Response, next: NextFunction) {
   try {
     const systablesId = Number(req.params.systablesId<SystablesDto>);
     if (isNaN(systablesId) || systablesId <= 0) {
@@ -144,10 +144,10 @@ async searchSysTables(req: Request, res: Response, next: NextFunction) {
 }
 
 /** GET pesquisa Buscar por nome em systables */
-async searchByNameSysTables(req: Request, res: Response, next: NextFunction) {
+async searchSysTablesByNome(req: Request, res: Response, next: NextFunction) {
   try {
     const text = req.query?.text as string;
-    const systables = await this.systablesRepository.searchNameSystables(text);
+    const systables = await this.systablesRepository.searchNomeSystables(text);
     return res.status(200).send({ success: true, systables });
   } catch (error) {
     next(error);
@@ -155,7 +155,7 @@ async searchByNameSysTables(req: Request, res: Response, next: NextFunction) {
 }
 
 /** GET pesquisa Buscar por chkdb em systables */
-async searchByChkdbSysTables(req: Request, res: Response, next: NextFunction) {
+async searchSysTablesByChkdb(req: Request, res: Response, next: NextFunction) {
   try {
     const text = req.query?.text as string;
     const systables = await this.systablesRepository.searchChkdbSystables(text);
@@ -166,7 +166,7 @@ async searchByChkdbSysTables(req: Request, res: Response, next: NextFunction) {
 }
 
 /** GET pesquisa Buscar por numberregs em systables */
-async searchByNumberregsSysTables(req: Request, res: Response, next: NextFunction) {
+async searchSysTablesByNumberregs(req: Request, res: Response, next: NextFunction) {
   try {
     const text = req.query?.text as string;
     const systables = await this.systablesRepository.searchNumberregsSystables(text);
@@ -178,7 +178,7 @@ async searchByNumberregsSysTables(req: Request, res: Response, next: NextFunctio
 
 
 /** GET Lista um reg. nome em systable */
-  async findOneNomeSysTables(
+  async findOneSysTablesNome(
     req: Request<{}, {}, {}, Partial<{ nome: string }>>, 
     res: Response, 
     next: NextFunction
@@ -199,7 +199,7 @@ async searchByNumberregsSysTables(req: Request, res: Response, next: NextFunctio
   }
 
   /** GET Lista todos os id e nome de systables */
-  async findListByNomeSysTables(req: Request, res: Response, next: NextFunction) {
+  async findListSysTablesByNome(req: Request, res: Response, next: NextFunction) {
     try {
       const nomes = await this.systablesRepository.findListNomeSystables();
       return res.status(200).send({ success: true, nomes });
@@ -209,11 +209,11 @@ async searchByNumberregsSysTables(req: Request, res: Response, next: NextFunctio
   }
 
   /** GET Lista todos os id, nome e chkdb de systables, com filtro opcional por chkdb */
-  async findListNomeByChkdbSysTables(req: Request, res: Response, next: NextFunction) {
+  async findListSysTablesChkdb(req: Request, res: Response, next: NextFunction) {
     try {
       const { chkdb } = req.query;
 
-      const lista = await this.systablesRepository.findListNomeChkdbSystables(
+      const lista = await this.systablesRepository.findListChkdbSystables(
         chkdb !== undefined ? (chkdb === 'true' ? 1 : 0) : undefined
       );
 
@@ -224,11 +224,11 @@ async searchByNumberregsSysTables(req: Request, res: Response, next: NextFunctio
   }
 
   /** GET Lista todos os id, nome, chkdb e numberregs de systables, com filtro opcional por numberregs */
-  async findListNomeByNumberregsSysTables(req: Request, res: Response, next: NextFunction) {
+  async findListSysTablesNumberregs(req: Request, res: Response, next: NextFunction) {
     try {
       const { numberregs } = req.query;
 
-      const lista = await this.systablesRepository.findListNomeNumberregsSystables(
+      const lista = await this.systablesRepository.findListNumberregsSystables(
         numberregs !== undefined ? Number(numberregs) : undefined
       );
 

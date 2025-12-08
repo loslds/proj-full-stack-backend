@@ -23,11 +23,11 @@ export async function checkAndInitializeSystem(
 
     // 1️⃣ Verifica/Cria systable
     messages.push("🔍 Verificando existência da tabela systable...");
-    const systableRows = await queryRunner.query("SHOW TABLES LIKE 'systable'");
+    const systableRows = await queryRunner.query("SHOW TABLES LIKE 'systables'");
     if (systableRows.length === 0) {
       messages.push("❌ Tabela systable não existe. Criando...");
       await queryRunner.query(`
-        CREATE TABLE systable (
+        CREATE TABLE systables (
           id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
           nome VARCHAR(60) NOT NULL,
           numberRRegs INT UNSIGNED NOT NULL DEFAULT 0,
@@ -36,12 +36,12 @@ export async function checkAndInitializeSystem(
           createAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
           updateBy INT UNSIGNED DEFAULT NULL,
           updateAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-          UNIQUE KEY uniq_systable_nome (nome)
+          UNIQUE KEY uniq_systables_nome (nome)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
-      messages.push("✅ systable criada.");
+      messages.push("✅ systables criada.");
     } else {
-      messages.push("✅ systable existe.");
+      messages.push("✅ systables existe.");
     }
 
     // 2️⃣ Verifica/cria cada tabela mínima

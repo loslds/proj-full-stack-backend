@@ -31,8 +31,7 @@ empresasRoute.delete('/:empresasId', controller.removeIdEmpresas.bind(controller
 empresasRoute.get('/by-one-name', controller.findOneEmpresasNome.bind(controller));
 empresasRoute.get('/by-one-fantasy', controller.findOneEmpresasFantasy.bind(controller));
 empresasRoute.get('/by-pessoas/:pessoasId', controller.findAllEmpresasPessoasId.bind(controller));
-empresasRoute.get('/by-imagens/:imagensId', controller.findAllEmpresasImagensId.bind(controller));
 empresasRoute.get('/search', controller.searchByEmpresas.bind(controller));
-empresasRoute.get('/details', controller.findAllEmpresasByDetails.bind(controller));
+empresasRoute.get('/details', controller.findAllEmpresasDetails.bind(controller));
 
 export { empresasRoute as empresasRoutes };

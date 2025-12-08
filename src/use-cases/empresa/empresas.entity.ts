@@ -1,58 +1,87 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\empresa\empresas.entity.ts
 
+//C:\repository\proj-full-stack-backend\src\use-cases\empresa\empresas.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
   Unique
 } from 'typeorm';
 
 import { PessoasEntity } from '../pessoa/pessoas.entity';
-import { ImagensEntity } from '../imagen/imagens.entity';
-
 @Entity('empresas')
-@Unique(['nome']) // garante que não tenha dois iguais
+@Unique(['nome', 'fantasy']) // garante que não tenha dois iguais
 
 export class EmpresasEntity {
-  @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
+  @PrimaryGeneratedColumn({ 
+    type: 'int', 
+    unsigned: true 
+  })
   id: number;
 
-   // 🔹 Campo para armazenar o id da pessoa
-  @Column({ type: 'int', nullable: false })
+   // 🔹 Campo de Relacionamento: FK → pessoas.id
+    @Column({ 
+    type: 'int', 
+    nullable: false,
+    unsigned: true
+  })
   id_pessoas: number;
-  // 🔹 Relacionamento com Pessoas
-  @ManyToOne(() => PessoasEntity)
-  @JoinColumn({ name: 'id_pessoas' })
+
+  // 🔹 Vinculo de relacionamento de segurança do FK → pessoas.id
+  @ManyToOne(() => PessoasEntity, { 
+    onDelete: 'RESTRICT', // evita deletar uma pessoa que já está vinculada a empresas
+    onUpdate: 'CASCADE'   // atualiza o FK caso o ID da pessoas fosse alterado (é raro, mas seguro)
+  })
+  @JoinColumn({ 
+    name: 'id_pessoas' 
+  })
   pessoas: PessoasEntity;
 
-  // 🔹 Campo para armazenar o id da imagem
-  @Column({ type: 'int', nullable: false })
-  id_imagens: number;
-
-  // 🔹 Relacionamento com Imagens
-  @ManyToOne(() => ImagensEntity)
-  @JoinColumn({ name: 'id_imagens' })
-  imagens: ImagensEntity;
-
-  @Column({ type: 'varchar', length: 60, nullable: false })
+  @Column({ 
+    type: 'varchar', 
+    length: 120, 
+    nullable: false,
+    collation: 'utf8mb4_general_ci'
+  })
   nome: string;
 
-  @Column({ type: 'varchar', length: 60, nullable: false })
+  @Column({ 
+    type: 'varchar', 
+    length: 120, 
+    nullable: false, 
+    collation: 'utf8mb4_general_ci' 
+  })
   fantasy: string;
 
-  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
-  createdBy?: number;
+  @Column({ 
+    type: 'int', 
+    nullable: false, 
+    unsigned: true, 
+    default: 0 
+  })
+  createdBy: number;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @Column({ 
+    type: 'datetime', 
+    nullable: true, 
+    default: () => 'CURRENT_TIMESTAMP' 
+  })
   createdAt: Date;
 
-  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
-  updatedBy?: number;
+  @Column({ 
+    type: 'int', 
+    nullable: true, 
+    unsigned: true, 
+    default: 0 
+  })
+  updatedBy: number;
 
-  @UpdateDateColumn({ type: 'timestamp' })
+  @Column({ 
+    type: 'datetime', 
+    nullable: true, 
+    default: () => 'CURRENT_TIMESTAMP', 
+    onUpdate: 'CURRENT_TIMESTAMP' 
+  })
   updatedAt: Date;
 }

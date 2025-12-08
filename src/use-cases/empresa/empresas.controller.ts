@@ -121,7 +121,7 @@ export class EmpresasController {
   ) {
     const { nome } = req.query;
     if (!nome) {
-      return res.status(400).send({ success: false, message: 'Name parameter is required' }).end();
+      return res.status(400).send({ success: false, message: 'Nome parameter is required' }).end();
     }
     try {
       const empresas = await this.empresasRepository.findOneEmpresasByNome(nome);
@@ -183,61 +183,30 @@ export class EmpresasController {
     }
   }
 
-  
-  /** 10 GET Busca todas as empresas com mesmo ID de imagens */
-  async findAllEmpresasImagensId(
-    req: Request<{ imagensId: string }>,
+/** 10 GET - Lista detalhes das empresas */
+  async findAllEmpresasDetails(
+    req: Request,
     res: Response,
     next: NextFunction
   ) {
-    const imagensId = Number(req.params.imagensId);
-    if (isNaN(imagensId) || imagensId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid imagensId' }).end();
-    }
-
-    try {
-      const empresas = await this.empresasRepository.findAllEmpresasByImagensId(imagensId);
-      return res.status(200).send({ success: true, empresas });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-    /** 11 Lista todas empresas com todos os detalhes */
-  async findAllEmpresasByDetails(req: Request, res: Response) {
-
     try {
       const empresas = await this.empresasRepository.listAllEmpresasDetails();
-      res.json({ success: true, data: empresas });
-      
+
+      return res.status(200).json({
+        success: true,
+        data: empresas,
+      });
+
     } catch (err: any) {
       console.error('Erro ao listar empresas:', err);
-      res.status(500).json({ success: false, message: err.message });
+    
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao listar empresas',
+        error: err.message,
+      });
     }
   }
 }
 
-  // /** 12 Lista todas empresas com todos os detalhes */
-  // async ListAllEmpresasByNomePessoaId(req: Request, res: Response) {
-
-  //   try {
-  //     const empresas = await this.empresasRepository.findAllEmpresasByNomeAndPessoaId());
-  //     res.json({ success: true, data: empresas });
-  //   } catch (err: any) {
-  //     console.error('Erro ao listar empresas:', err);
-  //     res.status(500).json({ success: false, message: err.message });
-  //   }
-  // }
-
-  // /** 13 Lista todas empresas com todos os detalhes */
-  // async ListAllEmpresasByNomeAndImagensId(req: Request, res: Response) {
-
-  //   try {
-  //     const empresas = await this.empresasRepository.listAllEmpresasDetails();
-  //     res.json({ success: true, data: empresas });
-  //   } catch (err: any) {
-  //     console.error('Erro ao listar empresas:', err);
-  //     res.status(500).json({ success: false, message: err.message });
-  //   }
-  // }
 

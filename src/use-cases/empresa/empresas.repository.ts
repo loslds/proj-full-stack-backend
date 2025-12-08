@@ -15,7 +15,6 @@ export class EmpresasRepository {
       CREATE TABLE IF NOT EXISTS empresas (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         id_pessoas INT UNSIGNED NOT NULL,
-        id_imagens INT UNSIGNED NOT NULL,
         nome VARCHAR(60) NOT NULL,
         fantasy VARCHAR(60) NOT NULL,
         createdBy INT DEFAULT NULL,
@@ -23,7 +22,6 @@ export class EmpresasRepository {
         updatedBy INT DEFAULT NULL,
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         CONSTRAINT fk_pessoas FOREIGN KEY (id_pessoas) REFERENCES pessoas(id),
-        CONSTRAINT fk_imagens FOREIGN KEY (id_imagens) REFERENCES imagens(id),
       )
     `);
   }
@@ -52,7 +50,6 @@ export class EmpresasRepository {
 
     return query.getOne();
   }
-
 
   // Cria registro 1
   async createEmpresas(empresas: EmpresasCreate): Promise<EmpresasEntity> {
@@ -108,7 +105,7 @@ export class EmpresasRepository {
   async findOneEmpresasById(empresasId: number) {
     return this.repo.findOne({
       where: { id: empresasId },
-      relations: ['pessoas', 'imagens'],
+      relations: ['pessoas'],
     });
   }
 
@@ -119,7 +116,7 @@ export class EmpresasRepository {
   ): Promise<EmpresasEntity[]> {
     return this.repo.find({
       where: where ?? {},
-      relations: ['pessoas', 'imagens'],
+      relations: ['pessoas'],
       order: orderBy,
     });
   }
@@ -129,25 +126,22 @@ export class EmpresasRepository {
   async findOneEmpresasByNome(nome: string) {
     return this.repo.findOne({
       where: { nome },
-      relations: ['pessoas', 'imagens'],
+      relations: ['pessoas'],
     });
   }
-
 
   // Busca por fantasy 7
   async findOneEmpresasByFantasy(fantasy: string) {
     return this.repo.findOne({
       where: { fantasy },
-      relations: ['pessoas', 'imagens'],
+      relations: ['pessoas'],
     });
   }
-
 
   // 8 Pesquisa empresas por ID, nome ou fantasy 
   async searchEmpresas(params: { id?: number; nome?: string; fantasy?: string }) {
     const query = this.repo.createQueryBuilder('empresas')
       .leftJoinAndSelect('empresas.pessoas', 'pessoas')
-      .leftJoinAndSelect('empresas.imagens', 'imagens')
       .orderBy('empresas.id', 'ASC');
 
     if (params.id) query.andWhere('empresas.id = :id', { id: params.id });
@@ -161,21 +155,21 @@ export class EmpresasRepository {
   async findAllEmpresasByPessoasId(pessoasId: number) {
     return this.repo.find({ where: { id_pessoas: pessoasId } });
   }
-
-  // 10
-  async findAllEmpresasByImagensId(imagensId: number) {
-    return this.repo.find({ where: { id_imagens: imagensId } });
-  }
-
-  /** 11 Lista todas empresas com pessoa + imagem  13*/
-  async listAllEmpresasDetails() {
-    return this.repo
-      .createQueryBuilder('empresas')
-      .leftJoinAndSelect('empresas.pessoas', 'pessoas')
-      .leftJoinAndSelect('empresas.imagens', 'imagens')
-      .getMany();
-  }
-
+/** 10 Lista empresas c/ id,nome,fantasy e id_pessoas,nome,sigla */
+async listAllEmpresasDetails() {
+  return this.repo
+    .createQueryBuilder('emp')
+    .leftJoin('emp.pessoas', 'p')
+    .select([
+      'emp.id AS empresa_id',
+      'emp.nome AS empresa_nome',
+      'emp.fantasy AS empresa_fantasy',
+      'p.id AS pessoa_id',
+      'p.nome AS pessoa_nome',
+      'p.sigla AS pessoa_sigla',
+    ])
+    .getRawMany();
+}
 }
 
 

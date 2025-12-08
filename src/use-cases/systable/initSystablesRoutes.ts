@@ -22,20 +22,21 @@ export async function initSystablesRoutes(app: Application) {
   // 4️⃣ Router
   const router = Router();
 
-  router.get("/", controller.findAllSystables.bind(controller));
-  router.get("/search", controller.searchSystables.bind(controller));
-  router.get("/search-name", controller.searchByNameSystables.bind(controller));
-  router.get("/search-chkdb", controller.searchByChkdbSystables.bind(controller));
-  router.get("/search-regs", controller.searchByNumberregsSystables.bind(controller));
-  router.get("/one-nome", controller.findOneNomeSystables.bind(controller));
-  router.get("/all-nome", controller.findListByNomeSystables.bind(controller));
-  router.get("/all-chkdb", controller.findListNomeByChkdbSystables.bind(controller));
-  router.get("/all-regs", controller.findListNomeByNumberregsSystables.bind(controller));
-  router.get("/:systablesId", controller.getOneSystables.bind(controller));
-  router.post("/", createValidation, controller.createSystables.bind(controller));
-  router.patch("/:systablesId", updateValidation, controller.updateIdSystables.bind(controller));
-  router.delete("/:systablesId", controller.removeIdSystables.bind(controller));
+  router.get("/", controller.findAllSysTables.bind(controller));
+  router.get("/search", controller.searchSysTables.bind(controller));
+  router.get("/search-name", controller.searchSysTablesByNome.bind(controller));
+  router.get("/search-chkdb", controller.searchSysTablesByChkdb.bind(controller));
+  router.get("/search-regs", controller.searchSysTablesByNumberregs.bind(controller));
+  router.get("/one-nome", controller.findOneSysTablesNome.bind(controller));
+  router.get("/all-nome", controller.findListSysTablesByNome.bind(controller));
+  router.get("/all-chkdb", controller.findListSysTablesChkdb.bind(controller));
+  router.get("/all-regs", controller.findListSysTablesNumberregs.bind(controller));
+  router.get("/:systablesId", controller.getOneSysTablesId.bind(controller));
+  router.post("/", createValidation, controller.createSysTables.bind(controller));
+  router.patch("/:systablesId", updateValidation, controller.updateIdSysTables.bind(controller));
+  router.delete("/:systablesId", controller.removeIdSysTables.bind(controller));
 
   // 5️⃣ Monta na app
   app.use("/api/systables", router);
 }
+

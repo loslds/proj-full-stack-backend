@@ -2,13 +2,15 @@
 
 // src/use-cases/pessoa/pessoas.repository.ts
 
-import { DataSource, DeepPartial, Repository, FindOptionsWhere, FindOptionsOrder } from 'typeorm';
-import {requiredImagens } from './../../config/imagens';
-import { ImagensEntity, ArqTipoEnum, ArqAcaoEnum } from './imagens.entity';
-import { ImagensCreate } from './imagens.dto';
+
 import fs from 'fs';
 import path from 'path';
 import AdmZip from 'adm-zip';
+import { ImagensEntity, ArqTipoEnum, ArqAcaoEnum } from './imagens.entity';
+import { imagensConfig } from '../../config/imagens';
+import { DataSource, DeepPartial, Repository, FindOptionsWhere, IsNull, FindOptionsOrder } from 'typeorm';
+import { ImagensCreate } from './imagens.dto';
+
 
 export class ImagensRepository {
   private repo: Repository<ImagensEntity>;
@@ -22,14 +24,9 @@ export class ImagensRepository {
     await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS imagens (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        id_empresas INT UNSIGNED NULL,
-        id_consumidores INT UNSIGNED NULL,
-        id_clientes INT UNSIGNED NULL,
-        id_fornecedores INT UNSIGNED NULL,
-        id_funcionarios INT UNSIGNED NULL,
-        id_default INT UNSIGNED DEFAULT 0,
         arqTipo TINYINT UNSIGNED NOT NULL COMMENT '1=default,2=logo,3=painel,4=avatar,5=botao',
         arqAcao TINYINT UNSIGNED NOT NULL COMMENT '1=visualiza,2=cadastro,3=inclusao,4=alteracao,5=exclusao,6=listagem,7=help',
+        nome VARCHAR(150) NOT NULL COLLATE utf8mb4_general_ci,
         arqNome VARCHAR(150) NOT NULL COLLATE utf8mb4_general_ci,
         arqPage VARCHAR(100) NULL COLLATE utf8mb4_general_ci,
         arqPath VARCHAR(255) NOT NULL COLLATE utf8mb4_general_ci,
@@ -38,13 +35,14 @@ export class ImagensRepository {
         createAt DATETIME DEFAULT CURRENT_TIMESTAMP,
         updateBy INT UNSIGNED DEFAULT 0,
         updateAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        UNIQUE KEY uq_arqNome_tipo_page (arqNome, arqTipo, arqPage)
+        UNIQUE KEY uq_arqNome_tipo_page (nome, arqNome, arqTipo, arqAcao, arqPage)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     `);
   }
 
-  /** Verifica duplicidade de imagem */
+  /** Verifica duplicidade de imagem considerando nome, tipo, ação e página */
   async hasDuplicated(
+    nome: string,
     arqNome: string,
     arqTipo: number,
     arqAcao: number,
@@ -52,7 +50,8 @@ export class ImagensRepository {
     excludes: number[] = []
   ): Promise<ImagensEntity | null> {
     const query = this.repo.createQueryBuilder('img')
-      .where('img.arqNome = :arqNome', { arqNome })
+      .where('img.nome = :nome', { nome })
+      .andWhere('img.arqNome = :arqNome', { arqNome })
       .andWhere('img.arqTipo = :arqTipo', { arqTipo })
       .andWhere('img.arqAcao = :arqAcao', { arqAcao });
 
@@ -62,105 +61,87 @@ export class ImagensRepository {
       query.andWhere('img.arqPage IS NULL');
     }
 
-    if (excludes.length) {
+    if (excludes.length > 0) {
       query.andWhere('img.id NOT IN (:...excludes)', { excludes });
     }
 
-    return query.getOne();
+    return await query.getOne();
   }
 
-  /** Insere ou atualiza imagens default do sistema */
-  async insertDefaultImagens(this: any): Promise<void> {
-    const basePath = 'C:/SysBordados/default';
 
-    // 1️⃣ Cria a pasta se não existir
-    if (!fs.existsSync(basePath)) {
-      fs.mkdirSync(basePath, { recursive: true });
-      console.log('Pasta criada:', basePath);
-    }
+  /** Insere ou atualiza imagens de acordo com os arquivos ZIP configurados */
+  async insertDefaultImagens(): Promise<void> {
+    const baseAssets = path.resolve(__dirname, '../../assets/defaults');
+    const baseDisk = 'C:/SysBordados';
 
-    // 2️⃣ Descompacta o ZIP dos arquivos default
-    const zipPath = path.resolve(__dirname, '../../assets/defaults/imagens.zip');
-    if (fs.existsSync(zipPath)) {
-      const zip = new AdmZip(zipPath);
-      zip.extractAllTo(basePath, true);
-      console.log('ZIP descompactado em:', basePath);
-    } else {
-      console.warn('ZIP não encontrado em:', zipPath);
-    }
+    for (const cfg of imagensConfig) {
+      const zipPath = path.join(baseAssets, cfg.zip);
+      const tablePath = path.join(baseDisk, cfg.nome);
 
-    // 🔹 Funções de mapeamento de string para enums numéricos
-    function mapArqTipo(tipo: string): ArqTipoEnum {
-      switch (tipo.toLowerCase()) {
-        case 'default': return ArqTipoEnum.DEFAULT;
-        case 'logo': return ArqTipoEnum.LOGO;
-        case 'painel': return ArqTipoEnum.PAINEL;
-        case 'avatar': return ArqTipoEnum.AVATAR;
-        case 'botao': return ArqTipoEnum.BOTAO;
-        default: return ArqTipoEnum.DEFAULT;
+      // Cria a pasta da tabela se não existir
+      if (!fs.existsSync(tablePath)) {
+        fs.mkdirSync(tablePath, { recursive: true });
+        console.log(`Pasta criada: ${tablePath}`);
       }
-    }
 
-    function mapArqAcao(acao: string): ArqAcaoEnum {
-      switch (acao.toLowerCase()) {
-        case 'visualiza': return ArqAcaoEnum.VISUALIZA;
-        case 'cadastro': return ArqAcaoEnum.CADASTRO;
-        case 'inclusao': return ArqAcaoEnum.INCLUSAO;
-        case 'alteracao': return ArqAcaoEnum.ALTERACAO;
-        case 'exclusao': return ArqAcaoEnum.EXCLUSAO;
-        case 'listagem': return ArqAcaoEnum.LISTAGEM;
-        case 'help': return ArqAcaoEnum.HELP;
-        default: return ArqAcaoEnum.VISUALIZA;
-      }
-    }
-
-    // 3️⃣ Processa cada arquivo da lista requiredImagens
-    for (const imgDef of requiredImagens) {
-      const filepath = path.join(basePath, imgDef.arqNome);
-
-      // 3️⃣a Verifica se existe no banco
-      const existing = await this.hasDuplicated(
-        imgDef.arqNome,
-        mapArqTipo(imgDef.arqTipo),
-        mapArqAcao(imgDef.arqAcao),
-        imgDef.arqPage ?? null
-      );
-
-      // 3️⃣b Verifica se arquivo existe no disco
-      if (!fs.existsSync(filepath)) {
-        console.warn(`Arquivo default não encontrado no disco: ${filepath}`);
+      // Descompacta ZIP se existir
+      if (!fs.existsSync(zipPath)) {
+        console.warn(`ZIP não encontrado para ${cfg.nome}: ${zipPath}`);
         continue;
       }
 
-      const buffer = fs.readFileSync(filepath);
+      const zip = new AdmZip(zipPath);
+      zip.extractAllTo(tablePath, true);
+      console.log(`ZIP descompactado em: ${tablePath}`);
 
-      // 3️⃣c Se existe no banco, compara timestamps
-      if (existing) {
-        const fileMTime = fs.statSync(filepath).mtime.getTime();
-        const dbTime = existing.updatedAt.getTime();
+      // Processa cada arquivo do diretório
+      const files = fs.readdirSync(tablePath);
+      for (const file of files) {
+        const filepath = path.join(tablePath, file);
+        const buffer = fs.readFileSync(filepath);
 
-        if (dbTime >= fileMTime) {
-          console.log(`Imagem atualizada no banco: ${imgDef.arqNome}, nada a fazer.`);
-          continue; // banco está mais recente ou igual
+        // Determina arqTipo, arqAcao e arqPage pelo nome do arquivo
+        const [prefix, pageNameWithExt] = file.split('_');
+        const pageName = pageNameWithExt ? pageNameWithExt.split('.')[0] : null;
+
+        const record: ImagensCreate = {
+          nome: cfg.nome,
+          arqNome: file,
+          arqTipo:
+            prefix.toLowerCase() === 'logo' ? ArqTipoEnum.LOGO :
+            prefix.toLowerCase() === 'painel' ? ArqTipoEnum.PAINEL :
+            prefix.toLowerCase() === 'avatar' ? ArqTipoEnum.AVATAR :
+            prefix.toLowerCase() === 'btn' ? ArqTipoEnum.BOTAO :
+            ArqTipoEnum.DEFAULT,
+          arqAcao: ArqAcaoEnum.VISUALIZA, // padrão, ajustar conforme necessário
+          arqPage: pageName,
+          arqPath: filepath,
+          arqBlob: buffer,
+          createBy: 0,
+          updateBy: 0,
+        };
+
+        // Verifica duplicidade usando IsNull para arqPage
+        const existing = await this.repo.findOne({
+          where: {
+            nome: record.nome,
+            arqNome: record.arqNome,
+            arqTipo: record.arqTipo,
+            arqAcao: record.arqAcao,
+            arqPage: record.arqPage ?? IsNull(),
+          },
+        });
+
+        if (existing) {
+          // Atualiza se necessário
+          await this.repo.save({ ...existing, ...record });
+          console.log(`Imagem atualizada no banco: ${file}`);
+        } else {
+          // Insere nova
+          await this.repo.save(this.repo.create(record as ImagensEntity));
+          console.log(`Imagem inserida no banco: ${file}`);
         }
       }
-
-      // 3️⃣d Cria registro usando DTO
-      const record: ImagensCreate = {
-        id_default: imgDef.id_default,
-        arqTipo: mapArqTipo(imgDef.arqTipo),
-        arqAcao: mapArqAcao(imgDef.arqAcao),
-        arqNome: imgDef.arqNome,
-        arqPage: imgDef.arqPage ?? null,
-        arqPath: filepath,
-        arqBlob: buffer,
-        createBy: 0,
-        updateBy: 0,
-        // FKs opcionais podem ser undefined por enquanto
-      };
-
-      await this.repo.save(this.repo.create(record as ImagensEntity));
-      console.log(`Imagem default inserida ou atualizada no banco: ${imgDef.arqNome}`);
     }
   }
 
@@ -251,67 +232,67 @@ export class ImagensRepository {
     });
   }
 
-sadasdaddasdas
 
 
-  /** Busca por ID, arqTipo ou arqNome */
-  async searchImagens(params: { id?: number; arqTipo?: string; arqNome?: string; }): Promise<ImagensEntity[]> {
-    const query = this.repo.createQueryBuilder('imagens')
-      .select(['imagens.id', 'imagens.arqTipo', 'imagens.arqNome'])
-      .orderBy('imagens.id', 'ASC');
 
-    if (params.id) query.andWhere('imagens.id = :id', { id: params.id });
-    if (params.arqTipo) query.andWhere('imagens.arqTipo LIKE :arqTipo', { arqTipo: `%${params.arqTipo}%` });
-    if (params.arqNome) query.andWhere('imagens.arqNome LIKE :arqNome', { arqNome: `%${params.arqNome}%` });
+  // /** Busca por ID, arqTipo ou arqNome */
+  // async searchImagens(params: { id?: number; arqTipo?: string; arqNome?: string; }): Promise<ImagensEntity[]> {
+  //   const query = this.repo.createQueryBuilder('imagens')
+  //     .select(['imagens.id', 'imagens.arqTipo', 'imagens.arqNome'])
+  //     .orderBy('imagens.id', 'ASC');
 
-    return query.getMany();
-  }
+  //   if (params.id) query.andWhere('imagens.id = :id', { id: params.id });
+  //   if (params.arqTipo) query.andWhere('imagens.arqTipo LIKE :arqTipo', { arqTipo: `%${params.arqTipo}%` });
+  //   if (params.arqNome) query.andWhere('imagens.arqNome LIKE :arqNome', { arqNome: `%${params.arqNome}%` });
+
+  //   return query.getMany();
+  // }
 
 
-  /** Busca pela arqtipo */
-  async searchArqTipoImagens(text?: string) {
-    const query = this.repo.createQueryBuilder('imagens')
-      .select(['imagens.id', 'imagens.arqTipo'])
-      .limit(100);
-    if (text) query.andWhere('imagens.arqTipo LIKE :text', { text: `%${text}%` });
-    return query.getMany();
-  }
+  // /** Busca pela arqtipo */
+  // async searchArqTipoImagens(text?: string) {
+  //   const query = this.repo.createQueryBuilder('imagens')
+  //     .select(['imagens.id', 'imagens.arqTipo'])
+  //     .limit(100);
+  //   if (text) query.andWhere('imagens.arqTipo LIKE :text', { text: `%${text}%` });
+  //   return query.getMany();
+  // }
 
-  /** Busca pelo arqNome */
-  async searchArqNomeImagens(text?: string) {
-    const query = this.repo.createQueryBuilder('imagens')
-      .select(['imagens.id', 'imagens.arqNome'])
-      .orderBy('imagens.id', 'ASC')
-      .limit(100);
-    if (text) query.andWhere('imagens.arqNome LIKE :text', { text: `%${text}%` });
-    return query.getMany();
-  }
+  // /** Busca pelo arqNome */
+  // async searchArqNomeImagens(text?: string) {
+  //   const query = this.repo.createQueryBuilder('imagens')
+  //     .select(['imagens.id', 'imagens.arqNome'])
+  //     .orderBy('imagens.id', 'ASC')
+  //     .limit(100);
+  //   if (text) query.andWhere('imagens.arqNome LIKE :text', { text: `%${text}%` });
+  //   return query.getMany();
+  // }
 
-  /** Busca um registro pelo nome */
-  async findOneArqNomeImagens(arqNome: string): Promise<ImagensEntity | null> {
-    if (!arqNome || !arqNome.trim()) {
-      throw new Error('O parâmetro arqNome é inválido');
-    }
-    return this.repo.findOne({ where: { arqNome } });
-  }
+  // /** Busca um registro pelo nome */
+  // async findOneArqNomeImagens(arqNome: string): Promise<ImagensEntity | null> {
+  //   if (!arqNome || !arqNome.trim()) {
+  //     throw new Error('O parâmetro arqNome é inválido');
+  //   }
+  //   return this.repo.findOne({ where: { arqNome } });
+  // }
 
-  /** Busca todos registros pelo arqTipo (igualdade exata, limitado a 100) */
-  async findAllArqTipoImagens(arqTipo: 'logo' | 'avatar'): Promise<ImagensEntity[]> {
-    return this.repo.find({
-      where: { arqTipo },
-      take: 100,
-      order: { id: "ASC" }
-    });
-  }
+  // /** Busca todos registros pelo arqTipo (igualdade exata, limitado a 100) */
+  // async findAllArqTipoImagens(arqTipo: 'logo' | 'avatar'): Promise<ImagensEntity[]> {
+  //   return this.repo.find({
+  //     where: { arqTipo },
+  //     take: 100,
+  //     order: { id: "ASC" }
+  //   });
+  // }
 
-  /** Lista todos registros pelo arqNome (igualdade exata, limitado a 100) */
-  async findAllArqNomeImagens(arqNome: string): Promise<ImagensEntity[]> {
-    return this.repo.find({
-      where: { arqNome },
-      take: 100,
-      order: { id: "ASC" }
-    });
-  }
+  // /** Lista todos registros pelo arqNome (igualdade exata, limitado a 100) */
+  // async findAllArqNomeImagens(arqNome: string): Promise<ImagensEntity[]> {
+  //   return this.repo.find({
+  //     where: { arqNome },
+  //     take: 100,
+  //     order: { id: "ASC" }
+  //   });
+  // }
   
 }
 
