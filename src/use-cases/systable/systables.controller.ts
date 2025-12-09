@@ -1,18 +1,14 @@
 
-
-// C:\repository\proj-full-stack-backend\src\use-cases\systable\systables.controller.ts
 import { NextFunction, Request, Response } from 'express';
 import { SystablesCreate, SystablesUpdate } from './systables.dto';
 import { SystablesRepository } from './systables.repository';
-import { SystablesDto } from './systables.dto';
 import { SystablesEntity } from './systables.entity';
-import { FindOptionsWhere } from "typeorm";
-import { DeepPartial } from 'typeorm';
+import { FindOptionsWhere } from 'typeorm';
 import { HttpException } from '../../middlewares/HttpException';
 
 export class SystablesController {
   constructor(private readonly systablesRepository: SystablesRepository) {}
-  
+
   /** POST Cria um novo registro de systables */
   async createSysTables(
     req: Request<{}, {}, SystablesCreate>,
@@ -21,10 +17,10 @@ export class SystablesController {
   ) {
     try {
       const { nome, chkdb, numberregs } = req.body;
-      
+
       const exists = await this.systablesRepository.hasDuplicated(nome, chkdb, numberregs);
       if (exists) throw new HttpException(400, "systables já existe");
-  
+
       const systables = await this.systablesRepository.createSystables(req.body);
       return res.status(201).send({ success: true, systables });
 
@@ -32,173 +28,188 @@ export class SystablesController {
       next(error);
     }
   }
-  
+
   /** PATCH Atualiza um registro de systables */
-async updateIdSysTables(
-  req: Request<{ systablesId: string }, {}, SystablesUpdate>,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const systablesId = Number(req.params?.systablesId);
-    if (!systablesId) {
-      throw new HttpException(400, "ID da systables inválido");
-    }
-
-    const { nome, ...rest } = req.body;
-
-    // Verifica se já existe outro registro com o mesmo nome e ID diferente
-    if (nome) {
-      const exists = await this.systablesRepository.findOneNomeSystables(nome);
-      if (exists && exists.id !== systablesId) {
-        throw new HttpException(400, "Já existe uma tabela com esse nome");
-      }
-    }
-
-    // Atualiza os dados (sem permitir mudar o ID)
-    const systables = await this.systablesRepository.updateSystables(
-      systablesId,
-      { nome, ...rest }
-    );
-
-    return res.status(200).send({ success: true, systables });
-  } catch (error) {
-    next(error);
-  }
-}
-
-//   /** DELETE Remove um registro de systables */
-async removeIdSysTables(
-  req: Request<{ systablesId: string }>,
-  res: Response,
-  next: NextFunction
-) {
-  const systablesId = Number(req.params.systablesId);
-  if (isNaN(systablesId) || systablesId <= 0) {
-    return res.status(400) .send({ success: false, message: "ID inválido" });
-  }
-  try {
-    const systablesId = Number(req.params.systablesId);
-    if (isNaN(systablesId) || systablesId <= 0) {
-      return res.status(400).send({ success: false, message: "ID inválido" });
-    }
-    await this.systablesRepository.deleteSystables(systablesId);
-    return res.status(200).send({ success: true });
-
-  } catch (error) {
-    next(error);
-  }
-}
-
-
-/** GET Busca todos os registros de systables */
-async findAllSysTables(req: Request, res: Response, next: NextFunction) {
-  try {
-    const { ativo } = req.query;
-    let where: FindOptionsWhere<SystablesEntity> | undefined;
-  
-    if (ativo !== undefined) {
-      where = { ativo: ativo === "true" } as FindOptionsWhere<SystablesEntity>;
-    }
-  
-    const systables = await this.systablesRepository.findSystablesAll(where, { nome: "ASC" });
-    return res.status(200).send({ success: true, systables });
-  } catch (error) {
-    next(error);
-  }
-}
-
-//   /** GET Busca um registro de systables por ID */
-async getOneSysTablesId(req: Request<{ systablesId: string }>, res: Response, next: NextFunction) {
-  try {
-    const systablesId = Number(req.params.systablesId<SystablesDto>);
-    if (isNaN(systablesId) || systablesId <= 0) {
-      return res.status(400).send({ success: false, message: "ID inválido" });
-    }
-
-    const systables = await this.systablesRepository.findSystablesById(systablesId);
-    return res.status(200).send({ success: true, systables });
-
-  } catch (error) {
-    next(error);
-  }
-}
-
-
-/** GET Busca registros de systables por ID/nome/chkdb/numberregs (query) */
-async searchSysTables(req: Request, res: Response, next: NextFunction) {
-  try {
-    const { id, nome, chkdb, numberregs } = req.query;
-
-    const systables = await this.systablesRepository.searchSystables({
-      id: id !== undefined ? Number(id) : undefined,
-      nome: nome !== undefined ? String(nome) : undefined,
-      chkdb: chkdb !== undefined ? (chkdb === 'true' ? 1 : 0) : undefined, // converte string "true" para 1, "false" para 0
-      numberregs: numberregs !== undefined ? Number(numberregs) : undefined,
-    });
-
-    return res.status(200).send({ success: true, systables });
-  } catch (error) {
-    next(error);
-  }
-}
-
-/** GET pesquisa Buscar por nome em systables */
-async searchSysTablesByNome(req: Request, res: Response, next: NextFunction) {
-  try {
-    const text = req.query?.text as string;
-    const systables = await this.systablesRepository.searchNomeSystables(text);
-    return res.status(200).send({ success: true, systables });
-  } catch (error) {
-    next(error);
-  }
-}
-
-/** GET pesquisa Buscar por chkdb em systables */
-async searchSysTablesByChkdb(req: Request, res: Response, next: NextFunction) {
-  try {
-    const text = req.query?.text as string;
-    const systables = await this.systablesRepository.searchChkdbSystables(text);
-    return res.status(200).send({ success: true, systables });
-  } catch (error) {
-    next(error);
-  }
-}
-
-/** GET pesquisa Buscar por numberregs em systables */
-async searchSysTablesByNumberregs(req: Request, res: Response, next: NextFunction) {
-  try {
-    const text = req.query?.text as string;
-    const systables = await this.systablesRepository.searchNumberregsSystables(text);
-    return res.status(200).send({ success: true, systables });
-  } catch (error) {
-    next(error);
-  }
-}
-
-
-/** GET Lista um reg. nome em systable */
-  async findOneSysTablesNome(
-    req: Request<{}, {}, {}, Partial<{ nome: string }>>, 
-    res: Response, 
+  async updateIdSysTables(
+    req: Request<{ systablesId: string }, {}, SystablesUpdate>,
+    res: Response,
     next: NextFunction
   ) {
-    const { nome } = req.query;
-
-    if (!nome) {
-      return res.status(400).send({ success: false, message: 'Name em tabela systable em parameter is required' })
-        .end();
-    }
-
     try {
-      const systables = await this.systablesRepository.findOneNomeSystables(nome);
-      return res.status(200).send({ success: true, systables }).end();
+      const systablesId = Number(req.params.systablesId);
+      if (!systablesId) {
+        throw new HttpException(400, "ID da systables inválido");
+      }
+
+      const { nome, ...rest } = req.body;
+
+      if (nome) {
+        const exists = await this.systablesRepository.findOneNomeSystables(nome);
+        if (exists && exists.id !== systablesId) {
+          throw new HttpException(400, "Já existe uma tabela com esse nome");
+        }
+      }
+
+      const systables = await this.systablesRepository.updateSystables(
+        systablesId,
+        { nome, ...rest }
+      );
+
+      return res.status(200).send({ success: true, systables });
+
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Lista todos os id e nome de systables */
+  /** DELETE Remove um registro de systables */
+  async removeIdSysTables(
+    req: Request<{ systablesId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const systablesId = Number(req.params.systablesId);
+      if (isNaN(systablesId) || systablesId <= 0) {
+        return res.status(400).send({ success: false, message: "ID inválido" });
+      }
+
+      await this.systablesRepository.deleteSystables(systablesId);
+      return res.status(200).send({ success: true });
+
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca todos os registros */
+  async findAllSysTables(req: Request, res: Response, next: NextFunction) {
+    try {
+      const systables = await this.systablesRepository.findSystablesAll({}, { nome: "ASC" });
+      return res.status(200).send({ success: true, systables });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca um registro por ID */
+  async getOneSysTablesId(
+    req: Request<{ systablesId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const systablesId = Number(req.params.systablesId);
+      if (isNaN(systablesId) || systablesId <= 0) {
+        return res.status(400).send({ success: false, message: "ID inválido" });
+      }
+
+      const systables = await this.systablesRepository.findSystablesById(systablesId);
+      return res.status(200).send({ success: true, systables });
+
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET Busca por múltiplos campos (query) */
+  async searchSysTables(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id, nome, chkdb, numberregs } = req.query;
+
+      const systables = await this.systablesRepository.searchSystables({
+        id: id ? Number(id) : undefined,
+        nome: nome ? String(nome) : undefined,
+        chkdb: chkdb ? (chkdb === "true" ? 1 : 0) : undefined,
+        numberregs: numberregs ? Number(numberregs) : undefined
+      });
+
+      return res.status(200).send({ success: true, systables });
+
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** Busca por nome */
+  async searchSysTablesByNome(req: Request, res: Response, next: NextFunction) {
+    try {
+      const text = req.query?.text as string;
+      const systables = await this.systablesRepository.searchNomeSystables(text);
+      return res.status(200).send({ success: true, systables });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET - pesquisa por chkdb (rápida) */
+  async searchSysTablesByChkdb(req: Request, res: Response, next: NextFunction) {
+    try {
+      // Pode vir ?chkdb=1 ou ?chkdb=true ou ?text=...
+      // Se você usa query param 'chkdb' então use esse:
+      const chkdbRaw = (req.query?.chkdb ?? req.query?.text) as string | undefined;
+
+      if (chkdbRaw === undefined) {
+        // retorna todos com limite implementado no repo
+        const systables = await this.systablesRepository.searchChkdbSystables(undefined);
+        return res.status(200).send({ success: true, systables });
+      }
+
+      const v = String(chkdbRaw).toLowerCase();
+      const parsed = (v === 'true' || v === '1') ? 1
+                   : (v === 'false' || v === '0') ? 0
+                   : Number(chkdbRaw);
+
+      if (isNaN(Number(parsed))) {
+        return res.status(400).send({ success: false, message: 'Parâmetro chkdb inválido' });
+      }
+
+      const systables = await this.systablesRepository.searchChkdbSystables(Number(parsed));
+      return res.status(200).send({ success: true, systables });
+      }   
+    catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET - pesquisa por numberregs (rápida) */
+  async searchSysTablesByNumberregs(req: Request, res: Response, next: NextFunction) {
+    try {
+      const numRaw = (req.query?.numberregs ?? req.query?.text) as string | undefined;
+
+      if (numRaw === undefined) {
+        const systables = await this.systablesRepository.searchNumberregsSystables(undefined);
+        return res.status(200).send({ success: true, systables });
+      }
+
+      const parsed = Number(numRaw);
+      if (isNaN(parsed)) {
+        return res.status(400).send({ success: false, message: 'Parâmetro numberregs inválido' });
+      }
+
+      const systables = await this.systablesRepository.searchNumberregsSystables(parsed);
+      return res.status(200).send({ success: true, systables });
+    } 
+  catch (error) {
+    next(error);
+  }
+}
+  /** Lista todos os nomes */
+  async findOneSysTablesNome(req: Request, res: Response, next: NextFunction) {
+    const { nome } = req.query;
+
+    if (!nome) {
+      return res.status(400).send({ success: false, message: 'Nome é obrigatório' });
+    }
+
+    try {
+      const systables = await this.systablesRepository.findOneNomeSystables(nome as string);
+      return res.status(200).send({ success: true, systables });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async findListSysTablesByNome(req: Request, res: Response, next: NextFunction) {
     try {
       const nomes = await this.systablesRepository.findListNomeSystables();
@@ -208,13 +219,12 @@ async searchSysTablesByNumberregs(req: Request, res: Response, next: NextFunctio
     }
   }
 
-  /** GET Lista todos os id, nome e chkdb de systables, com filtro opcional por chkdb */
   async findListSysTablesChkdb(req: Request, res: Response, next: NextFunction) {
     try {
       const { chkdb } = req.query;
 
       const lista = await this.systablesRepository.findListChkdbSystables(
-        chkdb !== undefined ? (chkdb === 'true' ? 1 : 0) : undefined
+        chkdb !== undefined ? (chkdb === "true" ? 1 : 0) : undefined
       );
 
       return res.status(200).send({ success: true, lista });
@@ -223,7 +233,6 @@ async searchSysTablesByNumberregs(req: Request, res: Response, next: NextFunctio
     }
   }
 
-  /** GET Lista todos os id, nome, chkdb e numberregs de systables, com filtro opcional por numberregs */
   async findListSysTablesNumberregs(req: Request, res: Response, next: NextFunction) {
     try {
       const { numberregs } = req.query;
@@ -238,4 +247,3 @@ async searchSysTablesByNumberregs(req: Request, res: Response, next: NextFunctio
     }
   }
 }
-

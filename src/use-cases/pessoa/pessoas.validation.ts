@@ -1,5 +1,5 @@
 
-// /use-cases/pessoa/éssoas.validation.ts 
+// /use-cases/pessoa/pessoas.validation.ts 
 import { zodBodyValidation } from '../../helpers/zod-validation';
 import { pessoasCreateSchema, pessoasUpdateSchema } from './pessoas.dto';
 

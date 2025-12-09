@@ -1,8 +1,16 @@
+ 
 // src/use-cases/pessoa/pessoas.repository.ts
-import { DataSource, DeepPartial, Repository, FindOptionsWhere, FindOptionsOrder } from 'typeorm';
+import { 
+  DataSource, 
+  DeepPartial, 
+  Repository, 
+  FindOptionsWhere, 
+  FindOptionsOrder 
+} from 'typeorm';
+
 import { PessoasEntity } from './pessoas.entity';
 import type { PessoasCreate } from './pessoas.dto';
-import { requiredPessoas } from '../../config/pessoas'
+import { requiredPessoas } from '../../config/pessoas';
 
 export class PessoasRepository {
   private repo: Repository<PessoasEntity>;
@@ -11,7 +19,10 @@ export class PessoasRepository {
     this.repo = this.dataSource.getRepository(PessoasEntity);
   }
 
-  /** Cria a tabela 'pessoas' caso não exista */
+  // ============================================================
+  // * CRIAÇÃO DA TABELA *
+  // ============================================================
+
   async createNotExistsPessoas(): Promise<void> {
     await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS pessoas (
@@ -26,80 +37,74 @@ export class PessoasRepository {
     `);
   }
 
-  /** Verifica duplicidade de registro em pessoas */
+  // ============================================================
+  // * DUPLICIDADE *
+  // ============================================================
+
   async hasDuplicated(
     nome?: string,
     sigla?: string,
-    excludes: number[] = []
-  ) {
-    const query = this.repo.createQueryBuilder('pessoas');
+    excludeId?: number
+  ): Promise<boolean> {
+    const query = this.repo.createQueryBuilder('pessoas')
+      .select(['pessoas.id']);
 
-    if (nome) {
-      query.andWhere('pessoas.nome = :nome', { nome });
-    }
-    if (sigla) {
-      query.andWhere('pessoas.sigla = :sigla', { sigla });
-    }
-  
-    if (excludes.length) {
-      query.andWhere('pessoas.id NOT IN (:...excludes)', { excludes });
-    }
+    if (nome) query.andWhere('pessoas.nome = :nome', { nome });
+    if (sigla) query.andWhere('pessoas.sigla = :sigla', { sigla });
+    if (excludeId)
+      query.andWhere('pessoas.id != :excludeId', { excludeId });
 
-    return query.getOne();
+    const result = await query.getOne();
+    return !!result;
   }
 
+  // ============================================================
+  // * INSERÇÃO DEFAULT *
+  // ============================================================
+
   async insertDefaultPessoas() {
-    const batchSize = 500; // para não estourar limite do MySQL
+    const batchSize = 300;
+
     for (let i = 0; i < requiredPessoas.length; i += batchSize) {
       const batch = requiredPessoas.slice(i, i + batchSize);
 
       for (const pessoa of batch) {
-        // 1️⃣ Verifica duplicidade
         const exists = await this.hasDuplicated(pessoa.nome, pessoa.sigla);
-        
-        if (exists) continue; // pula se já existir
+        if (exists) continue;
 
-        // 2️⃣ Insere o registro
-        const entity = this.repo.create(pessoa);
-        await this.repo.save(entity);
+        await this.repo.save(this.repo.create(pessoa));
       }
     }
 
-    console.log(`✅ Pessoas padrão inseridas com verificação de duplicidade`);
+    console.log(`✅ Pessoas padrão inseridas (verificação incluída)`);
   }
 
-//////////////////////////////////////////////
+  // ============================================================
+  // * CRUD *
+  // ============================================================
 
-  /** Busca todos os registros de Pessoas */
   async findPessoasAll(
-    where?: FindOptionsWhere<PessoasEntity>, 
+    where?: FindOptionsWhere<PessoasEntity>,
     order?: FindOptionsOrder<PessoasEntity>
   ): Promise<PessoasEntity[]> {
     return this.repo.find({ where, order });
   }
-  
-  /** Cria novo registro em pessoas */
+
   async createPessoas(pessoas: PessoasCreate): Promise<PessoasEntity> {
-    const data = this.repo.create(pessoas);
-    return this.repo.save(data);
+    const entity = this.repo.create(pessoas);
+    return this.repo.save(entity);
   }
 
-  /** Busca registro de pessoas pelo ID */
   async findPessoasById(pessoasId: number): Promise<PessoasEntity | null> {
-    if (!pessoasId || isNaN(pessoasId) || pessoasId <= 0) {
-      throw new Error('Invalid pessoasId');
-    }
+    this.validateId(pessoasId);
     return this.repo.findOne({ where: { id: pessoasId } });
   }
 
-  /** Atualiza registro em pessoas (seguro com preload) */
   async updatePessoas(
-    pessoasId: number, 
+    pessoasId: number,
     pessoas: DeepPartial<PessoasEntity>
-    ): Promise<PessoasEntity> {
-    if (!pessoasId || isNaN(pessoasId) || pessoasId <= 0) {
-      throw new Error('Invalid pessoasId');
-    }
+  ): Promise<PessoasEntity> {
+    this.validateId(pessoasId);
 
     const entity = await this.repo.preload({ id: pessoasId, ...pessoas });
     if (!entity) {
@@ -109,74 +114,98 @@ export class PessoasRepository {
     return this.repo.save(entity);
   }
 
-  /** Deleta registro em pessoas */
   async deletePessoas(pessoasId: number): Promise<void> {
-    const pessoas = await this.repo.findOne({ where: { id: pessoasId } });
+    this.validateId(pessoasId);
 
-    if (!pessoas) {
+    const found = await this.repo.findOne({ where: { id: pessoasId } });
+    if (!found) {
       throw new Error(`Pessoa com id ${pessoasId} não encontrada`);
     }
 
-    await this.repo.remove(pessoas);
+    await this.repo.remove(found);
   }
-  
-  /** Busca por ID, nome ou sigla */
+
+  // ============================================================
+  // * CONSULTAS PERSONALIZADAS *
+  // ============================================================
+
   async searchPessoas(params: { id?: number; nome?: string; sigla?: string }) {
     const query = this.repo.createQueryBuilder('pessoas')
       .select(['pessoas.id', 'pessoas.nome', 'pessoas.sigla'])
       .orderBy('pessoas.id', 'ASC');
 
     if (params.id) query.andWhere('pessoas.id = :id', { id: params.id });
-    if (params.nome) query.andWhere('pessoas.nome LIKE :nome', { nome: `%${params.nome}%` });
-    if (params.sigla) query.andWhere('pessoas.sigla LIKE :sigla', { sigla: `%${params.sigla}%` });
+    if (params.nome)
+      query.andWhere('pessoas.nome LIKE :nome COLLATE utf8mb4_general_ci', {
+        nome: `%${params.nome}%`
+      });
+    if (params.sigla)
+      query.andWhere('pessoas.sigla LIKE :sigla COLLATE utf8mb4_general_ci', {
+        sigla: `%${params.sigla}%`
+      });
 
     return query.getMany();
   }
 
-  /** Busca pelo nome */
   async searchNamePessoas(text?: string) {
     const query = this.repo.createQueryBuilder('pessoas')
       .select(['pessoas.id', 'pessoas.nome', 'pessoas.sigla'])
       .orderBy('pessoas.id', 'ASC')
       .limit(100);
-    if (text) query.andWhere('pessoas.nome LIKE :text', { text: `%${text}%` });
+
+    if (text)
+      query.andWhere('pessoas.nome LIKE :text COLLATE utf8mb4_general_ci', {
+        text: `%${text}%`
+      });
+
     return query.getMany();
   }
 
-  /** Busca pela sigla */
   async searchSiglaPessoas(text?: string) {
     const query = this.repo.createQueryBuilder('pessoas')
       .select(['pessoas.id', 'pessoas.nome', 'pessoas.sigla'])
+      .orderBy('pessoas.id', 'ASC')
       .limit(100);
-    if (text) query.andWhere('pessoas.sigla LIKE :text', { text: `%${text}%` });
+
+    if (text)
+      query.andWhere('pessoas.sigla LIKE :text COLLATE utf8mb4_general_ci', {
+        text: `%${text}%`
+      });
+
     return query.getMany();
   }
 
-  /** Busca um registro pelo nome */
-  async findOneNomePessoas(nome: string): Promise<PessoasEntity | null> {
+  async findOneNomePessoas(nome: string) {
     return this.repo.findOne({ where: { nome } });
   }
 
-  /** Busca todos registros pelo nome (igualdade exata, limitado a 100) */
-  async findAllNomePessoas(nome: string): Promise<PessoasEntity[]> {
+  async findAllNomePessoas(nome: string) {
     return this.repo.find({
       where: { nome },
-      take: 100,
-      order: { id: "ASC" }
+      order: { id: 'ASC' },
+      take: 100
     });
   }
 
-  /** Busca um registro pela sigla */
-  async findOneSiglaPessoas(sigla: string): Promise<PessoasEntity | null> {
+  async findOneSiglaPessoas(sigla: string) {
     return this.repo.findOne({ where: { sigla } });
   }
 
-  /** Busca todos registros pelo nome (igualdade exata, limitado a 100) */
-  async findAllSiglaPessoas(sigla: string): Promise<PessoasEntity[]> {
+  async findAllSiglaPessoas(sigla: string) {
     return this.repo.find({
       where: { sigla },
-      take: 100,
-      order: { id: "ASC" }
+      order: { id: 'ASC' },
+      take: 100
     });
+  }
+
+  // ============================================================
+  // * UTIL *
+  // ============================================================
+
+  private validateId(id: number) {
+    if (!id || isNaN(id) || id <= 0) {
+      throw new Error('Invalid pessoasId');
+    }
   }
 }

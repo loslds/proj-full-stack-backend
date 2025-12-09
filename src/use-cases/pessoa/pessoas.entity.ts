@@ -1,7 +1,6 @@
 
 //C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.entity.ts
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
-
 @Entity('pessoas')
 @Unique(['nome', 'sigla'])
 export class PessoasEntity {
@@ -29,8 +28,8 @@ export class PessoasEntity {
 
   @Column({ 
     type: 'int', 
-    nullable: false, 
     unsigned: true, 
+    nullable: false, 
     default: 0 
   })
   createdBy: number;
@@ -44,8 +43,8 @@ export class PessoasEntity {
 
   @Column({ 
     type: 'int', 
-    nullable: true, 
     unsigned: true, 
+    nullable: true, 
     default: 0 
   })
   updatedBy: number;
