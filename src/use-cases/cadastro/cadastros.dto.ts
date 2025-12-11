@@ -1,10 +1,8 @@
 
 //C:\repository\proj-full-stack-backend\src\use-cases\cliente\clientes.dto.ts
-
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
 import { CadastrosEntity } from './cadastros.entity';
-
 
 export const cadastrosCreateSchema = z.object({
   id_empresas: z.number().optional(), // adicionado,
@@ -12,6 +10,8 @@ export const cadastrosCreateSchema = z.object({
   id_clientes: z.number().optional(), // adicionado,
   id_fornecedores: z.number().optional(), // adicionado,
   id_funcionarios: z.number().optional(), // adicionado,
+  id_imagens: z.number().optional(), // adicionado,
+  id_cidades: z.number().optional(), // adicionado,
   endereço: z.string().min(3),
   complemento: z.string().min(3),
   bairro: z.string().min(3),
@@ -30,3 +30,4 @@ export const cadastrosUpdateSchema = cadastrosCreateSchema.partial().extend({
 export type CadastrosCreate = z.infer<typeof cadastrosCreateSchema>;
 export type CadastrosUpdate = z.infer<typeof cadastrosUpdateSchema>;
 export type CadastrosDto = DeepPartial<CadastrosEntity>
+

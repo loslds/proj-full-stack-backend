@@ -1,21 +1,35 @@
 
-import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
-import { CidadesEntity } from './cidades.entity';
-import type { CidadesCreate } from './cidades.dto';
-import { requiredCidades } from '../../config/cidades';
+// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.repository.ts
+import {
+  DataSource,
+  DeepPartial,
+  FindOptionsWhere,
+  Repository
+} from "typeorm";
+
+import { CidadesEntity } from "./cidades.entity";
+import type { CidadesCreate } from "./cidades.dto";
+import { requiredCidades } from "../../config/cidades";
+
+// Importando ENTIDADE real de cadastros
+import { CadastrosEntity } from "../cadastro/cadastros.entity"; // ajuste conforme estrutura
 
 export class CidadesRepository {
   private repo: Repository<CidadesEntity>;
+
   constructor(private readonly dataSource: DataSource) {
     this.repo = this.dataSource.getRepository(CidadesEntity);
   }
 
+  // ==========================================================
+  // CREATE TABLE (Se não existir)
+  // ==========================================================
   async createNotExistsCidades() {
     await this.repo.query(`
       CREATE TABLE IF NOT EXISTS cidades (
         id INT AUTO_INCREMENT PRIMARY KEY,
         nome VARCHAR(60) NOT NULL,
-        sigla CHAR(5) NOT NULL,
+        uf CHAR(5) NOT NULL,
         id_estados INT NOT NULL,
         createdBy INT DEFAULT 0,
         updatedBy INT DEFAULT 0,
@@ -26,44 +40,54 @@ export class CidadesRepository {
     `);
   }
 
-  // Verifica duplicidade por nome/sigla/id_estados
+  // ==========================================================
+  // VERIFICA DUPLICIDADE (nome + uf + id_estados)
+  // ==========================================================
   async hasDuplicated(
-    nome?: string, 
-    sigla?: string, 
-    id_estados?: number, 
+    nome?: string,
+    uf?: string,
+    id_estados?: number,
     excludes: number[] = []
   ) {
-    const query = this.repo.createQueryBuilder('cidades')
-      .where('cidades.nome = :nome', { nome })
-      .andWhere('cidades.sigla = :sigla', { sigla })
-      .andWhere('cidades.id_estados = :id_estados', { id_estados });
+
+
+    const qb = this.repo.createQueryBuilder('cidades');
 
     if (nome) {
-      query.andWhere('cidades.nome = :nome', { nome });
+      qb.andWhere('cidades.nome = :nome', { nome });
     }
-
-    if (sigla) {
-      query.andWhere('cidades.sigla = :sigla', { sigla });
+    if (uf) {
+      qb.andWhere('cidades.uf = :uf', { uf });
     }
-
     if (id_estados) {
-      query.andWhere('cidades.id_estados = :id_estados', { id_estados });
+      qb.andWhere('cidades.id_estados = :id_estados', { id_estados });
     }
 
     if (excludes.length) {
-      query.andWhere('cidades.id NOT IN (:...excludes)', { excludes });
+      qb.andWhere('cidades.id NOT IN (:...excludes)', { excludes });
     }
 
-    return query.getOne();
+    return qb.getOne();
   }
 
+  // ==========================================================
+  // INSERT DEFAULTS EM LOTES
+  // ==========================================================
   async insertDefaultCidades() {
     const total = await this.repo.count();
     if (total > 0) return;
 
     const batchSize = 500;
+
     for (let i = 0; i < requiredCidades.length; i += batchSize) {
+      
+      const total = await this.repo.count();
+      if (total > 0) return;
+
+      const batchSize = 500;
+      
       const batch = requiredCidades.slice(i, i + batchSize);
+
       await this.repo
         .createQueryBuilder()
         .insert()
@@ -72,21 +96,24 @@ export class CidadesRepository {
         .execute();
     }
 
-    console.log(`✅ ${requiredCidades.length} cidades inseridas em lotes de ${batchSize}`);
+    console.log(
+      `✅ ${requiredCidades.length} cidades inseridas em lotes de ${batchSize}`
+    );
   }
-//////////////////////////////////////////////////////////////////////////////////////////
 
-// Cria registro 1
+  // ==========================================================
+  // CREATE
+  // ==========================================================
   async createCidades(cidades: CidadesCreate): Promise<CidadesEntity> {
     // Verifica duplicidade apenas pelos campos da chave lógica
     const duplicated = await this.hasDuplicated(
       cidades.nome,
-      cidades.sigla,
+      cidades.uf,
       cidades.id_estados
     );
 
     if (duplicated) {
-      throw new Error('Cidade duplicada! Nome, sigla e Estado já existentes.');
+      throw new Error("Cidade duplicada! Nome, UF e Estado já existentes.");
     }
 
     // Cria e salva a entidade incluindo id_imagens se fornecido
@@ -94,194 +121,172 @@ export class CidadesRepository {
     return this.repo.save(data);
   }
 
-// 2 Atualiza registro com validação de duplicidade
+  // ==========================================================
+  // UPDATE
+  // ==========================================================
   async updateCidades(
     cidadesId: number,
     cidades: DeepPartial<CidadesEntity>
-    ): Promise<CidadesEntity> {
+  ): Promise<CidadesEntity> {
+
     // Verifica duplicidade
-    const duplicated = await this.repo.createQueryBuilder('cidades')
-      .where('cidades.nome = :nome', { nome: cidades.nome })
-      .andWhere('cidades.sigla = :sigla', { sigla: cidades.sigla })
-      .andWhere('cidades.id_estados = :id_estados', { id_estados: cidades.id_estados })
-      .andWhere('cidades.id != :id', { id: cidadesId }) // ignora o próprio registro
-      .getOne();
+    const qb = this.repo.createQueryBuilder("cidades")
+      .where("cidades.id != :id", { id: cidadesId });
+
+    if (cidades.nome)
+      qb.andWhere("cidades.nome = :nome", { nome: cidades.nome });
+
+    if (cidades.uf)
+      qb.andWhere("cidades.uf = :uf", { uf: cidades.uf });
+
+    if (cidades.id_estados)
+      qb.andWhere("cidades.id_estados = :id_estados", { id_estados: cidades.id_estados });
+
+    const duplicated = await qb.getOne();
 
     if (duplicated) {
-      // lança erro e não continua
-      return Promise.reject(new Error('Cidade duplicada! Nome, Fantasia e Pessoa já existentes.'));
+      throw new Error("Cidade duplicada! Nome, UF e Estado já existentes.");
     }
 
-    // Se passou pela validação, segue o update
     const data = this.repo.create({ id: cidadesId, ...cidades });
     return this.repo.save(data);
   }
-//////////////////////////////////////////////////////////////////////
-  
-  // 3 Deleta registro 
+
+  // ==========================================================
+  // DELETE — COM TRAVA DE INTEGRIDADE
+  // NÃO APAGA SE EXISTIR CADASTROS RELACIONADOS
+  // ==========================================================
   async deleteCidadesId(cidadesId: number): Promise<boolean> {
-    const result = await this.repo.delete(cidadesId);;
-    if (result.affected === 0) {
-      throw new Error(`Cicade com ID ${cidadesId} não encontrada.`);
+
+    const cadRepo = this.dataSource.getRepository(CadastrosEntity);
+
+    const refs = await cadRepo.count({
+      where: { id_cidades: cidadesId }
+    });
+
+    if (refs > 0) {
+      throw new Error(
+        `Cidade NÃO pode ser apagada. Existe(m) ${refs} cadastro(s) utilizando esta cidade.`
+      );
     }
+
+    const result = await this.repo.delete(cidadesId);
+
+    if (result.affected === 0) {
+      throw new Error(`Cidade com ID ${cidadesId} não encontrada.`);
+    }
+
     return true;
   }
 
-  // 4 Busca todos registros com filtro opcional 
+  // ==========================================================
+  // FIND ALL
+  // ==========================================================
   async findCidadesAll(
     where?: FindOptionsWhere<CidadesEntity> | FindOptionsWhere<CidadesEntity>[],
     orderBy: Record<string, "ASC" | "DESC"> = { id: "ASC" }
   ): Promise<CidadesEntity[]> {
     return this.repo.find({
       where: where ?? {},
-      relations: ['estados'],
-      order: orderBy,
+      relations: ["estados"],
+      order: orderBy
     });
   }
 
-  // 5 Busca por ID 
+  // ==========================================================
+  // FIND BY ID
+  // ==========================================================
   async findOneCidadesById(cidadesId: number) {
     return this.repo.findOne({
       where: { id: cidadesId },
-      relations: ['estados'],
+      relations: ["estados"]
     });
   }
 
-  
-  // 6 Busca por nome 
+  // ==========================================================
+  // FIND BY NOME
+  // ==========================================================
   async findOneCidadesByNome(nome: string) {
-    return this.repo.findOne({
-      where: { nome }
+    return this.repo.findOne({ 
+      where: { nome },
+      relations: ['estados'] 
     });
   }
 
-  //  7 Busca por sigla 
-  async findOneCidadesBySigla(sigla: string) {
-    return this.repo.findOne({
-      where: { sigla }
+  // ==========================================================
+  // FIND BY UF
+  // ==========================================================
+  async findOneCidadesByUf(uf: string) {
+    return this.repo.findOne({ 
+      where: { uf },
+      relations: ['estados'] 
     });
   }
 
-  // 8 Pesquisa por nome de cidade ou estado sigla 
-  async searchCidadesByNomeOuEstadoPaginado(nomeOuEstado?: string, page = 1, limit = 100) {
-    const skip = (page - 1) * limit;
-
-    // 1️⃣ Caso não seja passado nome → retorna todas paginadas
-    if (!nomeOuEstado || nomeOuEstado.trim() === '') {
-      const [result, total] = await this.repo
-        .createQueryBuilder('cidades')
-        .leftJoinAndSelect('cidades.estados', 'estados')
-        .select([
-          'cidades.id',
-          'cidades.nome',
-          'estados.nome',
-          'estados.uf'
-        ])
-        .orderBy('cidades.nome', 'ASC')
-        .skip(skip)
-        .take(limit)
-        .getManyAndCount();
-
-      return { data: result, total };
-    }
-
-    // 2️⃣ Primeiro: tenta buscar pelo nome da cidade
-    const queryCidades = this.repo
-      .createQueryBuilder('cidades')
-      .leftJoinAndSelect('cidades.estados', 'estados')
-      .select([
-        'cidades.id',
-        'cidades.nome',
-        'estados.nome',
-        'estados.uf'
-      ])
-      .where('cidades.nome LIKE :nome', { nome: `%${nomeOuEstado}%` })
-      .orderBy('cidades.nome', 'ASC')
-      .skip(skip)
-      .take(limit);
-
-    const cidadesEncontradas = await queryCidades.getMany();
-
-    if (cidadesEncontradas.length > 0) {
-      const total = await queryCidades.getCount();
-      return { data: cidadesEncontradas, total };
-    }
-
-    // 3️⃣ Caso não encontre cidades, busca pelo nome do estado ou UF
-    const queryEstados = this.repo
-      .createQueryBuilder('cidades')
-      .leftJoinAndSelect('cidades.estados', 'estados')
-      .select([
-        'cidades.id',
-        'cidades.nome',
-        'estados.nome',
-        'estados.uf'
-      ])
-      .where('estados.nome LIKE :estadoNome', { estadoNome: `%${nomeOuEstado}%` })
-      .orWhere('estados.uf LIKE :estadoUf', { estadoUf: `%${nomeOuEstado}%` })
-      .orderBy('cidades.nome', 'ASC')
-      .skip(skip)
-      .take(limit);
-
-    const resultEstados = await queryEstados.getMany();
-    const totalEstados = await queryEstados.getCount();
-
-    return { data: resultEstados, total: totalEstados };
-  }
-
-  async findCidadesByEstado(
-    estadoId?: number,
-    estadoNomeOuUf?: string,
+  // ==========================================================
+  // SEARCH (cidade ou estado)
+  // ==========================================================
+  async searchCidadesByNomeOuEstadoPaginado(
+    nomeOuEstado?: string,
     page = 1,
     limit = 100
   ) {
     const skip = (page - 1) * limit;
 
-    const query = this.repo
-      .createQueryBuilder('cidades')
-      .leftJoinAndSelect('cidades.estados', 'estados')
+    const qb = this.repo
+      .createQueryBuilder("cidades")
+      .leftJoinAndSelect("cidades.estados", "estados")
       .select([
-        'cidades.id',
-        'cidades.nome',
-        'estados.id',
-        'estados.nome',
-        'estados.uf'
+        "cidades.id",
+        "cidades.nome",
+        "estados.nome",
+        "estados.prefixo"
       ])
-      .orderBy('cidades.nome', 'ASC')
+      .orderBy("cidades.nome", "ASC")
       .skip(skip)
       .take(limit);
 
-    if (estadoId) {
-      query.andWhere('estados.id = :estadoId', { estadoId });
-    } else if (estadoNomeOuUf) {
-      query.andWhere(
-        '(estados.nome LIKE :estadoNome OR estados.uf LIKE :estadoUf)',
-        { estadoNome: `%${estadoNomeOuUf}%`, estadoUf: `%${estadoNomeOuUf}%` }
-      );
+    if (!nomeOuEstado || nomeOuEstado.trim() === "") {
+      const [data, total] = await qb.getManyAndCount();
+      return { data, total };
     }
 
-    const [data, total] = await query.getManyAndCount();
+    qb.where("cidades.nome LIKE :term", { term: `%${nomeOuEstado}%` })
+      .orWhere("estados.nome LIKE :term", { term: `%${nomeOuEstado}%` })
+      .orWhere("estados.prefixo LIKE :term", { term: `%${nomeOuEstado}%` });
+
+    const [data, total] = await qb.getManyAndCount();
     return { data, total };
   }
 
-
-
-
-
-
-
-
-
-
-
-/** 11 Lista todas registros cidades + estados*/
+  // ==========================================================
+  // LISTAR TUDO (cidade + estado)
+  // ==========================================================
   async listAllCidadesDetails() {
     return this.repo
-      .createQueryBuilder('cidades')
-      .leftJoinAndSelect('cidades.estados', 'estados')
+      .createQueryBuilder("cdd")
+      .leftJoinAndSelect("ccd.estados", "est")
+      .select([
+        'cdd.id AS cidade_id',
+        'cdd.nome AS cidade_nome',
+        'cdd.uf AS cidade_uf',
+        'est.id AS estado_id',
+        'est.nome AS estado_nome',
+        'est.prefixo AS estado_prefixo',
+
+      ])
       .getMany();
   }
 
-
-
+  // ==========================================================
+  // FIND ALL BY ESTADO (id_estados)
+  // ==========================================================
+  async FindAllCidadesByIdEstado(id_estados: number): Promise<CidadesEntity[]> {
+    return this.repo.find({
+      where: { id_estados },
+      relations: ["estados"],
+      order: { nome: "ASC" }
+    });
+  }
 }
+

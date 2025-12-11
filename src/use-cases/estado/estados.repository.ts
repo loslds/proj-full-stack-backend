@@ -1,5 +1,6 @@
-// C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.repository.ts
 
+ 
+// C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.repository.ts
 import { DataSource, DeepPartial, Repository, FindOptionsWhere, FindOptionsOrder } from 'typeorm';
 import { EstadosEntity } from './estados.entity';
 import type { EstadosCreate } from './estados.dto';
@@ -11,15 +12,16 @@ export class EstadosRepository {
   constructor(private readonly dataSource: DataSource) {
     this.repo = this.dataSource.getRepository(EstadosEntity);
   }
+  // ============================================================
+  // * CRIAÇÃO DA TABELA *
+  // ============================================================
 
-  /** Cria a tabela 'estados' caso não exista */
   async createNotExistsEstados(): Promise<void> {
     await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS estados (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         nome VARCHAR(60) NOT NULL COLLATE utf8mb4_general_ci UNIQUE,
-        uf VARCHAR(5) NOT NULL,
-        nrinscre INT UNSIGNED DEFAULT NULL,
+        prefixo VARCHAR(5) NOT NULL,
         createdBy INT UNSIGNED DEFAULT 0,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
         updatedBy INT UNSIGNED DEFAULT 0,
@@ -27,61 +29,73 @@ export class EstadosRepository {
       )
     `);
   }
+  // ============================================================
+  // * DUPLICIDADE *
+  // ============================================================
 
-  /** Verifica duplicidade de registro */
   async hasDuplicated(
     nome?: string,
-    uf?: string,
-    excludes: number[] = []
-  ) {
-    const query = this.repo.createQueryBuilder('estados');
+    prefixo?: string,
+    excludeId?: number
+  ): Promise<boolean> {
+    const query = this.repo.createQueryBuilder('estados')
+      .select(['estados.id']);
 
-    if (nome) {
-      query.andWhere('estados.nome = :nome', { nome });
-    }
-    if (uf) {
-      query.andWhere('estados.uf = :uf', { uf });
-    }
-  
-    if (excludes.length) {
-      query.andWhere('estados.id NOT IN (:...excludes)', { excludes });
+    if (nome) query.andWhere('estados.nome = :nome', { nome });
+    if (prefixo) query.andWhere('estados.prefixo = :prefixo', { prefixo });
+    if (excludeId)
+      query.andWhere('pessoas.id != :excludeId', { excludeId });
+
+    const result = await query.getOne();
+    return !!result;
+  }
+  // ============================================================
+  // * INSERÇÃO DEFAULT *
+  // ============================================================
+
+  async insertDefaultEstados() {
+    const batchSize = 300;
+
+    for (let i = 0; i < requiredEstados.length; i += batchSize) {
+      const batch = requiredEstados.slice(i, i + batchSize);
+
+      for (const estado of batch) {
+        const exists = await this.hasDuplicated(estado.nome, estado.prefixo);
+        if (exists) continue;
+
+        await this.repo.save(this.repo.create(estado));
+      }
     }
 
-    return query.getOne();
+    console.log(`✅ estados padrão inseridas (verificação incluída)`);
   }
 
+  // ============================================================
+  // * CRUD *
+  // ============================================================
 
-//////////////////////////////////////////////
-
-  /** Busca todos os registros de Pessoas */
   async findEstadosAll(
-    where?: FindOptionsWhere<EstadosEntity>, 
+    where?: FindOptionsWhere<EstadosEntity>,
     order?: FindOptionsOrder<EstadosEntity>
   ): Promise<EstadosEntity[]> {
     return this.repo.find({ where, order });
   }
-  /** Cria novo registro  */
+
   async createEstados(estados: EstadosCreate): Promise<EstadosEntity> {
-    const data = this.repo.create(estados);
-    return this.repo.save(data);
+    const entity = this.repo.create(estados);
+    return this.repo.save(entity);
   }
 
-  /** Busca registro pelo ID */
   async findEstadosById(estadosId: number): Promise<EstadosEntity | null> {
-    if (!estadosId || isNaN(estadosId) || estadosId <= 0) {
-      throw new Error('Invalid estadosId');
-    }
+    this.validateId(estadosId);
     return this.repo.findOne({ where: { id: estadosId } });
   }
 
-  /** Atualiza registro (seguro com preload) */
   async updateEstados(
-    estadosId: number, 
+    estadosId: number,
     estados: DeepPartial<EstadosEntity>
-    ): Promise<EstadosEntity> {
-    if (!estadosId || isNaN(estadosId) || estadosId <= 0) {
-      throw new Error('Invalid estadosId');
-    }
+  ): Promise<EstadosEntity> {
+    this.validateId(estadosId);
 
     const entity = await this.repo.preload({ id: estadosId, ...estados });
     if (!entity) {
@@ -91,71 +105,98 @@ export class EstadosRepository {
     return this.repo.save(entity);
   }
 
-  /** Deleta registro em pessoas */
   async deleteEstados(estadosId: number): Promise<void> {
-    const entity = await this.repo.findOne({ where: { id: estadosId } });
-    if (!entity) throw new Error(`EStado com id ${estadosId} não encontrada`);
-    await this.repo.remove(entity);
+    this.validateId(estadosId);
+
+    const found = await this.repo.findOne({ where: { id: estadosId } });
+    if (!found) {
+      throw new Error(`Estado com id ${estadosId} não encontrada`);
+    }
+
+    await this.repo.remove(found);
   }
-  
-  /** Busca por ID, nome ou uf */
-  async searchEstados(params: { id?: number; nome?: string; uf?: string, nrinscre?: number; }) {
+
+  // ============================================================
+  // * CONSULTAS PERSONALIZADAS *
+  // ============================================================
+
+  async searchEstados(params: { id?: number; nome?: string; prefixo?: string }) {
     const query = this.repo.createQueryBuilder('estados')
-      .select(['estados.id', 'estados.nome', 'estados.uf', 'estados.ninscre'])
+      .select(['estados.id', 'estados.nome', 'estados.prefixo'])
       .orderBy('estados.id', 'ASC');
 
     if (params.id) query.andWhere('estados.id = :id', { id: params.id });
-    if (params.nome) query.andWhere('estados.nome LIKE :nome', { nome: `%${params.nome}%` });
-    if (params.uf) query.andWhere('estados.uf LIKE :uf', { uf: `%${params.uf}%` });
-    if (params.nrinscre) query.andWhere('estados.nrinscre LIKE :nrinscre', { uf: `%${params.nrinscre}%` });
+    if (params.nome)
+      query.andWhere('estados.nome LIKE :nome COLLATE utf8mb4_general_ci', {
+        nome: `%${params.nome}%`
+      });
+    if (params.prefixo)
+      query.andWhere('estados.prefixo LIKE :prefixo COLLATE utf8mb4_general_ci', {
+        prefixo: `%${params.prefixo}%`
+      });
 
     return query.getMany();
   }
 
-  /** Busca pelo nome */
-  async searchNameEstados(text?: string) {
+  async searchNomeEstados(text?: string) {
     const query = this.repo.createQueryBuilder('estados')
-      .select(['estados.id', 'estados.nome'])
+      .select(['estados.id', 'estados.nome', 'pessoas.prefixo'])
       .orderBy('estados.id', 'ASC')
       .limit(100);
-    if (text) query.andWhere('estados.nome LIKE :text', { text: `%${text}%` });
+
+    if (text)
+      query.andWhere('estados.nome LIKE :text COLLATE utf8mb4_general_ci', {
+        text: `%${text}%`
+      });
+
     return query.getMany();
   }
 
-  /** Busca pela sigla */
-  async searchUfEstados(text?: string) {
+  async searchPrefixoEstados(text?: string) {
     const query = this.repo.createQueryBuilder('estados')
-      .select(['estados.id', 'estados.uf'])
+      .select(['estados.id', 'estados.nome', 'estados.prefixo'])
+      .orderBy('estados.id', 'ASC')
       .limit(100);
-    if (text) query.andWhere('estados.uf LIKE :text', { text: `%${text}%` });
+
+    if (text)
+      query.andWhere('estados.prefixo LIKE :text COLLATE utf8mb4_general_ci', {
+        text: `%${text}%`
+      });
+
     return query.getMany();
   }
 
-  /** Busca um registro pelo nome */
-  async findOneNomeEstados(nome: string): Promise<EstadosEntity | null> {
+  async findOneNomeEstados(nome: string) {
     return this.repo.findOne({ where: { nome } });
   }
 
-  /** Busca todos registros pelo nome (igualdade exata, limitado a 100) */
-  async findAllNomeEstados(nome: string): Promise<EstadosEntity[]> {
+  async findAllNomeEstados(nome: string) {
     return this.repo.find({
       where: { nome },
-      take: 100,
-      order: { id: "ASC" }
+      order: { id: 'ASC' },
+      take: 100
     });
   }
 
-  /** Busca um registro pela uf */
-  async findOneUfEstados(uf: string): Promise<EstadosEntity | null> {
-    return this.repo.findOne({ where: { uf } });
+  async findOnePrefixoEstados(prefixo: string) {
+    return this.repo.findOne({ where: { prefixo } });
   }
 
-  /** Busca todos registros pelo uf (igualdade exata, limitado a 100) */
-  async findAllUfEstados(uf: string): Promise<EstadosEntity[]> {
+  async findAllPrefixoEstados(prefixo: string) {
     return this.repo.find({
-      where: { uf },
-      take: 100,
-      order: { id: "ASC" }
+      where: { prefixo },
+      order: { id: 'ASC' },
+      take: 100
     });
+  }
+
+  // ============================================================
+  // * UTIL *
+  // ============================================================
+
+  private validateId(id: number) {
+    if (!id || isNaN(id) || id <= 0) {
+      throw new Error('Invalid estadosId');
+    }
   }
 }

@@ -1,11 +1,8 @@
 
-//C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.entity.ts
-
+// C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.entity.ts
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
-
 @Entity('estados')
-@Unique(['nome', 'uf'])
-
+@Unique(['nome', 'prefixo'])
 export class EstadosEntity {
   @PrimaryGeneratedColumn({ 
     type: 'int', 
@@ -25,9 +22,9 @@ export class EstadosEntity {
     type: 'varchar', 
     length: 5, 
     nullable: false, 
-    collation: 'utf8mb4_general_ci' 
+    collation: 'utf8mb4_general_ci'
   })
-  uf: string;
+  prefixo: string;
 
   @Column({ 
     type: 'int', 
@@ -35,37 +32,28 @@ export class EstadosEntity {
     nullable: false, 
     default: 0 
   })
-  nrinscr: string;
-
-  @Column({ 
-    type: 'int', 
-    unsigned: true, 
-    nullable: false, 
-    default: 0 
-  })
-  createBy: number;
+  createdBy: number;
 
   @Column({ 
     type: 'datetime', 
     nullable: true, 
     default: () => 'CURRENT_TIMESTAMP' 
   })
-  createAt: Date;
+  createdAt: Date;
 
   @Column({ 
     type: 'int', 
     unsigned: true, 
-    nullable: false, 
+    nullable: true, 
     default: 0 
   })
-  updateBy: number;
+  updatedBy: number;
 
   @Column({ 
     type: 'datetime', 
     nullable: true, 
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'CURRENT_TIMESTAMP', 
     onUpdate: 'CURRENT_TIMESTAMP' 
   })
-  updateAt: Date;
+  updatedAt: Date;
 }
-

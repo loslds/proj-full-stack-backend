@@ -1,20 +1,20 @@
 
-//use-cases/consumidor/index.ts
-
-import { ClientesRepository } from './cadastros.repository';
-
-export { clientesRoutes } from './cadastros.route';
-export { ClientesController } from './cadastros.controller';
-export type { ClientesDto } from './cadastros.dto';
-export { ClientesEntity } from './cadastros.entity';
-export { ClientesRepository } from './cadastros.repository';
+//C:\repository\proj-full-stack-backend\src\use-cases\cadastro\index.ts
+export { cadastrosRoutes } from './cadastros.route';
+export { CadastrosController } from './cadastros.controller';
+export type { CadastrosDto } from './cadastros.dto';
+export { CadastrosEntity } from './cadastros.entity';
 export * from './cadastros.dto';
 export * from './cadastros.validation';
 
-export const clientesConfig = {
-  tableName: 'clientes',
-  repoClass: ClientesRepository,
+import { CadastrosRepository } from './cadastros.repository';
+export const cadasrosConfig = {
+  tableName: 'cadastros',
+  repoClass: CadastrosRepository,
   createMethod: 'createNotExistsClientes',
-  findAll: 'findClientesAll',
-  //insertDefaults: 'insertDefaultImagens',
+  findAll: 'findCadastrosAll',
 };
+
+
+
+

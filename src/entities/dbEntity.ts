@@ -17,18 +17,18 @@ import { CadastrosEntity } from '../use-cases/cadastro/cadastros.entity';
 
 export const dbEntity = [
   SystablesEntity,
-
-  ImagensEntity,
+  
   EstadosEntity,
-  CidadesEntity,
+  //CidadesEntity,
+  //ImagensEntity,
 
   PessoasEntity,
-  EmpresasEntity,
-  ConsumidoresEntity,
-  ClientesEntity,
-  FornecedoresEntity,
-  FuncionariosEntity,
-  CadastrosEntity,
+  //EmpresasEntity,
+  //ConsumidoresEntity,
+  //ClientesEntity,
+  //FornecedoresEntity,
+  //FuncionariosEntity,
+  //CadastrosEntity,
 ];
 
 

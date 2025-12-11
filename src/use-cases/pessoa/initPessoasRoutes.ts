@@ -1,5 +1,5 @@
-// C:\repository\proj-full-stack-backend\src\use-cases\pessoa\initPessoasRoutes.ts
 
+// C:\repository\proj-full-stack-backend\src\use-cases\pessoa\initPessoasRoutes.ts
 import { Application, Router } from "express";
 import { PessoasController } from "./pessoas.controller";
 import { PessoasRepository } from "./pessoas.repository";
@@ -25,7 +25,7 @@ export async function initPessoasRoutes(app: Application) {
   router.post("/", pessoascreateValidation, controller.createNewPessoas.bind(controller));
 
   router.get("/search", controller.searchPessoasAll.bind(controller));
-  router.get("/search-name", controller.searchPessoasName.bind(controller));
+  router.get("/search-name", controller.searchPessoasNome.bind(controller));
   router.get("/search-sigla", controller.searchPessoasSigla.bind(controller));
 
   router.get("/one-nome", controller.findOnePessoasNome.bind(controller));

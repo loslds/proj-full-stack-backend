@@ -1,16 +1,15 @@
 // C:\repository\proj-full-stack-backend\src\use-cases\estdos\index.ts
-
-import { EstadosRepository } from './estados.repository';
 export { EstadosController } from './estados.controller';
-export type { EstadosDto } from './estados.dto';
-export { estadosRoutes } from './estados.route'
 export { EstadosEntity } from './estados.entity';
+export { EstadosRepository } from './estados.repository';
 
 export * from './estados.dto';
 export * from './estados.validation';
-
+// ROTAS -. SERVIDOR E FRONTEND
 export { initEstadosRoutes } from './initEstadosRoutes';
-
+export { estadosRoutes } from './estados.route'
+//
+import { EstadosRepository } from './estados.repository';
 export const estadosConfig = {
   tableName: 'estados',
   repoClass: EstadosRepository,
@@ -18,10 +17,4 @@ export const estadosConfig = {
   findAll: 'findEstadosAll',
   insertDefaults: 'insertDefaultEstados',
 };
-
-
-
-
-
-
 

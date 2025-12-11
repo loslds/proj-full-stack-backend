@@ -1,36 +1,55 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\pessoa\initPessoasRoutes.ts
 
-import { Application } from "express";
-import { CidadesController } from "./cidades.controller";
-import { CidadesRepository } from "./cidades.repository";
-import { cidadescreateValidation, cidadesupdateValidation } from "./cidades.validation";
+// C:\repository\proj-full-stack-backend\src\use-cases\cidade\initCidadesRoutes.ts
+
+import { Application, Router } from "express";
 import { dbSource } from "../../database";
-import { Router } from "express";
+import { CidadesRepository } from "./cidades.repository";
+import { CidadesController } from "./cidades.controller";
+import { cidadescreateValidation, cidadesupdateValidation } from "./cidades.validation";
 
 export async function initCidadesRoutes(app: Application) {
-  // 1️⃣ Criação do repository **depois** da inicialização
-  const cidadesRepo = new CidadesRepository(dbSource);
+  // 1️⃣ Instancia repositório
+  const repo = new CidadesRepository(dbSource);
 
-  // 2️⃣ Garantir tabela e defaults
-  await cidadesRepo.createNotExistsCidades();
-  await cidadesRepo.insertDefaultCidades();
+  // 2️⃣ Cria tabela e insere defaults (se vazio)
+  await repo.createNotExistsCidades();
+  await repo.insertDefaultCidades();
 
-  // 3️⃣ Criação do controller
-  const controller = new CidadesController(cidadesRepo);
+  // 3️⃣ Instancia controller
+  const controller = new CidadesController(repo);
 
-  // 4️⃣ Router
+  // 4️⃣ Define router
   const router = Router();
 
-  router.post('/', cidadescreateValidation, controller.createNewCidades.bind(controller));
-  router.patch('/:cidadesId', cidadesupdateValidation, controller.updateIdCidades.bind(controller));
-  router.delete('/:cidadesId', controller.removeCidadesId.bind(controller));
-  router.get('/', controller.findAllCidades.bind(controller));
-  router.get('/id/:cidadesId', controller.getOneIdCidades.bind(controller));
-  router.get('/nome', controller.findOneNomeCidades.bind(controller));
-  router.get('/sigla', controller.findOneCidadesBySigla.bind(controller));
-  router.get('/search', controller.searchByNomeOuEstadoPaginado.bind(controller));
-  router.get('/estado', controller.findCidadesByEstado.bind(controller));
+  // ==========================================================
+  // CRUD PRINCIPAL
+  // ==========================================================
 
+  router.post( "/", cidadescreateValidation, controller.createNewCidades.bind(controller) );
+  router.patch( "/:cidadesId", cidadesupdateValidation, controller.updateIdCidades.bind(controller) );
+  router.delete( "/:cidadesId", controller.removeCidadesId.bind(controller) );
+  router.get( "/", controller.findAllCidades.bind(controller) );
+
+  // ==========================================================
+  // CONSULTAS ESPECÍFICAS
+  // ==========================================================
+  router.get( "/id/:cidadesId", controller.getOneIdCidades.bind(controller) );
+  router.get( "/nome", controller.findOneNomeCidades.bind(controller) );
+  router.get( "/uf", controller.findOneCidadesByUf.bind(controller) );
+  router.get( "/search", controller.searchByNomeOuEstadoPaginado.bind(controller) );
+
+  // ==========================================================
+  // CIDADES POR ESTADO
+  // ==========================================================
+  router.get( "/estado/:id_estado", controller.listAllCidadesByIdEstado.bind(controller) );
+
+  // ==========================================================
+  // LISTA DETALHADA (cidade + estado)
+  // ==========================================================
+  router.get( "/details", controller.listAllCidadesDetails.bind(controller) );
+
+  // -------------------------------------------
+  // 5️⃣ Registra rota raiz
+  // -------------------------------------------
   app.use("/api/cidades", router);
 }
-

@@ -1,7 +1,5 @@
+
 //use-cases/empresa/index.ts
-
-import { EmpresasRepository } from './empresas.repository';
-
 export { empresasRoutes } from './empresas.route';
 export { EmpresasController } from './empresas.controller';
 export type { EmpresasDto } from './empresas.dto';
@@ -10,6 +8,7 @@ export { EmpresasRepository } from './empresas.repository';
 export * from './empresas.dto';
 export * from './empresas.validation';
 
+import { EmpresasRepository } from './empresas.repository';
 export const empresasConfig = {
   tableName: 'empresas',
   repoClass: EmpresasRepository,

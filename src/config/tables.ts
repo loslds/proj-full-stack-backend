@@ -6,16 +6,17 @@ export const requiredTables = [
   // TABELAS QUE DEVERÃO FAZER UPDATE
   'estados',
   'cidades',
-  'imagens',
+  //'imagens',
 
   // TABELAS QUE DEVERÃO FAZER UPDATE
   'pessoas',
-  'empresas',
-  'cadastros',
-  'consumidores',
-  'clientes',
-  'fornecedores',
-  'funcionarios',
+  //'empresas',
+  
+  //'consumidores',
+  //'clientes',
+  //'fornecedores',
+  //'funcionarios',
+  //'cadastros',
   
 ];
 

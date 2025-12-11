@@ -16,7 +16,7 @@ const pessoasRoute = Router();
 pessoasRoute.get('/', controller.findAllPessoas.bind(controller));
 
 pessoasRoute.get('/search', controller.searchPessoasAll.bind(controller));
-pessoasRoute.get('/search-name', controller.searchPessoasName.bind(controller));
+pessoasRoute.get('/search-name', controller.searchPessoasNome.bind(controller));
 pessoasRoute.get('/search-sigla', controller.searchPessoasSigla.bind(controller));
 
 pessoasRoute.get('/one-nome', controller.findOnePessoasNome.bind(controller));

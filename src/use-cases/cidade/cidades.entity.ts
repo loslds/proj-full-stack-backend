@@ -1,45 +1,77 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\cidades\cidades.entity.ts
 
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
+// C:\repository\proj-full-stack-backend\src\use-cases\cidades\cidades.entity.ts
+import { 
+  Column, 
+  Entity, 
+  PrimaryGeneratedColumn, 
+  Unique, 
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
-  UpdateDateColumn,
-  Unique
+  UpdateDateColumn
 } from 'typeorm';
 
-import { EstadosEntity } from '../estado/estados.entity'; // ajuste o caminho conforme sua estrutura
+import { EstadosEntity } from '../estado/estados.entity';
 
+@Entity('cidades')
+@Unique(['nome', 'id_estados']) // evita cidade duplicada no mesmo estado
 export class CidadesEntity {
-  @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
+
+  @PrimaryGeneratedColumn({ 
+    type: 'int', 
+    unsigned: true 
+  })
   id: number;
 
-   // 🔹 Campo para armazenar o id do estados
-  @Column({ type: 'int', nullable: false })
+  // CHAVE ESTRANGEIRA -> Estados
+  @Column({ 
+    type: 'int', 
+    unsigned: true, 
+    nullable: false 
+  })
   id_estados: number;
-  // 🔹 Relacionamento com Pessoas
-  @ManyToOne(() => EstadosEntity)
-  @JoinColumn({ name: 'id_estados' })
-  estados: EstadosEntity;
 
-  @Column({ type: 'varchar', length: 60, nullable: false })
+  @ManyToOne(() => EstadosEntity)
+  @JoinColumn({ 
+    name: 'id_estados' 
+  })
+  estado: EstadosEntity;
+
+  @Column({ 
+    type: 'varchar',
+    length: 60,
+    nullable: false,
+    collation: 'utf8mb4_general_ci'
+  })
   nome: string;
 
-  @Column({ type: 'varchar', length: 60, nullable: false })
-  sigla: string;
+  @Column({ 
+    type: 'varchar',
+    length: 5,
+    nullable: false,
+    collation: 'utf8mb4_general_ci'
+  })
+  uf: string;
 
-  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
-  createdBy?: number;
+  @Column({ 
+    type: 'int', 
+    unsigned: true, 
+    nullable: false, 
+    default: 0 
+  })
+  createdBy: number;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({ type: 'datetime' })
   createdAt: Date;
 
-  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
-  updatedBy?: number;
+  @Column({ 
+    type: 'int', 
+    unsigned: true, 
+    nullable: false, 
+    default: 0 
+  })
+  updatedBy: number;
 
-  @UpdateDateColumn({ type: 'timestamp' })
+  @UpdateDateColumn({ type: 'datetime' })
   updatedAt: Date;
 }

@@ -1,11 +1,8 @@
  
 // src/use-cases/pessoa/pessoas.controller.ts
 import { NextFunction, Request, Response } from "express";
-import { FindOptionsWhere } from "typeorm";
-
 import { PessoasRepository } from "./pessoas.repository";
 import { PessoasCreate, PessoasUpdate } from "./pessoas.dto";
-import { PessoasEntity } from "./pessoas.entity";
 import { HttpException } from "../../middlewares/HttpException";
 
 export class PessoasController {
@@ -46,10 +43,10 @@ async findAllPessoas(req: Request, res: Response, next: NextFunction) {
   }
 
   /** GET → Busca por nome aproximado */
-  async searchPessoasName(req: Request, res: Response, next: NextFunction) {
+  async searchPessoasNome(req: Request, res: Response, next: NextFunction) {
     try {
       const text = req.query.text ? String(req.query.text) : undefined;
-      const pessoas = await this.pessoasRepository.searchNamePessoas(text);
+      const pessoas = await this.pessoasRepository.searchNomePessoas(text);
 
       res.status(200).send({ success: true, pessoas });
     } catch (error) {

@@ -12,6 +12,8 @@ import {
 } from 'typeorm';
 
 import { EmpresasEntity } from '../empresa/empresas.entity';
+import { CidadesEntity } from '../cidade/cidades.entity';
+import { ImagensEntity } from '../imagen/imagens.entity';
 import { ConsumidoresEntity } from '../consumidor/consumidores.entity';
 import { ClientesEntity } from '../cliente/clientes.entity';
 import { FornecedoresEntity } from '../fornecedor/fornecedores.entity';
@@ -69,24 +71,75 @@ export class CadastrosEntity {
   @JoinColumn({ name: 'id_funcionarios' })
   funcionarios: FuncionariosEntity;
 
-  @Column({ type: 'varchar', length: 200, nullable: false })
+// 🔹 Campo para armazenar o id imagens
+  @Column({ type: 'int', unsigned: true, nullable: false })
+  id_imagens: number;
+
+  // 🔹 Relacionamento com imagens
+  @ManyToOne(() => ImagensEntity)
+  @JoinColumn({ name: 'id_imagens' })
+  imagens: ImagensEntity;
+
+  // 🔹 Campo para armazenar o id cidades
+  @Column({ type: 'int', unsigned: true, nullable: false })
+  id_cidades: number;
+
+  // 🔹 Relacionamento com imagens
+  @ManyToOne(() => CidadesEntity)
+  @JoinColumn({ name: 'id_cidades' })
+  cidades: ImagensEntity;
+
+  // 🔹 Campo para informações do cadastros
+  @Column({ 
+    type: 'varchar', 
+    length: 200, 
+    nullable: false 
+  })
   endereco: string;
 
-  @Column({ type: 'varchar', length: 200, nullable: false })
+  @Column({ 
+    type: 'varchar', 
+    length: 200, 
+    nullable: false 
+  })
   complemento: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: false })
+  @Column({ 
+    type: 'varchar', 
+    length: 100, 
+    nullable: false 
+  })
   bairro: string;
 
-  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
-  createdBy?: number;
+  // 🔹 Campo para informações da Criação e Update do Registro
+  @Column({ 
+    type: 'int', 
+    unsigned: true, 
+    nullable: false, 
+    default: 0 
+  })
+  createdBy: number;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @Column({ 
+    type: 'datetime', 
+    nullable: true, 
+    default: () => 'CURRENT_TIMESTAMP' 
+  })
   createdAt: Date;
 
-  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
-  updatedBy?: number;
+  @Column({ 
+    type: 'int', 
+    unsigned: true, 
+    nullable: true, 
+    default: 0 
+  })
+  updatedBy: number;
 
-  @UpdateDateColumn({ type: 'timestamp' })
+  @Column({ 
+    type: 'datetime', 
+    nullable: true, 
+    default: () => 'CURRENT_TIMESTAMP', 
+    onUpdate: 'CURRENT_TIMESTAMP' 
+  })
   updatedAt: Date;
 }

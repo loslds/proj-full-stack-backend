@@ -1,5 +1,5 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\empresa\empresas.dto.ts
 
+//C:\repository\proj-full-stack-backend\src\use-cases\empresa\empresas.dto.ts
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
 import { EmpresasEntity} from './empresas.entity';

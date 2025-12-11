@@ -1,55 +1,52 @@
-import { NextFunction, Request, Response } from "express";
-import { CidadesRepository } from './cidades.repository';
-import { CidadesCreate, CidadesUpdate } from './cidades.dto';
-import { CidadesEntity } from './cidades.entity';
-import { FindOptionsWhere } from "typeorm";
-import { DeepPartial } from "typeorm";
-export type CidadesDto = DeepPartial<CidadesEntity>;
-import { HttpException } from "../../middlewares/HttpException";
-import { ParsedQs } from 'qs';
 
-export class CidadesController {  
+// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.controller.ts
+import { Request, Response, NextFunction } from "express";
+import { CidadesRepository } from "./cidades.repository";
+import { CidadesCreate, CidadesUpdate } from "./cidades.dto";
+export class CidadesController {
   constructor(private readonly cidadesRepository: CidadesRepository) {}
-  
-/** 1 POST Cria Tabela Empresas */
-async createNewCidades(
-  req: Request<{}, {}, CidadesCreate>,
-  res: Response,
-  next: NextFunction
-) {
 
-  try {
-    const cidades = await this.cidadesRepository.createCidades(req.body);
-    return res.status(201).send({ success: true, cidades });
-
-  } catch (error) {
-    next(error);
-  }
-
-}
-
-/** 2 PATCH Atualiza um registro de Empresas */
-async updateIdCidades(
-  req: Request<{ cidadesId: string }, {}, Partial<CidadesUpdate>>,
-  res: Response,
-  next: NextFunction
+  // ==========================================================
+  // 1 - POST → Cria Cidade
+  // ==========================================================
+  async createNewCidades(
+    req: Request<{}, {}, CidadesCreate>,
+    res: Response,
+    next: NextFunction
   ) {
-    const cidadesId = Number(req.params.cidadesId);
-    if (isNaN(cidadesId) || cidadesId <= 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Invalid cidadesId' })
-        .end();
-      }
     try {
-      const cidades = await this.cidadesRepository.updateCidades(cidadesId, req.body);
-        return res.status(200).send({ success: true, cidades }).end();
+      const cidades = await this.cidadesRepository.createCidades(req.body);
+      return res.status(201).send({ success: true, cidades });
     } catch (error) {
       next(error);
     }
   }
 
-  /** 3 DELETE Remove um registro de Cidades */
+  // ==========================================================
+  // 2 - PATCH → Atualiza Cidade
+  // ==========================================================
+  async updateIdCidades(
+    req: Request<{ cidadesId: string }, {}, Partial<CidadesUpdate>>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const cidadesId = Number(req.params.cidadesId);
+
+    if (!cidadesId || isNaN(cidadesId) || cidadesId <= 0) {
+      return res.status(400).send({ success: false, message: "Invalid cidadesId" });
+    }
+
+    try {
+      const cidades = await this.cidadesRepository.updateCidades(cidadesId, req.body);
+      return res.status(200).send({ success: true, cidades });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // ==========================================================
+  // 3 - DELETE → Remove (com trava de integridade)
+  // ==========================================================
   async removeCidadesId(
     req: Request<{ cidadesId: string }>,
     res: Response,
@@ -57,8 +54,8 @@ async updateIdCidades(
   ) {
     const cidadesId = Number(req.params.cidadesId);
 
-    if (isNaN(cidadesId) || cidadesId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid cidadesId' }).end();
+    if (!cidadesId || isNaN(cidadesId) || cidadesId <= 0) {
+      return res.status(400).send({ success: false, message: "Invalid cidadesId" });
     }
 
     try {
@@ -69,30 +66,21 @@ async updateIdCidades(
     }
   }
 
-/** 4 GET Busca todos os registros  */
-  async findAllCidades(
-    req: Request, 
-    res: Response, 
-    next: NextFunction
-  ) {
-    
+  // ==========================================================
+  // 4 - GET → Lista todas
+  // ==========================================================
+  async findAllCidades(req: Request, res: Response, next: NextFunction) {
     try {
-      const { ativo } = req.query;
-      let where: FindOptionsWhere<CidadesEntity> | undefined;
-  
-      if (ativo !== undefined) {
-        where = { ativo: ativo === "true" } as FindOptionsWhere<CidadesEntity>;
-      }
-  
-      const cidades = await this.cidadesRepository.findCidadesAll(where, { nome: "ASC" });
+      const cidades = await this.cidadesRepository.findCidadesAll({}, { nome: "ASC" });
       return res.status(200).send({ success: true, cidades });
-  
     } catch (error) {
-        next(error);
-    }    
+      next(error);
+    }
   }
-  
-  /** 5 GET Lista um reg. Id  */
+
+  // ==========================================================
+  // 5 - GET → Busca por ID
+  // ==========================================================
   async getOneIdCidades(
     req: Request<{ cidadesId: string }>,
     res: Response,
@@ -100,8 +88,8 @@ async updateIdCidades(
   ) {
     const cidadesId = Number(req.params.cidadesId);
 
-    if (isNaN(cidadesId) || cidadesId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid cidadesId' }).end();
+    if (!cidadesId || isNaN(cidadesId) || cidadesId <= 0) {
+      return res.status(400).send({ success: false, message: "Invalid cidadesId" });
     }
 
     try {
@@ -111,117 +99,128 @@ async updateIdCidades(
       next(error);
     }
   }
-  
-  /** 6 GET Busca um registro por Nome */
+
+  // ==========================================================
+  // 6 - GET → Busca por Nome
+  // ==========================================================
   async findOneNomeCidades(
-    req: Request<{}, {}, {}, Partial<{ name: string }>>, 
-    res: Response, 
+    req: Request<{}, {}, {}, { nome?: string }>,
+    res: Response,
     next: NextFunction
   ) {
-    const { name } = req.query;
-    if (!name) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Name parameter is required' })
-        .end();
+    const { nome } = req.query;
+
+    if (!nome) {
+      return res.status(400).send({
+        success: false,
+        message: "nome parameter is required",
+      });
     }
+
     try {
-      const cidades = await this.cidadesRepository.findOneCidadesByNome(name);
-      return res.status(200).send({ success: true, cidades }).end();
+      const cidades = await this.cidadesRepository.findOneCidadesByNome(String(nome));
+      return res.status(200).send({ success: true, cidades });
     } catch (error) {
       next(error);
     }
   }
 
-  /** 7 GET Busca um registro por Nome */
-  async findOneCidadesBySigla(
-    req: Request<{}, {}, {}, Partial<{ sigla: string }>>, 
-    res: Response, 
+  // ==========================================================
+  // 7 - GET → Busca por UF
+  // ==========================================================
+  async findOneCidadesByUf(
+    req: Request<{}, {}, {}, { uf?: string }>,
+    res: Response,
     next: NextFunction
   ) {
-    const { name } = req.query;
-    if (!name) {
-      return res
-        .status(400)
-        .send({ success: false, message: 'Sigla parameter is required' })
-        .end();
+    const { uf } = req.query;
+
+    if (!uf) {
+      return res.status(400).send({
+        success: false,
+        message: "UF parameter is required",
+      });
     }
+
     try {
-      const cidades = await this.cidadesRepository.findOneCidadesBySigla(name);
-      return res.status(200).send({ success: true, cidades }).end();
+      const cidades = await this.cidadesRepository.findOneCidadesByUf(String(uf));
+      return res.status(200).send({ success: true, cidades });
     } catch (error) {
       next(error);
     }
   }
 
-  /** 8 pesquisa registro de Cidades ID ou NOME ou sigla */
-  async searchByNomeOuEstadoPaginado(req: Request, res: Response, next: NextFunction) {
+  // ==========================================================
+  // 8 - GET → Pesquisa por nome OU estado (paginado)
+  // ==========================================================
+  async searchByNomeOuEstadoPaginado(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { nome, page, limit } = req.query;
+      const term = req.query.nome ? String(req.query.nome) : undefined;
+      const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 100;
 
-      const pageNum = page ? parseInt(page as string, 10) : 1;
-      const limitNum = limit ? parseInt(limit as string, 10) : 100;
-
-      const { data, total } = await this.cidadesRepository.searchCidadesByNomeOuEstadoPaginado(
-        nome ? (nome as string) : undefined,
-        pageNum,
-        limitNum
-      );
+      const { data, total } =
+        await this.cidadesRepository.searchCidadesByNomeOuEstadoPaginado(
+          term,
+          page,
+          limit
+        );
 
       return res.json({
         success: true,
         total,
-        page: pageNum,
-        perPage: limitNum,
-        data
+        page,
+        perPage: limit,
+        data,
       });
     } catch (error) {
-      console.error('Erro ao buscar cidades:', error);
       next(error);
     }
   }
 
-  /** 9 Busca todas as cidades de um único estado (por ID ou nome/UF) */
-  async findCidadesByEstado(req: Request, res: Response, next: NextFunction) {
+  // ==========================================================
+  // 9 - GET → Lista cidades + estado (detalhes)
+  // ==========================================================
+  async listAllCidadesDetails(req: Request, res: Response, next: NextFunction) {
     try {
-      const { estadoId, estadoNome, page, limit } = req.query;
-
-      if (!estadoId && !estadoNome) {
-        return res.status(400).json({
-          success: false,
-          message: 'É necessário informar estadoId ou estadoNome.'
-        });
-      }
-
-      const pageNum = page ? parseInt(page as string, 10) : 1;
-      const limitNum = limit ? parseInt(limit as string, 10) : 100;
-
-      const { data, total } = await this.cidadesRepository.findCidadesByEstado(
-        estadoId ? Number(estadoId) : undefined,
-        estadoNome ? (estadoNome as string) : undefined,
-        pageNum,
-        limitNum
-      );
-
-      if (data.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Nenhuma cidade encontrada para este estado.'
-        });
-      }
-
-      return res.json({
-        success: true,
-        total,
-        page: pageNum,
-        perPage: limitNum,
-        data
-      });
-    
+      const data = await this.cidadesRepository.listAllCidadesDetails();
+      return res.status(200).send({ success: true, data });
     } catch (error) {
-      console.error('Erro ao buscar cidades por estado:', error);
       next(error);
     }
   }
 
+  // ==========================================================
+  // 10 - GET → Lista estados em cidades == cidades.id_estados
+  // ==========================================================
+  /** 10 - GET → Lista todas as cidades de um estado por ID */
+  async listAllCidadesByIdEstado(
+    req: Request<{ id_estados: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const id_estados = Number(req.params.id_estados);
+
+    if (!id_estados || isNaN(id_estados) || id_estados <= 0) {
+      return res
+        .status(400)
+        .send({ success: false, message: "id_estados inválido" });
+    }
+
+    try {
+      const cidades = await this.cidadesRepository.FindAllCidadesByIdEstado(id_estados);
+
+      return res.status(200).send({
+        success: true,
+        total: cidades.length,
+        cidades
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

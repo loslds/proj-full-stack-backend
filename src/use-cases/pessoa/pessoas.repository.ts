@@ -147,7 +147,7 @@ export class PessoasRepository {
     return query.getMany();
   }
 
-  async searchNamePessoas(text?: string) {
+  async searchNomePessoas(text?: string) {
     const query = this.repo.createQueryBuilder('pessoas')
       .select(['pessoas.id', 'pessoas.nome', 'pessoas.sigla'])
       .orderBy('pessoas.id', 'ASC')

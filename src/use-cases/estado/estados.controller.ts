@@ -1,212 +1,235 @@
 
 //C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.controller.ts
-
 import { NextFunction, Request, Response } from "express";
 import { EstadosRepository } from "./estados.repository";
 import { EstadosCreate, EstadosUpdate } from "./estados.dto";
-import { EstadosEntity } from "./estados.entity";
-import { FindOptionsWhere } from "typeorm";
-import { DeepPartial } from "typeorm";
-export type EstadosDto = DeepPartial<EstadosEntity>;
 import { HttpException } from "../../middlewares/HttpException";
 
 export class EstadosController {
   constructor(private readonly estadosRepository: EstadosRepository) {}
 
-  /** GET Busca todos os registros */
-  async findAllEstados(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { ativo } = req.query;
-      let where: FindOptionsWhere<EstadosEntity> | undefined;
+  // =========================================================================
+  // LISTAGENS E PESQUISAS
+  // =========================================================================
 
-      if (ativo !== undefined) {
-        where = { ativo: ativo === "true" } as FindOptionsWhere<EstadosEntity>;
-      }
+  /** GET → Lista todas as estados */
+async findAllEstados(req: Request, res: Response, next: NextFunction) {
+  try {
+    const estados = await this.estadosRepository.findEstadosAll(
+      undefined,
+      { nome: "ASC" }
+    );
 
-      const estados = await this.estadosRepository.findEstadosAll(where, { nome: "ASC" });
-      return res.status(200).send({ success: true, estados });
-
-    } catch (error) {
-      next(error);
-    }
+    return res.status(200).send({ success: true, estados });
+  } catch (error) {
+    next(error);
   }
-
-    /** GET pesquisa Buscar registros de Pessoa por ID/nome/sigla (query) */
+}
+  /** GET → Pesquisa combinada por id, nome e sigla */
   async searchEstadosAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id, nome, uf, nrinscre } = req.query;
+      const { id, nome, prefixo } = req.query;
+
       const estados = await this.estadosRepository.searchEstados({
         id: id ? Number(id) : undefined,
-        nome: nome as string,
-        uf: uf as string,
-        nrinscre: nrinscre as number 
+        nome: nome ? String(nome) : undefined,
+        prefixo: prefixo ? String(prefixo) : undefined,
       });
-      return res.status(200).send({ success: true, estados });
+
+      res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET pesquisa Buscar por nome */
-  async searchEstadosName(req: Request, res: Response, next: NextFunction) {
+  /** GET → Busca por nome aproximado */
+  async searchEstadosNome(req: Request, res: Response, next: NextFunction) {
     try {
-      const text = req.query?.text as string;
-      const estados = await this.estadosRepository.searchNameEstados(text);
-      return res.status(200).send({ success: true, estados });
+      const text = req.query.text ? String(req.query.text) : undefined;
+      const estados = await this.estadosRepository.searchNomeEstados(text);
+
+      res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET pesquisa Buscar por Uf */
-  async searchEstadosUf(req: Request, res: Response, next: NextFunction) {
+  /** GET → Busca por sigla aproximada */
+  async searchEstadosPrefixo(req: Request, res: Response, next: NextFunction) {
     try {
-      const text = req.query?.text as string;
-      const estados = await this.estadosRepository.searchUfEstados(text);
-      return res.status(200).send({ success: true, estados });
+      const text = req.query.text ? String(req.query.text) : undefined;
+      const estados = await this.estadosRepository.searchPrefixoEstados(text);
+
+      res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registro de nome */
+  /** GET → Buscar uma pessoa pelo nome exato */
   async findOneEstadosNome(req: Request, res: Response, next: NextFunction) {
     try {
       const nome = req.query?.nome as string;
-      if (!nome) {
-        return res.status(400).send({ success: false, message: "Parâmetro 'nome' é obrigatório" });
-      }
+      if (!nome) throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
 
       const estados = await this.estadosRepository.findOneNomeEstados(nome);
-      return res.status(200).send({ success: true, estados });
+
+      res.status(200).send({ 
+        success: true, 
+        estados 
+      });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca todos os registros por nome */
+  /** GET → Buscar todas pessoas com nome exato */
   async findAllEstadosNome(req: Request, res: Response, next: NextFunction) {
     try {
       const nome = req.query?.nome as string;
-      if (!nome) {
-        return res.status(400).send({ success: false, message: "Parâmetro 'nome' é obrigatório" });
-      }
+      if (!nome) throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
 
       const estados = await this.estadosRepository.findAllNomeEstados(nome);
-      if (estados.length === 0) {
-        return res.status(404).send({ success: false, message: "Nenhuma pessoa encontrada com esse nome" });
-      }
 
-      return res.status(200).send({ success: true, estados });
+      res.status(200).send({
+        success: true,
+        total: estados.length,
+        estados,
+      });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca um registro por uf */
-  async findOneEstadosUf(req: Request, res: Response, next: NextFunction) {
+  /** GET → Buscar uma pessoa pela prefixo exata */
+  async findOneEstadosPrefixo(req: Request, res: Response, next: NextFunction) {
     try {
-      const uf = req.query?.uf as string;
-      if (!uf) {
-        return res.status(400).send({ success: false, message: "Parâmetro 'uf' é obrigatório" });
-      }
+      const prefixo = req.query?.sigla as string;
+      if (!prefixo) throw new HttpException(400, "Parâmetro 'prefixo' é obrigatório");
 
-      const estados = await this.estadosRepository.findOneUfEstados(uf);
-      return res.status(200).send({ success: true, estados });
+      const estados = await this.estadosRepository.findOnePrefixoEstados(prefixo);
+
+      res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET Busca todos os registros por uf */
-  async findAllEstadosUf(req: Request, res: Response, next: NextFunction) {
+  /** GET → Buscar todas pessoas com prefixo exato */
+  async findAllEstadosPrefixo(req: Request, res: Response, next: NextFunction) {
     try {
-      const uf = req.query?.uf as string;
-      if (!uf) {
-        return res.status(400).send({ success: false, message: "Parâmetro 'uf' é obrigatório" });
-      }
+      const prefixo = req.query?.prefixo as string;
 
-      const estados = await this.estadosRepository.findAllUfEstados(uf);
-      if (estados.length === 0) {
-        return res.status(404).send({ success: false, message: "Nenhuma estados encontrado com essa uf" });
-      }
+      if (!prefixo) throw new HttpException(400, "Parâmetro 'prefixo' é obrigatório");
 
-      return res.status(200).send({ success: true, estados });
+      const estados = await this.estadosRepository.findAllPrefixoEstados(prefixo);
+
+      res.status(200).send({
+        success: true,
+        total: estados.length,
+        estados,
+      });
     } catch (error) {
       next(error);
     }
   }
 
+  // =========================================================================
+  // CRUD
+  // =========================================================================
 
-
-  /** POST Cria um novo registro de Pessoas */
+  /** POST → Criar nova estados */
   async createNewEstados(
     req: Request<{}, {}, EstadosCreate>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const { nome, uf } = req.body;
-      const exists = await this.estadosRepository.hasDuplicated(nome, uf);
-      if (exists) throw new HttpException(400, "Estado já existe");
+      const { nome, prefixo } = req.body;
+
+      if (!nome || !prefixo) throw new HttpException(400, "Nome e prefixo são obrigatórios");
+
+      const duplicated = await this.estadosRepository.hasDuplicated(nome, prefixo);
+      if (duplicated) throw new HttpException(400, "Estado já existe");
 
       const estados = await this.estadosRepository.createEstados(req.body);
-      return res.status(201).send({ success: true, estados });
+
+      res.status(201).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
 
-  /** PATCH Atualiza um registro de Pessoa */
+  /** PATCH → Atualizar estados pelo ID */
   async updateIdEstados(
     req: Request<{ estadosId: string }, {}, EstadosUpdate>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const estadosId = Number(req.params?.estadosId);
-      if (!estadosId) throw new HttpException(400, "ID da estados inválido");
-
-      const { nome, uf } = req.body;
-      const exists = await this.estadosRepository.hasDuplicated(nome, uf, [estadosId]);
-      if (exists) throw new HttpException(400, "Estado já existe");
-
-      const estados = await this.estadosRepository.updateEstados(estadosId, req.body);
-      return res.status(200).send({ success: true, estados });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  
-  /** DELETE Remove um registro de Pessoas */
-  async removeIdEstados(req: Request<{ estadosId: string }>, res: Response, next: NextFunction) {
-    try {
       const estadosId = Number(req.params.estadosId);
-      if (isNaN(estadosId) || estadosId <= 0) {
-        return res.status(400).send({ success: false, message: "ID inválido" });
+      if (!estadosId || isNaN(estadosId) || estadosId <= 0) {
+        throw new HttpException(400, "ID da estado inválido");
       }
-      await this.estadosRepository.deleteEstados(estadosId);
-      return res.status(200).send({ success: true });
+
+      const { nome, prefixo } = req.body;
+
+      const duplicated = await this.estadosRepository.hasDuplicated(
+        nome,
+        prefixo,
+        estadosId
+      );
+
+      if (duplicated) throw new HttpException(400, "estado já existe");
+
+      const estados = await this.estadosRepository.updateEstados(
+        estadosId,
+        req.body
+      );
+
+      res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
-  
-  /** GET Busca um registro de ID */
-  async getOneEstadosId(req: Request<{ estadosId: string }>, res: Response, next: NextFunction) {
+
+  /** DELETE → Remover estados */
+  async removeIdEstados(
+    req: Request<{ estadosId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const estadosId = Number(req.params.estadosId);
       if (isNaN(estadosId) || estadosId <= 0) {
-        return res.status(400).send({ success: false, message: "ID inválido" });
+        throw new HttpException(400, "ID inválido");
+      }
+
+      await this.estadosRepository.deleteEstados(estadosId);
+
+      res.status(200).send({ success: true });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar pessoa pelo ID */
+  async getOneEstadosId(
+    req: Request<{ estadosId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const estadosId = Number(req.params.estadosId);
+      if (isNaN(estadosId) || estadosId <= 0) {
+        throw new HttpException(400, "ID inválido");
       }
 
       const estados = await this.estadosRepository.findEstadosById(estadosId);
-      return res.status(200).send({ success: true, estados });
 
+      res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
-  
 }

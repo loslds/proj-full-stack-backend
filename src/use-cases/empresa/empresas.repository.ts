@@ -1,5 +1,7 @@
+
 import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
 import { EmpresasEntity } from './empresas.entity';
+import { CadastrosEntity } from './../cadastro/cadastros.entity';
 import type { EmpresasCreate } from './empresas.dto';
 
 export class EmpresasRepository {
@@ -26,6 +28,9 @@ export class EmpresasRepository {
     `);
   }
 
+  // ==========================================================
+  // VERIFICA DUPLICIDADE (nome + fantasy + id_pessoas)
+  // ========================================================== 
   async hasDuplicated(
     nome?: string,
     fantasy?: string,
@@ -41,7 +46,7 @@ export class EmpresasRepository {
       query.andWhere('empresas.fantasy = :fantasy', { fantasy });
     }
     if (id_pessoas) {
-      query.andWhere('empresas.id_pessoa = :id_pessoa', { id_pessoas });
+      query.andWhere('empresas.id_pessoas = :id_pessoas', { id_pessoas });
     }
 
     if (excludes.length) {
@@ -92,12 +97,29 @@ export class EmpresasRepository {
     return this.repo.save(data);
   }
 
-  // 3 Deleta registro 
-  async deleteEmpresasId(empresasId: number): Promise<boolean> {
-    const result = await this.repo.delete(empresasId);
-    if (result.affected === 0) {
-      throw new Error(`Empresa com ID ${empresasId} não encontrada.`);
+// ==========================================================
+  // DELETE — COM TRAVA DE INTEGRIDADE
+  // NÃO APAGA SE EXISTIR CADASTROS RELACIONADOS
+  // ==========================================================
+  async deleteEmpresasId(cidadesId: number): Promise<boolean> {
+    const cadRepo = this.dataSource.getRepository(CadastrosEntity);
+
+    const refs = await cadRepo.count({
+      where: { id_cidades: cidadesId }
+    });
+
+    if (refs > 0) {
+      throw new Error(
+        `Cidade NÃO pode ser apagada. Existe(m) ${refs} cadastro(s) utilizando esta cidade.`
+      );
     }
+
+    const result = await this.repo.delete(cidadesId);
+
+    if (result.affected === 0) {
+      throw new Error(`Cidade com ID ${cidadesId} não encontrada.`);
+    }
+
     return true;
   }
 
@@ -169,7 +191,7 @@ async listAllEmpresasDetails() {
       'p.sigla AS pessoa_sigla',
     ])
     .getRawMany();
-}
+  }
 }
 
 
