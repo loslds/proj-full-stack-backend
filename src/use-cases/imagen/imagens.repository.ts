@@ -1,14 +1,11 @@
 
-
-// src/use-cases/pessoa/pessoas.repository.ts
-
-
+//C:\repository\proj-full-stack-backend\src\use-cases\imagen\imagens.repository.ts
 import fs from 'fs';
 import path from 'path';
 import AdmZip from 'adm-zip';
-import { ImagensEntity, ArqTipoEnum, ArqAcaoEnum } from './imagens.entity';
+import { ImagensEntity } from './imagens.entity';
 import { imagensConfig } from '../../config/imagens';
-import { DataSource, DeepPartial, Repository, FindOptionsWhere, IsNull, FindOptionsOrder } from 'typeorm';
+import { DataSource, DeepPartial, Repository, FindOptionsWhere, IsNull } from 'typeorm';
 import { ImagensCreate } from './imagens.dto';
 
 
@@ -24,18 +21,22 @@ export class ImagensRepository {
     await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS imagens (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        arqTipo TINYINT UNSIGNED NOT NULL COMMENT '1=default,2=logo,3=painel,4=avatar,5=botao',
-        arqAcao TINYINT UNSIGNED NOT NULL COMMENT '1=visualiza,2=cadastro,3=inclusao,4=alteracao,5=exclusao,6=listagem,7=help',
-        nome VARCHAR(150) NOT NULL COLLATE utf8mb4_general_ci,
-        arqNome VARCHAR(150) NOT NULL COLLATE utf8mb4_general_ci,
-        arqPage VARCHAR(100) NULL COLLATE utf8mb4_general_ci,
-        arqPath VARCHAR(255) NOT NULL COLLATE utf8mb4_general_ci,
+        id_cadastros INT NOT NULL,
+        nome VARCHAR(50) NOT NULL,
+        nome_ext VARCHAR(80) NOT NULL,
+        has_avatar TINYINT(1) NOT NULL DEFAULT 0,
+        has_logo   TINYINT(1) NOT NULL DEFAULT 0,
+        has_panel  TINYINT(1) NOT NULL DEFAULT 0,
+        has_button TINYINT(1) NOT NULL DEFAULT 0,
+        has_tabela TINYINT(1) NOT NULL DEFAULT 0,
+        has_foto   TINYINT(1) NOT NULL DEFAULT 0,
+        arqDir VARCHAR(100) NOT NULL DEFAULT 'C:\\SGB',
+        arqPath VARCHAR(255) NOT NULL,
         arqBlob LONGBLOB NULL,
         createBy INT UNSIGNED DEFAULT 0,
         createAt DATETIME DEFAULT CURRENT_TIMESTAMP,
         updateBy INT UNSIGNED DEFAULT 0,
         updateAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        UNIQUE KEY uq_arqNome_tipo_page (nome, arqNome, arqTipo, arqAcao, arqPage)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     `);
   }
@@ -72,7 +73,7 @@ export class ImagensRepository {
   /** Insere ou atualiza imagens de acordo com os arquivos ZIP configurados */
   async insertDefaultImagens(): Promise<void> {
     const baseAssets = path.resolve(__dirname, '../../assets/defaults');
-    const baseDisk = 'C:/SysBordados';
+    const baseDisk = 'C:/SGB';
 
     for (const cfg of imagensConfig) {
       const zipPath = path.join(baseAssets, cfg.zip);
