@@ -27,7 +27,7 @@ export class ImagensRepository {
         has_avatar TINYINT(1) NOT NULL DEFAULT 0,
         has_logo   TINYINT(1) NOT NULL DEFAULT 0,
         has_panel  TINYINT(1) NOT NULL DEFAULT 0,
-        has_button TINYINT(1) NOT NULL DEFAULT 0,
+        has_botao  TINYINT(1) NOT NULL DEFAULT 0,
         has_tabela TINYINT(1) NOT NULL DEFAULT 0,
         has_foto   TINYINT(1) NOT NULL DEFAULT 0,
         arqDir VARCHAR(100) NOT NULL DEFAULT 'C:\\SGB',
@@ -41,34 +41,29 @@ export class ImagensRepository {
     `);
   }
 
-  /** Verifica duplicidade de imagem considerando nome, tipo, ação e página */
+  // src/use-cases/imagens/imagens.repository.ts
   async hasDuplicated(
+    id_cadastros: number,
     nome: string,
-    arqNome: string,
-    arqTipo: number,
-    arqAcao: number,
-    arqPage?: string | null,
-    excludes: number[] = []
+    nome_ext: string,
+    ignoreId?: number
   ): Promise<ImagensEntity | null> {
-    const query = this.repo.createQueryBuilder('img')
-      .where('img.nome = :nome', { nome })
-      .andWhere('img.arqNome = :arqNome', { arqNome })
-      .andWhere('img.arqTipo = :arqTipo', { arqTipo })
-      .andWhere('img.arqAcao = :arqAcao', { arqAcao });
 
-    if (arqPage) {
-      query.andWhere('img.arqPage = :arqPage', { arqPage });
-    } else {
-      query.andWhere('img.arqPage IS NULL');
+    const qb = this.repo
+      .createQueryBuilder("img")
+      .where("img.id_cadastros = :id_cadastros", { id_cadastros })
+      .andWhere("img.nome = :nome", { nome })
+      .andWhere("img.nome_ext = :nome_ext", { nome_ext });
+
+    // 👉 usado no UPDATE (ignora o próprio registro)
+    if (ignoreId) {
+      qb.andWhere("img.id != :ignoreId", { ignoreId });
     }
 
-    if (excludes.length > 0) {
-      query.andWhere('img.id NOT IN (:...excludes)', { excludes });
-    }
-
-    return await query.getOne();
+    return await qb.getOne();
   }
 
+  
 
   /** Insere ou atualiza imagens de acordo com os arquivos ZIP configurados */
   async insertDefaultImagens(): Promise<void> {
@@ -107,12 +102,13 @@ export class ImagensRepository {
 
         const record: ImagensCreate = {
           nome: cfg.nome,
-          arqNome: file,
+          nome_ext: file,
+
           arqTipo:
             prefix.toLowerCase() === 'logo' ? ArqTipoEnum.LOGO :
             prefix.toLowerCase() === 'painel' ? ArqTipoEnum.PAINEL :
             prefix.toLowerCase() === 'avatar' ? ArqTipoEnum.AVATAR :
-            prefix.toLowerCase() === 'btn' ? ArqTipoEnum.BOTAO :
+            prefix.toLowerCase() === 'botao' ? ArqTipoEnum.BOTAO :
             ArqTipoEnum.DEFAULT,
           arqAcao: ArqAcaoEnum.VISUALIZA, // padrão, ajustar conforme necessário
           arqPage: pageName,

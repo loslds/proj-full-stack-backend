@@ -8,6 +8,7 @@ import { ImagensEntity } from '../use-cases/imagen';
 
 import { PessoasEntity } from '../use-cases/pessoa/pessoas.entity';
 import { EmpresasEntity } from '../use-cases/empresa/empresas.entity';
+
 import { ConsumidoresEntity } from '../use-cases/consumidor/consumidores.entity';
 import { ClientesEntity } from '../use-cases/cliente/clientes.entity';
 import { FornecedoresEntity } from '../use-cases/fornecedor/fornecedores.entity';
@@ -19,11 +20,12 @@ export const dbEntity = [
   SystablesEntity,
   
   EstadosEntity,
-  //CidadesEntity,
+  CidadesEntity,
   //ImagensEntity,
 
   PessoasEntity,
-  //EmpresasEntity,
+  EmpresasEntity,
+  
   //ConsumidoresEntity,
   //ClientesEntity,
   //FornecedoresEntity,

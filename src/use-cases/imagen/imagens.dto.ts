@@ -19,7 +19,7 @@ export const imagensCreateSchema = z.object({
   has_avatar: z.number().int().min(0).max(1).default(0),
   has_logo: z.number().int().min(0).max(1).default(0),
   has_panel: z.number().int().min(0).max(1).default(0),
-  has_button: z.number().int().min(0).max(1).default(0),
+  has_botao: z.number().int().min(0).max(1).default(0),
   has_tabela: z.number().int().min(0).max(1).default(0),
   has_foto: z.number().int().min(0).max(1).default(0),
 

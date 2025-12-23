@@ -85,7 +85,7 @@ export class ImagensEntity {
   has_panel: number;
 
   @Column({ 
-    name: "has_button", 
+    name: "has_botao", 
     type: "tinyint", 
     nullable: false, 
     unsigned: true, 

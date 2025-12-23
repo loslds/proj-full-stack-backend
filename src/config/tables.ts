@@ -6,11 +6,11 @@ export const requiredTables = [
   // TABELAS QUE DEVERÃO FAZER UPDATE
   'estados',
   'cidades',
-  //'imagens',
+  'imagens',
 
   // TABELAS QUE DEVERÃO FAZER UPDATE
   'pessoas',
-  //'empresas',
+  'empresas',
   
   //'consumidores',
   //'clientes',
