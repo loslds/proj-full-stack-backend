@@ -1,5 +1,6 @@
 
 // C:\repository\proj-full-stack-backend\src\services\initService.ts
+
 import { checkConnectionService } from "./checkConectionService";
 import { checkTables } from "./checkTables";
 import { syncsysTables } from "./syncsysTables";

@@ -5,7 +5,7 @@ import { checkAndInitializeSystem } from '../../services/dbCheckService';
 
 export async function checkDatabases(req: Request, res: Response) {
   try {
-    const requiredTables = ['systable','pessoas', 'empresas']; // ajuste ou leia de config
+    const requiredTables = ['systable']; // ajuste ou leia de config
     const result = await checkAndInitializeSystem(requiredTables);
     if (result.success) {
       return res.json({ success: true, messages: result.messages });

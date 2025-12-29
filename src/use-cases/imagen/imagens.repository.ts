@@ -63,11 +63,11 @@ export class ImagensRepository {
     return await qb.getOne();
   }
 
-  
+/////////////////////////////////////////////////////////////////////
 
   /** Insere ou atualiza imagens de acordo com os arquivos ZIP configurados */
   async insertDefaultImagens(): Promise<void> {
-    const baseAssets = path.resolve(__dirname, '../../assets/defaults');
+    const baseAssets = path.resolve(__dirname, '../../assets/default');
     const baseDisk = 'C:/SGB';
 
     for (const cfg of imagensConfig) {
@@ -109,6 +109,7 @@ export class ImagensRepository {
             prefix.toLowerCase() === 'painel' ? ArqTipoEnum.PAINEL :
             prefix.toLowerCase() === 'avatar' ? ArqTipoEnum.AVATAR :
             prefix.toLowerCase() === 'botao' ? ArqTipoEnum.BOTAO :
+            prefix.toLowerCase() === 'botao' ? ArqTipoEnum.TABELA :
             ArqTipoEnum.DEFAULT,
           arqAcao: ArqAcaoEnum.VISUALIZA, // padrão, ajustar conforme necessário
           arqPage: pageName,

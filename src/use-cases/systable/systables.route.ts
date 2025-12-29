@@ -1,12 +1,12 @@
+ 
 // C:\repository\proj-full-stack-backend\src\use-cases\systable\systables.route.ts
-
-import { dbSource } from '../../database';
+import { AppDataSource } from '../../config/db';
 import { Router, Request, Response, NextFunction } from 'express';
 import { SystablesController } from './systables.controller';
 import { SystablesRepository } from './systables.repository';
 import { createValidation, updateValidation } from './systables.validation';
 
-const systablesRepository = new SystablesRepository(dbSource);
+const systablesRepository = new SystablesRepository(AppDataSource);
 const controller = new SystablesController(systablesRepository);
 const systableRoute = Router();
 
@@ -39,4 +39,5 @@ systableRoute.delete('/:systablesId', (req: Request<{ systablesId: string }>, re
   controller.removeIdSysTables(req, res, next)
 );
 
-export { systableRoute, systablesRepository };
+export { systableRoute };
+

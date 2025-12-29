@@ -3,7 +3,7 @@
 import net from 'net';
 import express from "express";
 import cors from "cors";
-import { dbSource } from './database';
+import { AppDataSource } from './config/db';
 import { indexRoute } from './routes/indexRoute';
 import { errorHandler } from './middlewares/errorHandler';
 import { appPort, frontendPort, frontendDomain } from "./config/app";
@@ -67,7 +67,7 @@ app.use(errorHandler);
 // -----------------------------
 // 6️⃣ Inicializa conexão com o banco e inicia servidor
 // -----------------------------
-dbSource.initialize()
+AppDataSource.initialize()
   .then(() => {
     console.log("✅ Conectado ao banco de dados!");
     app.listen(appPort, () => {

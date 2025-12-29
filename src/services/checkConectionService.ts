@@ -1,17 +1,18 @@
-
 // src/use-cases/start/checkConnectionService.ts
-import { dbSource } from "../use-cases/start/dbSource";
+import { AppDataSource } from '../config/db';
 
 export async function checkConnectionService(): Promise<{ success: boolean }> {
   try {
-    if (!dbSource.isInitialized) {
-      await dbSource.initialize();
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
     }
-    // Tenta fazer uma query simples pra garantir conexão
-    await dbSource.query("SELECT 1");
+
+    // Query simples para validar a conexão
+    await AppDataSource.query('SELECT 1');
+
     return { success: true };
-  } catch (err) {
-    console.error("Erro ao verificar conexão:", err);
+  } catch (error) {
+    console.error('Erro ao verificar conexão com o banco:', error);
     return { success: false };
   }
 }

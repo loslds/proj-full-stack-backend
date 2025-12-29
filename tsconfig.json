@@ -5,6 +5,10 @@
     "module": "commonjs", // Usa require/import compatível com Node
     "rootDir": "src", // Onde ficam os arquivos de entrada
     "outDir": "dist", // Onde será gerado o JS compilado
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"]
+    },
     "strict": true, // Habilita checagens mais rigorosas do TypeScript
     "esModuleInterop": true, // Permite import padrão de libs CommonJS
     "skipLibCheck": true, // Ignora verificação de tipos de libs (mais rápido)

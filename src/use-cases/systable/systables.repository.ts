@@ -5,7 +5,9 @@ import {
   FindOptionsWhere, 
   FindOptionsOrder 
 } from 'typeorm';
-
+//import { DataSource, Repository } from 'typeorm';
+//import { SystablesEntity } from './systables.entity';
+import { requiredTables } from '../../config/tables';
 import { SystablesEntity } from './systables.entity';
 import type { SystablesCreate } from './systables.dto';
 
@@ -55,7 +57,63 @@ export class SystablesRepository {
     return query.getOne();
   }
 
-  /** Cria registros */
+  // ==========================================================
+  // INSERT / SYNC DEFAULT SYSTABLES
+  // ==========================================================
+async insertDefaultSystables(): Promise<void> {
+  await this.dataSource.transaction(async manager => {
+    const repo = manager.getRepository(SystablesEntity);
+
+    for (const tableName of requiredTables) {
+
+      const tableExists = await manager.query(
+        `
+        SELECT COUNT(*) as total
+        FROM information_schema.tables
+        WHERE table_schema = DATABASE()
+          AND table_name = ?
+        `,
+        [tableName]
+      );
+
+      const exists = tableExists[0].total > 0;
+
+      let numberregs = 0;
+      if (exists) {
+        const count = await manager.query(
+          `SELECT COUNT(*) as total FROM \`${tableName}\``
+        );
+        numberregs = count[0].total;
+      }
+
+      const already = await repo.findOne({
+        where: { nome: tableName }
+      });
+
+      if (already) {
+        already.chkdb = exists ? 1 : 0;
+        already.numberregs = numberregs;
+        await repo.save(already);
+        continue;
+      }
+
+      try {
+        await repo.insert({
+          nome: tableName,
+          chkdb: exists ? 1 : 0,
+          numberregs,
+        });
+      } catch (err: any) {
+        if (err.code !== 'ER_DUP_ENTRY') {
+          throw err;
+        }
+      }
+    }
+  });
+}
+
+
+  /** Cria tabela */
   async createSystables(systables: SystablesCreate): Promise<SystablesEntity> {
     const data = this.repo.create(systables);
     return this.repo.save(data);

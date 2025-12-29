@@ -63,7 +63,7 @@ export class PessoasRepository {
   // ============================================================
 
   async insertDefaultPessoas() {
-    const batchSize = 300;
+    const batchSize = 150;
 
     for (let i = 0; i < requiredPessoas.length; i += batchSize) {
       const batch = requiredPessoas.slice(i, i + batchSize);

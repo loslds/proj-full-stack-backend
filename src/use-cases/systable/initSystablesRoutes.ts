@@ -4,11 +4,12 @@ import { Application, Router } from "express";
 import { SystablesController } from "./systables.controller";
 import { SystablesRepository } from "./systables.repository";
 import { createValidation, updateValidation } from "./systables.validation";
-import { dbSource } from "../../database";
+//import { dbSource } from "../../database";
+import { AppDataSource } from '../../config/db';
 
 export async function initSystablesRoutes(app: Application) {
   // 1️⃣ Cria repository somente após dbSource estar inicializado
-  const systablesRepo = new SystablesRepository(dbSource);
+  const systablesRepo = new SystablesRepository(AppDataSource);
 
   // 2️⃣ Criar tabela caso não exista e inserir defaults
   await systablesRepo.createNotExistsSystables();

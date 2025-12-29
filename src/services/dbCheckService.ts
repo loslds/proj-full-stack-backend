@@ -1,3 +1,4 @@
+
 // src/services/dbCheckService.ts
 import { dbSource } from "../database";
 import { requiredTables } from "../config/tables";
@@ -22,20 +23,20 @@ export async function checkAndInitializeSystem(
     await queryRunner.connect();
 
     // 1️⃣ Verifica/Cria systable
-    messages.push("🔍 Verificando existência da tabela systable...");
+    messages.push("🔍 Verificando existência da tabela systables...");
     const systableRows = await queryRunner.query("SHOW TABLES LIKE 'systables'");
     if (systableRows.length === 0) {
-      messages.push("❌ Tabela systable não existe. Criando...");
+      messages.push("❌ Tabela systables não existe. Criando...");
       await queryRunner.query(`
         CREATE TABLE systables (
           id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
           nome VARCHAR(60) NOT NULL,
           numberRRegs INT UNSIGNED NOT NULL DEFAULT 0,
           chkdb TINYINT(1) NOT NULL DEFAULT 0,
-          createBy INT UNSIGNED DEFAULT NULL,
-          createAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          updateBy INT UNSIGNED DEFAULT NULL,
-          updateAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          createdBy INT UNSIGNED DEFAULT NULL,
+          createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          updatedBy INT UNSIGNED DEFAULT NULL,
+          updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           UNIQUE KEY uniq_systables_nome (nome)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
@@ -54,10 +55,10 @@ export async function checkAndInitializeSystem(
           CREATE TABLE \`${tbl}\` (
             id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
             nome VARCHAR(60) DEFAULT NULL,
-            createBy INT UNSIGNED DEFAULT NULL,
-            createAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updateBy INT UNSIGNED DEFAULT NULL,
-            updateAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            createdBy INT UNSIGNED DEFAULT NULL,
+            createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updatedBy INT UNSIGNED DEFAULT NULL,
+            updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             UNIQUE KEY uniq_${tbl}_id (id)
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `);
@@ -78,12 +79,12 @@ export async function checkAndInitializeSystem(
         overallOk = false;
       }
 
-      // 4️⃣ Atualiza systable
+      // 4️⃣ Atualiza systables
       try {
         await queryRunner.query(
-          `INSERT INTO systable (nome, chkdb, numberRRegs, createAt, updateAt)
+          `INSERT INTO systables (nome, chkdb, numberregs, createdAt, updatedAt)
            VALUES (?, ?, ?, NOW(), NOW())
-           ON DUPLICATE KEY UPDATE chkdb = VALUES(chkdb), numberRRegs = VALUES(numberRRegs), updateAt = NOW();`,
+           ON DUPLICATE KEY UPDATE chkdb = VALUES(chkdb), numberregs = VALUES(numberregs), updatedAt = NOW();`,
           [tbl, cnt > 0 ? 1 : 0, cnt]
         );
 
@@ -94,7 +95,7 @@ export async function checkAndInitializeSystem(
           messages.push(`✅ Tabela "${tbl}" com dados OK.`);
         }
       } catch (err) {
-        messages.push(`❌ Erro ao atualizar systable para "${tbl}".`);
+        messages.push(`❌ Erro ao atualizar systables para "${tbl}".`);
         console.error(err);
         overallOk = false;
       }
@@ -104,9 +105,9 @@ export async function checkAndInitializeSystem(
     if (options.updateSysMaster) {
       try {
         await queryRunner.query(
-          `INSERT INTO systable (nome, chkdb, numberRRegs, createAt, updateAt)
+          `INSERT INTO systables (nome, chkdb, numberregs, createrAt, updaterAt)
            VALUES (?, ?, ?, NOW(), NOW())
-           ON DUPLICATE KEY UPDATE chkdb = VALUES(chkdb), numberRRegs = VALUES(numberRRegs), updateAt = NOW();`,
+           ON DUPLICATE KEY UPDATE chkdb = VALUES(chkdb), numberregs = VALUES(numberregs), updaterAt = NOW();`,
           ["sys_master", overallOk ? 1 : 0, 0]
         );
         messages.push(

@@ -13,18 +13,20 @@ import { ConsumidoresEntity } from '../use-cases/consumidor/consumidores.entity'
 import { ClientesEntity } from '../use-cases/cliente/clientes.entity';
 import { FornecedoresEntity } from '../use-cases/fornecedor/fornecedores.entity';
 import { FuncionariosEntity } from '../use-cases/funcionario/funcionarios.entity';
+
 import { CadastrosEntity } from '../use-cases/cadastro/cadastros.entity';
+
 
 
 export const dbEntity = [
   SystablesEntity,
   
-  EstadosEntity,
-  CidadesEntity,
+  //EstadosEntity,
+  //CidadesEntity,
   //ImagensEntity,
+  //PessoasEntity,
 
-  PessoasEntity,
-  EmpresasEntity,
+  //EmpresasEntity,
   
   //ConsumidoresEntity,
   //ClientesEntity,

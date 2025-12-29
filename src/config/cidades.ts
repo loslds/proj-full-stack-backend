@@ -1,5 +1,5 @@
 // src/config/estados.ts
-
+// nescessaári aver contagem de insert até 100 reg por vez para ñ criar bag 
 export const requiredCidades = [
 { nome: 'Acrelândia', sigla: 'AC' , id_estados: 1 , createdBy: 0, updatedBy: 0  },
 { nome: 'Assis Brasil',sigla: 'AC' , id_estados: 1, createdBy: 0, updatedBy: 0  },

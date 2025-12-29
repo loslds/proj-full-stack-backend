@@ -1,20 +1,10 @@
- 
- // src/user-case/start/dbSouce.ts
-import { DataSource } from 'typeorm';
-import { configDB } from '../../config/db';
-import { dbEntity } from '../../entities/dbEntity';
+ // src/use-case/start/dbSource.ts
+import { AppDataSource } from '../../config/db';
 
-export const dbSource = new DataSource({
-  type: 'mysql',
-  host: configDB.host,
-  port: configDB.port,
-  username: configDB.username,
-  password: configDB.password,
-  database: configDB.database,
-  entities: dbEntity,
-  synchronize: true,
-  logging: false,
-});
-
+export async function initDatabase(): Promise<void> {
+  if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
+  }
+}
 
 
