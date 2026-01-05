@@ -1,9 +1,10 @@
  
-// src/config/tables.ts
-export const requiredTables = [
+// src/system/tables.ts
+export const systemTables = [
   // TABELA GERENCIADORA
-  'systables',
-
+  'systables'
+  // acrescente novas tabelas aqui,,,,,,,,,,,,,
+];
   // TABELAS QUE DEVERÃO FAZER UPDATE
   //'estados',
   //'cidades',
@@ -19,6 +20,6 @@ export const requiredTables = [
   //'funcionarios',
   //'cadastros',
  
-];
- 
+
+ export const SYSTEM_TABLES_TOTAL = systemTables.length;
 

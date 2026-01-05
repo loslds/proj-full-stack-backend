@@ -1,63 +1,98 @@
  
 // src/services/syncsysTables.ts
-import { dbSource } from '../use-cases/start/dbSource';
-import { requiredTables } from '../config/tables';
+import { AppDataSource } from '../config/db';
+import { systemTables } from '../system/tables';
+import { QueryRunner } from 'typeorm';
 
 export interface TableStatus {
-  table_name: string;
+  table: string;
   exists: boolean;
+  numberRegs: number;
 }
 
 export async function syncsysTables(): Promise<TableStatus[]> {
-  if (!dbSource.isInitialized) {
-    await dbSource.initialize();
+  if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
   }
 
-  const queryRunner = dbSource.createQueryRunner();
+  const queryRunner = AppDataSource.createQueryRunner();
   await queryRunner.connect();
 
   const results: TableStatus[] = [];
 
   try {
-    for (const table of requiredTables) {
-      // Checa se a tabela existe no banco
-      const [rows]: any = await queryRunner.query(
-        `SHOW TABLES LIKE ?`, [table]
+    for (const table of systemTables) {
+      // 1️⃣ Verifica se a tabela existe
+      const tableRows: any[] = await queryRunner.query(
+        `SHOW TABLES LIKE ?`,
+        [table]
       );
 
-      const exists = rows.length > 0;
+      const exists = tableRows.length > 0;
 
-      // Atualiza ou insere na tabela systables usando a coluna 'nome'
-      const [existingEntry]: any = await queryRunner.query(
-        `SELECT * FROM systables WHERE nome = ?`, [table]
+      // 2️⃣ Conta registros (somente se existir)
+      const numberRegs = exists
+        ? await getRowCount(queryRunner, table)
+        : 0;
+
+      // 3️⃣ Verifica se já existe registro na systables
+      const systableRows: any[] = await queryRunner.query(
+        `SELECT id FROM systables WHERE nome = ? LIMIT 1`,
+        [table]
       );
 
-      if (existingEntry) {
+      if (systableRows.length > 0) {
+        // UPDATE
         await queryRunner.query(
-          `UPDATE systables SET chkdb = ?, numberregs = ? WHERE nome = ?`,
-          [exists ? 1 : 0, exists ? await getRowCount(queryRunner, table) : 0, table]
+          `
+          UPDATE systables
+             SET chkdb = ?,
+                 numberregs = ?,
+                 updatedAt = NOW()
+           WHERE nome = ?
+          `,
+          [exists ? 1 : 0, numberRegs, table]
         );
       } else {
+        // INSERT
         await queryRunner.query(
-          `INSERT INTO systables (nome, chkdb, numberregs) VALUES (?, ?, ?)`,
-          [table, exists ? 1 : 0, exists ? await getRowCount(queryRunner, table) : 0]
+          `
+          INSERT INTO systables (nome, chkdb, numberregs, createdAt, updatedAt)
+          VALUES (?, ?, ?, NOW(), NOW())
+          `,
+          [table, exists ? 1 : 0, numberRegs]
         );
       }
 
-      results.push({ table_name: table, exists });
+      results.push({
+        table,
+        exists,
+        numberRegs
+      });
     }
 
     return results;
   } catch (error) {
-    console.error('Erro ao sincronizar systables:', error);
+    console.error('❌ Erro ao sincronizar systables:', error);
     throw new Error('Falha na sincronização das tabelas do sistema (systables).');
   } finally {
-    await queryRunner.release();
+    try {
+      await queryRunner.release();
+    } catch {
+      /* noop */
+    }
   }
 }
 
-// Função auxiliar para contar registros de uma tabela
-async function getRowCount(queryRunner: any, table: string): Promise<number> {
-  const [result]: any = await queryRunner.query(`SELECT COUNT(*) AS count FROM ??`, [table]);
-  return result?.count || 0;
+// ==============================
+// Auxiliar
+// ==============================
+async function getRowCount(
+  queryRunner: QueryRunner,
+  table: string
+): Promise<number> {
+  const rows: any[] = await queryRunner.query(
+    `SELECT COUNT(*) AS cnt FROM \`${table}\``
+  );
+  return rows?.[0]?.cnt ?? 0;
 }

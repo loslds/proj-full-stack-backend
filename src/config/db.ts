@@ -1,3 +1,5 @@
+
+//C:\repository\proj-full-stack-backend\src\config\db.ts
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { dbEntity } from '../entities/dbEntity';

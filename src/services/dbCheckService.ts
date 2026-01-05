@@ -1,37 +1,53 @@
 
 // src/services/dbCheckService.ts
-import { dbSource } from "../database";
-import { requiredTables } from "../config/tables";
-
+import { AppDataSource } from "../config/db";
+import { systemTables } from "../system/tables";
 interface CheckOptions {
   updateSysMaster?: boolean; // se true, atualiza a linha sys_master
 }
 
+
+interface CheckOptions {
+  updateSysMaster?: boolean;
+}
+
+interface CheckResult {
+  success: boolean;
+  messages: string[];
+}
+
 export async function checkAndInitializeSystem(
-  tables: string[] = requiredTables,
+  tables: string[] = systemTables,
   options: CheckOptions = { updateSysMaster: true }
-): Promise<{ success: boolean; messages: string[] }> {
+): Promise<CheckResult> {
   const messages: string[] = [];
   let overallOk = true;
 
-  // Inicializa dbSource se ainda não estiver
-  if (!dbSource.isInitialized) await dbSource.initialize();
+  if (!AppDataSource.isInitialized) {
+    await AppDataSource.initialize();
+    messages.push("✅ DataSource inicializado.");
+  }
 
-  const queryRunner = dbSource.createQueryRunner();
+  const queryRunner = AppDataSource.createQueryRunner();
 
   try {
     await queryRunner.connect();
 
-    // 1️⃣ Verifica/Cria systable
-    messages.push("🔍 Verificando existência da tabela systables...");
-    const systableRows = await queryRunner.query("SHOW TABLES LIKE 'systables'");
-    if (systableRows.length === 0) {
-      messages.push("❌ Tabela systables não existe. Criando...");
+    // ==================================================
+    // 1️⃣ systables
+    // ==================================================
+    messages.push("🔍 Verificando tabela <systables>...");
+    const systableExists = await queryRunner.query(
+      "SHOW TABLES LIKE 'systables'"
+    );
+
+    if (systableExists.length === 0) {
+      messages.push("❌ Tabela <systables> inexistente. Criando...");
       await queryRunner.query(`
         CREATE TABLE systables (
           id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
           nome VARCHAR(60) NOT NULL,
-          numberRRegs INT UNSIGNED NOT NULL DEFAULT 0,
+          numberregs INT UNSIGNED NOT NULL DEFAULT 0,
           chkdb TINYINT(1) NOT NULL DEFAULT 0,
           createdBy INT UNSIGNED DEFAULT NULL,
           createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -40,17 +56,25 @@ export async function checkAndInitializeSystem(
           UNIQUE KEY uniq_systables_nome (nome)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
       `);
-      messages.push("✅ systables criada.");
+      messages.push("✅ Tabela <systables> criada.");
     } else {
-      messages.push("✅ systables existe.");
+      messages.push("✅ Tabela <systables> já existe.");
     }
 
-    // 2️⃣ Verifica/cria cada tabela mínima
+    
+
+    // ==================================================
+    // 2️⃣ Demais tabelas mínimas
+    // ==================================================
     for (const tbl of tables) {
-      messages.push(`🔍 Verificando tabela "${tbl}"...`);
-      const tblRows = await queryRunner.query(`SHOW TABLES LIKE '${tbl}'`);
-      if (tblRows.length === 0) {
-        messages.push(`❌ Tabela "${tbl}" não encontrada. Criando tabela mínima...`);
+      messages.push(`🔍 Verificando tabela <${tbl}>...`);
+
+      const exists = await queryRunner.query(
+        `SHOW TABLES LIKE '${tbl}'`
+      );
+
+      if (exists.length === 0) {
+        messages.push(`❌ Tabela <${tbl}> inexistente. Criando estrutura mínima...`);
         await queryRunner.query(`
           CREATE TABLE \`${tbl}\` (
             id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -58,65 +82,83 @@ export async function checkAndInitializeSystem(
             createdBy INT UNSIGNED DEFAULT NULL,
             createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updatedBy INT UNSIGNED DEFAULT NULL,
-            updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            UNIQUE KEY uniq_${tbl}_id (id)
+            updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         `);
-        messages.push(`✅ Tabela "${tbl}" criada.`);
+        messages.push(`✅ Tabela <${tbl}> criada.`);
       } else {
-        messages.push(`✅ Tabela "${tbl}" existe.`);
+        messages.push(`✅ Tabela <${tbl}> existe.`);
       }
 
-      // 3️⃣ Conta registros
-      let cnt = 0;
+      // ==================================================
+      // 3️⃣ Contagem de registros
+      // ==================================================
+      let count = 0;
       try {
-        const countRows = await queryRunner.query(`SELECT COUNT(*) as cnt FROM \`${tbl}\``);
-        cnt = countRows[0]?.cnt ?? 0;
-        messages.push(`📊 Tabela "${tbl}" possui ${cnt} registro(s).`);
+        const rows = await queryRunner.query(
+          `SELECT COUNT(*) AS cnt FROM \`${tbl}\``
+        );
+        count = rows[0]?.cnt ?? 0;
+        messages.push(`📊 <${tbl}> possui ${count} registro(s).`);
       } catch (err) {
-        messages.push(`❌ Erro ao contar registros da tabela "${tbl}".`);
-        console.error(`Erro tabela ${tbl}:`, err);
+        messages.push(`❌ Erro ao contar registros de <${tbl}>.`);
+        console.error(err);
         overallOk = false;
       }
 
+      // ==================================================
       // 4️⃣ Atualiza systables
+      // ==================================================
       try {
         await queryRunner.query(
-          `INSERT INTO systables (nome, chkdb, numberregs, createdAt, updatedAt)
-           VALUES (?, ?, ?, NOW(), NOW())
-           ON DUPLICATE KEY UPDATE chkdb = VALUES(chkdb), numberregs = VALUES(numberregs), updatedAt = NOW();`,
-          [tbl, cnt > 0 ? 1 : 0, cnt]
+          `
+          INSERT INTO systables (nome, chkdb, numberregs, createdAt, updatedAt)
+          VALUES (?, ?, ?, NOW(), NOW())
+          ON DUPLICATE KEY UPDATE
+            chkdb = VALUES(chkdb),
+            numberregs = VALUES(numberregs),
+            updatedAt = NOW();
+        `,
+          [tbl, count > 0 ? 1 : 0, count]
         );
 
-        if (cnt === 0) {
-          messages.push(`⚠️ Tabela "${tbl}" está vazia.`);
+        if (count === 0) {
+          messages.push(`⚠️ Tabela <${tbl}> está vazia.`);
           overallOk = false;
         } else {
-          messages.push(`✅ Tabela "${tbl}" com dados OK.`);
+          messages.push(`✅ Tabela <${tbl}> com dados OK.`);
         }
       } catch (err) {
-        messages.push(`❌ Erro ao atualizar systables para "${tbl}".`);
+        messages.push(`❌ Falha ao atualizar <systables> para <${tbl}>.`);
         console.error(err);
         overallOk = false;
       }
     }
 
-    // 5️⃣ Atualiza/insere sys_master
+    // ==================================================
+    // 5️⃣ sys_master (opcional / legado)
+    // ==================================================
     if (options.updateSysMaster) {
       try {
         await queryRunner.query(
-          `INSERT INTO systables (nome, chkdb, numberregs, createrAt, updaterAt)
-           VALUES (?, ?, ?, NOW(), NOW())
-           ON DUPLICATE KEY UPDATE chkdb = VALUES(chkdb), numberregs = VALUES(numberregs), updaterAt = NOW();`,
+          `
+          INSERT INTO systables (nome, chkdb, numberregs, createdAt, updatedAt)
+          VALUES (?, ?, ?, NOW(), NOW())
+          ON DUPLICATE KEY UPDATE
+            chkdb = VALUES(chkdb),
+            numberregs = VALUES(numberregs),
+            updatedAt = NOW();
+        `,
           ["sys_master", overallOk ? 1 : 0, 0]
         );
+
         messages.push(
           overallOk
             ? "✅ Sistema pronto. Liberado para serviço."
-            : "❌ Requisitos não aceitáveis. Solicitar Administrador."
+            : "❌ Requisitos não aceitáveis. Sistema inoperante."
         );
       } catch (err) {
-        messages.push("❌ Erro ao atualizar sys_master.");
+        messages.push("❌ Erro ao atualizar registro <sys_master>.");
         console.error(err);
       }
     }

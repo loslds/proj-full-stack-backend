@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 //import { DataSource, Repository } from 'typeorm';
 //import { SystablesEntity } from './systables.entity';
-import { requiredTables } from '../../config/tables';
+import { requiredTables } from '../../system/tables';
 import { SystablesEntity } from './systables.entity';
 import type { SystablesCreate } from './systables.dto';
 

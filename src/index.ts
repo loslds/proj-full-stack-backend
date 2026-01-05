@@ -1,26 +1,32 @@
 
 // src/index.tsx
-import net from 'net';
+import net from "net";
 import express from "express";
 import cors from "cors";
-import { AppDataSource } from './config/db';
-import { indexRoute } from './routes/indexRoute';
-import { errorHandler } from './middlewares/errorHandler';
-import { appPort, frontendPort, frontendDomain } from "./config/app";
+
+import { AppDataSource } from "./config/db";
+import { indexRoute } from "./routes/indexRoute";
+import { errorHandler } from "./middlewares/errorHandler";
+import { appPort, frontendPort } from "./config/app";
 import logsRoute from "./use-cases/system/logs.route";
-import { initRoutes } from "./routes/initRoutes";
 
 // -----------------------------
 // 1️⃣ Verifica se a porta está livre
 // -----------------------------
-const serverCheck = net.createServer().listen(appPort);
-serverCheck.on("error", (err: any) => {
+const serverCheck = net.createServer();
+
+serverCheck.once("error", (err: any) => {
   if (err.code === "EADDRINUSE") {
-    console.error(`❌ Porta ${appPort} já está em uso. Finalize o processo antigo.`);
+    console.error(`❌ Porta ${appPort} já está em uso.`);
     process.exit(1);
   }
 });
-serverCheck.close();
+
+serverCheck.once("listening", () => {
+  serverCheck.close();
+});
+
+serverCheck.listen(appPort);
 
 // -----------------------------
 // 2️⃣ Cria app Express
@@ -28,54 +34,48 @@ serverCheck.close();
 const app = express();
 
 // -----------------------------
-// 3️⃣ Configuração segura de CORS
+// 3️⃣ Configuração de CORS
 // -----------------------------
-const corsOptions = {
-  origin: (origin: string | undefined, callback: Function) => {
-    // Permite requisições sem origem (Postman ou curl)
-    if (!origin) return callback(null, true);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (/^http:\/\/localhost:\d+$/.test(origin)) return callback(null, true);
+      callback(new Error("Origem não permitida pelo CORS"));
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-    // Permite qualquer localhost com qualquer porta no dev
-    if (/^http:\/\/localhost:\d+$/.test(origin)) return callback(null, true);
-
-    // Permite domínio de produção definido
-    const allowedProduction = ["https://meusite.com"];
-    if (allowedProduction.includes(origin)) return callback(null, true);
-
-    // Bloqueia qualquer outra origem
-    callback(new Error("❌ Requisição bloqueada pelo CORS: Origem não permitida."));
-  },
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-};
-
-app.use(cors(corsOptions));
-app.use(express.json()); // interpreta JSON no body
+app.use(express.json());
 
 // -----------------------------
 // 4️⃣ Rotas
 // -----------------------------
-app.use("/api/logs", logsRoute);
-app.use('/api', indexRoute);         // rotas principais do sistema
-app.use("/api/db/init", initRoutes); // inicialização/check do sistema
+app.use("/api", indexRoute);        // 🔥 TODAS AS ROTAS DO SISTEMA
+app.use("/api/logs", logsRoute);    // exceção funcional (ok)
 
 // -----------------------------
-// 5️⃣ Middleware de tratamento de erros
+// 5️⃣ Middleware de erro
 // -----------------------------
 app.use(errorHandler);
 
 // -----------------------------
-// 6️⃣ Inicializa conexão com o banco e inicia servidor
+// 6️⃣ Inicializa banco e servidor
 // -----------------------------
 AppDataSource.initialize()
   .then(() => {
-    console.log("✅ Conectado ao banco de dados!");
+    console.log("✅ Conectado ao banco de dados");
+
     app.listen(appPort, () => {
-      console.log(`🚀 Servidor rodando na porta ${appPort}`);
-      console.log(`🚀 Frontend está rodando na porta ${frontendPort}`);
+      console.log(`🚀 Backend rodando na porta ${appPort}`);
+      console.log(`🖥️ Frontend esperado na porta ${frontendPort}`);
     });
   })
   .catch((err) => {
-    console.error("❌ Erro ao conectar ao banco de dados:", err);
+    console.error("❌ Erro ao conectar no banco:", err);
     process.exit(1);
   });
+
+  
