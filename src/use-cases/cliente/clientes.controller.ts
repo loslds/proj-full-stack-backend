@@ -7,7 +7,7 @@ import { ClientesEntity } from "./clientes.entity";
 import { FindOptionsWhere } from "typeorm";
 import { DeepPartial } from "typeorm";
 export type ClientesDto = DeepPartial<ClientesEntity>;
-import { HttpException } from "../../middlewares/HttpException";
+import { HttpException } from "../../exceptions/HttpException";
 import { ParsedQs } from 'qs';
 
 // Tipagem para query string da rota /search

@@ -17,14 +17,14 @@ systableRoute.get('/search-chkdb', (req, res, next) => controller.searchSysTable
 systableRoute.get('/search-regs', (req, res, next) => controller.searchSysTablesByNumberregs(req, res, next));
 
 /* ------------------- ROTAS DE LISTAGENS DIRETAS -------------------- */
-systableRoute.get('/one-nome', (req, res, next) => controller.findOneSysTablesNome(req, res, next));
-systableRoute.get('/all-nome', (req, res, next) => controller.findListSysTablesByNome(req, res, next));
-systableRoute.get('/all-chkdb', (req, res, next) => controller.findListSysTablesChkdb(req, res, next));
-systableRoute.get('/all-regs', (req, res, next) => controller.findListSysTablesNumberregs(req, res, next));
+systableRoute.get('/one-nome', (req, res, next) => controller.findOneSysTablesByNome(req, res, next));
+systableRoute.get('/all-nome', (req, res, next) => controller.ListSysTablesByNome(req, res, next));
+systableRoute.get('/all-chkdb', (req, res, next) => controller.ListSysTablesChkdb(req, res, next));
+systableRoute.get('/all-regs', (req, res, next) => controller.ListSysTablesNumberregs(req, res, next));
 
 /* -------------------------- CRUD BÁSICO ---------------------------- */
 systableRoute.get('/', (req, res, next) => controller.findAllSysTables(req, res, next));
-systableRoute.post('/', createValidation, (req, res, next) => controller.createSysTables(req, res, next));
+systableRoute.post('/', createValidation, (req, res, next) => controller.createBySysTables(req, res, next));
 
 /* ---- IMPORTANTE: rota paramétrica sempre deve vir por último ------ */
 systableRoute.get('/:systablesId', (req: Request<{ systablesId: string }>, res, next) => 

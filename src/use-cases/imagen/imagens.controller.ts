@@ -8,7 +8,7 @@ import { ImagensEntity } from "./imagens.entity";
 import { FindOptionsWhere } from "typeorm";
 import { DeepPartial } from "typeorm";
 export type ImagensDto = DeepPartial<ImagensEntity>;
-import { HttpException } from "../../middlewares/HttpException";
+import { HttpException } from "../../exceptions/HttpException";
 
 export class ImagensController {
   constructor(private readonly imagensRepository: ImagensRepository) {}

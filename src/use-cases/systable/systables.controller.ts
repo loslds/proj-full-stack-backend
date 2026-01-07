@@ -1,16 +1,15 @@
-
+ 
+//C:\repository\proj-full-stack-backend\src\use-cases\systable\systables.controller.ts
 import { NextFunction, Request, Response } from 'express';
 import { SystablesCreate, SystablesUpdate } from './systables.dto';
 import { SystablesRepository } from './systables.repository';
-import { SystablesEntity } from './systables.entity';
-import { FindOptionsWhere } from 'typeorm';
-import { HttpException } from '../../middlewares/HttpException';
+import { HttpException } from '../../exceptions/HttpException';
 
 export class SystablesController {
   constructor(private readonly systablesRepository: SystablesRepository) {}
 
   /** POST Cria um novo registro de systables */
-  async createSysTables(
+  async createBySysTables(
     req: Request<{}, {}, SystablesCreate>,
     res: Response,
     next: NextFunction
@@ -18,7 +17,7 @@ export class SystablesController {
     try {
       const { nome, chkdb, numberregs } = req.body;
 
-      const exists = await this.systablesRepository.hasDuplicated(nome, chkdb, numberregs);
+      const exists = await this.systablesRepository.hasDuplicatedBySystables(nome, chkdb, numberregs);
       if (exists) throw new HttpException(400, "systables já existe");
 
       const systables = await this.systablesRepository.createSystables(req.body);
@@ -85,7 +84,7 @@ export class SystablesController {
   /** GET Busca todos os registros */
   async findAllSysTables(req: Request, res: Response, next: NextFunction) {
     try {
-      const systables = await this.systablesRepository.findSystablesAll({}, { nome: "ASC" });
+      const systables = await this.systablesRepository.findAllSystables({}, { nome: "ASC" });
       return res.status(200).send({ success: true, systables });
     } catch (error) {
       next(error);
@@ -104,7 +103,7 @@ export class SystablesController {
         return res.status(400).send({ success: false, message: "ID inválido" });
       }
 
-      const systables = await this.systablesRepository.findSystablesById(systablesId);
+      const systables = await this.systablesRepository.findOneIdSystables(systablesId);
       return res.status(200).send({ success: true, systables });
 
     } catch (error) {
@@ -112,6 +111,10 @@ export class SystablesController {
     }
   }
 
+  /////////////////////////////////////
+  // pesquisas por qualquer campo da Tabela
+  ///////////////////////////////////// 
+    
   /** GET Busca por múltiplos campos (query) */
   async searchSysTables(req: Request, res: Response, next: NextFunction) {
     try {
@@ -130,6 +133,10 @@ export class SystablesController {
       next(error);
     }
   }
+
+  /////////////////////////////////////
+  // pesquisas Rapidas atraves do Campo
+  /////////////////////////////////////
 
   /** Busca por nome */
   async searchSysTablesByNome(req: Request, res: Response, next: NextFunction) {
@@ -175,27 +182,32 @@ export class SystablesController {
   /** GET - pesquisa por numberregs (rápida) */
   async searchSysTablesByNumberregs(req: Request, res: Response, next: NextFunction) {
     try {
-      const numRaw = (req.query?.numberregs ?? req.query?.text) as string | undefined;
+        const numRaw = (req.query?.numberregs ?? req.query?.text) as string | undefined;
 
-      if (numRaw === undefined) {
-        const systables = await this.systablesRepository.searchNumberregsSystables(undefined);
+        if (numRaw === undefined) {
+          const systables = await this.systablesRepository.searchNumberregsSystables(undefined);
+          return res.status(200).send({ success: true, systables });
+        }
+
+        const parsed = Number(numRaw);
+        if (isNaN(parsed)) {
+          return res.status(400).send({ success: false, message: 'Parâmetro numberregs inválido' });
+        }
+
+        const systables = await this.systablesRepository.searchNumberregsSystables(parsed);
         return res.status(200).send({ success: true, systables });
-      }
-
-      const parsed = Number(numRaw);
-      if (isNaN(parsed)) {
-        return res.status(400).send({ success: false, message: 'Parâmetro numberregs inválido' });
-      }
-
-      const systables = await this.systablesRepository.searchNumberregsSystables(parsed);
-      return res.status(200).send({ success: true, systables });
-    } 
-  catch (error) {
-    next(error);
+      } 
+    catch (error) {
+      next(error);
+    }
   }
-}
+
+  /////////////////////////////////////
+  // Listagens
+  /////////////////////////////////////
+
   /** Lista todos os nomes */
-  async findOneSysTablesNome(req: Request, res: Response, next: NextFunction) {
+  async findOneSysTablesByNome(req: Request, res: Response, next: NextFunction) {
     const { nome } = req.query;
 
     if (!nome) {
@@ -210,20 +222,20 @@ export class SystablesController {
     }
   }
 
-  async findListSysTablesByNome(req: Request, res: Response, next: NextFunction) {
+  async ListSysTablesByNome(req: Request, res: Response, next: NextFunction) {
     try {
-      const nomes = await this.systablesRepository.findListNomeSystables();
+      const nomes = await this.systablesRepository.listNomeSystables();
       return res.status(200).send({ success: true, nomes });
     } catch (error) {
       next(error);
     }
   }
 
-  async findListSysTablesChkdb(req: Request, res: Response, next: NextFunction) {
+  async ListSysTablesChkdb(req: Request, res: Response, next: NextFunction) {
     try {
       const { chkdb } = req.query;
 
-      const lista = await this.systablesRepository.findListChkdbSystables(
+      const lista = await this.systablesRepository.listChkdbSystables(
         chkdb !== undefined ? (chkdb === "true" ? 1 : 0) : undefined
       );
 
@@ -233,11 +245,11 @@ export class SystablesController {
     }
   }
 
-  async findListSysTablesNumberregs(req: Request, res: Response, next: NextFunction) {
+  async ListSysTablesNumberregs(req: Request, res: Response, next: NextFunction) {
     try {
       const { numberregs } = req.query;
 
-      const lista = await this.systablesRepository.findListNumberregsSystables(
+      const lista = await this.systablesRepository.listNumberregsSystables(
         numberregs !== undefined ? Number(numberregs) : undefined
       );
 
@@ -247,3 +259,4 @@ export class SystablesController {
     }
   }
 }
+

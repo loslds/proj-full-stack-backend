@@ -3,7 +3,7 @@
 import { NextFunction, Request, Response } from "express";
 import { EstadosRepository } from "./estados.repository";
 import { EstadosCreate, EstadosUpdate } from "./estados.dto";
-import { HttpException } from "../../middlewares/HttpException";
+import { HttpException } from "../../exceptions/HttpException";
 
 export class EstadosController {
   constructor(private readonly estadosRepository: EstadosRepository) {}

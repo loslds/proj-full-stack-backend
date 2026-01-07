@@ -1,19 +1,23 @@
 
 // src/use-cases/start/checkConnectionService.ts
-import { AppDataSource } from '../config/db';
+import { AppDataSource } from "../config/db";
+export interface CheckConnectionResult {
+  success: boolean;
+}
 
-export async function checkConnectionService(): Promise<{ success: boolean }> {
+export async function checkConnectionService(): Promise<CheckConnectionResult> {
   try {
+    // O DataSource deve ser inicializado no index.ts
     if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
+      throw new Error("DataSource não inicializado");
     }
 
-    // Query simples para validar a conexão
-    await AppDataSource.query('SELECT 1');
+    // Query mínima apenas para validar a conexão
+    await AppDataSource.query("SELECT 1");
 
     return { success: true };
   } catch (error) {
-    console.error('Erro ao verificar conexão com o banco:', error);
+    console.error("❌ Erro ao verificar conexão com o banco de dados:", error);
     return { success: false };
   }
 }

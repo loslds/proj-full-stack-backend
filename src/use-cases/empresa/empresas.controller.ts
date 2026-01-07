@@ -5,7 +5,7 @@ import { EmpresasEntity } from './empresas.entity';
 import { FindOptionsWhere } from "typeorm";
 import { DeepPartial } from "typeorm";
 export type EmpresasDto = DeepPartial<EmpresasEntity>;
-import { HttpException } from "../../middlewares/HttpException";
+import { HttpException } from "../../exceptions/HttpException";
 import { ParsedQs } from 'qs';
 
 // Tipagem para query string da rota /search

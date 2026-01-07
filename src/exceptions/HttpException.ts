@@ -1,31 +1,24 @@
-
-// src/services/erroHandler.ts
+// src/exceptions/HttpException.ts
 export class HttpException extends Error {
-  status: number;
-  message: string;
+  public status: number;
+
   constructor(
     status: number,
-    message: string | Record<any, any> = 'unspecified_error',
-    stack = 'HttpException',
+    message: string | Record<string, any> = 'unknown_error'
   ) {
     const msg =
       typeof message === 'string'
         ? message
-        : message
-          ? JSON.stringify(message)
-          : JSON.stringify(stack || {});
+        : JSON.stringify(message);
+
     super(msg);
     this.status = status;
-    this.message = msg;
-    this.stack = stack;
   }
 }
 
 export enum ErrMsg {
-  // general
   unknown = 'unknown_error',
   invalidId = 'invalid_id',
-
   notFound = 'not_found',
   update = 'update_error',
   create = 'create_error',
@@ -41,4 +34,3 @@ export enum ErrMsg {
   largeFile = 'too_large_file',
   emptyFile = 'empty_file',
 }
-

@@ -8,7 +8,7 @@ import { FuncionariosEntity } from "./funcionarios.entity";
 import { FindOptionsWhere } from "typeorm";
 import { DeepPartial } from "typeorm";
 export type FuncionariosDto = DeepPartial<FuncionariosEntity>;
-import { HttpException } from "../../middlewares/HttpException";
+import { HttpException } from "../../exceptions/HttpException";
 import { ParsedQs } from 'qs';
 
 // Tipagem para query string da rota /search

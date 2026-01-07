@@ -1,7 +1,7 @@
  
 // src/routes/indexRoute.ts
 import { Router } from "express";
-import { systemRoutes } from "../system/systemRoutes";
+import { systemRoutes } from "./systemRoutes";
 
 const indexRoute = Router();
 

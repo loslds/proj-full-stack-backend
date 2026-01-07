@@ -2,7 +2,7 @@
 import { Router } from 'express';
 import { AppDataSource } from '../../config/db';
 import { requiredTables } from '../../system/tables';
-import { syncsysTables } from '../../services/syncsysTables';
+import { syncsysTables } from '../../../deletado/syncsysTables.ts.tts';
 
 const router = Router();
 

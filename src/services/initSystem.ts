@@ -1,10 +1,10 @@
 
-// C:\repository\proj-full-stack-backend\src\services\initSystem.ts
 // src/services/initSystem.ts
-import { checkConnectionService } from "./checkConectionService";
-import { checkTables } from "./checkTables";
-import { syncsysTables } from "./syncsysTables";
-import { SYSTEM_TABLES_TOTAL } from "../system/tables";
+import { checkConnectionService } from './checkConectionService';
+import { checkTables } from './checkTables';
+import { systemTables } from '../system/tables';
+
+import { systablesService } from './tables/systables.service';
 
 export interface InitStep {
   message: string;
@@ -19,6 +19,13 @@ export interface InitResult {
   message: string;
 }
 
+/**
+ * Serviços de tabelas controladas pelo sistema
+ */
+const tableServices = [
+  systablesService,
+];
+
 export async function initSystem(): Promise<InitResult> {
   const steps: InitStep[] = [];
   let checkedTables: string[] = [];
@@ -26,10 +33,10 @@ export async function initSystem(): Promise<InitResult> {
 
   try {
     // ==================================================
-    // 1️⃣ CONEXÃO COM DATABASE
+    // 1️⃣ CONEXÃO
     // ==================================================
     steps.push({
-      message: "🔌 Verificando conexão com o banco de dados...",
+      message: '🔌 Verificando conexão com o banco...',
       success: true,
     });
 
@@ -37,7 +44,7 @@ export async function initSystem(): Promise<InitResult> {
 
     if (!conn.success) {
       steps.push({
-        message: "❌ Falha na conexão com o banco de dados.",
+        message: '❌ Falha na conexão com o banco.',
         success: false,
       });
 
@@ -46,100 +53,90 @@ export async function initSystem(): Promise<InitResult> {
         steps,
         checkedTables: [],
         missingTables: [],
-        message: "Sistema não pode ser iniciado (sem conexão).",
+        message: 'Sistema não pode ser iniciado.',
       };
     }
 
     steps.push({
-      message: "✅ Conexão com banco de dados estabelecida.",
+      message: '✅ Conexão estabelecida.',
       success: true,
     });
 
     // ==================================================
-    // 2️⃣ CHECAGEM / CRIAÇÃO DE ESTRUTURAS
+    // 2️⃣ DIAGNÓSTICO DAS TABELAS
     // ==================================================
     steps.push({
-      message: "🔍 Verificando estruturas do sistema...",
+      message: '🔍 Verificando estrutura das tabelas...',
       success: true,
     });
 
     const tablesResult = await checkTables();
-
     checkedTables = tablesResult.existingTables;
     missingTables = tablesResult.missingTables;
 
-    // Caso crítico: apenas systables
-    if (
-      checkedTables.length === 1 &&
-      checkedTables[0] === "systables"
-    ) {
-      steps.push({
-        message:
-          "⛔ Apenas a tabela <systables> existe. Base operacional inexistente.",
-        success: false,
-      });
+    // ==================================================
+    // 3️⃣ CRIAÇÃO DAS TABELAS AUSENTES
+    // ==================================================
+    for (const service of tableServices) {
+      if (missingTables.includes(service.tableName)) {
+        steps.push({
+          message: `🛠 Criando tabela <${service.tableName}>...`,
+          success: true,
+        });
 
-      return {
-        success: false,
-        steps,
-        checkedTables,
-        missingTables,
-        message: "Sistema inoperante (base incompleta).",
-      };
+        await service.create();
+
+        // seed somente para systables
+        if (service.tableName === 'systables') {
+          steps.push({
+            message: `📥 Inserindo dados iniciais em <${service.tableName}>...`,
+            success: true,
+          });
+
+          await service.seed(systemTables);
+        }
+      }
     }
 
-    // Informativo: total esperado
-    if (checkedTables.length - 1 !== SYSTEM_TABLES_TOTAL) {
-      steps.push({
-        message: `ℹ️ Tabelas esperadas: ${SYSTEM_TABLES_TOTAL}. Encontradas: ${
-          checkedTables.length - 1
-        }.`,
-        success: true,
-      });
-    }
-
-    // Relatório por tabela
+    // ==================================================
+    // 4️⃣ RELATÓRIO DE ESTADO
+    // ==================================================
     for (const table of checkedTables) {
-      if (table === "systables") continue;
-
       const count = tablesResult.records?.[table] ?? 0;
 
       steps.push({
         message:
           count === 0
-            ? `⚠️ Tabela <${table}> existe, porém está vazia.`
+            ? `⚠️ Tabela <${table}> existe, mas está vazia.`
             : `✅ Tabela <${table}> OK (${count} registros).`,
         success: true,
       });
     }
 
     // ==================================================
-    // 3️⃣ SINCRONIZAÇÃO FINAL (systables)
+    // 5️⃣ UPDATES CONTROLADOS
     // ==================================================
-    steps.push({
-      message: "🔄 Sincronizando estado do sistema...",
-      success: true,
-    });
+    for (const service of tableServices) {
+      steps.push({
+        message: `🔄 Verificando atualizações em <${service.tableName}>...`,
+        success: true,
+      });
 
-    try {
-      await syncsysTables();
-      steps.push({
-        message: "✅ Sincronização da <systables> concluída.",
-        success: true,
-      });
-    } catch (err) {
-      steps.push({
-        message:
-          "⚠️ Falha ao sincronizar <systables>. Estado parcial mantido.",
-        success: true,
-      });
+      await service.update();
     }
 
     // ==================================================
-    // FINAL
+    // 6️⃣ SINCRONIZAÇÃO FINAL DA SYSTABLES
     // ==================================================
     steps.push({
-      message: "✅ Sistema liberado para operação.",
+      message: '🔄 Sincronizando estado do sistema...',
+      success: true,
+    });
+
+    await systablesService.sync(systemTables);
+
+    steps.push({
+      message: '✅ Sistema pronto para operação.',
       success: true,
     });
 
@@ -148,14 +145,14 @@ export async function initSystem(): Promise<InitResult> {
       steps,
       checkedTables,
       missingTables,
-      message: "Sistema inicializado com sucesso.",
+      message: 'Sistema inicializado com sucesso.',
     };
   } catch (error: unknown) {
     const msg =
-      error instanceof Error ? error.message : "Erro inesperado";
+      error instanceof Error ? error.message : 'Erro inesperado';
 
     steps.push({
-      message: `❌ Erro inesperado durante inicialização: ${msg}`,
+      message: `❌ Erro durante inicialização: ${msg}`,
       success: false,
     });
 
@@ -164,7 +161,7 @@ export async function initSystem(): Promise<InitResult> {
       steps,
       checkedTables,
       missingTables,
-      message: "Erro inesperado ao inicializar o sistema.",
+      message: 'Erro ao inicializar o sistema.',
     };
   }
 }

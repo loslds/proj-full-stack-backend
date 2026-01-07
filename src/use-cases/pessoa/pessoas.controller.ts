@@ -3,7 +3,7 @@
 import { NextFunction, Request, Response } from "express";
 import { PessoasRepository } from "./pessoas.repository";
 import { PessoasCreate, PessoasUpdate } from "./pessoas.dto";
-import { HttpException } from "../../middlewares/HttpException";
+import { HttpException } from "../../exceptions/HttpException";
 
 export class PessoasController {
   constructor(private readonly pessoasRepository: PessoasRepository) {}
