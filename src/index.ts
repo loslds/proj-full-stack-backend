@@ -1,4 +1,5 @@
 
+// C:\repository\proj-full-stack-backend\src\index.ts
 // src/index.ts
 import net from "net";
 import express from "express";
@@ -41,12 +42,7 @@ app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-
-      // aceita localhost (dev)
-      if (/^http:\/\/localhost:\d+$/.test(origin)) {
-        return callback(null, true);
-      }
-
+      if (/^http:\/\/localhost:\d+$/.test(origin)) return callback(null, true);
       callback(new Error("Origem não permitida pelo CORS"));
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
@@ -72,17 +68,30 @@ app.use(errorHandler);
 // ==================================================
 (async () => {
   try {
+    // 🔹 Inicializa DataSource
     await AppDataSource.initialize();
     console.log("✅ Conectado ao banco de dados");
 
-    // 🔍 Verificação leve de integridade (runtime)
-    await systemHealthCheck();
-    console.log("✅ System health check OK");
+    // 🔹 Health check do sistema
+    // Se for primeira execução (modo DEV / instalação), o modal frontend poderá receber mensagens
+    const healthResult = await systemHealthCheck();
+    if (healthResult.success) {
+      console.log("✅ System health check OK");
+    } else {
+      console.warn("⚠️ Health check incompleto / tabelas faltando:", healthResult.message);
+    }
 
+    // 🔹 Inicia servidor
     app.listen(appPort, () => {
       console.log(`🚀 Backend rodando na porta ${appPort}`);
       console.log(`🖥️ Frontend esperado na porta ${frontendPort}`);
+
+      // opcional: informar modo DEV se modal for necessário
+      if (!healthResult.success) {
+        console.log("⚠️ Modo DEV: algumas tabelas ausentes, sistema em verificação.");
+      }
     });
+
   } catch (err) {
     console.error("❌ Erro crítico ao iniciar o sistema:", err);
     process.exit(1);

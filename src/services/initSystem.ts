@@ -1,11 +1,14 @@
-
 // src/services/initSystem.ts
 import { checkConnectionService } from './checkConectionService';
 import { checkTables } from './checkTables';
 import { systemTables } from '../system/tables';
 
 import { systablesService } from './tables/systables.service';
+import { systemStateService } from './systemStateService';
 
+// ==================================================
+// Tipos
+// ==================================================
 export interface InitStep {
   message: string;
   success: boolean;
@@ -19,13 +22,16 @@ export interface InitResult {
   message: string;
 }
 
-/**
- * Serviços de tabelas controladas pelo sistema
- */
+// ==================================================
+// Serviços de tabelas controladas
+// ==================================================
 const tableServices = [
   systablesService,
 ];
 
+// ==================================================
+// Inicialização do sistema (INSTALAÇÃO)
+// ==================================================
 export async function initSystem(): Promise<InitResult> {
   const steps: InitStep[] = [];
   let checkedTables: string[] = [];
@@ -53,7 +59,7 @@ export async function initSystem(): Promise<InitResult> {
         steps,
         checkedTables: [],
         missingTables: [],
-        message: 'Sistema não pode ser iniciado.',
+        message: 'Sistema não pode ser iniciado (sem conexão).',
       };
     }
 
@@ -78,23 +84,23 @@ export async function initSystem(): Promise<InitResult> {
     // 3️⃣ CRIAÇÃO DAS TABELAS AUSENTES
     // ==================================================
     for (const service of tableServices) {
-      if (missingTables.includes(service.tableName)) {
+      if (!missingTables.includes(service.tableName)) continue;
+
+      steps.push({
+        message: `🛠 Criando tabela <${service.tableName}>...`,
+        success: true,
+      });
+
+      await service.create();
+
+      // Seed somente da systables
+      if (service.tableName === 'systables') {
         steps.push({
-          message: `🛠 Criando tabela <${service.tableName}>...`,
+          message: '📥 Inserindo registros iniciais em <systables>...',
           success: true,
         });
 
-        await service.create();
-
-        // seed somente para systables
-        if (service.tableName === 'systables') {
-          steps.push({
-            message: `📥 Inserindo dados iniciais em <${service.tableName}>...`,
-            success: true,
-          });
-
-          await service.seed(systemTables);
-        }
+        await service.seed(systemTables);
       }
     }
 
@@ -135,8 +141,13 @@ export async function initSystem(): Promise<InitResult> {
 
     await systablesService.sync(systemTables);
 
+    // ==================================================
+    // 7️⃣ MARCA SISTEMA COMO INSTALADO (RUNTIME)
+    // ==================================================
+    systemStateService.markInitialized();
+
     steps.push({
-      message: '✅ Sistema pronto para operação.',
+      message: '✅ Sistema instalado e pronto para operação.',
       success: true,
     });
 
@@ -145,7 +156,7 @@ export async function initSystem(): Promise<InitResult> {
       steps,
       checkedTables,
       missingTables,
-      message: 'Sistema inicializado com sucesso.',
+      message: 'Instalação concluída com sucesso.',
     };
   } catch (error: unknown) {
     const msg =

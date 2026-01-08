@@ -3,18 +3,8 @@
 import { Router } from "express";
 import { systemRoutes } from "./systemRoutes";
 
-const indexRoute = Router();
+const router = Router();
 
-// -----------------------------
-// Rotas do sistema
-// -----------------------------
-indexRoute.use("/system", systemRoutes);
+router.use("/system", systemRoutes);
 
-// -----------------------------
-// Health-check da API
-// -----------------------------
-indexRoute.get("/", (_req, res) => {
-  res.status(200).json({ success: true });
-});
-
-export { indexRoute };
+export { router as indexRoute };
