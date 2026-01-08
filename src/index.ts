@@ -1,5 +1,6 @@
 
 // C:\repository\proj-full-stack-backend\src\index.ts
+
 // src/index.ts
 import net from "net";
 import express from "express";
@@ -75,10 +76,16 @@ app.use(errorHandler);
     // 🔹 Health check do sistema
     // Se for primeira execução (modo DEV / instalação), o modal frontend poderá receber mensagens
     const healthResult = await systemHealthCheck();
-    if (healthResult.success) {
-      console.log("✅ System health check OK");
-    } else {
-      console.warn("⚠️ Health check incompleto / tabelas faltando:", healthResult.message);
+
+    console.log(
+      `🩺 Health | mode=${healthResult.mode} | initialized=${healthResult.initialized}`
+    );
+
+    if (healthResult.missingTables.length > 0) {
+      console.warn(
+        "⚠️ Tabelas ausentes:",
+        healthResult.missingTables
+      );
     }
 
     // 🔹 Inicia servidor

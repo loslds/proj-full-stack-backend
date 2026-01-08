@@ -1,12 +1,13 @@
 
+
 import { Router, RequestHandler } from 'express';
 
 import { SetoresController } from './setores.controller';
 import { SetoresRepository } from './setores.repository';
-import { dataSource } from '../start/dbSource';
+import { AppDataSource } from './../../config/db';
 import { createValidation, updateValidation } from './setores.validation';
 
-const setoresRepository = new SetoresRepository(dataSource);
+const setoresRepository = new SetoresRepository(AppDataSource);
 const controller = new SetoresController(setoresRepository);
 const setoresRoute = Router();
 

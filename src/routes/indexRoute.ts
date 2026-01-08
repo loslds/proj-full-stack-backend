@@ -1,10 +1,23 @@
  
 // src/routes/indexRoute.ts
+
+// src/routes/indexRoute.ts
 import { Router } from "express";
 import { systemRoutes } from "./systemRoutes";
 
-const router = Router();
+const indexRoute = Router();
 
-router.use("/system", systemRoutes);
+indexRoute.use("/system", systemRoutes);
 
-export { router as indexRoute };
+export { indexRoute };
+
+
+
+// import { Router } from "express";
+// import { systemRoutes } from "./systemRoutes";
+
+// const router = Router();
+
+// router.use("/system", systemRoutes);
+
+// export { router as indexRoute };
