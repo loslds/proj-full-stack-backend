@@ -13,7 +13,6 @@ export interface SystemHealthResult {
   existingTables: string[];
   missingTables: string[];
 }
-
 /**
  * Verificação NÃO BLOQUEANTE do estado do sistema
  * - Nunca inicializa recursos
