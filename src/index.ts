@@ -1,7 +1,9 @@
 
 // C:\repository\proj-full-stack-backend\src\index.ts
+import "dotenv/config";
 
-// src/index.ts
+console.log("ENV MASTER_KEY loaded?", Boolean(process.env.MASTER_KEY));
+
 import net from "net";
 import express from "express";
 import cors from "cors";
@@ -104,3 +106,4 @@ app.use(errorHandler);
     process.exit(1);
   }
 })();
+
