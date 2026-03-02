@@ -1,6 +1,6 @@
 
-//C:\repository\proj-full-stack-backend\src\utils\masterKeyValidator.ts
-// src/utils/masterKeyValidator.ts
+
+// C:\repository\proj-full-stack-backend\src\utils\masterKeyValidator.ts
 
 export function getYYYYMMDD(d: Date = new Date()): string {
   const y = d.getFullYear();
@@ -9,17 +9,24 @@ export function getYYYYMMDD(d: Date = new Date()): string {
   return `${y}${m}${day}`; // ex: 20260220
 }
 
-export function isDigits(s: string): boolean {
-  return /^\d+$/.test(s);
-}
-
 export function isDigitsLen(s: string, len: number): boolean {
   return new RegExp(`^\\d{${len}}$`).test(s);
 }
 
 /**
+ * Permite apenas caracteres "seguros" para chave fixa:
+ * - letras A-Z a-z
+ * - números 0-9
+ * - símbolos: @ # _ -
+ * (sem espaços, sem aspas, sem barra, etc.)
+ */
+export function isSafeStaticKey(s: string): boolean {
+  return /^[A-Za-z0-9@#_-]+$/.test(s);
+}
+
+/**
  * PIN do dia conforme sua regra:
- * YYYYMMDD -> [YY, YY, MM, DD] (pares)
+ * YYYYMMDD -> pares: [YY, YY, MM, DD]
  * soma dígitos de cada par: "20" -> 2, "26" -> 8, "02" -> 2, "20" -> 2 => "2822"
  */
 export function pinFromSecular(secularYYYYMMDD: string): string {
@@ -30,7 +37,13 @@ export function pinFromSecular(secularYYYYMMDD: string): string {
     const a = Number(p[0]);
     const b = Number(p[1]);
     if (Number.isNaN(a) || Number.isNaN(b)) return "0";
-    return String(a + b);
+
+    const sum = a + b;
+
+    // ✅ garante 1 dígito (0–9). (Com datas reais já é assim, mas fica consistente.)
+    if (sum < 0 || sum > 9) return "0";
+
+    return String(sum);
   });
 
   return pinDigits.join(""); // ex: "2822"
@@ -40,10 +53,15 @@ export function pinFromSecular(secularYYYYMMDD: string): string {
  * Valida entrada do master:
  * - 8 dígitos: deve ser YYYYMMDD de hoje (servidor)
  * - 4 dígitos: deve ser PIN do dia derivado do YYYYMMDD
- * - alfanumérico: deve ser igual MASTER_STATIC do .env
+ * - string fixa: deve ser igual MASTER_STATIC do .env e conter apenas caracteres seguros
  */
-export function validateMasterInput(inputRaw: string): { ok: boolean; mode?: "DATE8" | "PIN4" | "STATIC" } {
+export function validateMasterInput(
+  inputRaw: string
+): { ok: boolean; mode?: "DATE8" | "PIN4" | "STATIC" } {
   const input = (inputRaw ?? "").trim();
+
+  // rejeita vazio
+  if (!input) return { ok: false };
 
   const today = getYYYYMMDD();
   const todayPin = pinFromSecular(today);
@@ -58,9 +76,14 @@ export function validateMasterInput(inputRaw: string): { ok: boolean; mode?: "DA
     return { ok: input === todayPin, mode: "PIN4" };
   }
 
-  // alfanumérico/fixo
-  const staticKey = process.env.MASTER_STATIC ?? "";
-  if (staticKey && input === staticKey) {
+  // string fixa (somente caracteres seguros)
+  const staticKey = (process.env.MASTER_STATIC ?? "").trim();
+  if (!staticKey) return { ok: false };
+
+  if (!isSafeStaticKey(input)) return { ok: false };
+  if (!isSafeStaticKey(staticKey)) return { ok: false };
+
+  if (input === staticKey) {
     return { ok: true, mode: "STATIC" };
   }
 

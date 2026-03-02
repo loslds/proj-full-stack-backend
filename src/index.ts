@@ -2,7 +2,7 @@
 // C:\repository\proj-full-stack-backend\src\index.ts
 import "dotenv/config";
 
-console.log("ENV MASTER_KEY loaded?", Boolean(process.env.MASTER_KEY));
+console.log("ENV MASTER_STATIC loaded?", Boolean(process.env.MASTER_STATIC));
 
 import net from "net";
 import express from "express";
@@ -89,6 +89,8 @@ app.use(errorHandler);
         healthResult.missingTables
       );
     }
+
+console.log("ROTAS:", indexRoute.stack?.map((l: any) => l?.regexp?.toString?.() ?? l));
 
     // 🔹 Inicia servidor
     app.listen(appPort, () => {
