@@ -1,8 +1,8 @@
-
 // C:\repository\proj-full-stack-backend\src\services\tables\systables.service.ts
+
 // src/services/tables/systables.service.ts
 import { AppDataSource } from '../../config/db';
-
+ 
 /**
  * Service exclusivo da tabela systables
  *
@@ -14,6 +14,7 @@ import { AppDataSource } from '../../config/db';
  * NÃO cria outras tabelas
  * NÃO executa lógica de negócio
  */
+ 
 export const systablesService = {
   tableName: 'systables',
 
@@ -131,3 +132,4 @@ export const systablesService = {
     // intencionalmente vazio
   },
 };
+ 

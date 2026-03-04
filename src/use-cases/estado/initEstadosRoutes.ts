@@ -1,14 +1,15 @@
+import { DataSource } from 'typeorm';
 
 //C:\repository\proj-full-stack-backend\src\use-cases\estado\initEstadosRoutes.ts
 import { Application, Router } from "express";
 import { EstadosController } from "./estados.controller";
 import { EstadosRepository } from "./estados.repository";
 import { estadoscreateValidation, estadosupdateValidation } from "./estados.validation";
-import { dbSource } from "../../database";
+import { AppDataSource } from "../../config/db";
 
 export async function initEstadosRoutes(app: Application) {
   // 1️⃣ Repository somente após o DataSource estar inicializado
-  const estadosRepo = new EstadosRepository(dbSource);
+  const estadosRepo = new EstadosRepository(AppDataSource);
 
   // 2️⃣ Garantir existência da tabela e dados padrão
   await estadosRepo.createNotExistsEstados();

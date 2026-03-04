@@ -1,7 +1,12 @@
 // src/services/initSystem.ts
 import { checkConnectionService } from './checkConectionService';
 import { checkTables } from './checkTables';
-import { systemTables } from '../system/tables';
+
+// ✅ fonte única do inventário do sistema
+import { systemTables, tablesWithDefaults } from './tables/tables';
+
+// ✅ registry das tabelas "normais" (pessoas, estados, cidades...)
+import { tableServiceMap } from './tables';
 
 import { systablesService } from './tables/systables.service';
 import { systemStateService } from './systemStateService';
@@ -21,13 +26,6 @@ export interface InitResult {
   missingTables: string[];
   message: string;
 }
-
-// ==================================================
-// Serviços de tabelas controladas
-// ==================================================
-const tableServices = [
-  systablesService,
-];
 
 // ==================================================
 // Inicialização do sistema (INSTALAÇÃO)
@@ -83,24 +81,56 @@ export async function initSystem(): Promise<InitResult> {
     // ==================================================
     // 3️⃣ CRIAÇÃO DAS TABELAS AUSENTES
     // ==================================================
-    for (const service of tableServices) {
-      if (!missingTables.includes(service.tableName)) continue;
+
+    // 3.1) systables primeiro (exceção: seed recebe lista de tabelas)
+    if (missingTables.includes('systables')) {
+      steps.push({
+        message: '🛠 Criando tabela <systables>...',
+        success: true,
+      });
+
+      await systablesService.create();
 
       steps.push({
-        message: `🛠 Criando tabela <${service.tableName}>...`,
+        message: '📥 Inserindo registros iniciais em <systables>...',
+        success: true,
+      });
+
+      await systablesService.seed(systemTables);
+    }
+
+    // 3.2) demais tabelas via registry
+    for (const tableName of missingTables) {
+      if (tableName === 'systables') continue;
+
+      const service = tableServiceMap.get(tableName);
+
+      if (!service) {
+        steps.push({
+          message: `⚠️ Não existe service registrado para <${tableName}>. Tabela não será criada automaticamente.`,
+          success: true,
+        });
+        continue;
+      }
+
+      steps.push({
+        message: `🛠 Criando tabela <${tableName}>...`,
         success: true,
       });
 
       await service.create();
 
-      // Seed somente da systables
-      if (service.tableName === 'systables') {
+      // Seed somente para tabelas com defaults e que implementam seed()
+      if (
+        (tablesWithDefaults as readonly string[]).includes(tableName) &&
+        service.seed
+      ) {
         steps.push({
-          message: '📥 Inserindo registros iniciais em <systables>...',
+          message: `📥 Inserindo registros padrão em <${tableName}>...`,
           success: true,
         });
 
-        await service.seed(systemTables);
+        await service.seed();
       }
     }
 
@@ -122,13 +152,21 @@ export async function initSystem(): Promise<InitResult> {
     // ==================================================
     // 5️⃣ UPDATES CONTROLADOS
     // ==================================================
-    for (const service of tableServices) {
+    // systables (exceção)
+    steps.push({
+      message: '🔄 Verificando atualizações em <systables>...',
+      success: true,
+    });
+    await systablesService.update();
+
+    // demais tabelas (registry)
+    for (const [, service] of tableServiceMap) {
       steps.push({
         message: `🔄 Verificando atualizações em <${service.tableName}>...`,
         success: true,
       });
 
-      await service.update();
+      if (service.update) await service.update();
     }
 
     // ==================================================
@@ -159,8 +197,7 @@ export async function initSystem(): Promise<InitResult> {
       message: 'Instalação concluída com sucesso.',
     };
   } catch (error: unknown) {
-    const msg =
-      error instanceof Error ? error.message : 'Erro inesperado';
+    const msg = error instanceof Error ? error.message : 'Erro inesperado';
 
     steps.push({
       message: `❌ Erro durante inicialização: ${msg}`,

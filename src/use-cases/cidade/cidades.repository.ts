@@ -9,7 +9,7 @@ import {
 
 import { CidadesEntity } from "./cidades.entity";
 import type { CidadesCreate } from "./cidades.dto";
-import { requiredCidades } from "../../config/cidades";
+import { requiredCidades } from "./cidades";
 
 // Importando ENTIDADE real de cadastros
 import { CadastrosEntity } from "../cadastro/cadastros.entity"; // ajuste conforme estrutura

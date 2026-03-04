@@ -57,3 +57,4 @@ export class PessoasEntity {
   })
   updatedAt: Date;
 }
+ 

@@ -1,5 +1,7 @@
 
 //C:\repository\proj-full-stack-backend\src\services\systemHealthCheck.ts
+ 
+ 
 // src/services/systemHealthCheck.ts
 import { checkTables } from './checkTables';
 import { systemStateService } from './systemStateService';
@@ -40,3 +42,4 @@ export async function systemHealthCheck(): Promise<SystemHealthResult> {
     missingTables: tablesResult.missingTables,
   };
 }
+ 

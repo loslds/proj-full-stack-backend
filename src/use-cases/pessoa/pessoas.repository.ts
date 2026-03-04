@@ -10,7 +10,7 @@ import {
 
 import { PessoasEntity } from './pessoas.entity';
 import type { PessoasCreate } from './pessoas.dto';
-import { requiredPessoas } from '../../config/pessoas';
+import { pessoasSeed } from '../../services/tables/seed/pessoas.seed';
 
 export class PessoasRepository {
   private repo: Repository<PessoasEntity>;
@@ -27,12 +27,14 @@ export class PessoasRepository {
     await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS pessoas (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        nome VARCHAR(60) NOT NULL COLLATE utf8mb4_general_ci UNIQUE,
-        sigla VARCHAR(5) NOT NULL,
+        nome VARCHAR(60) NOT NULL COLLATE utf8mb4_general_ci,
+        sigla VARCHAR(5) NOT NULL COLLATE utf8mb4_general_ci,
         createdBy INT UNSIGNED DEFAULT 0,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
         updatedBy INT UNSIGNED DEFAULT 0,
-        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+        UNIQUE KEY uk_pessoas_nome_sigla (nome, sigla)
       )
     `);
   }
@@ -65,8 +67,8 @@ export class PessoasRepository {
   async insertDefaultPessoas() {
     const batchSize = 150;
 
-    for (let i = 0; i < requiredPessoas.length; i += batchSize) {
-      const batch = requiredPessoas.slice(i, i + batchSize);
+    for (let i = 0; i < pessoasSeed.length; i += batchSize) {
+      const batch = pessoasSeed.slice(i, i + batchSize);
 
       for (const pessoa of batch) {
         const exists = await this.hasDuplicated(pessoa.nome, pessoa.sigla);
@@ -209,3 +211,4 @@ export class PessoasRepository {
     }
   }
 }
+ 

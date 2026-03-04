@@ -1,13 +1,12 @@
 
-
 // C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.route.ts
-import { dbSource } from '../../database';
+import { AppDataSource } from '../../config/db';
 import { Router } from 'express';
 import { PessoasController } from './pessoas.controller';
 import { PessoasRepository } from './pessoas.repository';
 import { pessoascreateValidation, pessoasupdateValidation } from './pessoas.validation';
 
-const pessoasRepository = new PessoasRepository(dbSource);
+const pessoasRepository = new PessoasRepository(AppDataSource);
 const controller = new PessoasController(pessoasRepository);
 const pessoasRoute = Router();
 

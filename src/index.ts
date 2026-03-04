@@ -12,7 +12,7 @@ import { AppDataSource } from "./config/db";
 import { indexRoute } from "./routes/indexRoute";
 import { errorHandler } from "./middlewares/errorHandler";
 import { appPort, frontendPort } from "./config/app";
-import logsRoute from "./use-cases/system/logs.route";
+import logsRoute from "./system/logs.route";
 import { systemHealthCheck } from "./services/systemHealthCheck";
 
 // ==================================================
@@ -79,9 +79,9 @@ app.use(errorHandler);
     // Se for primeira execução (modo DEV / instalação), o modal frontend poderá receber mensagens
     const healthResult = await systemHealthCheck();
 
-    console.log(
-      `🩺 Health | mode=${healthResult.mode} | initialized=${healthResult.initialized}`
-    );
+    // console.log(
+    //   `🩺 Health | mode=${healthResult.mode} | initialized=${healthResult.initialized}`
+    // );
 
     if (healthResult.missingTables.length > 0) {
       console.warn(
@@ -90,7 +90,7 @@ app.use(errorHandler);
       );
     }
 
-console.log("ROTAS:", indexRoute.stack?.map((l: any) => l?.regexp?.toString?.() ?? l));
+//console.log("ROTAS:", indexRoute.stack?.map((l: any) => l?.regexp?.toString?.() ?? l));
 
     // 🔹 Inicia servidor
     app.listen(appPort, () => {

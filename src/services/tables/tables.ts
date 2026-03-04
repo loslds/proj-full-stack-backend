@@ -7,8 +7,8 @@
 export const systemTables = [
   'systables',
   'pessoas',
-//  'estados',
-//  'cidades',
+  'estados',
+  'cidades',
 //  'imagens',
 
   // outras tabelas ......
@@ -20,8 +20,8 @@ export const systemTables = [
  *///////////////////////////////////////////
 export const tablesWithDefaults = [
   'pessoas',
-//  'estados',
-//  'cidades',
+  'estados',
+  'cidades',
 //  'imagens',
 
   // outras tabelas ......

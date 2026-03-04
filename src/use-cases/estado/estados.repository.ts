@@ -4,7 +4,7 @@
 import { DataSource, DeepPartial, Repository, FindOptionsWhere, FindOptionsOrder } from 'typeorm';
 import { EstadosEntity } from './estados.entity';
 import type { EstadosCreate } from './estados.dto';
-import { requiredEstados } from '../../config/estados'
+import { requiredEstados } from './estados'
 
 export class EstadosRepository {
   private repo: Repository<EstadosEntity>;

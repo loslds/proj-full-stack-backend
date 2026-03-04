@@ -4,6 +4,7 @@ import { Router } from "express";
 import { initRoutes } from "./initRoutes";
 import { systableRoute } from "../use-cases/systable/systables.route";
 import { systemHealthCheck } from "../services/systemHealthCheck";
+import { systemTableRoute } from "../system/systemTable.route";
 
 const systemRoutes = Router();
 
@@ -24,6 +25,8 @@ systemRoutes.get("/health", async (_req, res) => {
   const health = await systemHealthCheck();
   res.json(health);
 });
+
+systemRoutes.use("/", systemTableRoute);
 
 export { systemRoutes };
 

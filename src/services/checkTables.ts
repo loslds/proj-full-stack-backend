@@ -1,6 +1,6 @@
  // src/services/checkTables.ts
 import { AppDataSource } from "../config/db";
-import { systemTables } from "../system/tables";
+import { systemTables } from "./tables/tables";
 
 export interface CheckTablesResult {
   existingTables: string[];
@@ -48,3 +48,4 @@ export async function checkTables(): Promise<CheckTablesResult> {
     await queryRunner.release();
   }
 }
+ 

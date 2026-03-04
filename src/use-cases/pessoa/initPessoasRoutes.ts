@@ -4,11 +4,11 @@ import { Application, Router } from "express";
 import { PessoasController } from "./pessoas.controller";
 import { PessoasRepository } from "./pessoas.repository";
 import { pessoascreateValidation, pessoasupdateValidation } from "./pessoas.validation";
-import { dbSource } from "../../database";
+import { AppDataSource } from "../../config/db";
 
 export async function initPessoasRoutes(app: Application) {
   // 1️⃣ Repository somente após o DataSource estar inicializado
-  const pessoasRepo = new PessoasRepository(dbSource);
+  const pessoasRepo = new PessoasRepository(AppDataSource);
 
   // 2️⃣ Garantir existência da tabela e dados padrão
   await pessoasRepo.createNotExistsPessoas();
@@ -48,3 +48,4 @@ export async function initPessoasRoutes(app: Application) {
   // 5️⃣ Monta rotas no Express
   app.use("/api/pessoas", router);
 }
+
