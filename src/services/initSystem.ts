@@ -1,11 +1,11 @@
-// src/services/initSystem.ts
+ // src/services/initSystem.ts
 import { checkConnectionService } from './checkConectionService';
 import { checkTables } from './checkTables';
 
-// ✅ fonte única do inventário do sistema
+// fonte única do inventário do sistema
 import { systemTables, tablesWithDefaults } from './tables/tables';
 
-// ✅ registry das tabelas "normais" (pessoas, estados, cidades...)
+// registry das tabelas "normais" (pessoas, estados, cidades...)
 import { tableServiceMap } from './tables';
 
 import { systablesService } from './tables/systables.service';
@@ -31,6 +31,8 @@ export interface InitResult {
 // Inicialização do sistema (INSTALAÇÃO)
 // ==================================================
 export async function initSystem(): Promise<InitResult> {
+  console.log('>>> [initSystem] função foi chamada');
+
   const steps: InitStep[] = [];
   let checkedTables: string[] = [];
   let missingTables: string[] = [];
@@ -44,7 +46,11 @@ export async function initSystem(): Promise<InitResult> {
       success: true,
     });
 
+    console.log('>>> [initSystem] verificando conexão com o banco...');
+
     const conn = await checkConnectionService();
+
+    console.log('>>> [initSystem] resultado da conexão:', conn);
 
     if (!conn.success) {
       steps.push({
@@ -74,16 +80,25 @@ export async function initSystem(): Promise<InitResult> {
       success: true,
     });
 
+    console.log('>>> [initSystem] executando checkTables()...');
+
     const tablesResult = await checkTables();
     checkedTables = tablesResult.existingTables;
     missingTables = tablesResult.missingTables;
+
+    console.log('>>> [initSystem] existingTables:', checkedTables);
+    console.log('>>> [initSystem] missingTables:', missingTables);
+    console.log('>>> [initSystem] services registrados:', [...tableServiceMap.keys()]);
+    console.log('>>> [initSystem] tablesWithDefaults:', [...tablesWithDefaults]);
 
     // ==================================================
     // 3️⃣ CRIAÇÃO DAS TABELAS AUSENTES
     // ==================================================
 
-    // 3.1) systables primeiro (exceção: seed recebe lista de tabelas)
+    // 3.1) systables primeiro
     if (missingTables.includes('systables')) {
+      console.log('>>> [initSystem] systables está ausente, criando...');
+
       steps.push({
         message: '🛠 Criando tabela <systables>...',
         success: true,
@@ -91,19 +106,30 @@ export async function initSystem(): Promise<InitResult> {
 
       await systablesService.create();
 
+      console.log('>>> [initSystem] systables criada/verificada');
+
       steps.push({
         message: '📥 Inserindo registros iniciais em <systables>...',
         success: true,
       });
 
       await systablesService.seed(systemTables);
+
+      console.log('>>> [initSystem] seed inicial de systables concluído');
     }
 
     // 3.2) demais tabelas via registry
     for (const tableName of missingTables) {
       if (tableName === 'systables') continue;
 
+      console.log(`>>> [initSystem] processando tabela ausente: ${tableName}`);
+
       const service = tableServiceMap.get(tableName);
+
+      console.log(
+        `>>> [initSystem] service encontrado para ${tableName}?`,
+        !!service
+      );
 
       if (!service) {
         steps.push({
@@ -118,9 +144,10 @@ export async function initSystem(): Promise<InitResult> {
         success: true,
       });
 
+      console.log(`>>> [initSystem] chamando create() para ${tableName}...`);
       await service.create();
+      console.log(`>>> [initSystem] create() concluído para ${tableName}`);
 
-      // Seed somente para tabelas com defaults e que implementam seed()
       if (
         (tablesWithDefaults as readonly string[]).includes(tableName) &&
         service.seed
@@ -130,7 +157,13 @@ export async function initSystem(): Promise<InitResult> {
           success: true,
         });
 
+        console.log(`>>> [initSystem] chamando seed() para ${tableName}...`);
         await service.seed();
+        console.log(`>>> [initSystem] seed() concluído para ${tableName}`);
+      } else {
+        console.log(
+          `>>> [initSystem] ${tableName} não possui seed configurado no fluxo atual`
+        );
       }
     }
 
@@ -152,21 +185,25 @@ export async function initSystem(): Promise<InitResult> {
     // ==================================================
     // 5️⃣ UPDATES CONTROLADOS
     // ==================================================
-    // systables (exceção)
     steps.push({
       message: '🔄 Verificando atualizações em <systables>...',
       success: true,
     });
+
+    console.log('>>> [initSystem] verificando updates de systables...');
     await systablesService.update();
 
-    // demais tabelas (registry)
     for (const [, service] of tableServiceMap) {
       steps.push({
         message: `🔄 Verificando atualizações em <${service.tableName}>...`,
         success: true,
       });
 
-      if (service.update) await service.update();
+      console.log(`>>> [initSystem] verificando updates de ${service.tableName}...`);
+
+      if (service.update) {
+        await service.update();
+      }
     }
 
     // ==================================================
@@ -177,7 +214,9 @@ export async function initSystem(): Promise<InitResult> {
       success: true,
     });
 
+    console.log('>>> [initSystem] sincronizando systables...');
     await systablesService.sync(systemTables);
+    console.log('>>> [initSystem] sincronização concluída');
 
     // ==================================================
     // 7️⃣ MARCA SISTEMA COMO INSTALADO (RUNTIME)
@@ -189,6 +228,8 @@ export async function initSystem(): Promise<InitResult> {
       success: true,
     });
 
+    console.log('>>> [initSystem] instalação concluída com sucesso');
+
     return {
       success: true,
       steps,
@@ -198,6 +239,8 @@ export async function initSystem(): Promise<InitResult> {
     };
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Erro inesperado';
+
+    console.error('>>> [initSystem] erro capturado:', error);
 
     steps.push({
       message: `❌ Erro durante inicialização: ${msg}`,

@@ -1,9 +1,7 @@
 
 //C:\repository\proj-full-stack-backend\src\services\systemHealthCheck.ts
  
- 
-// src/services/systemHealthCheck.ts
-import { checkTables } from './checkTables';
+import { checkTables, TableCheckStep } from './checkTables';
 import { systemStateService } from './systemStateService';
 
 export type SystemMode = 'LEVE' | 'DEV' | 'PROD';
@@ -12,9 +10,13 @@ export interface SystemHealthResult {
   success: boolean;
   mode: SystemMode;
   initialized: boolean;
+  database: string;
   existingTables: string[];
   missingTables: string[];
+  records: Record<string, number>;
+  steps: TableCheckStep[];
 }
+
 /**
  * Verificação NÃO BLOQUEANTE do estado do sistema
  * - Nunca inicializa recursos
@@ -38,8 +40,10 @@ export async function systemHealthCheck(): Promise<SystemHealthResult> {
     success: true,
     mode,
     initialized,
+    database: tablesResult.database,
     existingTables: tablesResult.existingTables,
     missingTables: tablesResult.missingTables,
+    records: tablesResult.records,
+    steps: tablesResult.steps,
   };
 }
- 

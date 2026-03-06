@@ -1,7 +1,6 @@
-
 // src/services/tables/pessoas.service.ts
 import { AppDataSource } from '../../config/db';
-import { pessoasSeed } from './seed/pessoas.seed'; // se você mover depois, ajusta o import
+import { pessoasSeed } from './seed/pessoas.seed';
 
 export const pessoasService = {
   tableName: 'pessoas',
@@ -14,6 +13,10 @@ export const pessoasService = {
 
   async create(): Promise<void> {
     await this.ensureConnection();
+    console.log('>>> [pessoasService] create() iniciado');
+
+    const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
+    console.log('>>> [pessoasService] banco atual:', currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS pessoas (
@@ -45,12 +48,17 @@ export const pessoasService = {
         UNIQUE KEY uk_pessoas_nome_sigla (nome, sigla)
       )
     `);
+
+    console.log('>>> [pessoasService] create() concluído');
   },
 
   async seed(): Promise<void> {
     await this.ensureConnection();
+    console.log('>>> [pessoasService] seed() iniciado');
 
     for (const p of pessoasSeed) {
+      console.log('>>> [pessoasService] inserindo registro:', p);
+
       await AppDataSource.query(
         `
         INSERT INTO pessoas (nome, sigla, createdBy, updatedBy)
@@ -62,6 +70,8 @@ export const pessoasService = {
         [p.nome, p.sigla, p.createdBy ?? 0, p.updatedBy ?? 0]
       );
     }
+
+    console.log('>>> [pessoasService] seed() concluído');
   },
 
   async update(): Promise<void> {

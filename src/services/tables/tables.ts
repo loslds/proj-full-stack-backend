@@ -1,5 +1,5 @@
 
-// C:\repository\proj-full-stack-backend\src\system\tables.ts
+// C:\repository\proj-full-stack-backend\src\services\tables\tables.ts
 /**
  * Tabelas mínimas para o sistema iniciar
  * (infraestrutura / base)
