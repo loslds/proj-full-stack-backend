@@ -1,12 +1,12 @@
 
 // C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.route.ts
-import { dbSource } from '../../database';
+import { AppDataSource } from '../../config/db';
 import { Router } from 'express';
 import { EstadosController } from './estados.controller';
 import { EstadosRepository } from './estados.repository';
 import { estadoscreateValidation, estadosupdateValidation } from './estados.validation';
 
-const estadosRepository = new EstadosRepository(dbSource);
+const estadosRepository = new EstadosRepository(AppDataSource);
 const controller = new EstadosController(estadosRepository);
 const estadosRoute = Router();
 

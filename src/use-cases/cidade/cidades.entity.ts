@@ -1,5 +1,5 @@
 
-// C:\repository\proj-full-stack-backend\src\use-cases\cidades\cidades.entity.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.entity.ts
 import { 
   Column, 
   Entity, 
@@ -12,63 +12,52 @@ import {
 } from 'typeorm';
 
 import { EstadosEntity } from '../estado/estados.entity';
-
 @Entity('cidades')
-@Unique(['nome', 'id_estados']) // evita cidade duplicada no mesmo estado
+@Unique(['nome', 'id_estados'])
 export class CidadesEntity {
-
-  @PrimaryGeneratedColumn({ 
-    type: 'int', 
-    unsigned: true 
+  @PrimaryGeneratedColumn({
+    type: 'int',
+    unsigned: true
   })
   id: number;
 
-  // CHAVE ESTRANGEIRA -> Estados
-  @Column({ 
-    type: 'int', 
-    unsigned: true, 
-    nullable: false 
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false
   })
   id_estados: number;
 
-  @ManyToOne(() => EstadosEntity)
-  @JoinColumn({ 
-    name: 'id_estados' 
+  @ManyToOne(() => EstadosEntity, { nullable: false })
+  @JoinColumn({
+    name: 'id_estados'
   })
   estado: EstadosEntity;
 
-  @Column({ 
+  @Column({
     type: 'varchar',
-    length: 60,
+    length: 120,
     nullable: false,
     collation: 'utf8mb4_general_ci'
   })
   nome: string;
 
-  @Column({ 
-    type: 'varchar',
-    length: 5,
+  @Column({
+    type: 'int',
+    unsigned: true,
     nullable: false,
-    collation: 'utf8mb4_general_ci'
-  })
-  uf: string;
-
-  @Column({ 
-    type: 'int', 
-    unsigned: true, 
-    nullable: false, 
-    default: 0 
+    default: 0
   })
   createdBy: number;
 
   @CreateDateColumn({ type: 'datetime' })
   createdAt: Date;
 
-  @Column({ 
-    type: 'int', 
-    unsigned: true, 
-    nullable: false, 
-    default: 0 
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
   })
   updatedBy: number;
 

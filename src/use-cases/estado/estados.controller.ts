@@ -4,7 +4,6 @@ import { NextFunction, Request, Response } from "express";
 import { EstadosRepository } from "./estados.repository";
 import { EstadosCreate, EstadosUpdate } from "./estados.dto";
 import { HttpException } from "../../exceptions/HttpException";
-
 export class EstadosController {
   constructor(private readonly estadosRepository: EstadosRepository) {}
 
@@ -13,18 +12,19 @@ export class EstadosController {
   // =========================================================================
 
   /** GET → Lista todas as estados */
-async findAllEstados(req: Request, res: Response, next: NextFunction) {
-  try {
-    const estados = await this.estadosRepository.findEstadosAll(
-      undefined,
-      { nome: "ASC" }
-    );
+  async findAllEstados(req: Request, res: Response, next: NextFunction) {
+    try {
+      const estados = await this.estadosRepository.findEstadosAll(
+        undefined,
+        { nome: "ASC" }
+      );
 
-    return res.status(200).send({ success: true, estados });
-  } catch (error) {
-    next(error);
+      return res.status(200).send({ success: true, estados });
+    } catch (error) {
+      next(error);
+    }
   }
-}
+
   /** GET → Pesquisa combinada por id, nome e sigla */
   async searchEstadosAll(req: Request, res: Response, next: NextFunction) {
     try {
@@ -133,7 +133,6 @@ async findAllEstados(req: Request, res: Response, next: NextFunction) {
       next(error);
     }
   }
-
   // =========================================================================
   // CRUD
   // =========================================================================
@@ -233,3 +232,6 @@ async findAllEstados(req: Request, res: Response, next: NextFunction) {
     }
   }
 }
+
+
+

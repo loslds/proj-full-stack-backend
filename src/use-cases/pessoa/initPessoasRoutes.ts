@@ -1,10 +1,10 @@
 
 // C:\repository\proj-full-stack-backend\src\use-cases\pessoa\initPessoasRoutes.ts
+import { AppDataSource } from "../../config/db";
 import { Application, Router } from "express";
 import { PessoasController } from "./pessoas.controller";
 import { PessoasRepository } from "./pessoas.repository";
 import { pessoascreateValidation, pessoasupdateValidation } from "./pessoas.validation";
-import { AppDataSource } from "../../config/db";
 
 export async function initPessoasRoutes(app: Application) {
   // 1️⃣ Repository somente após o DataSource estar inicializado

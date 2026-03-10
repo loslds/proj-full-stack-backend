@@ -1,10 +1,11 @@
-// src/config/estados.ts
 
-export const requiredEstados = [
+
+// src/services/tables/seed/estados.seed.ts
+export const estadosSeed = [
   { nome: 'Acre', prefixo: 'AC', createdBy: 0, updatedBy: 0 },
-  { nome: 'Alagoas', prefixo:  'AL', createdBy: 0, updatedBy: 0 },
-  { nome: 'Amazonas', prefixo:  'AM', createdBy: 0, updatedBy: 0 },
-  { nome: 'Amapá', prefixo:  'AP', createdBy: 0, updatedBy: 0 },
+  { nome: 'Alagoas', prefixo: 'AL', createdBy: 0, updatedBy: 0 },
+  { nome: 'Amazonas', prefixo: 'AM', createdBy: 0, updatedBy: 0 },
+  { nome: 'Amapá', prefixo: 'AP', createdBy: 0, updatedBy: 0 },
   { nome: 'Bahia', prefixo: 'BA', createdBy: 0, updatedBy: 0 },
   { nome: 'Ceará', prefixo: 'CE', createdBy: 0, updatedBy: 0 },
   { nome: 'Distrito Federal', prefixo: 'DF', createdBy: 0, updatedBy: 0 },
@@ -12,7 +13,7 @@ export const requiredEstados = [
   { nome: 'Goiás', prefixo: 'GO', createdBy: 0, updatedBy: 0 },
   { nome: 'Maranhão', prefixo: 'MA', createdBy: 0, updatedBy: 0 },
   { nome: 'Minas Gerais', prefixo: 'MG', createdBy: 0, updatedBy: 0 },
-  { nome: 'Mato Grosso do Sul', prefixo: 'MS', createdBy: 0, updatedBy: 0 },
+  { nome: 'Mato Grosso do Sul',  prefixo: 'MS', createdBy: 0, updatedBy: 0 },
   { nome: 'Mato Grosso', prefixo: 'MT', createdBy: 0, updatedBy: 0 },
   { nome: 'Pará', prefixo: 'PA', createdBy: 0, updatedBy: 0 },
   { nome: 'Paraíba', prefixo: 'PB', createdBy: 0, updatedBy: 0 },

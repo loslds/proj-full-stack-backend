@@ -1,18 +1,16 @@
+// src/use-cases/cidade/cidades.repository.ts
 
-// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.repository.ts
 import {
   DataSource,
   DeepPartial,
   FindOptionsWhere,
   Repository
-} from "typeorm";
+} from 'typeorm';
 
-import { CidadesEntity } from "./cidades.entity";
-import type { CidadesCreate } from "./cidades.dto";
-import { requiredCidades } from "./cidades";
-
-// Importando ENTIDADE real de cadastros
-import { CadastrosEntity } from "../cadastro/cadastros.entity"; // ajuste conforme estrutura
+import { CidadesEntity } from './cidades.entity';
+import type { CidadesCreate } from './cidades.dto';
+import { cidadesSeed } from '../../services/tables/seed/cidades.seed';
+import { CadastrosEntity } from '../cadastro/cadastros.entity';
 
 export class CidadesRepository {
   private repo: Repository<CidadesEntity>;
@@ -22,48 +20,46 @@ export class CidadesRepository {
   }
 
   // ==========================================================
-  // CREATE TABLE (Se não existir)
+  // CREATE TABLE (se não existir)
   // ==========================================================
-  async createNotExistsCidades() {
+  async createNotExistsCidades(): Promise<void> {
     await this.repo.query(`
       CREATE TABLE IF NOT EXISTS cidades (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        nome VARCHAR(60) NOT NULL,
-        uf CHAR(5) NOT NULL,
-        id_estados INT NOT NULL,
-        createdBy INT DEFAULT 0,
-        updatedBy INT DEFAULT 0,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (id_estados) REFERENCES estados(id)
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(120) NOT NULL COLLATE utf8mb4_general_ci,
+        id_estados INT UNSIGNED NOT NULL,
+        createdBy INT UNSIGNED NOT NULL DEFAULT 0,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedBy INT UNSIGNED NOT NULL DEFAULT 0,
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uk_cidades_nome_estado (nome, id_estados),
+        CONSTRAINT fk_cidades_estados
+          FOREIGN KEY (id_estados) REFERENCES estados(id)
+          ON UPDATE CASCADE
+          ON DELETE RESTRICT
       ) ENGINE=InnoDB;
     `);
   }
 
   // ==========================================================
-  // VERIFICA DUPLICIDADE (nome + uf + id_estados)
+  // VERIFICA DUPLICIDADE (nome + id_estados)
   // ==========================================================
   async hasDuplicated(
     nome?: string,
-    uf?: string,
     id_estados?: number,
     excludes: number[] = []
-  ) {
-
-
+  ): Promise<CidadesEntity | null> {
     const qb = this.repo.createQueryBuilder('cidades');
 
     if (nome) {
       qb.andWhere('cidades.nome = :nome', { nome });
     }
-    if (uf) {
-      qb.andWhere('cidades.uf = :uf', { uf });
-    }
+
     if (id_estados) {
       qb.andWhere('cidades.id_estados = :id_estados', { id_estados });
     }
 
-    if (excludes.length) {
+    if (excludes.length > 0) {
       qb.andWhere('cidades.id NOT IN (:...excludes)', { excludes });
     }
 
@@ -73,20 +69,14 @@ export class CidadesRepository {
   // ==========================================================
   // INSERT DEFAULTS EM LOTES
   // ==========================================================
-  async insertDefaultCidades() {
+  async insertDefaultCidades(): Promise<void> {
     const total = await this.repo.count();
     if (total > 0) return;
 
-    const batchSize = 500;
+    const batchSize = 150;
 
-    for (let i = 0; i < requiredCidades.length; i += batchSize) {
-      
-      const total = await this.repo.count();
-      if (total > 0) return;
-
-      const batchSize = 500;
-      
-      const batch = requiredCidades.slice(i, i + batchSize);
+    for (let i = 0; i < cidadesSeed.length; i += batchSize) {
+      const batch = cidadesSeed.slice(i, i + batchSize);
 
       await this.repo
         .createQueryBuilder()
@@ -97,7 +87,7 @@ export class CidadesRepository {
     }
 
     console.log(
-      `✅ ${requiredCidades.length} cidades inseridas em lotes de ${batchSize}`
+      `>>> [CidadesRepository] ${cidadesSeed.length} cidades inseridas em lotes de ${batchSize}`
     );
   }
 
@@ -105,18 +95,15 @@ export class CidadesRepository {
   // CREATE
   // ==========================================================
   async createCidades(cidades: CidadesCreate): Promise<CidadesEntity> {
-    // Verifica duplicidade apenas pelos campos da chave lógica
     const duplicated = await this.hasDuplicated(
       cidades.nome,
-      cidades.uf,
       cidades.id_estados
     );
 
     if (duplicated) {
-      throw new Error("Cidade duplicada! Nome, UF e Estado já existentes.");
+      throw new Error('Cidade duplicada! Nome e estado já existentes.');
     }
 
-    // Cria e salva a entidade incluindo id_imagens se fornecido
     const data = this.repo.create(cidades);
     return this.repo.save(data);
   }
@@ -128,36 +115,35 @@ export class CidadesRepository {
     cidadesId: number,
     cidades: DeepPartial<CidadesEntity>
   ): Promise<CidadesEntity> {
+    const current = await this.repo.findOne({
+      where: { id: cidadesId }
+    });
 
-    // Verifica duplicidade
-    const qb = this.repo.createQueryBuilder("cidades")
-      .where("cidades.id != :id", { id: cidadesId });
-
-    if (cidades.nome)
-      qb.andWhere("cidades.nome = :nome", { nome: cidades.nome });
-
-    if (cidades.uf)
-      qb.andWhere("cidades.uf = :uf", { uf: cidades.uf });
-
-    if (cidades.id_estados)
-      qb.andWhere("cidades.id_estados = :id_estados", { id_estados: cidades.id_estados });
-
-    const duplicated = await qb.getOne();
-
-    if (duplicated) {
-      throw new Error("Cidade duplicada! Nome, UF e Estado já existentes.");
+    if (!current) {
+      throw new Error(`Cidade com ID ${cidadesId} não encontrada.`);
     }
 
-    const data = this.repo.create({ id: cidadesId, ...cidades });
+    const nome = cidades.nome ?? current.nome;
+    const id_estados = cidades.id_estados ?? current.id_estados;
+
+    const duplicated = await this.hasDuplicated(
+      nome,
+      id_estados,
+      [cidadesId]
+    );
+
+    if (duplicated) {
+      throw new Error('Cidade duplicada! Nome e estado já existentes.');
+    }
+
+    const data = this.repo.create({ ...current, ...cidades, id: cidadesId });
     return this.repo.save(data);
   }
 
   // ==========================================================
   // DELETE — COM TRAVA DE INTEGRIDADE
-  // NÃO APAGA SE EXISTIR CADASTROS RELACIONADOS
   // ==========================================================
   async deleteCidadesId(cidadesId: number): Promise<boolean> {
-
     const cadRepo = this.dataSource.getRepository(CadastrosEntity);
 
     const refs = await cadRepo.count({
@@ -184,11 +170,11 @@ export class CidadesRepository {
   // ==========================================================
   async findCidadesAll(
     where?: FindOptionsWhere<CidadesEntity> | FindOptionsWhere<CidadesEntity>[],
-    orderBy: Record<string, "ASC" | "DESC"> = { id: "ASC" }
+    orderBy: Record<string, 'ASC' | 'DESC'> = { id: 'ASC' }
   ): Promise<CidadesEntity[]> {
     return this.repo.find({
       where: where ?? {},
-      relations: ["estados"],
+      relations: ['estado'],
       order: orderBy
     });
   }
@@ -196,30 +182,20 @@ export class CidadesRepository {
   // ==========================================================
   // FIND BY ID
   // ==========================================================
-  async findOneCidadesById(cidadesId: number) {
+  async findOneCidadesById(cidadesId: number): Promise<CidadesEntity | null> {
     return this.repo.findOne({
       where: { id: cidadesId },
-      relations: ["estados"]
+      relations: ['estado']
     });
   }
 
   // ==========================================================
   // FIND BY NOME
   // ==========================================================
-  async findOneCidadesByNome(nome: string) {
-    return this.repo.findOne({ 
+  async findOneCidadesByNome(nome: string): Promise<CidadesEntity | null> {
+    return this.repo.findOne({
       where: { nome },
-      relations: ['estados'] 
-    });
-  }
-
-  // ==========================================================
-  // FIND BY UF
-  // ==========================================================
-  async findOneCidadesByUf(uf: string) {
-    return this.repo.findOne({ 
-      where: { uf },
-      relations: ['estados'] 
+      relations: ['estado']
     });
   }
 
@@ -234,29 +210,26 @@ export class CidadesRepository {
     const skip = (page - 1) * limit;
 
     const qb = this.repo
-      .createQueryBuilder("cidades")
-      .leftJoinAndSelect("cidades.estados", "estados")
-      .select([
-        "cidades.id",
-        "cidades.nome",
-        "estados.nome",
-        "estados.prefixo"
-      ])
-      .orderBy("cidades.nome", "ASC")
+      .createQueryBuilder('cidades')
+      .leftJoinAndSelect('cidades.estado', 'estado')
+      .orderBy('cidades.nome', 'ASC')
       .skip(skip)
       .take(limit);
 
-    if (!nomeOuEstado || nomeOuEstado.trim() === "") {
-      const [data, total] = await qb.getManyAndCount();
-      return { data, total };
+    if (nomeOuEstado && nomeOuEstado.trim() !== '') {
+      qb.where('cidades.nome LIKE :term', { term: `%${nomeOuEstado}%` })
+        .orWhere('estado.nome LIKE :term', { term: `%${nomeOuEstado}%` })
+        .orWhere('estado.prefixo LIKE :term', { term: `%${nomeOuEstado}%` });
     }
 
-    qb.where("cidades.nome LIKE :term", { term: `%${nomeOuEstado}%` })
-      .orWhere("estados.nome LIKE :term", { term: `%${nomeOuEstado}%` })
-      .orWhere("estados.prefixo LIKE :term", { term: `%${nomeOuEstado}%` });
-
     const [data, total] = await qb.getManyAndCount();
-    return { data, total };
+
+    return {
+      data,
+      total,
+      page,
+      limit
+    };
   }
 
   // ==========================================================
@@ -264,29 +237,29 @@ export class CidadesRepository {
   // ==========================================================
   async listAllCidadesDetails() {
     return this.repo
-      .createQueryBuilder("cdd")
-      .leftJoinAndSelect("ccd.estados", "est")
+      .createQueryBuilder('cdd')
+      .leftJoin('cdd.estado', 'est')
       .select([
         'cdd.id AS cidade_id',
         'cdd.nome AS cidade_nome',
-        'cdd.uf AS cidade_uf',
         'est.id AS estado_id',
         'est.nome AS estado_nome',
-        'est.prefixo AS estado_prefixo',
-
+        'est.prefixo AS estado_prefixo'
       ])
-      .getMany();
+      .orderBy('cdd.nome', 'ASC')
+      .getRawMany();
   }
 
   // ==========================================================
-  // FIND ALL BY ESTADO (id_estados)
+  // FIND ALL BY ESTADO
   // ==========================================================
-  async FindAllCidadesByIdEstado(id_estados: number): Promise<CidadesEntity[]> {
+  async findAllCidadesByIdEstado(
+    id_estados: number
+  ): Promise<CidadesEntity[]> {
     return this.repo.find({
       where: { id_estados },
-      relations: ["estados"],
-      order: { nome: "ASC" }
+      relations: ['estado'],
+      order: { nome: 'ASC' }
     });
   }
 }
-

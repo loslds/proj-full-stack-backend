@@ -1,15 +1,14 @@
 
 // C:\repository\proj-full-stack-backend\src\use-cases\cidade\initCidadesRoutes.ts
-
+import { AppDataSource } from '../../config/db';
 import { Application, Router } from "express";
-import { dbSource } from "../../database";
 import { CidadesRepository } from "./cidades.repository";
 import { CidadesController } from "./cidades.controller";
-import { cidadescreateValidation, cidadesupdateValidation } from "./cidades.validation";
+import { cidadesCreateValidation, cidadesUpdateValidation } from "./cidades.validation";
 
 export async function initCidadesRoutes(app: Application) {
   // 1️⃣ Instancia repositório
-  const repo = new CidadesRepository(dbSource);
+  const repo = new CidadesRepository(AppDataSource);
 
   // 2️⃣ Cria tabela e insere defaults (se vazio)
   await repo.createNotExistsCidades();
@@ -25,8 +24,8 @@ export async function initCidadesRoutes(app: Application) {
   // CRUD PRINCIPAL
   // ==========================================================
 
-  router.post( "/", cidadescreateValidation, controller.createNewCidades.bind(controller) );
-  router.patch( "/:cidadesId", cidadesupdateValidation, controller.updateIdCidades.bind(controller) );
+  router.post( "/", cidadesCreateValidation, controller.createNewCidades.bind(controller) );
+  router.patch( "/:cidadesId", cidadesUpdateValidation, controller.updateIdCidades.bind(controller) );
   router.delete( "/:cidadesId", controller.removeCidadesId.bind(controller) );
   router.get( "/", controller.findAllCidades.bind(controller) );
 
@@ -35,13 +34,12 @@ export async function initCidadesRoutes(app: Application) {
   // ==========================================================
   router.get( "/id/:cidadesId", controller.getOneIdCidades.bind(controller) );
   router.get( "/nome", controller.findOneNomeCidades.bind(controller) );
-  router.get( "/uf", controller.findOneCidadesByUf.bind(controller) );
   router.get( "/search", controller.searchByNomeOuEstadoPaginado.bind(controller) );
 
   // ==========================================================
   // CIDADES POR ESTADO
   // ==========================================================
-  router.get( "/estado/:id_estado", controller.listAllCidadesByIdEstado.bind(controller) );
+  router.get( "/estado/:id_estados", controller.listAllCidadesByIdEstado.bind(controller) );
 
   // ==========================================================
   // LISTA DETALHADA (cidade + estado)

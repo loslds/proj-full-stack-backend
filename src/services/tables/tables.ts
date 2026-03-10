@@ -23,8 +23,11 @@ export const tablesWithDefaults = [
   'estados',
   'cidades',
 //  'imagens',
-
+//  'modulos', 
+//  'perguntas',
+//  'setores',
   // outras tabelas ......
+
 ] as const;
 
 /**

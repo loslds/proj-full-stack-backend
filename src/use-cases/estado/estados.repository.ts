@@ -1,10 +1,16 @@
-
  
 // C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.repository.ts
-import { DataSource, DeepPartial, Repository, FindOptionsWhere, FindOptionsOrder } from 'typeorm';
+import { 
+  DataSource, 
+  DeepPartial, 
+  Repository, 
+  FindOptionsWhere, 
+  FindOptionsOrder 
+} from 'typeorm';
+
 import { EstadosEntity } from './estados.entity';
 import type { EstadosCreate } from './estados.dto';
-import { requiredEstados } from './estados'
+import { estadosSeed } from '../../services/tables/seed/estados.seed';
 
 export class EstadosRepository {
   private repo: Repository<EstadosEntity>;
@@ -15,17 +21,18 @@ export class EstadosRepository {
   // ============================================================
   // * CRIAÇÃO DA TABELA *
   // ============================================================
-
   async createNotExistsEstados(): Promise<void> {
     await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS estados (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        nome VARCHAR(60) NOT NULL COLLATE utf8mb4_general_ci UNIQUE,
-        prefixo VARCHAR(5) NOT NULL,
+        nome VARCHAR(60) NOT NULL COLLATE utf8mb4_general_ci,
+        prefixo VARCHAR(5) NOT NULL COLLATE utf8mb4_general_ci,
         createdBy INT UNSIGNED DEFAULT 0,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
         updatedBy INT UNSIGNED DEFAULT 0,
-        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+        UNIQUE KEY uk_estados_nome_predixo (nome, prefixo)
       )
     `);
   }
@@ -44,7 +51,7 @@ export class EstadosRepository {
     if (nome) query.andWhere('estados.nome = :nome', { nome });
     if (prefixo) query.andWhere('estados.prefixo = :prefixo', { prefixo });
     if (excludeId)
-      query.andWhere('pessoas.id != :excludeId', { excludeId });
+      query.andWhere('prefixo.id != :excludeId', { excludeId });
 
     const result = await query.getOne();
     return !!result;
@@ -54,22 +61,21 @@ export class EstadosRepository {
   // ============================================================
 
   async insertDefaultEstados() {
-    const batchSize = 300;
+    const batchSize = 150;
 
-    for (let i = 0; i < requiredEstados.length; i += batchSize) {
-      const batch = requiredEstados.slice(i, i + batchSize);
+    for (let i = 0; i < estadosSeed.length; i += batchSize) {
+      const batch = estadosSeed.slice(i, i + batchSize);
 
-      for (const estado of batch) {
-        const exists = await this.hasDuplicated(estado.nome, estado.prefixo);
+      for (const estados of batch) {
+        const exists = await this.hasDuplicated(estados.nome, estados.prefixo);
         if (exists) continue;
 
-        await this.repo.save(this.repo.create(estado));
+        await this.repo.save(this.repo.create(estados));
       }
     }
 
-    console.log(`✅ estados padrão inseridas (verificação incluída)`);
+    console.log(`✅ Estados padrão inseridas (verificação incluída)`);
   }
-
   // ============================================================
   // * CRUD *
   // ============================================================
@@ -200,3 +206,6 @@ export class EstadosRepository {
     }
   }
 }
+/////////////////////////////////////////////////////
+
+ 
