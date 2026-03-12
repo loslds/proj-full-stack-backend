@@ -2,13 +2,13 @@
 import { ArqTipoEnum, ArqAcaoEnum } from '../use-cases/imagen/imagens.entity';
 
 export const requiredDefault = [
-  { nome: 'default', arqTipo: ArqTipoEnum.LOGO, arqAcao: ArqAcaoEnum.VISUALIZA, arqNome: 'logo_default.svg',
-arqPage: null, arqPath: 'C:/SysBordados/default/logo_default.svg', createdBy: 0, updatedBy: 0 },
-  { nome: 'default', arqTipo: ArqTipoEnum.PAINEL, arqAcao: ArqAcaoEnum.VISUALIZA, arqNome: 'painel_default.svg',
-arqPage: null, arqPath: 'C:/SysBordados/default/painel_default.svg', createdBy: 0, updatedBy: 0 },
-
   { nome: 'default', arqTipo: ArqTipoEnum.AVATAR, arqAcao: ArqAcaoEnum.VISUALIZA, arqNome: 'btn_default.svg', 
-arqPage: null, arqPath: 'C:/SysBordados/default/btn_default.svg', createdBy: 0, updatedBy: 0 },
+arqPage: null, arqPath: 'C:/Sgb/default/btn_default.svg', createdBy: 0, updatedBy: 0 },
+  { nome: 'default', arqTipo: ArqTipoEnum.LOGO, arqAcao: ArqAcaoEnum.VISUALIZA, arqNome: 'logo_default.svg',
+arqPage: null, arqPath: 'C:/Sgb/default/logo_default.svg', createdBy: 0, updatedBy: 0 },
+  { nome: 'default', arqTipo: ArqTipoEnum.PAINEL, arqAcao: ArqAcaoEnum.VISUALIZA, arqNome: 'painel_default.svg',
+arqPage: null, arqPath: 'C:/Sgb/default/painel_default.svg', createdBy: 0, updatedBy: 0 },
+
 
 
 

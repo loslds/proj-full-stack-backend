@@ -5,6 +5,8 @@ import type { TableService } from './tableService.types';
 import { pessoasService } from './pessoas.service';
 import { estadosService } from './estados.service';
 import { cidadesService } from './cidades.service';
+import { imagensService } from "./imagens.service";
+
 
 // ==================================================
 // Lista de services de tabelas do sistema
@@ -14,6 +16,7 @@ export const tableServices: TableService[] = [
   pessoasService,
   estadosService,
   cidadesService,
+  imagensService,
 
   // próximos:  
 ];

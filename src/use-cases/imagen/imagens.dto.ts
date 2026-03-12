@@ -1,8 +1,8 @@
 // src/use-cases/imagens/imagens.dto.ts
-import { DeepPartial } from "typeorm";
-import { z } from "zod";
-import { Buffer } from "buffer";
-import { ImagensEntity } from "./imagens.entity";
+
+import { DeepPartial } from 'typeorm';
+import { z } from 'zod';
+import { ImagensEntity } from './imagens.entity';
 
 /**
  * CREATE SCHEMA
@@ -11,29 +11,43 @@ import { ImagensEntity } from "./imagens.entity";
  * - createdAt / updatedAt automáticos
  */
 export const imagensCreateSchema = z.object({
-  id_cadastros: z.number().int().nonnegative().default(0),
+  nome: z
+    .string()
+    .min(3, 'Nome da imagem deve ter ao menos 3 caracteres')
+    .max(180, 'Nome da imagem deve ter no máximo 180 caracteres'),
 
-  nome: z.string().max(50),
-  nome_ext: z.string().max(80),
+  tipo: z
+    .string()
+    .min(3, 'Tipo da imagem deve ter ao menos 3 caracteres')
+    .max(30, 'Tipo da imagem deve ter no máximo 30 caracteres'),
 
-  has_avatar: z.number().int().min(0).max(1).default(0),
-  has_logo: z.number().int().min(0).max(1).default(0),
-  has_panel: z.number().int().min(0).max(1).default(0),
-  has_botao: z.number().int().min(0).max(1).default(0),
-  has_tabela: z.number().int().min(0).max(1).default(0),
-  has_foto: z.number().int().min(0).max(1).default(0),
+  path_origem: z
+    .string()
+    .max(255, 'path_origem deve ter no máximo 255 caracteres')
+    .nullable()
+    .optional(),
 
-  arqDir: z.string().max(100).default("C:\\SGB"),
-  arqPath: z.string().max(255),
+  path_dest: z
+    .string()
+    .max(255, 'path_dest deve ter no máximo 255 caracteres')
+    .nullable()
+    .optional(),
 
-  arqBlob: z.union([
-    z.instanceof(Buffer),
-    z.string(),
-    z.null(),
-  ]).optional(),
+  svg: z
+    .string()
+    .min(1, 'Conteúdo SVG é obrigatório'),
 
-  createdBy: z.number().int().nonnegative().default(0),
-  updatedBy: z.number().int().nonnegative().default(0),
+  createdBy: z
+    .number()
+    .int('createdBy deve ser inteiro')
+    .nonnegative('createdBy não pode ser negativo')
+    .optional(),
+
+  updatedBy: z
+    .number()
+    .int('updatedBy deve ser inteiro')
+    .nonnegative('updatedBy não pode ser negativo')
+    .optional(),
 });
 
 /**
@@ -41,7 +55,10 @@ export const imagensCreateSchema = z.object({
  * Tudo opcional, exceto ID obrigatório
  */
 export const imagensUpdateSchema = imagensCreateSchema.partial().extend({
-  id: z.number().int().positive(),
+  id: z
+    .number()
+    .int('ID deve ser inteiro')
+    .positive('ID inválido para update'),
 });
 
 /**
@@ -49,5 +66,4 @@ export const imagensUpdateSchema = imagensCreateSchema.partial().extend({
  */
 export type ImagensCreate = z.infer<typeof imagensCreateSchema>;
 export type ImagensUpdate = z.infer<typeof imagensUpdateSchema>;
-
 export type ImagensDto = DeepPartial<ImagensEntity>;

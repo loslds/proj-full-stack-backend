@@ -20,7 +20,7 @@ export class CidadesEntity {
     unsigned: true
   })
   id: number;
-
+//================
   @Column({
     type: 'int',
     unsigned: true,
@@ -33,7 +33,7 @@ export class CidadesEntity {
     name: 'id_estados'
   })
   estado: EstadosEntity;
-
+//=================
   @Column({
     type: 'varchar',
     length: 120,
