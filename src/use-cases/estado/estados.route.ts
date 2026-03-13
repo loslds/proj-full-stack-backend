@@ -1,43 +1,99 @@
-
 // C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.route.ts
-import { AppDataSource } from '../../config/db';
+
 import { Router } from 'express';
+import { AppDataSource } from '../../config/db';
 import { EstadosController } from './estados.controller';
 import { EstadosRepository } from './estados.repository';
-import { estadoscreateValidation, estadosupdateValidation } from './estados.validation';
+import {
+  estadosCreateValidation,
+  estadosUpdateValidation
+} from './estados.validation';
 
 const estadosRepository = new EstadosRepository(AppDataSource);
 const controller = new EstadosController(estadosRepository);
 const estadosRoute = Router();
 
-// ======================= ROTAS FIXAS =======================
-// Sempre colocar primeiro as rotas que NÃO possuem parâmetros
-estadosRoute.get('/', controller.findAllEstados.bind(controller));
+// ==========================================================
+// ROTAS FIXAS
+// Sempre declarar antes das rotas dinâmicas
+// ==========================================================
 
-estadosRoute.get('/search', controller.searchEstadosAll.bind(controller));
-estadosRoute.get('/search-nome', controller.searchEstadosNome.bind(controller));
-estadosRoute.get('/search-prefixo', controller.searchEstadosPrefixo.bind(controller));
+// GET -> Lista todos os estados
+estadosRoute.get(
+  '/',
+  controller.findAllEstados.bind(controller)
+);
 
-estadosRoute.get('/one-nome', controller.findOneEstadosNome.bind(controller));
-estadosRoute.get('/all-nome', controller.findAllEstadosNome.bind(controller));
+// GET -> Pesquisa combinada
+estadosRoute.get(
+  '/search',
+  controller.searchEstadosAll.bind(controller)
+);
 
-estadosRoute.get('/one-prefixo', controller.findOneEstadosPrefixo.bind(controller));
-estadosRoute.get('/all-prefixo', controller.findAllEstadosPrefixo.bind(controller));
+// GET -> Pesquisa por nome aproximado
+estadosRoute.get(
+  '/search-nome',
+  controller.searchEstadosNome.bind(controller)
+);
 
+// GET -> Pesquisa por prefixo aproximado
+estadosRoute.get(
+  '/search-prefixo',
+  controller.searchEstadosPrefixo.bind(controller)
+);
+
+// GET -> Busca um estado por nome exato
+estadosRoute.get(
+  '/one-nome',
+  controller.findOneEstadosNome.bind(controller)
+);
+
+// GET -> Busca todos os estados por nome exato
+estadosRoute.get(
+  '/all-nome',
+  controller.findAllEstadosNome.bind(controller)
+);
+
+// GET -> Busca um estado por prefixo exato
+estadosRoute.get(
+  '/one-prefixo',
+  controller.findOneEstadosPrefixo.bind(controller)
+);
+
+// GET -> Busca todos os estados por prefixo exato
+estadosRoute.get(
+  '/all-prefixo',
+  controller.findAllEstadosPrefixo.bind(controller)
+);
+
+// POST -> Cria novo estado
 estadosRoute.post(
   '/',
-  estadoscreateValidation,
+  estadosCreateValidation,
   controller.createNewEstados.bind(controller)
 );
 
-// ======================= ROTAS DINÂMICAS =======================
-estadosRoute.get('/:estadosId', controller.getOneEstadosId.bind(controller));
+// ==========================================================
+// ROTAS DINÂMICAS
+// ==========================================================
+
+// GET -> Busca estado por ID
+estadosRoute.get(
+  '/:estadosId',
+  controller.getOneEstadosId.bind(controller)
+);
+
+// PATCH -> Atualiza estado por ID
 estadosRoute.patch(
   '/:estadosId',
-  estadosupdateValidation,
+  estadosUpdateValidation,
   controller.updateIdEstados.bind(controller)
 );
-estadosRoute.delete('/:estadosId', controller.removeIdEstados.bind(controller));
 
-// EXPORTAÇÃO
+// DELETE -> Remove estado por ID
+estadosRoute.delete(
+  '/:estadosId',
+  controller.removeIdEstados.bind(controller)
+);
+
 export { estadosRoute as estadosRoutes };

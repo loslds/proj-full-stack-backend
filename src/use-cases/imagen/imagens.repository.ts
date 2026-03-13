@@ -1,13 +1,15 @@
 
-//C:\repository\proj-full-stack-backend\src\use-cases\imagen\imagens.repository.ts
-import fs from 'fs';
-import path from 'path';
-import AdmZip from 'adm-zip';
-import { ImagensEntity } from './imagens.entity';
-import { imagensConfig } from '../../config/imagens';
-import { DataSource, DeepPartial, Repository, FindOptionsWhere, IsNull } from 'typeorm';
-import { ImagensCreate } from './imagens.dto';
+// C:\repository\proj-full-stack-backend\src\use-cases\imagen\imagens.repository.ts
+import {
+  DataSource,
+  DeepPartial,
+  Repository,
+  FindOptionsWhere,
+  FindOptionsOrder
+} from 'typeorm';
 
+import { ImagensEntity } from './imagens.entity';
+import type { ImagensCreate } from './imagens.dto';
 
 export class ImagensRepository {
   private repo: Repository<ImagensEntity>;
@@ -16,282 +18,264 @@ export class ImagensRepository {
     this.repo = this.dataSource.getRepository(ImagensEntity);
   }
 
-  /** Cria a tabela 'imagens' caso não exista */
+  // ============================================================
+  // * CRIAÇÃO DA TABELA *
+  // ============================================================
   async createNotExistsImagens(): Promise<void> {
     await this.dataSource.query(`
       CREATE TABLE IF NOT EXISTS imagens (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        id_cadastros INT NOT NULL,
-        nome VARCHAR(50) NOT NULL,
-        nome_ext VARCHAR(80) NOT NULL,
-        has_avatar TINYINT(1) NOT NULL DEFAULT 0,
-        has_logo   TINYINT(1) NOT NULL DEFAULT 0,
-        has_panel  TINYINT(1) NOT NULL DEFAULT 0,
-        has_botao  TINYINT(1) NOT NULL DEFAULT 0,
-        has_tabela TINYINT(1) NOT NULL DEFAULT 0,
-        has_foto   TINYINT(1) NOT NULL DEFAULT 0,
-        arqDir VARCHAR(100) NOT NULL DEFAULT 'C:\\SGB',
-        arqPath VARCHAR(255) NOT NULL,
-        arqBlob LONGBLOB NULL,
-        createBy INT UNSIGNED DEFAULT 0,
-        createAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updateBy INT UNSIGNED DEFAULT 0,
-        updateAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+        nome VARCHAR(180)
+          NOT NULL
+          COLLATE utf8mb4_general_ci,
+
+        tipo VARCHAR(30)
+          NOT NULL
+          COLLATE utf8mb4_general_ci,
+
+        path_origem VARCHAR(255)
+          NULL
+          COLLATE utf8mb4_general_ci,
+
+        path_dest VARCHAR(255)
+          NULL
+          COLLATE utf8mb4_general_ci,
+
+        svg LONGTEXT
+          NOT NULL
+          COLLATE utf8mb4_general_ci,
+
+        createdBy INT UNSIGNED
+          NOT NULL
+          DEFAULT 0,
+
+        createdAt DATETIME
+          DEFAULT CURRENT_TIMESTAMP,
+
+        updatedBy INT UNSIGNED
+          NOT NULL
+          DEFAULT 0,
+
+        updatedAt DATETIME
+          DEFAULT CURRENT_TIMESTAMP
+          ON UPDATE CURRENT_TIMESTAMP,
+
+        UNIQUE KEY uk_imagens_nome (nome)
+      )
     `);
   }
 
-  // src/use-cases/imagens/imagens.repository.ts
+  // ============================================================
+  // * DUPLICIDADE *
+  // ============================================================
   async hasDuplicated(
-    id_cadastros: number,
-    nome: string,
-    nome_ext: string,
-    ignoreId?: number
-  ): Promise<ImagensEntity | null> {
+    nome?: string,
+    excludeId?: number
+  ): Promise<boolean> {
+    const query = this.repo
+      .createQueryBuilder('imagens')
+      .select(['imagens.id']);
 
-    const qb = this.repo
-      .createQueryBuilder("img")
-      .where("img.id_cadastros = :id_cadastros", { id_cadastros })
-      .andWhere("img.nome = :nome", { nome })
-      .andWhere("img.nome_ext = :nome_ext", { nome_ext });
-
-    // 👉 usado no UPDATE (ignora o próprio registro)
-    if (ignoreId) {
-      qb.andWhere("img.id != :ignoreId", { ignoreId });
+    if (nome) {
+      query.andWhere('imagens.nome = :nome', { nome });
     }
 
-    return await qb.getOne();
+    if (excludeId) {
+      query.andWhere('imagens.id != :excludeId', { excludeId });
+    }
+
+    const result = await query.getOne();
+    return !!result;
   }
 
-/////////////////////////////////////////////////////////////////////
-
-  /** Insere ou atualiza imagens de acordo com os arquivos ZIP configurados */
+  // ============================================================
+  // * INSERÇÃO DEFAULT *
+  // A carga principal das imagens é feita pelo imagens.service.ts
+  // ============================================================
   async insertDefaultImagens(): Promise<void> {
-    const baseAssets = path.resolve(__dirname, '../../assets/default');
-    const baseDisk = 'C:/SGB';
-
-    for (const cfg of imagensConfig) {
-      const zipPath = path.join(baseAssets, cfg.zip);
-      const tablePath = path.join(baseDisk, cfg.nome);
-
-      // Cria a pasta da tabela se não existir
-      if (!fs.existsSync(tablePath)) {
-        fs.mkdirSync(tablePath, { recursive: true });
-        console.log(`Pasta criada: ${tablePath}`);
-      }
-
-      // Descompacta ZIP se existir
-      if (!fs.existsSync(zipPath)) {
-        console.warn(`ZIP não encontrado para ${cfg.nome}: ${zipPath}`);
-        continue;
-      }
-
-      const zip = new AdmZip(zipPath);
-      zip.extractAllTo(tablePath, true);
-      console.log(`ZIP descompactado em: ${tablePath}`);
-
-      // Processa cada arquivo do diretório
-      const files = fs.readdirSync(tablePath);
-      for (const file of files) {
-        const filepath = path.join(tablePath, file);
-        const buffer = fs.readFileSync(filepath);
-
-        // Determina arqTipo, arqAcao e arqPage pelo nome do arquivo
-        const [prefix, pageNameWithExt] = file.split('_');
-        const pageName = pageNameWithExt ? pageNameWithExt.split('.')[0] : null;
-
-        const record: ImagensCreate = {
-          nome: cfg.nome,
-          nome_ext: file,
-
-          arqTipo:
-            prefix.toLowerCase() === 'logo' ? ArqTipoEnum.LOGO :
-            prefix.toLowerCase() === 'painel' ? ArqTipoEnum.PAINEL :
-            prefix.toLowerCase() === 'avatar' ? ArqTipoEnum.AVATAR :
-            prefix.toLowerCase() === 'botao' ? ArqTipoEnum.BOTAO :
-            prefix.toLowerCase() === 'botao' ? ArqTipoEnum.TABELA :
-            ArqTipoEnum.DEFAULT,
-          arqAcao: ArqAcaoEnum.VISUALIZA, // padrão, ajustar conforme necessário
-          arqPage: pageName,
-          arqPath: filepath,
-          arqBlob: buffer,
-          createBy: 0,
-          updateBy: 0,
-        };
-
-        // Verifica duplicidade usando IsNull para arqPage
-        const existing = await this.repo.findOne({
-          where: {
-            nome: record.nome,
-            arqNome: record.arqNome,
-            arqTipo: record.arqTipo,
-            arqAcao: record.arqAcao,
-            arqPage: record.arqPage ?? IsNull(),
-          },
-        });
-
-        if (existing) {
-          // Atualiza se necessário
-          await this.repo.save({ ...existing, ...record });
-          console.log(`Imagem atualizada no banco: ${file}`);
-        } else {
-          // Insere nova
-          await this.repo.save(this.repo.create(record as ImagensEntity));
-          console.log(`Imagem inserida no banco: ${file}`);
-        }
-      }
-    }
+    console.log(
+      '>>> [ImagensRepository] insertDefaultImagens() é controlado pelo imagens.service.ts'
+    );
   }
 
-  /** Atualiza registro em imagens (seguro com preload) */
-  async updateImagensId(
+  // ============================================================
+  // * CRUD *
+  // ============================================================
+  async findImagensAll(
+    where?: FindOptionsWhere<ImagensEntity>,
+    order?: FindOptionsOrder<ImagensEntity>
+  ): Promise<ImagensEntity[]> {
+    return this.repo.find({ where, order });
+  }
+
+  async createImagens(imagens: ImagensCreate): Promise<ImagensEntity> {
+    const duplicated = await this.hasDuplicated(imagens.nome);
+
+    if (duplicated) {
+      throw new Error(`Imagem duplicada! Já existe registro com nome "${imagens.nome}".`);
+    }
+
+    const entity = this.repo.create(imagens);
+    return this.repo.save(entity);
+  }
+
+  async findImagensById(imagensId: number): Promise<ImagensEntity | null> {
+    this.validateId(imagensId);
+    return this.repo.findOne({ where: { id: imagensId } });
+  }
+
+  async updateImagens(
     imagensId: number,
     imagens: DeepPartial<ImagensEntity>
   ): Promise<ImagensEntity> {
-    if (!imagensId || isNaN(imagensId) || imagensId <= 0) {
-      throw new Error('ID de imagem inválido');
+    this.validateId(imagensId);
+
+    if (imagens.nome) {
+      const duplicated = await this.hasDuplicated(imagens.nome, imagensId);
+
+      if (duplicated) {
+        throw new Error(`Imagem duplicada! Já existe registro com nome "${imagens.nome}".`);
+      }
     }
 
-    // Carrega a entidade com pré-carregamento das propriedades existentes
     const entity = await this.repo.preload({ id: imagensId, ...imagens });
+
     if (!entity) {
       throw new Error(`Imagem com id ${imagensId} não encontrada`);
-    }
-
-    // Bloqueia alterações em registros default (id_default = 1)
-    if (entity.id_default === 1) {
-      const allowedFields: (keyof DeepPartial<ImagensEntity>)[] = ['updateBy'];
-      for (const key of Object.keys(imagens) as (keyof DeepPartial<ImagensEntity>)[]) {
-        if (!allowedFields.includes(key)) {
-          delete (entity as any)[key];
-        }
-      }
-      console.warn(
-        `Registro default (id=${imagensId}) não pode ser alterado. Apenas campos permitidos foram atualizados.`
-      );
     }
 
     return this.repo.save(entity);
   }
 
-  /** Deleta um registro de imagem pelo ID */
-  async deleteImagensId(imagensId: number): Promise<void> {
-    if (!imagensId || isNaN(imagensId) || imagensId <= 0) {
-      throw new Error('ID de imagem inválido');
+  async deleteImagens(imagensId: number): Promise<void> {
+    this.validateId(imagensId);
+
+    const found = await this.repo.findOne({ where: { id: imagensId } });
+
+    if (!found) {
+      throw new Error(`Imagem com id ${imagensId} não encontrada`);
     }
 
-    const entity = await this.repo.findOne({ where: { id: imagensId } });
-    if (!entity) throw new Error(`Imagem com id ${imagensId} não encontrada`);
-
-    // Bloqueia remoção de registros default
-    if (entity.id_default === 1) {
-      throw new Error(`Não é permitido deletar registro default (id=${imagensId})`);
-    }
-
-    await this.repo.remove(entity);
-    console.log(`Imagem id=${imagensId} removida com sucesso.`);
+    await this.repo.remove(found);
   }
 
-  /////////////////////////////////////////////////////////////
+  // ============================================================
+  // * CONSULTAS PERSONALIZADAS *
+  // ============================================================
+  async searchImagens(params: {
+    id?: number;
+    nome?: string;
+    tipo?: string;
+  }): Promise<ImagensEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('imagens')
+      .select([
+        'imagens.id',
+        'imagens.nome',
+        'imagens.tipo',
+        'imagens.path_origem',
+        'imagens.path_dest',
+        'imagens.createdAt',
+        'imagens.updatedAt'
+      ])
+      .orderBy('imagens.id', 'ASC');
 
+    if (params.id) {
+      query.andWhere('imagens.id = :id', { id: params.id });
+    }
 
+    if (params.nome) {
+      query.andWhere('imagens.nome LIKE :nome COLLATE utf8mb4_general_ci', {
+        nome: `%${params.nome}%`
+      });
+    }
 
-  /** Busca todos os registros de imagens */
-  async findImagensAll(
-    where?: FindOptionsWhere<ImagensEntity>,
-    orderBy: Record<string, 'ASC' | 'DESC'> = { id: 'ASC' }
-  ): Promise<ImagensEntity[]> {
+    if (params.tipo) {
+      query.andWhere('imagens.tipo LIKE :tipo COLLATE utf8mb4_general_ci', {
+        tipo: `%${params.tipo}%`
+      });
+    }
+
+    return query.getMany();
+  }
+
+  async searchNomeImagens(text?: string): Promise<ImagensEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('imagens')
+      .select([
+        'imagens.id',
+        'imagens.nome',
+        'imagens.tipo',
+        'imagens.path_dest'
+      ])
+      .orderBy('imagens.id', 'ASC')
+      .limit(100);
+
+    if (text) {
+      query.andWhere('imagens.nome LIKE :text COLLATE utf8mb4_general_ci', {
+        text: `%${text}%`
+      });
+    }
+
+    return query.getMany();
+  }
+
+  async searchTipoImagens(text?: string): Promise<ImagensEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('imagens')
+      .select([
+        'imagens.id',
+        'imagens.nome',
+        'imagens.tipo',
+        'imagens.path_dest'
+      ])
+      .orderBy('imagens.id', 'ASC')
+      .limit(100);
+
+    if (text) {
+      query.andWhere('imagens.tipo LIKE :text COLLATE utf8mb4_general_ci', {
+        text: `%${text}%`
+      });
+    }
+
+    return query.getMany();
+  }
+
+  async findOneNomeImagens(nome: string): Promise<ImagensEntity | null> {
+    return this.repo.findOne({ where: { nome } });
+  }
+
+  async findAllNomeImagens(nome: string): Promise<ImagensEntity[]> {
     return this.repo.find({
-      where,
-      order: orderBy,
-      relations: [
-        'empresas',
-        'consumidores',
-        'clientes',
-        'fornecedores',
-        'funcionarios',
-      ],
+      where: { nome },
+      order: { id: 'ASC' },
+      take: 100
     });
   }
 
-  async findImagensById(imagensId: number): Promise<ImagensEntity | null> {
-    if (!imagensId || isNaN(imagensId) || imagensId <= 0) {
+  async findOneTipoImagens(tipo: string): Promise<ImagensEntity | null> {
+    return this.repo.findOne({ where: { tipo } });
+  }
+
+  async findAllTipoImagens(tipo: string): Promise<ImagensEntity[]> {
+    return this.repo.find({
+      where: { tipo },
+      order: { id: 'ASC' },
+      take: 100
+    });
+  }
+
+  async findOnePathDestImagens(path_dest: string): Promise<ImagensEntity | null> {
+    return this.repo.findOne({ where: { path_dest } });
+  }
+
+  // ============================================================
+  // * UTIL *
+  // ============================================================
+  private validateId(id: number): void {
+    if (!id || isNaN(id) || id <= 0) {
       throw new Error('Invalid imagensId');
     }
-    return this.repo.findOne({
-      where: { id: imagensId },
-      relations: [
-        'empresas',
-        'consumidores',
-        'clientes',
-        'fornecedores',
-        'funcionarios',
-      ],
-    });
   }
-
-
-
-
-  // /** Busca por ID, arqTipo ou arqNome */
-  // async searchImagens(params: { id?: number; arqTipo?: string; arqNome?: string; }): Promise<ImagensEntity[]> {
-  //   const query = this.repo.createQueryBuilder('imagens')
-  //     .select(['imagens.id', 'imagens.arqTipo', 'imagens.arqNome'])
-  //     .orderBy('imagens.id', 'ASC');
-
-  //   if (params.id) query.andWhere('imagens.id = :id', { id: params.id });
-  //   if (params.arqTipo) query.andWhere('imagens.arqTipo LIKE :arqTipo', { arqTipo: `%${params.arqTipo}%` });
-  //   if (params.arqNome) query.andWhere('imagens.arqNome LIKE :arqNome', { arqNome: `%${params.arqNome}%` });
-
-  //   return query.getMany();
-  // }
-
-
-  // /** Busca pela arqtipo */
-  // async searchArqTipoImagens(text?: string) {
-  //   const query = this.repo.createQueryBuilder('imagens')
-  //     .select(['imagens.id', 'imagens.arqTipo'])
-  //     .limit(100);
-  //   if (text) query.andWhere('imagens.arqTipo LIKE :text', { text: `%${text}%` });
-  //   return query.getMany();
-  // }
-
-  // /** Busca pelo arqNome */
-  // async searchArqNomeImagens(text?: string) {
-  //   const query = this.repo.createQueryBuilder('imagens')
-  //     .select(['imagens.id', 'imagens.arqNome'])
-  //     .orderBy('imagens.id', 'ASC')
-  //     .limit(100);
-  //   if (text) query.andWhere('imagens.arqNome LIKE :text', { text: `%${text}%` });
-  //   return query.getMany();
-  // }
-
-  // /** Busca um registro pelo nome */
-  // async findOneArqNomeImagens(arqNome: string): Promise<ImagensEntity | null> {
-  //   if (!arqNome || !arqNome.trim()) {
-  //     throw new Error('O parâmetro arqNome é inválido');
-  //   }
-  //   return this.repo.findOne({ where: { arqNome } });
-  // }
-
-  // /** Busca todos registros pelo arqTipo (igualdade exata, limitado a 100) */
-  // async findAllArqTipoImagens(arqTipo: 'logo' | 'avatar'): Promise<ImagensEntity[]> {
-  //   return this.repo.find({
-  //     where: { arqTipo },
-  //     take: 100,
-  //     order: { id: "ASC" }
-  //   });
-  // }
-
-  // /** Lista todos registros pelo arqNome (igualdade exata, limitado a 100) */
-  // async findAllArqNomeImagens(arqNome: string): Promise<ImagensEntity[]> {
-  //   return this.repo.find({
-  //     where: { arqNome },
-  //     take: 100,
-  //     order: { id: "ASC" }
-  //   });
-  // }
-  
 }
-
-

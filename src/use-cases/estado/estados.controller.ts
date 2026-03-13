@@ -1,9 +1,10 @@
+// C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.controller.ts
 
-//C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.controller.ts
-import { NextFunction, Request, Response } from "express";
-import { EstadosRepository } from "./estados.repository";
-import { EstadosCreate, EstadosUpdate } from "./estados.dto";
-import { HttpException } from "../../exceptions/HttpException";
+import { NextFunction, Request, Response } from 'express';
+import { EstadosRepository } from './estados.repository';
+import { EstadosCreate, EstadosUpdate } from './estados.dto';
+import { HttpException } from '../../exceptions/HttpException';
+
 export class EstadosController {
   constructor(private readonly estadosRepository: EstadosRepository) {}
 
@@ -11,12 +12,12 @@ export class EstadosController {
   // LISTAGENS E PESQUISAS
   // =========================================================================
 
-  /** GET → Lista todas as estados */
+  /** GET → Lista todos os estados */
   async findAllEstados(req: Request, res: Response, next: NextFunction) {
     try {
       const estados = await this.estadosRepository.findEstadosAll(
         undefined,
-        { nome: "ASC" }
+        { nome: 'ASC' }
       );
 
       return res.status(200).send({ success: true, estados });
@@ -25,7 +26,7 @@ export class EstadosController {
     }
   }
 
-  /** GET → Pesquisa combinada por id, nome e sigla */
+  /** GET → Pesquisa combinada por id, nome e prefixo */
   async searchEstadosAll(req: Request, res: Response, next: NextFunction) {
     try {
       const { id, nome, prefixo } = req.query;
@@ -33,10 +34,10 @@ export class EstadosController {
       const estados = await this.estadosRepository.searchEstados({
         id: id ? Number(id) : undefined,
         nome: nome ? String(nome) : undefined,
-        prefixo: prefixo ? String(prefixo) : undefined,
+        prefixo: prefixo ? String(prefixo) : undefined
       });
 
-      res.status(200).send({ success: true, estados });
+      return res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
@@ -48,96 +49,108 @@ export class EstadosController {
       const text = req.query.text ? String(req.query.text) : undefined;
       const estados = await this.estadosRepository.searchNomeEstados(text);
 
-      res.status(200).send({ success: true, estados });
+      return res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Busca por sigla aproximada */
+  /** GET → Busca por prefixo aproximado */
   async searchEstadosPrefixo(req: Request, res: Response, next: NextFunction) {
     try {
       const text = req.query.text ? String(req.query.text) : undefined;
       const estados = await this.estadosRepository.searchPrefixoEstados(text);
 
-      res.status(200).send({ success: true, estados });
+      return res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar uma pessoa pelo nome exato */
+  /** GET → Buscar um estado pelo nome exato */
   async findOneEstadosNome(req: Request, res: Response, next: NextFunction) {
     try {
       const nome = req.query?.nome as string;
-      if (!nome) throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
+
+      if (!nome) {
+        throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
+      }
 
       const estados = await this.estadosRepository.findOneNomeEstados(nome);
 
-      res.status(200).send({ 
-        success: true, 
-        estados 
+      return res.status(200).send({
+        success: true,
+        estados
       });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar todas pessoas com nome exato */
+  /** GET → Buscar todos os estados com nome exato */
   async findAllEstadosNome(req: Request, res: Response, next: NextFunction) {
     try {
       const nome = req.query?.nome as string;
-      if (!nome) throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
+
+      if (!nome) {
+        throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
+      }
 
       const estados = await this.estadosRepository.findAllNomeEstados(nome);
 
-      res.status(200).send({
+      return res.status(200).send({
         success: true,
         total: estados.length,
-        estados,
+        estados
       });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar uma pessoa pela prefixo exata */
+  /** GET → Buscar um estado pelo prefixo exato */
   async findOneEstadosPrefixo(req: Request, res: Response, next: NextFunction) {
     try {
-      const prefixo = req.query?.sigla as string;
-      if (!prefixo) throw new HttpException(400, "Parâmetro 'prefixo' é obrigatório");
+      const prefixo = req.query?.prefixo as string;
+
+      if (!prefixo) {
+        throw new HttpException(400, "Parâmetro 'prefixo' é obrigatório");
+      }
 
       const estados = await this.estadosRepository.findOnePrefixoEstados(prefixo);
 
-      res.status(200).send({ success: true, estados });
+      return res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar todas pessoas com prefixo exato */
+  /** GET → Buscar todos os estados com prefixo exato */
   async findAllEstadosPrefixo(req: Request, res: Response, next: NextFunction) {
     try {
       const prefixo = req.query?.prefixo as string;
 
-      if (!prefixo) throw new HttpException(400, "Parâmetro 'prefixo' é obrigatório");
+      if (!prefixo) {
+        throw new HttpException(400, "Parâmetro 'prefixo' é obrigatório");
+      }
 
       const estados = await this.estadosRepository.findAllPrefixoEstados(prefixo);
 
-      res.status(200).send({
+      return res.status(200).send({
         success: true,
         total: estados.length,
-        estados,
+        estados
       });
     } catch (error) {
       next(error);
     }
   }
+
   // =========================================================================
   // CRUD
   // =========================================================================
 
-  /** POST → Criar nova estados */
+  /** POST → Criar novo estado */
   async createNewEstados(
     req: Request<{}, {}, EstadosCreate>,
     res: Response,
@@ -146,20 +159,19 @@ export class EstadosController {
     try {
       const { nome, prefixo } = req.body;
 
-      if (!nome || !prefixo) throw new HttpException(400, "Nome e prefixo são obrigatórios");
-
-      const duplicated = await this.estadosRepository.hasDuplicated(nome, prefixo);
-      if (duplicated) throw new HttpException(400, "Estado já existe");
+      if (!nome || !prefixo) {
+        throw new HttpException(400, 'Nome e prefixo são obrigatórios');
+      }
 
       const estados = await this.estadosRepository.createEstados(req.body);
 
-      res.status(201).send({ success: true, estados });
+      return res.status(201).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
 
-  /** PATCH → Atualizar estados pelo ID */
+  /** PATCH → Atualizar estado pelo ID */
   async updateIdEstados(
     req: Request<{ estadosId: string }, {}, EstadosUpdate>,
     res: Response,
@@ -167,32 +179,23 @@ export class EstadosController {
   ) {
     try {
       const estadosId = Number(req.params.estadosId);
-      if (!estadosId || isNaN(estadosId) || estadosId <= 0) {
-        throw new HttpException(400, "ID da estado inválido");
+
+      if (!estadosId || Number.isNaN(estadosId) || estadosId <= 0) {
+        throw new HttpException(400, 'ID do estado inválido');
       }
-
-      const { nome, prefixo } = req.body;
-
-      const duplicated = await this.estadosRepository.hasDuplicated(
-        nome,
-        prefixo,
-        estadosId
-      );
-
-      if (duplicated) throw new HttpException(400, "estado já existe");
 
       const estados = await this.estadosRepository.updateEstados(
         estadosId,
         req.body
       );
 
-      res.status(200).send({ success: true, estados });
+      return res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
 
-  /** DELETE → Remover estados */
+  /** DELETE → Remover estado */
   async removeIdEstados(
     req: Request<{ estadosId: string }>,
     res: Response,
@@ -200,19 +203,20 @@ export class EstadosController {
   ) {
     try {
       const estadosId = Number(req.params.estadosId);
-      if (isNaN(estadosId) || estadosId <= 0) {
-        throw new HttpException(400, "ID inválido");
+
+      if (Number.isNaN(estadosId) || estadosId <= 0) {
+        throw new HttpException(400, 'ID inválido');
       }
 
       await this.estadosRepository.deleteEstados(estadosId);
 
-      res.status(200).send({ success: true });
+      return res.status(200).send({ success: true });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar pessoa pelo ID */
+  /** GET → Buscar estado pelo ID */
   async getOneEstadosId(
     req: Request<{ estadosId: string }>,
     res: Response,
@@ -220,18 +224,18 @@ export class EstadosController {
   ) {
     try {
       const estadosId = Number(req.params.estadosId);
-      if (isNaN(estadosId) || estadosId <= 0) {
-        throw new HttpException(400, "ID inválido");
+
+      if (Number.isNaN(estadosId) || estadosId <= 0) {
+        throw new HttpException(400, 'ID inválido');
       }
 
       const estados = await this.estadosRepository.findEstadosById(estadosId);
 
-      res.status(200).send({ success: true, estados });
+      return res.status(200).send({ success: true, estados });
     } catch (error) {
       next(error);
     }
   }
 }
-
 
 

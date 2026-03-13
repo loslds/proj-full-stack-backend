@@ -67,3 +67,4 @@ export const imagensUpdateSchema = imagensCreateSchema.partial().extend({
 export type ImagensCreate = z.infer<typeof imagensCreateSchema>;
 export type ImagensUpdate = z.infer<typeof imagensUpdateSchema>;
 export type ImagensDto = DeepPartial<ImagensEntity>;
+

@@ -4,15 +4,15 @@
 export const SYSTEM_PATHS = {
 
   // pasta principal do projeto no disco
-  IMAGENS_BASE: "C:\\Imagens_sgv",
+  IMAGENS_BASE: 'src\\assets',
 
   // subpastas
-  IMAGENS_DEFAULT: "C:\\Imagens_sgv\\default",
-  IMAGENS_FOTO: "C:\\Imagens_sgv\\foto",
-  IMAGENS_IMG: "C:\\Imagens_sgv\\img",
+  IMAGENS_DEFAULT: 'src\\assets\\default',
+  IMAGENS_FOTO: 'src\\assets\\foto',
+  IMAGENS_IMG: 'src\\assets\\img',
 
   // pasta onde ficam os ZIP dentro do projeto
-  ZIP_SOURCE: "src\\arq_zip"
+  ZIP_SOURCE: 'src\\assets\\arq_zip'
 
 };
 

@@ -1,10 +1,10 @@
-
 // C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.entity.ts
-import { 
-  Column, 
-  Entity, 
-  PrimaryGeneratedColumn, 
-  Unique, 
+
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  Unique,
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 
 import { EstadosEntity } from '../estado/estados.entity';
+
 @Entity('cidades')
 @Unique(['nome', 'id_estados'])
 export class CidadesEntity {
@@ -20,7 +21,10 @@ export class CidadesEntity {
     unsigned: true
   })
   id: number;
-//================
+
+  /**
+   * FK para estados.id
+   */
   @Column({
     type: 'int',
     unsigned: true,
@@ -33,7 +37,10 @@ export class CidadesEntity {
     name: 'id_estados'
   })
   estado: EstadosEntity;
-//=================
+
+  /**
+   * Nome da cidade
+   */
   @Column({
     type: 'varchar',
     length: 120,
@@ -50,7 +57,9 @@ export class CidadesEntity {
   })
   createdBy: number;
 
-  @CreateDateColumn({ type: 'datetime' })
+  @CreateDateColumn({
+    type: 'datetime'
+  })
   createdAt: Date;
 
   @Column({
@@ -61,6 +70,8 @@ export class CidadesEntity {
   })
   updatedBy: number;
 
-  @UpdateDateColumn({ type: 'datetime' })
+  @UpdateDateColumn({
+    type: 'datetime'
+  })
   updatedAt: Date;
 }

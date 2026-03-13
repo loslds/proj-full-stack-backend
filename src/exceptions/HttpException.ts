@@ -1,3 +1,4 @@
+
 // src/exceptions/HttpException.ts
 export class HttpException extends Error {
   public status: number;
@@ -34,3 +35,5 @@ export enum ErrMsg {
   largeFile = 'too_large_file',
   emptyFile = 'empty_file',
 }
+
+

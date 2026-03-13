@@ -1,4 +1,4 @@
-// src/use-cases/cidade/cidades.repository.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.repository.ts
 
 import {
   DataSource,
@@ -9,7 +9,6 @@ import {
 
 import { CidadesEntity } from './cidades.entity';
 import type { CidadesCreate } from './cidades.dto';
-import { cidadesSeed } from '../../services/tables/seed/cidades.seed';
 import { CadastrosEntity } from '../cadastro/cadastros.entity';
 
 export class CidadesRepository {
@@ -20,29 +19,7 @@ export class CidadesRepository {
   }
 
   // ==========================================================
-  // CREATE TABLE (se não existir)
-  // ==========================================================
-  async createNotExistsCidades(): Promise<void> {
-    await this.repo.query(`
-      CREATE TABLE IF NOT EXISTS cidades (
-        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        nome VARCHAR(120) NOT NULL COLLATE utf8mb4_general_ci,
-        id_estados INT UNSIGNED NOT NULL,
-        createdBy INT UNSIGNED NOT NULL DEFAULT 0,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updatedBy INT UNSIGNED NOT NULL DEFAULT 0,
-        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        UNIQUE KEY uk_cidades_nome_estado (nome, id_estados),
-        CONSTRAINT fk_cidades_estados
-          FOREIGN KEY (id_estados) REFERENCES estados(id)
-          ON UPDATE CASCADE
-          ON DELETE RESTRICT
-      ) ENGINE=InnoDB;
-    `);
-  }
-
-  // ==========================================================
-  // VERIFICA DUPLICIDADE (nome + id_estados)
+  // DUPLICIDADE (nome + id_estados)
   // ==========================================================
   async hasDuplicated(
     nome?: string,
@@ -67,31 +44,6 @@ export class CidadesRepository {
   }
 
   // ==========================================================
-  // INSERT DEFAULTS EM LOTES
-  // ==========================================================
-  async insertDefaultCidades(): Promise<void> {
-    const total = await this.repo.count();
-    if (total > 0) return;
-
-    const batchSize = 150;
-
-    for (let i = 0; i < cidadesSeed.length; i += batchSize) {
-      const batch = cidadesSeed.slice(i, i + batchSize);
-
-      await this.repo
-        .createQueryBuilder()
-        .insert()
-        .into(CidadesEntity)
-        .values(batch)
-        .execute();
-    }
-
-    console.log(
-      `>>> [CidadesRepository] ${cidadesSeed.length} cidades inseridas em lotes de ${batchSize}`
-    );
-  }
-
-  // ==========================================================
   // CREATE
   // ==========================================================
   async createCidades(cidades: CidadesCreate): Promise<CidadesEntity> {
@@ -104,7 +56,12 @@ export class CidadesRepository {
       throw new Error('Cidade duplicada! Nome e estado já existentes.');
     }
 
-    const data = this.repo.create(cidades);
+    const data = this.repo.create({
+      ...cidades,
+      createdBy: cidades.createdBy ?? 0,
+      updatedBy: cidades.updatedBy ?? 0
+    });
+
     return this.repo.save(data);
   }
 

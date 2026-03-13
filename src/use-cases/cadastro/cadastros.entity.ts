@@ -1,4 +1,4 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\cliente\clientes.entity.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\cadastro\cadastros.entity.ts
 
 import {
   Entity,
@@ -6,9 +6,9 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Index,
   CreateDateColumn,
-  UpdateDateColumn,
-  Unique
+  UpdateDateColumn
 } from 'typeorm';
 
 import { EmpresasEntity } from '../empresa/empresas.entity';
@@ -20,126 +20,172 @@ import { FornecedoresEntity } from '../fornecedor/fornecedores.entity';
 import { FuncionariosEntity } from '../funcionario/funcionarios.entity';
 
 @Entity('cadastros')
-@Unique(['nome']) // garante que não tenha dois iguais
-
 export class CadastrosEntity {
-  
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-  // 🔹 Campo para armazenar o id relacionados
+  @Index('idx_cadastros_grupo', ['grupo'])
+  @Column({
+    type: 'varchar',
+    length: 30,
+    nullable: false,
+    collation: 'utf8mb4_general_ci'
+  })
+  grupo: string;
+
+  @Index('idx_cadastros_status', ['status'])
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: false,
+    default: 'ativo',
+    collation: 'utf8mb4_general_ci'
+  })
+  status: string;
+
   @Column({ type: 'int', unsigned: true, nullable: false })
   id_empresas: number;
-  // 🔹 Relacionamento com empresas
+
   @ManyToOne(() => EmpresasEntity)
   @JoinColumn({ name: 'id_empresas' })
   empresas: EmpresasEntity;
 
-  // 🔹 Campo para armazenar o id consumidores
   @Column({ type: 'int', unsigned: true, nullable: false })
   id_consumidores: number;
 
-  // 🔹 Relacionamento com consumidores
   @ManyToOne(() => ConsumidoresEntity)
   @JoinColumn({ name: 'id_consumidores' })
   consumidores: ConsumidoresEntity;
 
-  // 🔹 Campo para armazenar o id clientes
   @Column({ type: 'int', unsigned: true, nullable: false })
   id_clientes: number;
 
-  // 🔹 Relacionamento com consumidores
   @ManyToOne(() => ClientesEntity)
   @JoinColumn({ name: 'id_clientes' })
   clientes: ClientesEntity;
 
-// 🔹 Campo para armazenar o id fornecedores
   @Column({ type: 'int', unsigned: true, nullable: false })
   id_fornecedores: number;
 
-  // 🔹 Relacionamento com fornecedores
   @ManyToOne(() => FornecedoresEntity)
   @JoinColumn({ name: 'id_fornecedores' })
   fornecedores: FornecedoresEntity;
 
-// 🔹 Campo para armazenar o id funcionarios
   @Column({ type: 'int', unsigned: true, nullable: false })
   id_funcionarios: number;
 
-  // 🔹 Relacionamento com consumidores
   @ManyToOne(() => FuncionariosEntity)
   @JoinColumn({ name: 'id_funcionarios' })
   funcionarios: FuncionariosEntity;
 
-// 🔹 Campo para armazenar o id imagens
   @Column({ type: 'int', unsigned: true, nullable: false })
   id_imagens: number;
 
-  // 🔹 Relacionamento com imagens
   @ManyToOne(() => ImagensEntity)
   @JoinColumn({ name: 'id_imagens' })
   imagens: ImagensEntity;
 
-  // 🔹 Campo para armazenar o id cidades
   @Column({ type: 'int', unsigned: true, nullable: false })
   id_cidades: number;
 
-  // 🔹 Relacionamento com imagens
   @ManyToOne(() => CidadesEntity)
   @JoinColumn({ name: 'id_cidades' })
-  cidades: ImagensEntity;
+  cidades: CidadesEntity;
 
-  // 🔹 Campo para informações do cadastros
-  @Column({ 
-    type: 'varchar', 
-    length: 200, 
-    nullable: false 
+  @Column({
+    type: 'varchar',
+    length: 200,
+    nullable: false,
+    collation: 'utf8mb4_general_ci'
   })
   endereco: string;
 
-  @Column({ 
-    type: 'varchar', 
-    length: 200, 
-    nullable: false 
+  @Column({
+    type: 'varchar',
+    length: 200,
+    nullable: false,
+    collation: 'utf8mb4_general_ci'
   })
   complemento: string;
 
-  @Column({ 
-    type: 'varchar', 
-    length: 100, 
-    nullable: false 
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+    collation: 'utf8mb4_general_ci'
   })
   bairro: string;
 
-  // 🔹 Campo para informações da Criação e Update do Registro
-  @Column({ 
-    type: 'int', 
-    unsigned: true, 
-    nullable: false, 
-    default: 0 
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: false,
+    collation: 'utf8mb4_general_ci'
+  })
+  cep: string;
+
+  /**
+   * Flag para indicar se o cadastro terá documento
+   * 0 = não
+   * 1 = sim
+   */
+  @Column({
+    type: 'tinyint',
+    width: 1,
+    nullable: false,
+    default: 0
+  })
+  has_doc: number;
+
+  /**
+   * Flag para indicar se o cadastro terá email
+   * 0 = não
+   * 1 = sim
+   */
+  @Column({
+    type: 'tinyint',
+    width: 1,
+    nullable: false,
+    default: 0
+  })
+  has_email: number;
+
+  /**
+   * Flag para indicar se o cadastro terá telefone
+   * 0 = não
+   * 1 = sim
+   */
+  @Column({
+    type: 'tinyint',
+    width: 1,
+    nullable: false,
+    default: 0
+  })
+  has_fone: number;
+
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
   })
   createdBy: number;
 
-  @Column({ 
-    type: 'datetime', 
-    nullable: true, 
-    default: () => 'CURRENT_TIMESTAMP' 
+  @CreateDateColumn({
+    type: 'datetime'
   })
   createdAt: Date;
 
-  @Column({ 
-    type: 'int', 
-    unsigned: true, 
-    nullable: true, 
-    default: 0 
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
   })
   updatedBy: number;
 
-  @Column({ 
-    type: 'datetime', 
-    nullable: true, 
-    default: () => 'CURRENT_TIMESTAMP', 
-    onUpdate: 'CURRENT_TIMESTAMP' 
+  @UpdateDateColumn({
+    type: 'datetime'
   })
   updatedAt: Date;
 }

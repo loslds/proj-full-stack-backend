@@ -1,5 +1,5 @@
 
-// src/use-cases/imagens/imagens.entity.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\imagen\imagens.entity.ts
 import {
   Column,
   CreateDateColumn,

@@ -1,5 +1,6 @@
+// C:\repository\proj-full-stack-backend\src\use-cases\cidade\index.ts
 
-// src/use-cases/cidades/index.ts
+import { CidadesRepository } from './cidades.repository';
 
 export { cidadesRoutes } from './cidades.route';
 export { CidadesController } from './cidades.controller';
@@ -9,12 +10,8 @@ export { CidadesRepository } from './cidades.repository';
 export * from './cidades.dto';
 export * from './cidades.validation';
 
-import { CidadesRepository } from './cidades.repository';
-
 export const cidadesConfig = {
   tableName: 'cidades',
   repoClass: CidadesRepository,
-  createMethod: 'createNotExistsCidades',
-  findAll: 'findCidadesAll',
-  insertDefaults: 'insertDefaultCidades',
+  findAll: 'findCidadesAll'
 };

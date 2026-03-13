@@ -22,8 +22,10 @@ export const tablesWithDefaults = [
   'pessoas',
   'estados',
   'cidades',
-//  'imagens',
-//  'modulos', 
+  'imagens',
+  'niveis',
+  'acoes',
+  'modulos', 
 //  'perguntas',
 //  'setores',
   // outras tabelas ......
