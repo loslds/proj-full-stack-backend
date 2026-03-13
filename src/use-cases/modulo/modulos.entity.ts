@@ -1,5 +1,5 @@
-// C:\repository\proj-full-stack-backend\src\use-cases\modulo\modulos.entity.ts
 
+// C:\repository\proj-full-stack-backend\src\use-cases\modulo\modulos.entity.ts
 import {
   Column,
   Entity,
@@ -76,3 +76,4 @@ export class ModulosEntity {
   })
   updatedAt: Date;
 }
+
