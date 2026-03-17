@@ -1,7 +1,7 @@
 
 // src/services/checkTables.ts
 import { AppDataSource } from "../config/db";
-import { systemTables } from "./tables/tables";
+import { systemTables } from "./table/tables";
 
 export interface TableCheckStep {
   table: string;

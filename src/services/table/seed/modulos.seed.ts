@@ -11,3 +11,4 @@ export const modulosSeed = [
   { name: 'Administração' },
   { name: 'Config' }
 ];
+

@@ -1,6 +1,5 @@
 
 //C:\repository\proj-full-stack-backend\src\use-cases\modulo\modulos.controller.ts
-
 import { NextFunction, Request, Response } from 'express';
 import { ModulosRepository } from './modulos.repository';
 import { ModulosCreate, ModulosUpdate } from './modulos.dto';
@@ -184,3 +183,4 @@ export class ModulosController {
     }
   }
 }
+

@@ -9,7 +9,12 @@ export const systemTables = [
   'pessoas',
   'estados',
   'cidades',
-//  'imagens',
+  'imagens',
+  'modulos',
+  'cargos', 
+  'acoes',
+  'perguntas',
+  
 
   // outras tabelas ......
 ] as const;
@@ -23,9 +28,12 @@ export const tablesWithDefaults = [
   'estados',
   'cidades',
   'imagens',
-  'niveis',
+  'modulos',
+  'cargos', 
   'acoes',
-  'modulos', 
+  'perguntas',
+  
+  
 //  'perguntas',
 //  'setores',
   // outras tabelas ......
@@ -37,6 +45,8 @@ export const tablesWithDefaults = [
  * sincronização / atualização de registros
  */
 export const tablesWithUpdates = [
+  
+
   // 'empresas',
   // 'consumidores',
   // 'clientes',

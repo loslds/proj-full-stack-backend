@@ -1,7 +1,7 @@
 // src/use-cases/start/dbRoutes.ts
 import { Router } from 'express';
 import { AppDataSource } from '../../config/db';
-import { requiredTables } from '../../services/tables/tables';
+import { requiredTables } from '../../services/table/tables';
 import { syncsysTables } from '../../../deletado/syncsysTables.ts.tts';
 
 const router = Router();

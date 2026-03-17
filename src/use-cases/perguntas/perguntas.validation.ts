@@ -1,5 +1,7 @@
+
+//C:\repository\proj-full-stack-backend\src\use-cases\perguntas\perguntas.validation.ts
 import { zodBodyValidation } from '../../helpers/zod-validation';
 import { perguntasCreateSchema, perguntasUpdateSchema } from './perguntas.dto';
 
-export const createValidation = zodBodyValidation(perguntasCreateSchema);
-export const updateValidation = zodBodyValidation(perguntasUpdateSchema);
+export const perguntasCreateValidation = zodBodyValidation(perguntasCreateSchema);
+export const perguntasUpdateValidation = zodBodyValidation(perguntasUpdateSchema);

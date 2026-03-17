@@ -50,3 +50,4 @@ export const modulosUpdateSchema = modulosCreateSchema.partial().extend({
 export type ModulosCreate = z.infer<typeof modulosCreateSchema>;
 export type ModulosUpdate = z.infer<typeof modulosUpdateSchema>;
 export type ModulosDto = DeepPartial<ModulosEntity>;
+

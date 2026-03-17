@@ -6,3 +6,4 @@ import { modulosCreateSchema, modulosUpdateSchema } from './modulos.dto';
 
 export const modulosCreateValidation = zodBodyValidation(modulosCreateSchema);
 export const modulosUpdateValidation = zodBodyValidation(modulosUpdateSchema);
+

@@ -1,5 +1,13 @@
 
-import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
+//C:\repository\proj-full-stack-backend\src\use-cases\perguntas\perguntas.repository.ts
+import {
+  DataSource,
+  DeepPartial,
+  Repository,
+  FindOptionsWhere,
+  FindOptionsOrder
+} from 'typeorm';
+
 import { PerguntasEntity } from './perguntas.entity';
 import type { PerguntasCreate } from './perguntas.dto';
 
@@ -10,43 +18,178 @@ export class PerguntasRepository {
     this.repo = this.dataSource.getRepository(PerguntasEntity);
   }
 
-  async createPerguntas(perguntas: PerguntasCreate): Promise<PerguntasEntity> {
-    const data = this.repo.create(perguntas);
-    return this.repo.save(data);
-  }
+  // ============================================================
+  // * DUPLICIDADE *
+  // ============================================================
+  async hasDuplicated(
+    nome?: string,
+    excludeId?: number
+  ): Promise<boolean> {
+    const query = this.repo
+      .createQueryBuilder('perguntas')
+      .select(['perguntas.id']);
 
-  async updatePerguntas(perguntasId: number, perguntas: DeepPartial<PerguntasEntity>): Promise<PerguntasEntity> {
-    const data = this.repo.create({ id: perguntasId, ...perguntas });
-    return this.repo.save(data);
-  }
-
-  async deletePerguntas(perguntasId: number) {
-    return this.repo.delete(perguntasId);
-  }
-  
-  /////////////////////////////////
-  
-  // Busca todos os registros de Perguntas com condição opcional
-  async findPerguntaslAll(where?: FindOptionsWhere<PerguntasEntity>): Promise<PerguntasEntity[]> {
-    return this.repo.find({ where });
-  }
-
-  // Busca um registro de Perguntas pelo ID
-  async findPerguntasById(perguntasId: number): Promise<PerguntasEntity | null> {
-    if (!perguntasId || isNaN(perguntasId) || perguntasId <= 0) {
-      throw new Error('Invalid perguntaslId');
+    if (nome) {
+      query.andWhere('perguntas.nome = :nome', { nome });
     }
-    return this.repo.findOne({ where: { id: perguntasId } });
+
+    if (excludeId) {
+      query.andWhere('perguntas.id != :excludeId', { excludeId });
+    }
+
+    const result = await query.getOne();
+    return !!result;
   }
 
-  // Busca todos os registros de Perguntas pelo campo descperg
-  async findPerguntasAllDescrperg(descrperg: string): Promise<PerguntasEntity[]> {
-    return this.repo.find({ where: { descrperg } });
+  // ============================================================
+  // * CRUD *
+  // ============================================================
+  async findPerguntasAll(
+    where?: FindOptionsWhere<PerguntasEntity>,
+    order?: FindOptionsOrder<PerguntasEntity>
+  ): Promise<PerguntasEntity[]> {
+    return this.repo.find({ where, order });
   }
-  
-  // Busca um registro de Perguntas pelo campo mailresg
-  async findPerguntasByDescperg(descrperg: string): Promise<PerguntasEntity | null> {
-    return this.repo.findOne({ where: { descrperg } });
+
+  async createPerguntas(perguntas: PerguntasCreate): Promise<PerguntasEntity> {
+    const exists = await this.hasDuplicated(perguntas.nome);
+
+    if (exists) {
+      throw new Error(
+        `Pergunta duplicada! Já existe registro com nome "${perguntas.nome}".`
+      );
+    }
+
+    const entity = this.repo.create({
+      ...perguntas,
+      createdBy: perguntas.createdBy ?? 0,
+      updatedBy: perguntas.updatedBy ?? 0
+    });
+
+    return this.repo.save(entity);
+  }
+
+  async findPerguntasById(perguntasId: number): Promise<PerguntasEntity | null> {
+    this.validateId(perguntasId);
+
+    return this.repo.findOne({
+      where: { id: perguntasId }
+    });
+  }
+
+  async updatePerguntas(
+    perguntasId: number,
+    perguntas: DeepPartial<PerguntasEntity>
+  ): Promise<PerguntasEntity> {
+    this.validateId(perguntasId);
+
+    const current = await this.repo.findOne({
+      where: { id: perguntasId }
+    });
+
+    if (!current) {
+      throw new Error(`Pergunta com id ${perguntasId} não encontrada`);
+    }
+
+    const nome = perguntas.nome ?? current.nome;
+
+    const exists = await this.hasDuplicated(nome, perguntasId);
+
+    if (exists) {
+      throw new Error(
+        `Pergunta duplicada! Já existe registro com nome "${nome}".`
+      );
+    }
+
+    const entity = await this.repo.preload({
+      id: perguntasId,
+      ...perguntas
+    });
+
+    if (!entity) {
+      throw new Error(`Pergunta com id ${perguntasId} não encontrada`);
+    }
+
+    return this.repo.save(entity);
+  }
+
+  async deletePerguntas(perguntasId: number): Promise<void> {
+    this.validateId(perguntasId);
+
+    const found = await this.repo.findOne({
+      where: { id: perguntasId }
+    });
+
+    if (!found) {
+      throw new Error(`Pergunta com id ${perguntasId} não encontrada`);
+    }
+
+    await this.repo.remove(found);
+  }
+
+  // ============================================================
+  // * CONSULTAS PERSONALIZADAS *
+  // ============================================================
+  async searchPerguntas(params: {
+    id?: number;
+    nome?: string;
+  }): Promise<PerguntasEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('perguntas')
+      .select(['perguntas.id', 'perguntas.nome'])
+      .orderBy('perguntas.id', 'ASC');
+
+    if (params.id) {
+      query.andWhere('perguntas.id = :id', { id: params.id });
+    }
+
+    if (params.nome) {
+      query.andWhere(
+        'perguntas.nome LIKE :nome COLLATE utf8mb4_general_ci',
+        { nome: `%${params.nome}%` }
+      );
+    }
+
+    return query.getMany();
+  }
+
+  async searchNomePerguntas(text?: string): Promise<PerguntasEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('perguntas')
+      .select(['perguntas.id', 'perguntas.nome'])
+      .orderBy('perguntas.id', 'ASC')
+      .limit(100);
+
+    if (text) {
+      query.andWhere(
+        'perguntas.nome LIKE :text COLLATE utf8mb4_general_ci',
+        { text: `%${text}%` }
+      );
+    }
+
+    return query.getMany();
+  }
+
+  async findOneNomePerguntas(nome: string): Promise<PerguntasEntity | null> {
+    return this.repo.findOne({
+      where: { nome }
+    });
+  }
+
+  async findAllNomePerguntas(nome: string): Promise<PerguntasEntity[]> {
+    return this.repo.find({
+      where: { nome },
+      order: { id: 'ASC' },
+      take: 100
+    });
+  }
+
+  // ============================================================
+  // * UTIL *
+  // ============================================================
+  private validateId(id: number): void {
+    if (!id || isNaN(id) || id <= 0) {
+      throw new Error('Invalid perguntasId');
+    }
   }
 }
-

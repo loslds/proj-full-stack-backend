@@ -1,3 +1,4 @@
+
 // C:\repository\proj-full-stack-backend\src\use-cases\modulo\index.ts
 
 import { ModulosRepository } from './modulos.repository';
@@ -15,3 +16,4 @@ export const modulosConfig = {
   repoClass: ModulosRepository,
   findAll: 'findModulosAll'
 };
+

@@ -3,12 +3,12 @@ import { checkConnectionService } from './checkConectionService';
 import { checkTables } from './checkTables';
 
 // fonte única do inventário do sistema
-import { systemTables, tablesWithDefaults } from './tables/tables';
+import { systemTables, tablesWithDefaults } from './table/tables';
 
 // registry das tabelas "normais" (pessoas, estados, cidades...)
-import { tableServiceMap } from './tables';
+import { tableServiceMap } from './table';
 
-import { systablesService } from './tables/systables.service';
+import { systablesService } from './table/systables.service';
 import { systemStateService } from './systemStateService';
 
 // ==================================================
@@ -168,7 +168,7 @@ export async function initSystem(): Promise<InitResult> {
     }
 
     // ==================================================
-    // 4️⃣ RELATÓRIO DE ESTADO
+    // 4️⃣ RELATÓRIO DE TABELAS
     // ==================================================
     for (const table of checkedTables) {
       const count = tablesResult.records?.[table] ?? 0;

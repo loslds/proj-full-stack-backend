@@ -1,14 +1,19 @@
 
-// src/services/tables/modulos.service.ts
+//C:\repository\proj-full-stack-backend\src\services\table\modulos.service.ts
 
-import { AppDataSource } from '../config/db';
-import { modulosSeed } from './tables/seed/modulos.seed';
-
+import { AppDataSource } from '../../config/db';
+import { modulosSeed } from './seed/modulos.seed';
 
 type ModuloSeedRow = {
   name: string;
   createdBy?: number;
   updatedBy?: number;
+};
+
+type ModuloErroRow = {
+  index: number;
+  name: string;
+  motivo: string;
 };
 
 export const modulosService = {
@@ -26,6 +31,9 @@ export const modulosService = {
   async create(): Promise<void> {
     await this.ensureConnection();
     console.log('>>> [modulosService] create() iniciado');
+
+    const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
+    console.log('>>> [modulosService] banco atual:', currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS modulos (
@@ -66,13 +74,40 @@ export const modulosService = {
 
     const BATCH_SIZE = 50;
     const rows: Array<[string, number, number]> = [];
+    const registrosComErro: ModuloErroRow[] = [];
 
-    for (const modulo of modulosSeed as ModuloSeedRow[]) {
+    for (let index = 0; index < modulosSeed.length; index++) {
+      const modulo = modulosSeed[index] as ModuloSeedRow;
+
+      if (!modulo.name || modulo.name.trim().length < 3) {
+        const erro: ModuloErroRow = {
+          index: index + 1,
+          name: modulo.name ?? '',
+          motivo: 'name inválido'
+        };
+
+        registrosComErro.push(erro);
+
+        console.error(
+          `>>> [modulosService][ERRO] registro ${erro.index} | módulo: ${erro.name} | motivo: ${erro.motivo}`
+        );
+
+        continue;
+      }
+
       rows.push([
-        modulo.name,
+        modulo.name.trim(),
         modulo.createdBy ?? 0,
         modulo.updatedBy ?? 0
       ]);
+    }
+
+    console.log(`>>> [modulosService] registros válidos preparados: ${rows.length}`);
+    console.log(`>>> [modulosService] registros com erro: ${registrosComErro.length}`);
+
+    if (registrosComErro.length > 0) {
+      console.log('>>> [modulosService] resumo dos registros com erro:');
+      console.table(registrosComErro);
     }
 
     for (let i = 0; i < rows.length; i += BATCH_SIZE) {
@@ -117,7 +152,10 @@ export const modulosService = {
     return total;
   },
 
+  // ============================================================
+  // UPDATE
+  // ============================================================
   async update(): Promise<void> {
-    // reservado
+    // reservado para futuras atualizações
   }
 };

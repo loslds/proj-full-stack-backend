@@ -1,39 +1,55 @@
-
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Unique
+} from 'typeorm';
 
 @Entity('perguntas')
-
+@Unique(['nome'])
 export class PerguntasEntity {
-  @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
-    id: number; // O campo 'id' será autoincremento
+  @PrimaryGeneratedColumn({
+    type: 'int',
+    unsigned: true
+  })
+  id: number;
 
-    ///////////////////
-  @Column({ unique: true, type: 'varchar', length: 100, nullable: false })
-  descrperg: string;
-
-  ////////////////////
-
-  @Column({ type: 'int', nullable: true, default: null })
-  createdBy?: number;
+  /**
+   * Texto da pergunta
+   */
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: false,
+    collation: 'utf8mb4_general_ci'
+  })
+  nome: string;
 
   @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
+  createdBy: number;
+
+  @CreateDateColumn({
+    type: 'datetime'
   })
   createdAt: Date;
 
-  @Column({ type: 'int', nullable: true })
-  updatedBy?: number;
-
   @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
   })
-  updatedAt?: Date;
+  updatedBy: number;
 
+  @UpdateDateColumn({
+    type: 'datetime'
+  })
+  updatedAt: Date;
 }
-
-

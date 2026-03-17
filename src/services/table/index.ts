@@ -6,6 +6,10 @@ import { pessoasService } from './pessoas.service';
 import { estadosService } from './estados.service';
 import { cidadesService } from './cidades.service';
 import { imagensService } from "./imagens.service";
+import { modulosService } from "./modulos.service";
+import { cargosService } from './cargos.service';
+import { acoesService } from './acoes.service';
+import { perguntasService } from './perguntas.service';
 
 
 // ==================================================
@@ -17,6 +21,10 @@ export const tableServices: TableService[] = [
   estadosService,
   cidadesService,
   imagensService,
+  modulosService,
+  cargosService,
+  acoesService,
+  perguntasService,
 
   // próximos:  
 ];
