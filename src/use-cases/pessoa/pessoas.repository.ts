@@ -1,5 +1,5 @@
- // src/use-cases/pessoa/pessoas.repository.ts
-
+ 
+// src/use-cases/pessoa/pessoas.repository.ts
 import {
   DataSource,
   DeepPartial,
@@ -234,3 +234,4 @@ export class PessoasRepository {
     }
   }
 }
+

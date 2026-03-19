@@ -5,8 +5,8 @@ import { AppDataSource } from '../../config/db';
 import { PerguntasController } from './perguntas.controller';
 import { PerguntasRepository } from './perguntas.repository';
 import {
-  perguntasCreateValidation,
-  perguntasUpdateValidation
+  perguntascreateValidation,
+  perguntasupdateValidation
 } from './perguntas.validation';
 
 const perguntasRepository = new PerguntasRepository(AppDataSource);
@@ -15,17 +15,43 @@ const perguntasRoute = Router();
 
 // ==========================================================
 // ROTAS FIXAS
+// Sempre declarar antes das rotas com parâmetros dinâmicos
 // ==========================================================
 
-perguntasRoute.get('/', controller.findAllPerguntas.bind(controller));
-perguntasRoute.get('/search', controller.searchPerguntasAll.bind(controller));
-perguntasRoute.get('/search-nome', controller.searchPerguntasNome.bind(controller));
-perguntasRoute.get('/one-nome', controller.findOnePerguntasNome.bind(controller));
-perguntasRoute.get('/all-nome', controller.findAllPerguntasNome.bind(controller));
+// GET -> Lista todas as perguntas
+perguntasRoute.get(
+  '/',
+  controller.findAllPerguntas.bind(controller)
+);
 
+// GET -> Pesquisa combinada
+perguntasRoute.get(
+  '/search',
+  controller.searchPerguntasAll.bind(controller)
+);
+
+// GET -> Pesquisa por nome aproximado
+perguntasRoute.get(
+  '/search-name',
+  controller.searchPerguntasNome.bind(controller)
+);
+
+// GET -> Busca uma pergunta por nome exato
+perguntasRoute.get(
+  '/one-nome',
+  controller.findOnePerguntasNome.bind(controller)
+);
+
+// GET -> Busca todas as perguntas por nome exato
+perguntasRoute.get(
+  '/all-nome',
+  controller.findAllPerguntasNome.bind(controller)
+);
+
+// POST -> Cria nova pergunta
 perguntasRoute.post(
   '/',
-  perguntasCreateValidation,
+  perguntascreateValidation,
   controller.createNewPerguntas.bind(controller)
 );
 
@@ -33,14 +59,24 @@ perguntasRoute.post(
 // ROTAS DINÂMICAS
 // ==========================================================
 
-perguntasRoute.get('/:perguntasId', controller.getOnePerguntasId.bind(controller));
+// GET -> Busca pergunta por ID
+perguntasRoute.get(
+  '/:perguntasId',
+  controller.getOnePerguntasId.bind(controller)
+);
 
+// PATCH -> Atualiza pergunta por ID
 perguntasRoute.patch(
   '/:perguntasId',
-  perguntasUpdateValidation,
+  perguntasupdateValidation,
   controller.updateIdPerguntas.bind(controller)
 );
 
-perguntasRoute.delete('/:perguntasId', controller.removeIdPerguntas.bind(controller));
+// DELETE -> Remove pergunta por ID
+perguntasRoute.delete(
+  '/:perguntasId',
+  controller.removeIdPerguntas.bind(controller)
+);
 
 export { perguntasRoute as perguntasRoutes };
+

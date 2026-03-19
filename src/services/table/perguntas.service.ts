@@ -1,5 +1,5 @@
 
-//C:\repository\proj-full-stack-backend\src\services\table\perguntas.service.ts
+
 // C:\repository\proj-full-stack-backend\src\services\table\perguntas.service.ts
 
 import { AppDataSource } from '../../config/db';
@@ -160,3 +160,4 @@ export const perguntasService = {
     // reservado para futuras atualizações
   }
 };
+

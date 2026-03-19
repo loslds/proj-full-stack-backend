@@ -1,4 +1,5 @@
-// C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.route.ts
+
+
 // C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.route.ts
 
 import { Router } from 'express';
@@ -98,3 +99,4 @@ pessoasRoute.delete(
 );
 
 export { pessoasRoute as pessoasRoutes };
+

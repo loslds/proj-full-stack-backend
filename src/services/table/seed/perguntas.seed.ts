@@ -1,4 +1,4 @@
-
+  
 // C:\repository\proj-full-stack-backend\src\services\table\seed\perguntas.seed.ts
 export const perguntasSeed = [
   { nome: 'De que maneira você vê o "mundo" ?', createdBy: 0, updatedBy: 0 },
@@ -42,4 +42,6 @@ export const perguntasSeed = [
   { nome: 'Você se acha uma pessoa "curiosa" : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
   { nome: 'Você se acha uma pessoa "simpática" : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
 ];
+
+
 

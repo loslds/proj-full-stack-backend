@@ -3,5 +3,6 @@
 import { zodBodyValidation } from '../../helpers/zod-validation';
 import { perguntasCreateSchema, perguntasUpdateSchema } from './perguntas.dto';
 
-export const perguntasCreateValidation = zodBodyValidation(perguntasCreateSchema);
-export const perguntasUpdateValidation = zodBodyValidation(perguntasUpdateSchema);
+export const perguntascreateValidation = zodBodyValidation(perguntasCreateSchema);
+export const perguntasupdateValidation = zodBodyValidation(perguntasUpdateSchema);
+

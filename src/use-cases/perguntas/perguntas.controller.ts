@@ -26,7 +26,7 @@ export class PerguntasController {
     }
   }
 
-  /** GET → Pesquisa combinada */
+  /** GET → Pesquisa combinada por id e nome */
   async searchPerguntasAll(req: Request, res: Response, next: NextFunction) {
     try {
       const { id, nome } = req.query;
@@ -63,15 +63,15 @@ export class PerguntasController {
         throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
       }
 
-      const perguntas = await this.perguntasRepository.findOneNomePerguntas(nome);
+      const pergunta = await this.perguntasRepository.findOneNomePerguntas(nome);
 
-      return res.status(200).send({ success: true, perguntas });
+      return res.status(200).send({ success: true, pergunta });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar todas as perguntas com nome exato */
+  /** GET → Buscar todas perguntas com nome exato */
   async findAllPerguntasNome(req: Request, res: Response, next: NextFunction) {
     try {
       const nome = req.query?.nome as string;
@@ -106,12 +106,12 @@ export class PerguntasController {
       const { nome } = req.body;
 
       if (!nome) {
-        throw new HttpException(400, 'Nome da pergunta é obrigatório');
+        throw new HttpException(400, 'Nome é obrigatório');
       }
 
-      const perguntas = await this.perguntasRepository.createPerguntas(req.body);
+      const pergunta = await this.perguntasRepository.createPerguntas(req.body);
 
-      return res.status(201).send({ success: true, perguntas });
+      return res.status(201).send({ success: true, pergunta });
     } catch (error) {
       next(error);
     }
@@ -130,12 +130,12 @@ export class PerguntasController {
         throw new HttpException(400, 'ID da pergunta inválido');
       }
 
-      const perguntas = await this.perguntasRepository.updatePerguntas(
+      const pergunta = await this.perguntasRepository.updatePerguntas(
         perguntasId,
         req.body
       );
 
-      return res.status(200).send({ success: true, perguntas });
+      return res.status(200).send({ success: true, pergunta });
     } catch (error) {
       next(error);
     }
@@ -175,9 +175,9 @@ export class PerguntasController {
         throw new HttpException(400, 'ID inválido');
       }
 
-      const perguntas = await this.perguntasRepository.findPerguntasById(perguntasId);
+      const pergunta = await this.perguntasRepository.findPerguntasById(perguntasId);
 
-      return res.status(200).send({ success: true, perguntas });
+      return res.status(200).send({ success: true, pergunta });
     } catch (error) {
       next(error);
     }

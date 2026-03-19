@@ -21,6 +21,7 @@ export class PerguntasRepository {
   // ============================================================
   // * DUPLICIDADE *
   // ============================================================
+
   async hasDuplicated(
     nome?: string,
     excludeId?: number
@@ -44,6 +45,7 @@ export class PerguntasRepository {
   // ============================================================
   // * CRUD *
   // ============================================================
+
   async findPerguntasAll(
     where?: FindOptionsWhere<PerguntasEntity>,
     order?: FindOptionsOrder<PerguntasEntity>
@@ -51,19 +53,19 @@ export class PerguntasRepository {
     return this.repo.find({ where, order });
   }
 
-  async createPerguntas(perguntas: PerguntasCreate): Promise<PerguntasEntity> {
-    const exists = await this.hasDuplicated(perguntas.nome);
+  async createPerguntas(pergunta: PerguntasCreate): Promise<PerguntasEntity> {
+    const exists = await this.hasDuplicated(pergunta.nome);
 
     if (exists) {
       throw new Error(
-        `Pergunta duplicada! Já existe registro com nome "${perguntas.nome}".`
+        `Pergunta duplicada! Já existe registro com nome "${pergunta.nome}".`
       );
     }
 
     const entity = this.repo.create({
-      ...perguntas,
-      createdBy: perguntas.createdBy ?? 0,
-      updatedBy: perguntas.updatedBy ?? 0
+      ...pergunta,
+      createdBy: pergunta.createdBy ?? 0,
+      updatedBy: pergunta.updatedBy ?? 0
     });
 
     return this.repo.save(entity);
@@ -79,7 +81,7 @@ export class PerguntasRepository {
 
   async updatePerguntas(
     perguntasId: number,
-    perguntas: DeepPartial<PerguntasEntity>
+    pergunta: DeepPartial<PerguntasEntity>
   ): Promise<PerguntasEntity> {
     this.validateId(perguntasId);
 
@@ -91,7 +93,7 @@ export class PerguntasRepository {
       throw new Error(`Pergunta com id ${perguntasId} não encontrada`);
     }
 
-    const nome = perguntas.nome ?? current.nome;
+    const nome = pergunta.nome ?? current.nome;
 
     const exists = await this.hasDuplicated(nome, perguntasId);
 
@@ -103,7 +105,7 @@ export class PerguntasRepository {
 
     const entity = await this.repo.preload({
       id: perguntasId,
-      ...perguntas
+      ...pergunta
     });
 
     if (!entity) {
@@ -130,6 +132,7 @@ export class PerguntasRepository {
   // ============================================================
   // * CONSULTAS PERSONALIZADAS *
   // ============================================================
+
   async searchPerguntas(params: {
     id?: number;
     nome?: string;
@@ -144,10 +147,9 @@ export class PerguntasRepository {
     }
 
     if (params.nome) {
-      query.andWhere(
-        'perguntas.nome LIKE :nome COLLATE utf8mb4_general_ci',
-        { nome: `%${params.nome}%` }
-      );
+      query.andWhere('perguntas.nome LIKE :nome COLLATE utf8mb4_general_ci', {
+        nome: `%${params.nome}%`
+      });
     }
 
     return query.getMany();
@@ -161,19 +163,16 @@ export class PerguntasRepository {
       .limit(100);
 
     if (text) {
-      query.andWhere(
-        'perguntas.nome LIKE :text COLLATE utf8mb4_general_ci',
-        { text: `%${text}%` }
-      );
+      query.andWhere('perguntas.nome LIKE :text COLLATE utf8mb4_general_ci', {
+        text: `%${text}%`
+      });
     }
 
     return query.getMany();
   }
 
   async findOneNomePerguntas(nome: string): Promise<PerguntasEntity | null> {
-    return this.repo.findOne({
-      where: { nome }
-    });
+    return this.repo.findOne({ where: { nome } });
   }
 
   async findAllNomePerguntas(nome: string): Promise<PerguntasEntity[]> {
@@ -187,9 +186,11 @@ export class PerguntasRepository {
   // ============================================================
   // * UTIL *
   // ============================================================
+
   private validateId(id: number): void {
     if (!id || isNaN(id) || id <= 0) {
       throw new Error('Invalid perguntasId');
     }
   }
 }
+

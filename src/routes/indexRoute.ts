@@ -6,7 +6,6 @@ import { Router } from "express";
 
 import { systemRoutes } from "./systemRoutes";
 import { authRoute } from "../use-cases/auth";
-
 import { pessoasRoutes } from "../use-cases/pessoa";
 import { estadosRoutes } from "../use-cases/estado";
 import { cidadesRoutes } from "../use-cases/cidade";

@@ -1,5 +1,5 @@
- // C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.dto.ts
-
+ 
+// C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.dto.ts
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
 import { PessoasEntity } from './pessoas.entity';
@@ -56,3 +56,4 @@ export const pessoasUpdateSchema = pessoasCreateSchema
 export type PessoasCreate = z.infer<typeof pessoasCreateSchema>;
 export type PessoasUpdate = z.infer<typeof pessoasUpdateSchema>;
 export type PessoasDto = DeepPartial<PessoasEntity>;
+

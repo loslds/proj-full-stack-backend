@@ -1,3 +1,4 @@
+
 // src/services/tables/pessoas.service.ts
 import { AppDataSource } from '../../config/db';
 import { pessoasSeed } from './seed/pessoas.seed';
@@ -78,3 +79,4 @@ export const pessoasService = {
     // reservado
   },
 };
+

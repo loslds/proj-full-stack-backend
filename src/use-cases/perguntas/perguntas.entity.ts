@@ -1,11 +1,6 @@
-import {
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Unique
-} from 'typeorm';
+
+//C:\repository\proj-full-stack-backend\src\use-cases\pergunta\perguntas.entity.ts
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity('perguntas')
 @Unique(['nome'])
@@ -16,9 +11,6 @@ export class PerguntasEntity {
   })
   id: number;
 
-  /**
-   * Texto da pergunta
-   */
   @Column({
     type: 'varchar',
     length: 255,
@@ -35,21 +27,27 @@ export class PerguntasEntity {
   })
   createdBy: number;
 
-  @CreateDateColumn({
-    type: 'datetime'
+  @Column({
+    type: 'datetime',
+    nullable: true,
+    default: () => 'CURRENT_TIMESTAMP'
   })
   createdAt: Date;
 
   @Column({
     type: 'int',
     unsigned: true,
-    nullable: false,
+    nullable: true,
     default: 0
   })
   updatedBy: number;
 
-  @UpdateDateColumn({
-    type: 'datetime'
+  @Column({
+    type: 'datetime',
+    nullable: true,
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP'
   })
   updatedAt: Date;
 }
+
