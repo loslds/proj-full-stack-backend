@@ -1,59 +1,67 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\consumidor\consumidores.entity.ts
 
+//C:\repository\proj-full-stack-backend\src\use-cases\consumidor\consumidores.entiti.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\consumidor\consumidor.entity.ts
 import {
+  Column,
   Entity,
   PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  Unique
+  ManyToOne,
+  JoinColumn,
+  Index
 } from 'typeorm';
 
 import { PessoasEntity } from '../pessoa/pessoas.entity';
-import { ImagensEntity } from '../imagen/imagens.entity';
+import { EmpresasEntity } from '../empresa/empresas.entity';
 
 @Entity('consumidores')
-@Unique(['nome']) // garante que não tenha dois iguais
-
+@Index('idx_consumidor_nome', ['nome'])
+@Index('idx_consumidor_fantasy', ['fantasy'])
+@Index('idx_consumidor_id_pessoas', ['id_pessoas'])
+@Index('idx_consumidor_id_empresas', ['id_empresas'])
+@Index('idx_consumidor_nome_fantasy_id_pessoas_id_empresas', [
+  'nome',
+  'fantasy',
+  'id_pessoas',
+  'id_empresas'
+])
 export class ConsumidoresEntity {
-  
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
   id: number;
 
-   // 🔹 Campo para armazenar o id da tabela
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
+  id_empresas: number;
+
+  @ManyToOne(() => EmpresasEntity, { nullable: false })
+  @JoinColumn({ name: 'id_empresas' })
+  empresas: EmpresasEntity;
+
+  @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
   id_pessoas: number;
-  // 🔹 Relacionamento com Pessoas
-  @ManyToOne(() => PessoasEntity)
+
+  @ManyToOne(() => PessoasEntity, { nullable: false })
   @JoinColumn({ name: 'id_pessoas' })
   pessoas: PessoasEntity;
 
-  // 🔹 Campo para armazenar o id da imagem
-  @Column({ type: 'int', nullable: false })
-  id_imagens: number;
-
-  // 🔹 Relacionamento com Imagens
-  @ManyToOne(() => ImagensEntity)
-  @JoinColumn({ name: 'id_imagens' })
-  imagens: ImagensEntity;
-
-  @Column({ type: 'varchar', length: 60, nullable: false })
+  @Column({ type: 'varchar', length: 60, nullable: false, collation: 'utf8mb4_general_ci' })
   nome: string;
 
-  @Column({ type: 'varchar', length: 60, nullable: false })
+  @Column({ type: 'varchar', length: 60, nullable: false, collation: 'utf8mb4_general_ci' })
   fantasy: string;
 
-  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
-  createdBy?: number;
+  @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
+  createdBy: number;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({ type: 'datetime' })
   createdAt: Date;
 
-  @Column({ type: 'int', nullable: true, unsigned: true, default: null })
-  updatedBy?: number;
+  @Column({ type: 'int', unsigned: true, nullable: false, default: 0 })
+  updatedBy: number;
 
-  @UpdateDateColumn({ type: 'timestamp' })
+  @UpdateDateColumn({ type: 'datetime' })
   updatedAt: Date;
 }
+
+
+

@@ -22,20 +22,26 @@ export const systemTables = [
 /*////////////////////////////////////////////
  * Tabelas que exigem inserção de dados padrão
  * após a criação
- *///////////////////////////////////////////
+ */////////////////////////////////////////// *** CONCLUIDO
 export const tablesWithDefaults = [
-  'pessoas',
-  'estados',
-  'cidades',
-  'imagens',
-  'modulos',
-  'cargos', 
-  'acoes',
-  'perguntas',
+  'pessoas',         // *** CONCLUIDO
+  'estados',         // *** CONCLUIDO
+  'cidades',         // *** CONCLUIDO
+  'imagens',         // *** CONCLUIDO
+  'modulos',         // *** CONCLUIDO
+  'cargos',          // *** CONCLUIDO
+  'acoes',           // *** CONCLUIDO
+  'perguntas',       // *** CONCLUIDO
   
-  
-//  'perguntas',
-//  'setores',
+  'empresas',
+  'visitantes',
+  'visitas',
+  'consumidores',  
+  'clientes',
+  'fornecedores',
+  'funcionarios',
+  'cadastros',
+
   // outras tabelas ......
 
 ] as const;

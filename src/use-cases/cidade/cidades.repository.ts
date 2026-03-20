@@ -1,5 +1,6 @@
-// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.repository.ts
 
+
+// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.repository.ts
 import {
   DataSource,
   DeepPartial,
@@ -220,3 +221,5 @@ export class CidadesRepository {
     });
   }
 }
+
+

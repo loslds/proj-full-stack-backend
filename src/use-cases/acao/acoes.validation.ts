@@ -3,5 +3,5 @@
 import { zodBodyValidation } from '../../helpers/zod-validation';
 import { acoesCreateSchema, acoesUpdateSchema } from './acoes.dto';
 
-export const acoesCreateValidation = zodBodyValidation(acoesCreateSchema);
-export const acoesUpdateValidation = zodBodyValidation(acoesUpdateSchema);
+export const acoescreateValidation = zodBodyValidation(acoesCreateSchema);
+export const acoesupdateValidation = zodBodyValidation(acoesUpdateSchema);

@@ -1,5 +1,6 @@
-// C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.repository.ts
 
+  
+// C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.repository.ts
 import {
   DataSource,
   DeepPartial,
@@ -236,3 +237,4 @@ export class EstadosRepository {
     }
   }
 }
+

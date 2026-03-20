@@ -1,6 +1,13 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\consumidor\consumidores.repository.ts
 
-import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
+//C:\repository\proj-full-stack-backend\src\use-cases\fornecedor\fornecedores.reposytory.ts
+import {
+  DataSource,
+  DeepPartial,
+  FindOptionsWhere,
+  FindOptionsOrder,
+  Repository
+} from 'typeorm';
+
 import { FornecedoresEntity } from './fornecedores.entity';
 import type { FornecedoresCreate } from './fornecedores.dto';
 
@@ -11,178 +18,360 @@ export class FornecedoresRepository {
     this.repo = this.dataSource.getRepository(FornecedoresEntity);
   }
 
-  // Criação da tabela (raw query) - manter FK
-  async createNotExistsFornecedores(): Promise<void> {
-    await this.dataSource.query(`
-      CREATE TABLE IF NOT EXISTS fornecedores (
-        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        id_pessoas INT UNSIGNED NOT NULL,
-        id_imagens INT UNSIGNED NOT NULL,
-        nome VARCHAR(60) NOT NULL,
-        fantasy VARCHAR(60) NOT NULL,
-        createdBy INT DEFAULT NULL,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updatedBy INT DEFAULT NULL,
-        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        CONSTRAINT fk_pessoas FOREIGN KEY (id_pessoas) REFERENCES pessoas(id),
-        CONSTRAINT fk_imagens FOREIGN KEY (id_imagens) REFERENCES imagens(id)
-      )
-    `);
-  }
-
-  // Verifica duplicidade por nome/fantasy e id_pessoas
+  // ==========================================================
+  // DUPLICIDADE
+  // ==========================================================
   async hasDuplicated(
     nome?: string,
     fantasy?: string,
     id_pessoas?: number,
+    id_empresas?: number,
     excludes: number[] = []
-  ) {
+  ): Promise<FornecedoresEntity | null> {
     const query = this.repo.createQueryBuilder('fornecedores');
 
     if (nome) {
       query.andWhere('fornecedores.nome = :nome', { nome });
     }
+
     if (fantasy) {
       query.andWhere('fornecedores.fantasy = :fantasy', { fantasy });
     }
-    if (id_pessoas) {
-      query.andWhere('fornecedores.id_pessoa = :id_pessoa', { id_pessoas });
+
+    if (typeof id_pessoas === 'number') {
+      query.andWhere('fornecedores.id_pessoas = :id_pessoas', { id_pessoas });
     }
 
-    if (excludes.length) {
+    if (typeof id_empresas === 'number') {
+      query.andWhere('fornecedores.id_empresas = :id_empresas', { id_empresas });
+    }
+
+    if (excludes.length > 0) {
       query.andWhere('fornecedores.id NOT IN (:...excludes)', { excludes });
     }
 
     return query.getOne();
   }
-  
 
-  // Cria registro 1
-  async createFornecedores(fornecedores: FornecedoresCreate): Promise<FornecedoresEntity> {
-    // Verifica duplicidade apenas pelos campos da chave lógica
+  // ==========================================================
+  // CREATE
+  // ==========================================================
+  async createFornecedores(
+    fornecedores: FornecedoresCreate
+  ): Promise<FornecedoresEntity> {
     const duplicated = await this.hasDuplicated(
       fornecedores.nome,
       fornecedores.fantasy,
-      fornecedores.id_pessoas
+      fornecedores.id_pessoas,
+      fornecedores.id_empresas
     );
 
     if (duplicated) {
-      throw new Error('Fornecedor duplicada! Nome, Fantasia e Pessoa já existentes.');
+      throw new Error(
+        'Fornecedor duplicado! Nome, fantasy, pessoa e empresa já existentes.'
+      );
     }
 
-    // Cria e salva a entidade incluindo id_imagens se fornecido
-    const data = this.repo.create(fornecedores);
+    const data = this.repo.create({
+      ...fornecedores,
+      id_pessoas: fornecedores.id_pessoas ?? 0,
+      id_empresas: fornecedores.id_empresas ?? 0,
+      createdBy: fornecedores.createdBy ?? 0,
+      updatedBy: fornecedores.updatedBy ?? 0
+    });
+
     return this.repo.save(data);
   }
-  
-  // 2 Atualiza registro com validação de duplicidade
+
+  // ==========================================================
+  // UPDATE
+  // ==========================================================
   async updateFornecedoresId(
     fornecedoresId: number,
     fornecedores: DeepPartial<FornecedoresEntity>
-    ): Promise<FornecedoresEntity> {
-    // Verifica duplicidade
-    const duplicated = await this.repo.createQueryBuilder('fornecedores')
-      .where('fornecedores.nome = :nome', { nome: fornecedores.nome })
-      .andWhere('fornecedores.fantasy = :fantasy', { fantasy: fornecedores.fantasy })
-      .andWhere('fornecedores.id_pessoas = :id_pessoas', { id_pessoas: fornecedores.id_pessoas })
-      .andWhere('fornecedores.id != :id', { id: fornecedoresId }) // ignora o próprio registro
-      .getOne();
+  ): Promise<FornecedoresEntity> {
+    const current = await this.repo.findOne({
+      where: { id: fornecedoresId }
+    });
 
-    if (duplicated) {
-      throw new Error('Fornecedor duplicado! Nome ou Fantasia já existentes.');
+    if (!current) {
+      throw new Error(`Fornecedor com ID ${fornecedoresId} não encontrado.`);
     }
 
-    // Se passou pela validação, segue o update
-    const data = this.repo.create({ id: fornecedoresId, ...fornecedores });
+    const duplicated = await this.hasDuplicated(
+      fornecedores.nome ?? current.nome,
+      fornecedores.fantasy ?? current.fantasy,
+      fornecedores.id_pessoas ?? current.id_pessoas,
+      fornecedores.id_empresas ?? current.id_empresas,
+      [fornecedoresId]
+    );
+
+    if (duplicated) {
+      throw new Error(
+        'Fornecedor duplicado! Nome, fantasy, pessoa e empresa já existentes.'
+      );
+    }
+
+    const data = this.repo.create({
+      ...current,
+      ...fornecedores,
+      id: fornecedoresId
+    });
+
     return this.repo.save(data);
   }
 
-
-  // 3 Deleta registro 
-  async deleteFornecedoresId(fornecedoresId: number) {
+  // ==========================================================
+  // DELETE
+  // ==========================================================
+  async deleteFornecedoresId(fornecedoresId: number): Promise<boolean> {
     const result = await this.repo.delete(fornecedoresId);
+
     if (result.affected === 0) {
-      throw new Error(`Fornecdor com ID ${fornecedoresId} não encontrada.`);
+      throw new Error(`Fornecedor com ID ${fornecedoresId} não encontrado.`);
     }
+
     return true;
   }
 
-  // 4 Busca por ID  
-  async findOneFornecedoresById(fornecedoresId: number) {
+  // ==========================================================
+  // BUSCA POR ID
+  // ==========================================================
+  async findOneFornecedoresById(
+    fornecedoresId: number
+  ): Promise<FornecedoresEntity | null> {
     return this.repo.findOne({
       where: { id: fornecedoresId },
-      relations: ['pessoas', 'imagens'],
+      relations: {
+        pessoas: true,
+        empresas: true
+      }
     });
   }
 
-  // 4 Busca todos registros com filtro opcional 
+  // ==========================================================
+  // LISTA TODOS
+  // ==========================================================
   async findFornecedoresAll(
-    where?: FindOptionsWhere<FornecedoresEntity>,
-    orderBy: Record<string, "ASC" | "DESC"> = { id: "ASC" }
+    where?: FindOptionsWhere<FornecedoresEntity> | FindOptionsWhere<FornecedoresEntity>[],
+    orderBy: FindOptionsOrder<FornecedoresEntity> = { id: 'ASC' }
   ): Promise<FornecedoresEntity[]> {
     return this.repo.find({
       where,
-      relations: ['pessoas', 'imagens'],
-      order: orderBy,
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: orderBy
     });
   }
 
-  // Busca por nome 6
-  async findOneFornecedoresByNome(nome: string) {
+  // ==========================================================
+  // BUSCA EXATA POR NOME
+  // ==========================================================
+  async findOneFornecedoresByNome(
+    nome: string
+  ): Promise<FornecedoresEntity | null> {
     return this.repo.findOne({
       where: { nome },
-      relations: ['pessoas', 'imagens'],
+      relations: {
+        pessoas: true,
+        empresas: true
+      }
     });
   }
 
+  // ==========================================================
+  // BUSCA TODOS POR NOME EXATO
+  // ==========================================================
+  async findAllFornecedoresByNome(nome: string): Promise<FornecedoresEntity[]> {
+    return this.repo.find({
+      where: { nome },
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: { id: 'ASC' }
+    });
+  }
 
-  // Busca por fantasy 7
-  async findOneFornecedoresByFantasy(fantasy: string) {
+  // ==========================================================
+  // BUSCA EXATA POR FANTASY
+  // ==========================================================
+  async findOneFornecedoresByFantasy(
+    fantasy: string
+  ): Promise<FornecedoresEntity | null> {
     return this.repo.findOne({
       where: { fantasy },
-      relations: ['pessoas', 'imagens'],
+      relations: {
+        pessoas: true,
+        empresas: true
+      }
     });
   }
 
+  // ==========================================================
+  // BUSCA TODOS POR FANTASY EXATO
+  // ==========================================================
+  async findAllFornecedoresByFantasy(
+    fantasy: string
+  ): Promise<FornecedoresEntity[]> {
+    return this.repo.find({
+      where: { fantasy },
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: { id: 'ASC' }
+    });
+  }
 
-  // 8 Pesquisa empresas por ID, nome ou fantasy 
-  async searchFornecedores(params: { id?: number; nome?: string; fantasy?: string }) {
-    const query = this.repo.createQueryBuilder('fornecedores')
+  // ==========================================================
+  // BUSCA PARCIAL POR NOME
+  // ==========================================================
+  async searchNameParcialFornecedores(
+    txt?: string
+  ): Promise<FornecedoresEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('fornecedores')
       .leftJoinAndSelect('fornecedores.pessoas', 'pessoas')
-      .leftJoinAndSelect('fornecedores.imagens', 'imagens')
-      .orderBy('fornecedores.id', 'ASC');
+      .leftJoinAndSelect('fornecedores.empresas', 'empresas')
+      .orderBy('fornecedores.nome', 'ASC');
 
-    if (params.id) query.andWhere('fornecedores.id = :id', { id: params.id });
-    if (params.nome) query.andWhere('fornecedores.nome LIKE :nome', { nome: `%${params.nome}%` });
-    if (params.fantasy) query.andWhere('fornecedores.fantasy LIKE :fantasy', { fantasy: `%${params.fantasy}%` });
+    if (txt && txt.trim() !== '') {
+      query.andWhere(
+        'fornecedores.nome LIKE :txt COLLATE utf8mb4_general_ci',
+        { txt: `%${txt}%` }
+      );
+    }
 
     return query.getMany();
   }
 
-  // 9
-  async findAllFornecedoresByPessoasId(pessoasId: number) {
-    return this.repo.find({ where: { id_pessoas: pessoasId } });
+  // ==========================================================
+  // BUSCA PARCIAL POR FANTASY
+  // ==========================================================
+  async searchFantasyParcialFornecedores(
+    txt?: string
+  ): Promise<FornecedoresEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('fornecedores')
+      .leftJoinAndSelect('fornecedores.pessoas', 'pessoas')
+      .leftJoinAndSelect('fornecedores.empresas', 'empresas')
+      .orderBy('fornecedores.fantasy', 'ASC');
+
+    if (txt && txt.trim() !== '') {
+      query.andWhere(
+        'fornecedores.fantasy LIKE :txt COLLATE utf8mb4_general_ci',
+        { txt: `%${txt}%` }
+      );
+    }
+
+    return query.getMany();
   }
 
-  // 10
-  async findAllFornecedoresByImagensId(imagensId: number) {
-    return this.repo.find({ where: { id_imagens: imagensId } });
+  // ==========================================================
+  // PESQUISA GERAL
+  // ==========================================================
+  async searchFornecedores(params: {
+    id?: number;
+    nome?: string;
+    fantasy?: string;
+    id_pessoas?: number;
+    id_empresas?: number;
+  }): Promise<FornecedoresEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('fornecedores')
+      .leftJoinAndSelect('fornecedores.pessoas', 'pessoas')
+      .leftJoinAndSelect('fornecedores.empresas', 'empresas')
+      .orderBy('fornecedores.id', 'ASC');
+
+    if (params.id) {
+      query.andWhere('fornecedores.id = :id', { id: params.id });
+    }
+
+    if (params.nome) {
+      query.andWhere(
+        'fornecedores.nome LIKE :nome COLLATE utf8mb4_general_ci',
+        { nome: `%${params.nome}%` }
+      );
+    }
+
+    if (params.fantasy) {
+      query.andWhere(
+        'fornecedores.fantasy LIKE :fantasy COLLATE utf8mb4_general_ci',
+        { fantasy: `%${params.fantasy}%` }
+      );
+    }
+
+    if (typeof params.id_pessoas === 'number') {
+      query.andWhere('fornecedores.id_pessoas = :id_pessoas', {
+        id_pessoas: params.id_pessoas
+      });
+    }
+
+    if (typeof params.id_empresas === 'number') {
+      query.andWhere('fornecedores.id_empresas = :id_empresas', {
+        id_empresas: params.id_empresas
+      });
+    }
+
+    return query.getMany();
   }
 
-  /** 11 Lista todas consumidores com pessoa + imagem  13*/
-  async listAllFornecedoresDetails() {
+  // ==========================================================
+  // LISTA POR ID_PESSOAS
+  // ==========================================================
+  async findAllFornecedoresByPessoasId(
+    pessoasId: number
+  ): Promise<FornecedoresEntity[]> {
+    return this.repo.find({
+      where: { id_pessoas: pessoasId },
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: { id: 'ASC' }
+    });
+  }
+
+  // ==========================================================
+  // LISTA POR ID_EMPRESAS
+  // ==========================================================
+  async findAllFornecedoresByEmpresasId(
+    empresasId: number
+  ): Promise<FornecedoresEntity[]> {
+    return this.repo.find({
+      where: { id_empresas: empresasId },
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: { id: 'ASC' }
+    });
+  }
+
+  // ==========================================================
+  // LISTA DETALHADA
+  // ==========================================================
+  async listAllFornecedoresDetails(): Promise<FornecedoresEntity[]> {
     return this.repo
       .createQueryBuilder('fornecedores')
       .leftJoinAndSelect('fornecedores.pessoas', 'pessoas')
-      .leftJoinAndSelect('fornecedores.imagens', 'imagens')
+      .leftJoinAndSelect('fornecedores.empresas', 'empresas')
+      .orderBy('fornecedores.id', 'ASC')
       .getMany();
   }
 
+  // ============================================================
+  // UTIL
+  // ============================================================
+  private validateId(id: number): void {
+    if (!id || isNaN(id) || id <= 0) {
+      throw new Error('Invalid fornecedoresId');
+    }
+  }
 }
 
-
-
-
-  
 
 

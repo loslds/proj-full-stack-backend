@@ -1,5 +1,5 @@
-
-//C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.reposytory.ts
+  
+// C:\repository\proj-full-stack-backend\src\use-cases\visitante\visitantes.repository.ts
 import {
   DataSource,
   DeepPartial,
@@ -8,14 +8,14 @@ import {
   Repository
 } from 'typeorm';
 
-import { FuncionariosEntity } from './funcionarios.entity';
-import type { FuncionariosCreate } from './funcionarios.dto';
+import { VisitantesEntity } from './visitantes.entity';
+import type { VisitantesCreate } from './visitantes.dto';
 
-export class FuncionariosRepository {
-  private repo: Repository<FuncionariosEntity>;
+export class VisitantesRepository {
+  private repo: Repository<VisitantesEntity>;
 
   constructor(private readonly dataSource: DataSource) {
-    this.repo = this.dataSource.getRepository(FuncionariosEntity);
+    this.repo = this.dataSource.getRepository(VisitantesEntity);
   }
 
   // ==========================================================
@@ -27,27 +27,27 @@ export class FuncionariosRepository {
     id_pessoas?: number,
     id_empresas?: number,
     excludes: number[] = []
-  ): Promise<FuncionariosEntity | null> {
-    const query = this.repo.createQueryBuilder('funcionarios');
+  ): Promise<VisitantesEntity | null> {
+    const query = this.repo.createQueryBuilder('visitantes');
 
     if (nome) {
-      query.andWhere('funcionarios.nome = :nome', { nome });
+      query.andWhere('visitantes.nome = :nome', { nome });
     }
 
     if (fantasy) {
-      query.andWhere('funcionarios.fantasy = :fantasy', { fantasy });
+      query.andWhere('visitantes.fantasy = :fantasy', { fantasy });
     }
 
     if (typeof id_pessoas === 'number') {
-      query.andWhere('funcionarios.id_pessoas = :id_pessoas', { id_pessoas });
+      query.andWhere('visitantes.id_pessoas = :id_pessoas', { id_pessoas });
     }
 
     if (typeof id_empresas === 'number') {
-      query.andWhere('funcionarios.id_empresas = :id_empresas', { id_empresas });
+      query.andWhere('visitantes.id_empresas = :id_empresas', { id_empresas });
     }
 
     if (excludes.length > 0) {
-      query.andWhere('funcionarios.id NOT IN (:...excludes)', { excludes });
+      query.andWhere('visitantes.id NOT IN (:...excludes)', { excludes });
     }
 
     return query.getOne();
@@ -56,28 +56,28 @@ export class FuncionariosRepository {
   // ==========================================================
   // CREATE
   // ==========================================================
-  async createFuncionarios(
-    funcionarios: FuncionariosCreate
-  ): Promise<FuncionariosEntity> {
+  async createVisitantes(
+    visitantes: VisitantesCreate
+  ): Promise<VisitantesEntity> {
     const duplicated = await this.hasDuplicated(
-      funcionarios.nome,
-      funcionarios.fantasy,
-      funcionarios.id_pessoas,
-      funcionarios.id_empresas
+      visitantes.nome,
+      visitantes.fantasy,
+      visitantes.id_pessoas,
+      visitantes.id_empresas
     );
 
     if (duplicated) {
       throw new Error(
-        'Funcionário duplicado! Nome, fantasy, pessoa e empresa já existentes.'
+        'Visitante duplicado! Nome, fantasy, pessoa e empresa já existentes.'
       );
     }
 
     const data = this.repo.create({
-      ...funcionarios,
-      id_pessoas: funcionarios.id_pessoas ?? 0,
-      id_empresas: funcionarios.id_empresas ?? 0,
-      createdBy: funcionarios.createdBy ?? 0,
-      updatedBy: funcionarios.updatedBy ?? 0
+      ...visitantes,
+      id_pessoas: visitantes.id_pessoas ?? 0,
+      id_empresas: visitantes.id_empresas ?? 0,
+      createdBy: visitantes.createdBy ?? 0,
+      updatedBy: visitantes.updatedBy ?? 0
     });
 
     return this.repo.save(data);
@@ -86,36 +86,36 @@ export class FuncionariosRepository {
   // ==========================================================
   // UPDATE
   // ==========================================================
-  async updateFuncionariosId(
-    funcionariosId: number,
-    funcionarios: DeepPartial<FuncionariosEntity>
-  ): Promise<FuncionariosEntity> {
+  async updateVisitantesId(
+    visitantesId: number,
+    visitantes: DeepPartial<VisitantesEntity>
+  ): Promise<VisitantesEntity> {
     const current = await this.repo.findOne({
-      where: { id: funcionariosId }
+      where: { id: visitantesId }
     });
 
     if (!current) {
-      throw new Error(`Funcionário com ID ${funcionariosId} não encontrado.`);
+      throw new Error(`Visitante com ID ${visitantesId} não encontrado.`);
     }
 
     const duplicated = await this.hasDuplicated(
-      funcionarios.nome ?? current.nome,
-      funcionarios.fantasy ?? current.fantasy,
-      funcionarios.id_pessoas ?? current.id_pessoas,
-      funcionarios.id_empresas ?? current.id_empresas,
-      [funcionariosId]
+      visitantes.nome ?? current.nome,
+      visitantes.fantasy ?? current.fantasy,
+      visitantes.id_pessoas ?? current.id_pessoas,
+      visitantes.id_empresas ?? current.id_empresas,
+      [visitantesId]
     );
 
     if (duplicated) {
       throw new Error(
-        'Funcionário duplicado! Nome, fantasy, pessoa e empresa já existentes.'
+        'Visitante duplicado! Nome, fantasy, pessoa e empresa já existentes.'
       );
     }
 
     const data = this.repo.create({
       ...current,
-      ...funcionarios,
-      id: funcionariosId
+      ...visitantes,
+      id: visitantesId
     });
 
     return this.repo.save(data);
@@ -124,11 +124,11 @@ export class FuncionariosRepository {
   // ==========================================================
   // DELETE
   // ==========================================================
-  async deleteFuncionariosId(funcionariosId: number): Promise<boolean> {
-    const result = await this.repo.delete(funcionariosId);
+  async deleteVisitantesId(visitantesId: number): Promise<boolean> {
+    const result = await this.repo.delete(visitantesId);
 
     if (result.affected === 0) {
-      throw new Error(`Funcionário com ID ${funcionariosId} não encontrado.`);
+      throw new Error(`Visitante com ID ${visitantesId} não encontrado.`);
     }
 
     return true;
@@ -137,11 +137,11 @@ export class FuncionariosRepository {
   // ==========================================================
   // BUSCA POR ID
   // ==========================================================
-  async findOneFuncionariosById(
-    funcionariosId: number
-  ): Promise<FuncionariosEntity | null> {
+  async findOneVisitantesById(
+    visitantesId: number
+  ): Promise<VisitantesEntity | null> {
     return this.repo.findOne({
-      where: { id: funcionariosId },
+      where: { id: visitantesId },
       relations: {
         pessoas: true,
         empresas: true
@@ -152,10 +152,10 @@ export class FuncionariosRepository {
   // ==========================================================
   // LISTA TODOS
   // ==========================================================
-  async findFuncionariosAll(
-    where?: FindOptionsWhere<FuncionariosEntity> | FindOptionsWhere<FuncionariosEntity>[],
-    orderBy: FindOptionsOrder<FuncionariosEntity> = { id: 'ASC' }
-  ): Promise<FuncionariosEntity[]> {
+  async findVisitantesAll(
+    where?: FindOptionsWhere<VisitantesEntity> | FindOptionsWhere<VisitantesEntity>[],
+    orderBy: FindOptionsOrder<VisitantesEntity> = { id: 'ASC' }
+  ): Promise<VisitantesEntity[]> {
     return this.repo.find({
       where,
       relations: {
@@ -169,9 +169,9 @@ export class FuncionariosRepository {
   // ==========================================================
   // BUSCA EXATA POR NOME
   // ==========================================================
-  async findOneFuncionariosByNome(
+  async findOneVisitantesByNome(
     nome: string
-  ): Promise<FuncionariosEntity | null> {
+  ): Promise<VisitantesEntity | null> {
     return this.repo.findOne({
       where: { nome },
       relations: {
@@ -184,7 +184,7 @@ export class FuncionariosRepository {
   // ==========================================================
   // BUSCA TODOS POR NOME EXATO
   // ==========================================================
-  async findAllFuncionariosByNome(nome: string): Promise<FuncionariosEntity[]> {
+  async findAllVisitantesByNome(nome: string): Promise<VisitantesEntity[]> {
     return this.repo.find({
       where: { nome },
       relations: {
@@ -198,9 +198,9 @@ export class FuncionariosRepository {
   // ==========================================================
   // BUSCA EXATA POR FANTASY
   // ==========================================================
-  async findOneFuncionariosByFantasy(
+  async findOneVisitantesByFantasy(
     fantasy: string
-  ): Promise<FuncionariosEntity | null> {
+  ): Promise<VisitantesEntity | null> {
     return this.repo.findOne({
       where: { fantasy },
       relations: {
@@ -213,9 +213,9 @@ export class FuncionariosRepository {
   // ==========================================================
   // BUSCA TODOS POR FANTASY EXATO
   // ==========================================================
-  async findAllFuncionariosByFantasy(
+  async findAllVisitantesByFantasy(
     fantasy: string
-  ): Promise<FuncionariosEntity[]> {
+  ): Promise<VisitantesEntity[]> {
     return this.repo.find({
       where: { fantasy },
       relations: {
@@ -229,18 +229,18 @@ export class FuncionariosRepository {
   // ==========================================================
   // BUSCA PARCIAL POR NOME
   // ==========================================================
-  async searchNameParcialFuncionarios(
+  async searchNameParcialVisitantes(
     txt?: string
-  ): Promise<FuncionariosEntity[]> {
+  ): Promise<VisitantesEntity[]> {
     const query = this.repo
-      .createQueryBuilder('funcionarios')
-      .leftJoinAndSelect('funcionarios.pessoas', 'pessoas')
-      .leftJoinAndSelect('funcionarios.empresas', 'empresas')
-      .orderBy('funcionarios.nome', 'ASC');
+      .createQueryBuilder('visitantes')
+      .leftJoinAndSelect('visitantes.pessoas', 'pessoas')
+      .leftJoinAndSelect('visitantes.empresas', 'empresas')
+      .orderBy('visitantes.nome', 'ASC');
 
     if (txt && txt.trim() !== '') {
       query.andWhere(
-        'funcionarios.nome LIKE :txt COLLATE utf8mb4_general_ci',
+        'visitantes.nome LIKE :txt COLLATE utf8mb4_general_ci',
         { txt: `%${txt}%` }
       );
     }
@@ -251,18 +251,18 @@ export class FuncionariosRepository {
   // ==========================================================
   // BUSCA PARCIAL POR FANTASY
   // ==========================================================
-  async searchFantasyParcialFuncionarios(
+  async searchFantasyParcialVisitantes(
     txt?: string
-  ): Promise<FuncionariosEntity[]> {
+  ): Promise<VisitantesEntity[]> {
     const query = this.repo
-      .createQueryBuilder('funcionarios')
-      .leftJoinAndSelect('funcionarios.pessoas', 'pessoas')
-      .leftJoinAndSelect('funcionarios.empresas', 'empresas')
-      .orderBy('funcionarios.fantasy', 'ASC');
+      .createQueryBuilder('visitantes')
+      .leftJoinAndSelect('visitantes.pessoas', 'pessoas')
+      .leftJoinAndSelect('visitantes.empresas', 'empresas')
+      .orderBy('visitantes.fantasy', 'ASC');
 
     if (txt && txt.trim() !== '') {
       query.andWhere(
-        'funcionarios.fantasy LIKE :txt COLLATE utf8mb4_general_ci',
+        'visitantes.fantasy LIKE :txt COLLATE utf8mb4_general_ci',
         { txt: `%${txt}%` }
       );
     }
@@ -273,45 +273,45 @@ export class FuncionariosRepository {
   // ==========================================================
   // PESQUISA GERAL
   // ==========================================================
-  async searchFuncionarios(params: {
+  async searchVisitantes(params: {
     id?: number;
     nome?: string;
     fantasy?: string;
     id_pessoas?: number;
     id_empresas?: number;
-  }): Promise<FuncionariosEntity[]> {
+  }): Promise<VisitantesEntity[]> {
     const query = this.repo
-      .createQueryBuilder('funcionarios')
-      .leftJoinAndSelect('funcionarios.pessoas', 'pessoas')
-      .leftJoinAndSelect('funcionarios.empresas', 'empresas')
-      .orderBy('funcionarios.id', 'ASC');
+      .createQueryBuilder('visitantes')
+      .leftJoinAndSelect('visitantes.pessoas', 'pessoas')
+      .leftJoinAndSelect('visitantes.empresas', 'empresas')
+      .orderBy('visitantes.id', 'ASC');
 
     if (params.id) {
-      query.andWhere('funcionarios.id = :id', { id: params.id });
+      query.andWhere('visitantes.id = :id', { id: params.id });
     }
 
     if (params.nome) {
       query.andWhere(
-        'funcionarios.nome LIKE :nome COLLATE utf8mb4_general_ci',
+        'visitantes.nome LIKE :nome COLLATE utf8mb4_general_ci',
         { nome: `%${params.nome}%` }
       );
     }
 
     if (params.fantasy) {
       query.andWhere(
-        'funcionarios.fantasy LIKE :fantasy COLLATE utf8mb4_general_ci',
+        'visitantes.fantasy LIKE :fantasy COLLATE utf8mb4_general_ci',
         { fantasy: `%${params.fantasy}%` }
       );
     }
 
     if (typeof params.id_pessoas === 'number') {
-      query.andWhere('funcionarios.id_pessoas = :id_pessoas', {
+      query.andWhere('visitantes.id_pessoas = :id_pessoas', {
         id_pessoas: params.id_pessoas
       });
     }
 
     if (typeof params.id_empresas === 'number') {
-      query.andWhere('funcionarios.id_empresas = :id_empresas', {
+      query.andWhere('visitantes.id_empresas = :id_empresas', {
         id_empresas: params.id_empresas
       });
     }
@@ -322,9 +322,9 @@ export class FuncionariosRepository {
   // ==========================================================
   // LISTA POR ID_PESSOAS
   // ==========================================================
-  async findAllFuncionariosByPessoasId(
+  async findAllVisitantesByPessoasId(
     pessoasId: number
-  ): Promise<FuncionariosEntity[]> {
+  ): Promise<VisitantesEntity[]> {
     return this.repo.find({
       where: { id_pessoas: pessoasId },
       relations: {
@@ -338,9 +338,9 @@ export class FuncionariosRepository {
   // ==========================================================
   // LISTA POR ID_EMPRESAS
   // ==========================================================
-  async findAllFuncionariosByEmpresasId(
+  async findAllVisitantesByEmpresasId(
     empresasId: number
-  ): Promise<FuncionariosEntity[]> {
+  ): Promise<VisitantesEntity[]> {
     return this.repo.find({
       where: { id_empresas: empresasId },
       relations: {
@@ -354,12 +354,12 @@ export class FuncionariosRepository {
   // ==========================================================
   // LISTA DETALHADA
   // ==========================================================
-  async listAllFuncionariosDetails(): Promise<FuncionariosEntity[]> {
+  async listAllVisitantesDetails(): Promise<VisitantesEntity[]> {
     return this.repo
-      .createQueryBuilder('funcionarios')
-      .leftJoinAndSelect('funcionarios.pessoas', 'pessoas')
-      .leftJoinAndSelect('funcionarios.empresas', 'empresas')
-      .orderBy('funcionarios.id', 'ASC')
+      .createQueryBuilder('visitantes')
+      .leftJoinAndSelect('visitantes.pessoas', 'pessoas')
+      .leftJoinAndSelect('visitantes.empresas', 'empresas')
+      .orderBy('visitantes.id', 'ASC')
       .getMany();
   }
 
@@ -368,7 +368,7 @@ export class FuncionariosRepository {
   // ============================================================
   private validateId(id: number): void {
     if (!id || isNaN(id) || id <= 0) {
-      throw new Error('Invalid funcionariosId');
+      throw new Error('Invalid visitantesId');
     }
   }
 }

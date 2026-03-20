@@ -1,212 +1,344 @@
-//
-
-import { NextFunction, Request, Response } from "express";
-import { ClientesRepository } from "./clientes.repository";
+  
+// C:\repository\proj-full-stack-backend\src\use-cases\cliente\clientes.controller.ts
+import { Request, Response, NextFunction } from 'express';
+import { ClientesRepository } from './clientes.repository';
 import { ClientesCreate, ClientesUpdate } from './clientes.dto';
-import { ClientesEntity } from "./clientes.entity";
-import { FindOptionsWhere } from "typeorm";
-import { DeepPartial } from "typeorm";
-export type ClientesDto = DeepPartial<ClientesEntity>;
-import { HttpException } from "../../exceptions/HttpException";
-import { ParsedQs } from 'qs';
+import { HttpException } from '../../exceptions/HttpException';
 
-// Tipagem para query string da rota /search
-interface SearchQuery extends ParsedQs {
-  id?: string;
-  nome?: string;
-  fantasy?: string;
-}
-
-export class ClientesController {  
+export class ClientesController {
   constructor(private readonly clientesRepository: ClientesRepository) {}
 
-  /** 1 POST Cria Tabela consumidores */
+  // =========================================================================
+  // LISTAGENS E PESQUISAS
+  // =========================================================================
+
+  /** GET → Lista todos os clientes */
+  async findAllClientes(req: Request, res: Response, next: NextFunction) {
+    try {
+      const clientes = await this.clientesRepository.findClientesAll(
+        undefined,
+        { nome: 'ASC' }
+      );
+
+      return res.status(200).send({ success: true, clientes });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Pesquisa combinada por id, nome, fantasy, pessoa e empresa */
+  async searchClientesAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id, nome, fantasy, id_pessoas, id_empresas } = req.query;
+
+      const clientes = await this.clientesRepository.searchClientes({
+        id: id ? Number(id) : undefined,
+        nome: nome ? String(nome) : undefined,
+        fantasy: fantasy ? String(fantasy) : undefined,
+        id_pessoas: id_pessoas ? Number(id_pessoas) : undefined,
+        id_empresas: id_empresas ? Number(id_empresas) : undefined
+      });
+
+      return res.status(200).send({ success: true, clientes });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Busca por nome aproximado */
+  async searchClientesNome(req: Request, res: Response, next: NextFunction) {
+    try {
+      const text = req.query.text ? String(req.query.text) : undefined;
+      const clientes =
+        await this.clientesRepository.searchNameParcialClientes(text);
+
+      return res.status(200).send({ success: true, clientes });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Busca por fantasy aproximado */
+  async searchClientesFantasy(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const text = req.query.text ? String(req.query.text) : undefined;
+      const clientes =
+        await this.clientesRepository.searchFantasyParcialClientes(text);
+
+      return res.status(200).send({ success: true, clientes });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar um cliente pelo nome exato */
+  async findOneClientesNome(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const nome = req.query?.nome as string;
+
+      if (!nome) {
+        throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
+      }
+
+      const clientes = await this.clientesRepository.findOneClientesByNome(nome);
+
+      return res.status(200).send({
+        success: true,
+        clientes
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar todos os clientes com nome exato */
+  async findAllClientesNome(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const nome = req.query?.nome as string;
+
+      if (!nome) {
+        throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
+      }
+
+      const clientes = await this.clientesRepository.findAllClientesByNome(nome);
+
+      return res.status(200).send({
+        success: true,
+        total: clientes.length,
+        clientes
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar um cliente pelo fantasy exato */
+  async findOneClientesFantasy(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const fantasy = req.query?.fantasy as string;
+
+      if (!fantasy) {
+        throw new HttpException(400, "Parâmetro 'fantasy' é obrigatório");
+      }
+
+      const clientes =
+        await this.clientesRepository.findOneClientesByFantasy(fantasy);
+
+      return res.status(200).send({
+        success: true,
+        clientes
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar todos os clientes com fantasy exato */
+  async findAllClientesFantasy(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const fantasy = req.query?.fantasy as string;
+
+      if (!fantasy) {
+        throw new HttpException(400, "Parâmetro 'fantasy' é obrigatório");
+      }
+
+      const clientes =
+        await this.clientesRepository.findAllClientesByFantasy(fantasy);
+
+      return res.status(200).send({
+        success: true,
+        total: clientes.length,
+        clientes
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar todos os clientes por id_pessoas */
+  async findAllClientesPessoasId(
+    req: Request<{ pessoasId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const pessoasId = Number(req.params.pessoasId);
+
+      if (!pessoasId || Number.isNaN(pessoasId) || pessoasId <= 0) {
+        throw new HttpException(400, 'ID da pessoa inválido');
+      }
+
+      const clientes =
+        await this.clientesRepository.findAllClientesByPessoasId(pessoasId);
+
+      return res.status(200).send({
+        success: true,
+        total: clientes.length,
+        clientes
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar todos os clientes por id_empresas */
+  async findAllClientesEmpresasId(
+    req: Request<{ empresasId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const empresasId = Number(req.params.empresasId);
+
+      if (!empresasId || Number.isNaN(empresasId) || empresasId <= 0) {
+        throw new HttpException(400, 'ID da empresa inválido');
+      }
+
+      const clientes =
+        await this.clientesRepository.findAllClientesByEmpresasId(empresasId);
+
+      return res.status(200).send({
+        success: true,
+        total: clientes.length,
+        clientes
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Lista detalhada com pessoas + empresas */
+  async listAllClientesDetails(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const clientes =
+        await this.clientesRepository.listAllClientesDetails();
+
+      return res.status(200).send({
+        success: true,
+        total: clientes.length,
+        clientes
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // =========================================================================
+  // CRUD
+  // =========================================================================
+
+  /** POST → Criar novo cliente */
   async createNewClientes(
     req: Request<{}, {}, ClientesCreate>,
     res: Response,
     next: NextFunction
   ) {
     try {
+      const { nome, fantasy } = req.body;
+
+      if (!nome || !fantasy) {
+        throw new HttpException(400, 'Nome e fantasy são obrigatórios');
+      }
+
       const clientes = await this.clientesRepository.createClientes(req.body);
+
       return res.status(201).send({ success: true, clientes });
     } catch (error) {
       next(error);
     }
   }
 
-  /** 2 PATCH Atualiza um registro  */
+  /** PATCH → Atualizar cliente pelo ID */
   async updateIdClientes(
-    req: Request<{ clientesId: string }, {}, Partial<ClientesUpdate>>,
+    req: Request<{ clientesId: string }, {}, ClientesUpdate>,
     res: Response,
     next: NextFunction
-    ) {
-    const clientesId = Number(req.params.clientesId);
-    if (isNaN(clientesId) || clientesId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid clientesId' }).end();
-      }
+  ) {
     try {
-      const clientes = await this.clientesRepository.updateClientesId(clientesId, req.body);
-        return res.status(200).send({ success: true, clientes });
+      const clientesId = Number(req.params.clientesId);
+
+      if (!clientesId || Number.isNaN(clientesId) || clientesId <= 0) {
+        throw new HttpException(400, 'ID do cliente inválido');
+      }
+
+      const clientes = await this.clientesRepository.updateClientesId(
+        clientesId,
+        req.body
+      );
+
+      return res.status(200).send({ success: true, clientes });
     } catch (error) {
       next(error);
     }
   }
 
-  /** 3 DELETE Remove um registro  */
+  /** DELETE → Remover cliente */
   async removeIdClientes(
     req: Request<{ clientesId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const clientesId = Number(req.params.clientesId);
-    if (isNaN(clientesId) || clientesId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid clientesId' }).end();
-    }
     try {
-      const success = await this.clientesRepository.deleteClientesId(clientesId);
-      return res.status(200).send({ success });
+      const clientesId = Number(req.params.clientesId);
+
+      if (Number.isNaN(clientesId) || clientesId <= 0) {
+        throw new HttpException(400, 'ID inválido');
+      }
+
+      await this.clientesRepository.deleteClientesId(clientesId);
+
+      return res.status(200).send({ success: true });
     } catch (error) {
       next(error);
     }
   }
 
-  
-  /** 4 GET Busca todos os registros */
-  async findAllClientes(req: Request, res: Response, next: NextFunction) {
-    
-    try {
-      const { ativo } = req.query;
-      let where: FindOptionsWhere<ClientesEntity> | undefined;
-  
-      if (ativo !== undefined) {
-        where = { ativo: ativo === "true" } as FindOptionsWhere<ClientesEntity>;
-      }
-  
-      const clientes = await this.clientesRepository.findClientesAll(where, { nome: "ASC" });
-      return res.status(200).send({ success: true, clientes });
-  
-    } catch (error) {
-        next(error);
-    }    
-  }
-  
-  /** 5 GET Busca um registro por ID */
+  /** GET → Buscar cliente pelo ID */
   async getOneClientesId(
     req: Request<{ clientesId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const clientesId = Number(req.params.clientesId);
-    if (isNaN(clientesId) || clientesId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid clientesId' }).end();
-    }
     try {
-      const clientes = await this.clientesRepository.findOneClientesById(clientesId);
+      const clientesId = Number(req.params.clientesId);
+
+      if (Number.isNaN(clientesId) || clientesId <= 0) {
+        throw new HttpException(400, 'ID inválido');
+      }
+
+      const clientes =
+        await this.clientesRepository.findOneClientesById(clientesId);
+
       return res.status(200).send({ success: true, clientes });
     } catch (error) {
       next(error);
-    }
-  }
-  
-  /** 6 GET Busca um registro por Nome */
-  async findOneClientesNome(
-    req: Request<{}, {}, {}, Partial<{ nome: string }>>, 
-    res: Response, 
-    next: NextFunction
-  ) {
-    const { nome } = req.query;
-    if (!nome) {
-      return res.status(400).send({ success: false, message: 'Nome parameter is required' }).end();
-    }
-    try {
-      const clientes = await this.clientesRepository.findOneClientesByNome(nome);
-      return res.status(200).send({ success: true, clientes }).end();
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** 7 GET Busca um registro por Fantasia  */
-  async findOneClientesFantasy(
-    req: Request<{}, {}, {}, Partial<{ fantasy: string }>>, 
-    res: Response, 
-    next: NextFunction
-  ) {
-    const { fantasy } = req.query;
-    if (!fantasy) {
-      return res.status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
-    }
-    try {
-      const clientes = await this.clientesRepository.findOneClientesByFantasy(fantasy);
-      return res.status(200).send({ success: true, clientes }).end();
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** 8 pesquisa registro de Empresas através do ID ou NOME ou FANTASY */
-  async searchByClientes(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
-    try {
-      const { id, nome, fantasy } = req.query;
-      const results = await this.clientesRepository.searchClientes({
-        id: id ? Number(id) : undefined,
-        nome,
-        fantasy,
-      });
-      return res.json(results);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** 9 GET todos os reg. com id_pessoas */
-  async findAllClientesPessoasId(
-    req: Request<{ pessoasId: string }>,
-    res: Response,
-    next: NextFunction
-  ) {
-    const pessoasId = Number(req.params.pessoasId);
-    if (isNaN(pessoasId) || pessoasId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid pessoasId' }).end();
-    }
-
-    try {
-      const clientes = await this.clientesRepository.findAllClientesByPessoasId(pessoasId);
-      return res.status(200).send({ success: true, clientes });
-    } catch (error) {
-      next(error);
-    }
-  }
-  
-  /** 10 GET todos os reg, mesmo ID de imagens */
-  async findAllClientesImagensId(
-    req: Request<{ imagensId: string }>,
-    res: Response,
-    next: NextFunction
-  ) {
-    const imagensId = Number(req.params.imagensId);
-    if (isNaN(imagensId) || imagensId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid imagensId' }).end();
-    }
-
-    try {
-      const clientes = await this.clientesRepository.findAllClientesByImagensId(imagensId);
-      return res.status(200).send({ success: true, clientes });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-    /** 11 Lista todas empresas com todos os detalhes */
-  async findAllClientesByDetails(req: Request, res: Response) {
-
-    try {
-      const clientes = await this.clientesRepository.listAllClientesDetails();
-      res.json({ success: true, data: clientes });
-      
-    } catch (err: any) {
-      console.error('Erro ao listar clientes:', err);
-      res.status(500).json({ success: false, message: err.message });
     }
   }
 }
+
+
+

@@ -1,6 +1,13 @@
-//C:\repository\proj-full-stack-backend\src\use-cases\consumidor\consumidores.repository.ts
 
-import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
+//C:\repository\proj-full-stack-backend\src\use-cases\cliente\clientes.reposytory.ts
+import {
+  DataSource,
+  DeepPartial,
+  FindOptionsWhere,
+  FindOptionsOrder,
+  Repository
+} from 'typeorm';
+
 import { ClientesEntity } from './clientes.entity';
 import type { ClientesCreate } from './clientes.dto';
 
@@ -11,178 +18,362 @@ export class ClientesRepository {
     this.repo = this.dataSource.getRepository(ClientesEntity);
   }
 
-  // Criação da tabela (raw query) - manter FK
-  async createNotExistsClientes(): Promise<void> {
-    await this.dataSource.query(`
-      CREATE TABLE IF NOT EXISTS clientes (
-        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        id_pessoas INT UNSIGNED NOT NULL,
-        id_imagens INT UNSIGNED NOT NULL,
-        nome VARCHAR(60) NOT NULL,
-        fantasy VARCHAR(60) NOT NULL,
-        createdBy INT DEFAULT NULL,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updatedBy INT DEFAULT NULL,
-        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        CONSTRAINT fk_pessoas FOREIGN KEY (id_pessoas) REFERENCES pessoas(id),
-        CONSTRAINT fk_imagens FOREIGN KEY (id_imagens) REFERENCES imagens(id)
-      )
-    `);
-  }
-
-  // Verifica duplicidade por nome/fantasy e id_pessoas
+  // ==========================================================
+  // DUPLICIDADE
+  // ==========================================================
   async hasDuplicated(
     nome?: string,
     fantasy?: string,
     id_pessoas?: number,
+    id_empresas?: number,
     excludes: number[] = []
-  ) {
+  ): Promise<ClientesEntity | null> {
     const query = this.repo.createQueryBuilder('clientes');
 
     if (nome) {
       query.andWhere('clientes.nome = :nome', { nome });
     }
+
     if (fantasy) {
       query.andWhere('clientes.fantasy = :fantasy', { fantasy });
     }
-    if (id_pessoas) {
-      query.andWhere('clientes.id_pessoa = :id_pessoa', { id_pessoas });
+
+    if (typeof id_pessoas === 'number') {
+      query.andWhere('clientes.id_pessoas = :id_pessoas', { id_pessoas });
     }
 
-    if (excludes.length) {
+    if (typeof id_empresas === 'number') {
+      query.andWhere('clientes.id_empresas = :id_empresas', { id_empresas });
+    }
+
+    if (excludes.length > 0) {
       query.andWhere('clientes.id NOT IN (:...excludes)', { excludes });
     }
 
     return query.getOne();
   }
-  
 
-  // Cria registro 1
-  async createClientes(clientes: ClientesCreate): Promise<ClientesEntity> {
-    // Verifica duplicidade apenas pelos campos da chave lógica
+  // ==========================================================
+  // CREATE
+  // ==========================================================
+  async createClientes(
+    clientes: ClientesCreate
+  ): Promise<ClientesEntity> {
     const duplicated = await this.hasDuplicated(
       clientes.nome,
       clientes.fantasy,
-      clientes.id_pessoas
+      clientes.id_pessoas,
+      clientes.id_empresas
     );
 
     if (duplicated) {
-      throw new Error('Clientes duplicada! Nome, Fantasia e Pessoa já existentes.');
+      throw new Error(
+        'Cliente duplicado! Nome, fantasy, pessoa e empresa já existentes.'
+      );
     }
 
-    // Cria e salva a entidade incluindo id_imagens se fornecido
-    const data = this.repo.create(clientes);
+    const data = this.repo.create({
+      ...clientes,
+      id_pessoas: clientes.id_pessoas ?? 0,
+      id_empresas: clientes.id_empresas ?? 0,
+      createdBy: clientes.createdBy ?? 0,
+      updatedBy: clientes.updatedBy ?? 0
+    });
+
     return this.repo.save(data);
   }
-  
-  // 2 Atualiza registro com validação de duplicidade
+
+  // ==========================================================
+  // UPDATE
+  // ==========================================================
   async updateClientesId(
     clientesId: number,
     clientes: DeepPartial<ClientesEntity>
-    ): Promise<ClientesEntity> {
-    // Verifica duplicidade
-    const duplicated = await this.repo.createQueryBuilder('clientes')
-      .where('clientes.nome = :nome', { nome: clientes.nome })
-      .andWhere('clientes.fantasy = :fantasy', { fantasy: clientes.fantasy })
-      .andWhere('clientes.id_pessoas = :id_pessoas', { id_pessoas: clientes.id_pessoas })
-      .andWhere('clientes.id != :id', { id: clientesId }) // ignora o próprio registro
-      .getOne();
+  ): Promise<ClientesEntity> {
+    const current = await this.repo.findOne({
+      where: { id: clientesId }
+    });
 
-    if (duplicated) {
-      throw new Error('Consumidor duplicado! Nome ou Fantasia já existentes.');
+    if (!current) {
+      throw new Error(`Cliente com ID ${clientesId} não encontrado.`);
     }
 
-    // Se passou pela validação, segue o update
-    const data = this.repo.create({ id: clientesId, ...clientes });
+    const duplicated = await this.hasDuplicated(
+      clientes.nome ?? current.nome,
+      clientes.fantasy ?? current.fantasy,
+      clientes.id_pessoas ?? current.id_pessoas,
+      clientes.id_empresas ?? current.id_empresas,
+      [clientesId]
+    );
+
+    if (duplicated) {
+      throw new Error(
+        'Cliente duplicado! Nome, fantasy, pessoa e empresa já existentes.'
+      );
+    }
+
+    const data = this.repo.create({
+      ...current,
+      ...clientes,
+      id: clientesId
+    });
+
     return this.repo.save(data);
   }
 
-
-  // 3 Deleta registro 
-  async deleteClientesId(clientesId: number) {
+  // ==========================================================
+  // DELETE
+  // ==========================================================
+  async deleteClientesId(clientesId: number): Promise<boolean> {
     const result = await this.repo.delete(clientesId);
+
     if (result.affected === 0) {
-      throw new Error(`Cliente com ID ${clientesId} não encontrada.`);
+      throw new Error(`Cliente com ID ${clientesId} não encontrado.`);
     }
+
     return true;
   }
 
-  // 4 Busca por ID  
-  async findOneClientesById(clientesId: number) {
+  // ==========================================================
+  // BUSCA POR ID
+  // ==========================================================
+  async findOneClientesById(
+    clientesId: number
+  ): Promise<ClientesEntity | null> {
     return this.repo.findOne({
       where: { id: clientesId },
-      relations: ['pessoas', 'imagens'],
+      relations: {
+        pessoas: true,
+        empresas: true
+      }
     });
   }
 
-  // 4 Busca todos registros com filtro opcional 
+  // ==========================================================
+  // LISTA TODOS
+  // ==========================================================
   async findClientesAll(
-    where?: FindOptionsWhere<ClientesEntity>,
-    orderBy: Record<string, "ASC" | "DESC"> = { id: "ASC" }
+    where?: FindOptionsWhere<ClientesEntity> | FindOptionsWhere<ClientesEntity>[],
+    orderBy: FindOptionsOrder<ClientesEntity> = { id: 'ASC' }
   ): Promise<ClientesEntity[]> {
     return this.repo.find({
       where,
-      relations: ['pessoas', 'imagens'],
-      order: orderBy,
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: orderBy
     });
   }
 
-  // Busca por nome 6
-  async findOneClientesByNome(nome: string) {
+  // ==========================================================
+  // BUSCA EXATA POR NOME
+  // ==========================================================
+  async findOneClientesByNome(
+    nome: string
+  ): Promise<ClientesEntity | null> {
     return this.repo.findOne({
       where: { nome },
-      relations: ['pessoas', 'imagens'],
+      relations: {
+        pessoas: true,
+        empresas: true
+      }
     });
   }
 
+  // ==========================================================
+  // BUSCA TODOS POR NOME EXATO
+  // ==========================================================
+  async findAllClientesByNome(nome: string): Promise<ClientesEntity[]> {
+    return this.repo.find({
+      where: { nome },
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: { id: 'ASC' }
+    });
+  }
 
-  // Busca por fantasy 7
-  async findOneClientesByFantasy(fantasy: string) {
+  // ==========================================================
+  // BUSCA EXATA POR FANTASY
+  // ==========================================================
+  async findOneClientesByFantasy(
+    fantasy: string
+  ): Promise<ClientesEntity | null> {
     return this.repo.findOne({
       where: { fantasy },
-      relations: ['pessoas', 'imagens'],
+      relations: {
+        pessoas: true,
+        empresas: true
+      }
     });
   }
 
+  // ==========================================================
+  // BUSCA TODOS POR FANTASY EXATO
+  // ==========================================================
+  async findAllClientesByFantasy(
+    fantasy: string
+  ): Promise<ClientesEntity[]> {
+    return this.repo.find({
+      where: { fantasy },
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: { id: 'ASC' }
+    });
+  }
 
-  // 8 Pesquisa empresas por ID, nome ou fantasy 
-  async searchClientes(params: { id?: number; nome?: string; fantasy?: string }) {
-    const query = this.repo.createQueryBuilder('clientes')
+  // ==========================================================
+  // BUSCA PARCIAL POR NOME
+  // ==========================================================
+  async searchNameParcialClientes(
+    txt?: string
+  ): Promise<ClientesEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('clientes')
       .leftJoinAndSelect('clientes.pessoas', 'pessoas')
-      .leftJoinAndSelect('clientes.imagens', 'imagens')
-      .orderBy('clientes.id', 'ASC');
+      .leftJoinAndSelect('clientes.empresas', 'empresas')
+      .orderBy('clientes.nome', 'ASC');
 
-    if (params.id) query.andWhere('clientes.id = :id', { id: params.id });
-    if (params.nome) query.andWhere('clientes.nome LIKE :nome', { nome: `%${params.nome}%` });
-    if (params.fantasy) query.andWhere('clientes.fantasy LIKE :fantasy', { fantasy: `%${params.fantasy}%` });
+    if (txt && txt.trim() !== '') {
+      query.andWhere(
+        'clientes.nome LIKE :txt COLLATE utf8mb4_general_ci',
+        { txt: `%${txt}%` }
+      );
+    }
 
     return query.getMany();
   }
 
-  // 9
-  async findAllClientesByPessoasId(pessoasId: number) {
-    return this.repo.find({ where: { id_pessoas: pessoasId } });
+  // ==========================================================
+  // BUSCA PARCIAL POR FANTASY
+  // ==========================================================
+  async searchFantasyParcialClientes(
+    txt?: string
+  ): Promise<ClientesEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('clientes')
+      .leftJoinAndSelect('clientes.pessoas', 'pessoas')
+      .leftJoinAndSelect('clientes.empresas', 'empresas')
+      .orderBy('clientes.fantasy', 'ASC');
+
+    if (txt && txt.trim() !== '') {
+      query.andWhere(
+        'clientes.fantasy LIKE :txt COLLATE utf8mb4_general_ci',
+        { txt: `%${txt}%` }
+      );
+    }
+
+    return query.getMany();
   }
 
-  // 10
-  async findAllClientesByImagensId(imagensId: number) {
-    return this.repo.find({ where: { id_imagens: imagensId } });
+  // ==========================================================
+  // PESQUISA GERAL
+  // ==========================================================
+  async searchClientes(params: {
+    id?: number;
+    nome?: string;
+    fantasy?: string;
+    id_pessoas?: number;
+    id_empresas?: number;
+  }): Promise<ClientesEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('clientes')
+      .leftJoinAndSelect('clientes.pessoas', 'pessoas')
+      .leftJoinAndSelect('clientes.empresas', 'empresas')
+      .orderBy('clientes.id', 'ASC');
+
+    if (params.id) {
+      query.andWhere('clientes.id = :id', { id: params.id });
+    }
+
+    if (params.nome) {
+      query.andWhere(
+        'clientes.nome LIKE :nome COLLATE utf8mb4_general_ci',
+        { nome: `%${params.nome}%` }
+      );
+    }
+
+    if (params.fantasy) {
+      query.andWhere(
+        'clientes.fantasy LIKE :fantasy COLLATE utf8mb4_general_ci',
+        { fantasy: `%${params.fantasy}%` }
+      );
+    }
+
+    if (typeof params.id_pessoas === 'number') {
+      query.andWhere('clientes.id_pessoas = :id_pessoas', {
+        id_pessoas: params.id_pessoas
+      });
+    }
+
+    if (typeof params.id_empresas === 'number') {
+      query.andWhere('clientes.id_empresas = :id_empresas', {
+        id_empresas: params.id_empresas
+      });
+    }
+
+    return query.getMany();
   }
 
-  /** 11 Lista todas consumidores com pessoa + imagem  13*/
-  async listAllClientesDetails() {
+  // ==========================================================
+  // LISTA POR ID_PESSOAS
+  // ==========================================================
+  async findAllClientesByPessoasId(
+    pessoasId: number
+  ): Promise<ClientesEntity[]> {
+    return this.repo.find({
+      where: { id_pessoas: pessoasId },
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: { id: 'ASC' }
+    });
+  }
+
+  // ==========================================================
+  // LISTA POR ID_EMPRESAS
+  // ==========================================================
+  async findAllClientesByEmpresasId(
+    empresasId: number
+  ): Promise<ClientesEntity[]> {
+    return this.repo.find({
+      where: { id_empresas: empresasId },
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: { id: 'ASC' }
+    });
+  }
+
+  // ==========================================================
+  // LISTA DETALHADA
+  // ==========================================================
+  async listAllClientesDetails(): Promise<ClientesEntity[]> {
     return this.repo
       .createQueryBuilder('clientes')
       .leftJoinAndSelect('clientes.pessoas', 'pessoas')
-      .leftJoinAndSelect('clientes.imagens', 'imagens')
+      .leftJoinAndSelect('clientes.empresas', 'empresas')
+      .orderBy('clientes.id', 'ASC')
       .getMany();
   }
 
+  // ============================================================
+  // UTIL
+  // ============================================================
+  private validateId(id: number): void {
+    if (!id || isNaN(id) || id <= 0) {
+      throw new Error('Invalid clientesId');
+    }
+  }
 }
 
 
 
-
-  
 
 

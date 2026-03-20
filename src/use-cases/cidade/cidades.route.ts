@@ -1,13 +1,11 @@
-// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.route.ts
 
+  
+// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.route.ts
 import { Router } from 'express';
 import { AppDataSource } from '../../config/db';
 import { CidadesController } from './cidades.controller';
 import { CidadesRepository } from './cidades.repository';
-import {
-  cidadesCreateValidation,
-  cidadesUpdateValidation
-} from './cidades.validation';
+import {cidadescreateValidation, cidadesupdateValidation } from './cidades.validation';
 
 const cidadesRepository = new CidadesRepository(AppDataSource);
 const controller = new CidadesController(cidadesRepository);
@@ -20,14 +18,14 @@ const cidadesRoute = Router();
 // POST -> Cria nova cidade
 cidadesRoute.post(
   '/',
-  cidadesCreateValidation,
+  cidadescreateValidation,
   controller.createNewCidades.bind(controller)
 );
 
 // PATCH -> Atualiza cidade por ID
 cidadesRoute.patch(
   '/:cidadesId',
-  cidadesUpdateValidation,
+  cidadesupdateValidation,
   controller.updateIdCidades.bind(controller)
 );
 
@@ -74,3 +72,4 @@ cidadesRoute.get(
 );
 
 export { cidadesRoute as cidadesRoutes };
+

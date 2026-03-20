@@ -1,5 +1,6 @@
-// C:\repository\proj-full-stack-backend\src\use-cases\cidade\index.ts
 
+  
+// C:\repository\proj-full-stack-backend\src\use-cases\cidade\index.ts
 import { CidadesRepository } from './cidades.repository';
 
 export { cidadesRoutes } from './cidades.route';
@@ -15,3 +16,5 @@ export const cidadesConfig = {
   repoClass: CidadesRepository,
   findAll: 'findCidadesAll'
 };
+
+

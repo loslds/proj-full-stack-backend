@@ -1,5 +1,7 @@
-// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.entity.ts
 
+
+
+// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.entity.ts
 import {
   Column,
   Entity,
@@ -75,3 +77,4 @@ export class CidadesEntity {
   })
   updatedAt: Date;
 }
+

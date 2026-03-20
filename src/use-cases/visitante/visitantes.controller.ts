@@ -1,39 +1,38 @@
 
-
-//C:\repository\proj-full-stack-backend\src\use-cases\fornecedor\fornecedores.controller.ts
-
+ 
+// C:\repository\proj-full-stack-backend\src\use-cases\visitante\visitantes.controller.ts
 import { Request, Response, NextFunction } from 'express';
-import { FornecedoresRepository } from './fornecedores.repository';
-import { FornecedoresCreate, FornecedoresUpdate } from './fornecedores.dto';
+import { VisitantesRepository } from './visitantes.repository';
+import { VisitantesCreate, VisitantesUpdate } from './visitantes.dto';
 import { HttpException } from '../../exceptions/HttpException';
 
-export class FornecedoresController {
-  constructor(private readonly fornecedoresRepository: FornecedoresRepository) {}
+export class VisitantesController {
+  constructor(private readonly visitantesRepository: VisitantesRepository) {}
 
   // =========================================================================
   // LISTAGENS E PESQUISAS
   // =========================================================================
 
-  /** GET → Lista todos os fornecedores */
-  async findAllFornecedores(req: Request, res: Response, next: NextFunction) {
+  /** GET → Lista todos os visitantes */
+  async findAllVisitantes(req: Request, res: Response, next: NextFunction) {
     try {
-      const fornecedores =
-        await this.fornecedoresRepository.findFornecedoresAll(undefined, {
-          nome: 'ASC'
-        });
+      const visitantes = await this.visitantesRepository.findVisitantesAll(
+        undefined,
+        { nome: 'ASC' }
+      );
 
-      return res.status(200).send({ success: true, fornecedores });
+      return res.status(200).send({ success: true, visitantes });
     } catch (error) {
       next(error);
     }
   }
 
   /** GET → Pesquisa combinada por id, nome, fantasy, pessoa e empresa */
-  async searchFornecedoresAll(req: Request, res: Response, next: NextFunction) {
+  async searchVisitantesAll(req: Request, res: Response, next: NextFunction) {
     try {
       const { id, nome, fantasy, id_pessoas, id_empresas } = req.query;
 
-      const fornecedores = await this.fornecedoresRepository.searchFornecedores({
+      const visitantes = await this.visitantesRepository.searchVisitantes({
         id: id ? Number(id) : undefined,
         nome: nome ? String(nome) : undefined,
         fantasy: fantasy ? String(fantasy) : undefined,
@@ -41,44 +40,44 @@ export class FornecedoresController {
         id_empresas: id_empresas ? Number(id_empresas) : undefined
       });
 
-      return res.status(200).send({ success: true, fornecedores });
+      return res.status(200).send({ success: true, visitantes });
     } catch (error) {
       next(error);
     }
   }
 
   /** GET → Busca por nome aproximado */
-  async searchFornecedoresNome(req: Request, res: Response, next: NextFunction) {
+  async searchVisitantesNome(req: Request, res: Response, next: NextFunction) {
     try {
       const text = req.query.text ? String(req.query.text) : undefined;
-      const fornecedores =
-        await this.fornecedoresRepository.searchNameParcialFornecedores(text);
+      const visitantes =
+        await this.visitantesRepository.searchNameParcialVisitantes(text);
 
-      return res.status(200).send({ success: true, fornecedores });
+      return res.status(200).send({ success: true, visitantes });
     } catch (error) {
       next(error);
     }
   }
 
   /** GET → Busca por fantasy aproximado */
-  async searchFornecedoresFantasy(
+  async searchVisitantesFantasy(
     req: Request,
     res: Response,
     next: NextFunction
   ) {
     try {
       const text = req.query.text ? String(req.query.text) : undefined;
-      const fornecedores =
-        await this.fornecedoresRepository.searchFantasyParcialFornecedores(text);
+      const visitantes =
+        await this.visitantesRepository.searchFantasyParcialVisitantes(text);
 
-      return res.status(200).send({ success: true, fornecedores });
+      return res.status(200).send({ success: true, visitantes });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar um fornecedor pelo nome exato */
-  async findOneFornecedoresNome(
+  /** GET → Buscar um visitante pelo nome exato */
+  async findOneVisitantesNome(
     req: Request,
     res: Response,
     next: NextFunction
@@ -90,20 +89,19 @@ export class FornecedoresController {
         throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
       }
 
-      const fornecedores =
-        await this.fornecedoresRepository.findOneFornecedoresByNome(nome);
+      const visitantes = await this.visitantesRepository.findOneVisitantesByNome(nome);
 
       return res.status(200).send({
         success: true,
-        fornecedores
+        visitantes
       });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar todos os fornecedores com nome exato */
-  async findAllFornecedoresNome(
+  /** GET → Buscar todos os visitantes com nome exato */
+  async findAllVisitantesNome(
     req: Request,
     res: Response,
     next: NextFunction
@@ -115,21 +113,20 @@ export class FornecedoresController {
         throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
       }
 
-      const fornecedores =
-        await this.fornecedoresRepository.findAllFornecedoresByNome(nome);
+      const visitantes = await this.visitantesRepository.findAllVisitantesByNome(nome);
 
       return res.status(200).send({
         success: true,
-        total: fornecedores.length,
-        fornecedores
+        total: visitantes.length,
+        visitantes
       });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar um fornecedor pelo fantasy exato */
-  async findOneFornecedoresFantasy(
+  /** GET → Buscar um visitante pelo fantasy exato */
+  async findOneVisitantesFantasy(
     req: Request,
     res: Response,
     next: NextFunction
@@ -141,20 +138,20 @@ export class FornecedoresController {
         throw new HttpException(400, "Parâmetro 'fantasy' é obrigatório");
       }
 
-      const fornecedores =
-        await this.fornecedoresRepository.findOneFornecedoresByFantasy(fantasy);
+      const visitantes =
+        await this.visitantesRepository.findOneVisitantesByFantasy(fantasy);
 
       return res.status(200).send({
         success: true,
-        fornecedores
+        visitantes
       });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar todos os fornecedores com fantasy exato */
-  async findAllFornecedoresFantasy(
+  /** GET → Buscar todos os visitantes com fantasy exato */
+  async findAllVisitantesFantasy(
     req: Request,
     res: Response,
     next: NextFunction
@@ -166,21 +163,21 @@ export class FornecedoresController {
         throw new HttpException(400, "Parâmetro 'fantasy' é obrigatório");
       }
 
-      const fornecedores =
-        await this.fornecedoresRepository.findAllFornecedoresByFantasy(fantasy);
+      const visitantes =
+        await this.visitantesRepository.findAllVisitantesByFantasy(fantasy);
 
       return res.status(200).send({
         success: true,
-        total: fornecedores.length,
-        fornecedores
+        total: visitantes.length,
+        visitantes
       });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar todos os fornecedores por id_pessoas */
-  async findAllFornecedoresPessoasId(
+  /** GET → Buscar todos os visitantes por id_pessoas */
+  async findAllVisitantesPessoasId(
     req: Request<{ pessoasId: string }>,
     res: Response,
     next: NextFunction
@@ -192,21 +189,21 @@ export class FornecedoresController {
         throw new HttpException(400, 'ID da pessoa inválido');
       }
 
-      const fornecedores =
-        await this.fornecedoresRepository.findAllFornecedoresByPessoasId(pessoasId);
+      const visitantes =
+        await this.visitantesRepository.findAllVisitantesByPessoasId(pessoasId);
 
       return res.status(200).send({
         success: true,
-        total: fornecedores.length,
-        fornecedores
+        total: visitantes.length,
+        visitantes
       });
     } catch (error) {
       next(error);
     }
   }
 
-  /** GET → Buscar todos os fornecedores por id_empresas */
-  async findAllFornecedoresEmpresasId(
+  /** GET → Buscar todos os visitantes por id_empresas */
+  async findAllVisitantesEmpresasId(
     req: Request<{ empresasId: string }>,
     res: Response,
     next: NextFunction
@@ -218,13 +215,13 @@ export class FornecedoresController {
         throw new HttpException(400, 'ID da empresa inválido');
       }
 
-      const fornecedores =
-        await this.fornecedoresRepository.findAllFornecedoresByEmpresasId(empresasId);
+      const visitantes =
+        await this.visitantesRepository.findAllVisitantesByEmpresasId(empresasId);
 
       return res.status(200).send({
         success: true,
-        total: fornecedores.length,
-        fornecedores
+        total: visitantes.length,
+        visitantes
       });
     } catch (error) {
       next(error);
@@ -232,19 +229,19 @@ export class FornecedoresController {
   }
 
   /** GET → Lista detalhada com pessoas + empresas */
-  async listAllFornecedoresDetails(
+  async listAllVisitantesDetails(
     req: Request,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const fornecedores =
-        await this.fornecedoresRepository.listAllFornecedoresDetails();
+      const visitantes =
+        await this.visitantesRepository.listAllVisitantesDetails();
 
       return res.status(200).send({
         success: true,
-        total: fornecedores.length,
-        fornecedores
+        total: visitantes.length,
+        visitantes
       });
     } catch (error) {
       next(error);
@@ -255,9 +252,9 @@ export class FornecedoresController {
   // CRUD
   // =========================================================================
 
-  /** POST → Criar novo fornecedor */
-  async createNewFornecedores(
-    req: Request<{}, {}, FornecedoresCreate>,
+  /** POST → Criar novo visitante */
+  async createNewVisitantes(
+    req: Request<{}, {}, VisitantesCreate>,
     res: Response,
     next: NextFunction
   ) {
@@ -268,53 +265,52 @@ export class FornecedoresController {
         throw new HttpException(400, 'Nome e fantasy são obrigatórios');
       }
 
-      const fornecedores =
-        await this.fornecedoresRepository.createFornecedores(req.body);
+      const visitantes = await this.visitantesRepository.createVisitantes(req.body);
 
-      return res.status(201).send({ success: true, fornecedores });
+      return res.status(201).send({ success: true, visitantes });
     } catch (error) {
       next(error);
     }
   }
 
-  /** PATCH → Atualizar fornecedor pelo ID */
-  async updateIdFornecedores(
-    req: Request<{ fornecedoresId: string }, {}, FornecedoresUpdate>,
+  /** PATCH → Atualizar visitante pelo ID */
+  async updateIdVisitantes(
+    req: Request<{ visitantesId: string }, {}, VisitantesUpdate>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const fornecedoresId = Number(req.params.fornecedoresId);
+      const visitantesId = Number(req.params.visitantesId);
 
-      if (!fornecedoresId || Number.isNaN(fornecedoresId) || fornecedoresId <= 0) {
-        throw new HttpException(400, 'ID do fornecedor inválido');
+      if (!visitantesId || Number.isNaN(visitantesId) || visitantesId <= 0) {
+        throw new HttpException(400, 'ID do visitante inválido');
       }
 
-      const fornecedores = await this.fornecedoresRepository.updateFornecedoresId(
-        fornecedoresId,
+      const visitantes = await this.visitantesRepository.updateVisitantesId(
+        visitantesId,
         req.body
       );
 
-      return res.status(200).send({ success: true, fornecedores });
+      return res.status(200).send({ success: true, visitantes });
     } catch (error) {
       next(error);
     }
   }
 
-  /** DELETE → Remover fornecedor */
-  async removeIdFornecedores(
-    req: Request<{ fornecedoresId: string }>,
+  /** DELETE → Remover visitante */
+  async removeIdVisitantes(
+    req: Request<{ visitantesId: string }>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const fornecedoresId = Number(req.params.fornecedoresId);
+      const visitantesId = Number(req.params.visitantesId);
 
-      if (Number.isNaN(fornecedoresId) || fornecedoresId <= 0) {
+      if (Number.isNaN(visitantesId) || visitantesId <= 0) {
         throw new HttpException(400, 'ID inválido');
       }
 
-      await this.fornecedoresRepository.deleteFornecedoresId(fornecedoresId);
+      await this.visitantesRepository.deleteVisitantesId(visitantesId);
 
       return res.status(200).send({ success: true });
     } catch (error) {
@@ -322,28 +318,26 @@ export class FornecedoresController {
     }
   }
 
-  /** GET → Buscar fornecedor pelo ID */
-  async getOneFornecedoresId(
-    req: Request<{ fornecedoresId: string }>,
+  /** GET → Buscar visitante pelo ID */
+  async getOneVisitantesId(
+    req: Request<{ visitantesId: string }>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const fornecedoresId = Number(req.params.fornecedoresId);
+      const visitantesId = Number(req.params.visitantesId);
 
-      if (Number.isNaN(fornecedoresId) || fornecedoresId <= 0) {
+      if (Number.isNaN(visitantesId) || visitantesId <= 0) {
         throw new HttpException(400, 'ID inválido');
       }
 
-      const fornecedores =
-        await this.fornecedoresRepository.findOneFornecedoresById(fornecedoresId);
+      const visitantes =
+        await this.visitantesRepository.findOneVisitantesById(visitantesId);
 
-      return res.status(200).send({ success: true, fornecedores });
+      return res.status(200).send({ success: true, visitantes });
     } catch (error) {
       next(error);
     }
   }
 }
-
-
 

@@ -3,5 +3,5 @@
 import { zodBodyValidation } from '../../helpers/zod-validation';
 import { cargosCreateSchema, cargosUpdateSchema } from './cargos.dto';
 
-export const cargosCreateValidation = zodBodyValidation(cargosCreateSchema);
-export const cargosUpdateValidation = zodBodyValidation(cargosUpdateSchema);
+export const cargoscreateValidation = zodBodyValidation(cargosCreateSchema);
+export const cargosupdateValidation = zodBodyValidation(cargosUpdateSchema);

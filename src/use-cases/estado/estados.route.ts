@@ -1,13 +1,12 @@
+
+  
 // C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.route.ts
 
 import { Router } from 'express';
 import { AppDataSource } from '../../config/db';
 import { EstadosController } from './estados.controller';
 import { EstadosRepository } from './estados.repository';
-import {
-  estadosCreateValidation,
-  estadosUpdateValidation
-} from './estados.validation';
+import {estadoscreateValidation, estadosupdateValidation } from './estados.validation';
 
 const estadosRepository = new EstadosRepository(AppDataSource);
 const controller = new EstadosController(estadosRepository);
@@ -69,7 +68,7 @@ estadosRoute.get(
 // POST -> Cria novo estado
 estadosRoute.post(
   '/',
-  estadosCreateValidation,
+  estadoscreateValidation,
   controller.createNewEstados.bind(controller)
 );
 
@@ -86,7 +85,7 @@ estadosRoute.get(
 // PATCH -> Atualiza estado por ID
 estadosRoute.patch(
   '/:estadosId',
-  estadosUpdateValidation,
+  estadosupdateValidation,
   controller.updateIdEstados.bind(controller)
 );
 
@@ -97,3 +96,5 @@ estadosRoute.delete(
 );
 
 export { estadosRoute as estadosRoutes };
+
+

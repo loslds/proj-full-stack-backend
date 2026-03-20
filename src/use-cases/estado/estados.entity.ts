@@ -1,5 +1,6 @@
-// C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.entity.ts
 
+ 
+// C:\repository\proj-full-stack-backend\src\use-cases\visitante\visitantes.entity.ts
 import {
   Column,
   Entity,
@@ -10,7 +11,7 @@ import {
 } from 'typeorm';
 
 @Entity('estados')
-@Unique(['nome', 'prefixo'])
+@Unique(['nome, prefixo'])
 export class EstadosEntity {
   @PrimaryGeneratedColumn({
     type: 'int',
@@ -60,3 +61,4 @@ export class EstadosEntity {
   })
   updatedAt: Date;
 }
+ 

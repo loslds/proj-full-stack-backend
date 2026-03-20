@@ -1,20 +1,17 @@
 
-//use-cases/consumidor/index.ts
-
+// C:\repository\proj-full-stack-backend\src\use-cases\funcionario\index.ts
 import { FuncionariosRepository } from './funcionarios.repository';
 
-export { funcionariosRoutes } from './funcionarios.route';
 export { FuncionariosController } from './funcionarios.controller';
-export type { FuncionariosDto } from './funcionarios.dto';
 export { FuncionariosEntity } from './funcionarios.entity';
 export { FuncionariosRepository } from './funcionarios.repository';
+export { funcionariosRoutes } from './funcionarios.router';
+
 export * from './funcionarios.dto';
 export * from './funcionarios.validation';
 
 export const funcionariosConfig = {
   tableName: 'funcionarios',
   repoClass: FuncionariosRepository,
-  createMethod: 'createNotExistsFuncionarios',
-  findAll: 'findFuncionariosAll',
-  //insertDefaults: 'insertDefaultImagens',
+  findAll: 'findFuncionariosAll'
 };

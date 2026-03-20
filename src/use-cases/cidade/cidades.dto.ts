@@ -1,5 +1,6 @@
-// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.dto.ts
 
+  
+// C:\repository\proj-full-stack-backend\src\use-cases\cidade\cidades.dto.ts
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
 import { CidadesEntity } from './cidades.entity';
@@ -52,3 +53,5 @@ export const cidadesUpdateSchema = cidadesCreateSchema
 export type CidadesCreate = z.infer<typeof cidadesCreateSchema>;
 export type CidadesUpdate = z.infer<typeof cidadesUpdateSchema>;
 export type CidadesDto = DeepPartial<CidadesEntity>;
+
+
