@@ -5,6 +5,7 @@
  * (infraestrutura / base)
  */
 export const systemTables = [
+  // com seed
   'systables',
   'pessoas',
   'estados',
@@ -14,7 +15,16 @@ export const systemTables = [
   'cargos', 
   'acoes',
   'perguntas',
-  
+  // sem seed
+  'empresas',        
+  'visitantes',      
+  'visitas',         
+  'consumidores',    
+  'clientes',        
+  'fornecedores',    
+  'funcionarios',
+  'cadastros',    
+
 
   // outras tabelas ......
 ] as const;
@@ -24,23 +34,31 @@ export const systemTables = [
  * após a criação
  */////////////////////////////////////////// *** CONCLUIDO
 export const tablesWithDefaults = [
-  'pessoas',         // *** CONCLUIDO
-  'estados',         // *** CONCLUIDO
-  'cidades',         // *** CONCLUIDO
-  'imagens',         // *** CONCLUIDO
-  'modulos',         // *** CONCLUIDO
-  'cargos',          // *** CONCLUIDO
-  'acoes',           // *** CONCLUIDO
-  'perguntas',       // *** CONCLUIDO
+  'pessoas',         // * CONCLUIDOS
+  'estados',         // * CONCLUIDOS
+  'cidades',         // * CONCLUIDOS
+  'imagens',         // * CONCLUIDOS conten falta seed
+  'modulos',         // * CONCLUIDOS
+  'cargos',          // * CONCLUIDOS
+  'acoes',           // * CONCLUIDOS
+  'perguntas',       // * CONCLUIDOS
+
+  'empresas',        // * CONCLUIDOS
+  'visitantes',      // * CONCLUIDOS
+  'visitas',         // * CONCLUIDOS
+  'consumidores',    // * CONCLUIDOS
+  'clientes',        // * CONCLUIDOS
+  'fornecedores',    // * CONCLUIDOS
+  'funcionarios',    // * CONCLUIDOS
+  'cadastros',       // * CONCLUIDOS  
+
+  'user',
+  'chaves',
+  'acessos',
   
-  'empresas',
-  'visitantes',
-  'visitas',
-  'consumidores',  
-  'clientes',
-  'fornecedores',
-  'funcionarios',
-  'cadastros',
+  
+
+
 
   // outras tabelas ......
 

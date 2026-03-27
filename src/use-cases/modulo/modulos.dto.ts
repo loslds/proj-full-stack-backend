@@ -11,7 +11,7 @@ import { ModulosEntity } from './modulos.entity';
 
 export const modulosCreateSchema = z.object({
 
-  name: z
+  nome: z
     .string()
     .min(3, 'Nome do módulo deve ter ao menos 3 caracteres')
     .max(30, 'Nome do módulo deve ter no máximo 30 caracteres'),

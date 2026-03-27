@@ -1,7 +1,7 @@
 
 // C:\repository\proj-full-stack-backend\src\use-cases\consumidor\consumidores.controller.ts
 // C:\repository\proj-full-stack-backend\src\use-cases\consumidor\consumidores.controller.ts
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { ConsumidoresRepository } from './consumidores.repository';
 import { ConsumidoresCreate, ConsumidoresUpdate } from './consumidores.dto';
 import { HttpException } from '../../exceptions/HttpException';
@@ -9,9 +9,155 @@ import { HttpException } from '../../exceptions/HttpException';
 export class ConsumidoresController {
   constructor(private readonly consumidoresRepository: ConsumidoresRepository) {}
 
-  // =========================================================================
-  // LISTAGENS E PESQUISAS
-  // =========================================================================
+  // ============================================================
+  // * CRUD *
+  // ============================================================
+
+  /** POST → Criar novo consumidor */
+  async createNewConsumidores(
+    req: Request<{}, {}, ConsumidoresCreate>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { nome, fantasy, id_pessoas, id_empresas } = req.body;
+
+      if (!nome || !fantasy || !id_pessoas || !id_empresas) {
+        throw new HttpException(
+          400,
+          'Nome, fantasy, id_pessoas e id_empresas são obrigatórios'
+        );
+      }
+
+      const duplicated = await this.consumidoresRepository.hasDuplicated(
+        nome,
+        fantasy,
+        id_pessoas,
+        id_empresas
+      );
+
+      if (duplicated) {
+        throw new HttpException(
+          409,
+          'Já existe consumidor com os dados informados.'
+        );
+      }
+
+      const consumidores = await this.consumidoresRepository.createConsumidores(
+        req.body
+      );
+
+      return res.status(201).send({
+        success: true,
+        consumidores
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** PATCH → Atualizar consumidor pelo ID */
+  async updateIdConsumidores(
+    req: Request<{ consumidoresId: string }, {}, ConsumidoresUpdate>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const consumidoresId = Number(req.params.consumidoresId);
+
+      if (Number.isNaN(consumidoresId) || consumidoresId <= 0) {
+        throw new HttpException(400, 'ID do consumidor inválido');
+      }
+
+      const payload = req.body;
+
+      const duplicated = await this.consumidoresRepository.hasDuplicated(
+        payload.nome,
+        payload.fantasy,
+        payload.id_pessoas,
+        payload.id_empresas,
+        [consumidoresId]
+      );
+
+      if (duplicated) {
+        throw new HttpException(
+          409,
+          'Já existe consumidor com os dados informados.'
+        );
+      }
+
+      const consumidores =
+        await this.consumidoresRepository.updateConsumidoresId(
+          consumidoresId,
+          payload
+        );
+
+      return res.status(200).send({
+        success: true,
+        consumidores
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** DELETE → Remover consumidor */
+  async removeIdConsumidores(
+    req: Request<{ consumidoresId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const consumidoresId = Number(req.params.consumidoresId);
+
+      if (Number.isNaN(consumidoresId) || consumidoresId <= 0) {
+        throw new HttpException(400, 'ID inválido');
+      }
+
+      await this.consumidoresRepository.deleteConsumidoresId(consumidoresId);
+
+      return res.status(200).send({
+        success: true,
+        message: `Consumidor ID ${consumidoresId} removido com sucesso.`
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar consumidor pelo ID */
+  async getOneConsumidoresId(
+    req: Request<{ consumidoresId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const consumidoresId = Number(req.params.consumidoresId);
+
+      if (Number.isNaN(consumidoresId) || consumidoresId <= 0) {
+        throw new HttpException(400, 'ID inválido');
+      }
+
+      const consumidores =
+        await this.consumidoresRepository.findOneConsumidoresById(
+          consumidoresId
+        );
+
+      if (!consumidores) {
+        throw new HttpException(
+          404,
+          `Consumidor ID ${consumidoresId} não encontrado.`
+        );
+      }
+
+      return res.status(200).send({
+        success: true,
+        consumidores
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
   /** GET → Lista todos os consumidores */
   async findAllConsumidores(req: Request, res: Response, next: NextFunction) {
@@ -21,39 +167,62 @@ export class ConsumidoresController {
         { nome: 'ASC' }
       );
 
-      return res.status(200).send({ success: true, consumidores });
+      return res.status(200).send({
+        success: true,
+        consumidores
+      });
     } catch (error) {
       next(error);
     }
   }
 
+  // ============================================================
+  // * CONSULTAS PERSONALIZADAS *
+  // ============================================================
+
   /** GET → Pesquisa combinada por id, nome, fantasy, pessoa e empresa */
-  async searchConsumidoresAll(req: Request, res: Response, next: NextFunction) {
+  async searchConsumidoresAll(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const { id, nome, fantasy, id_pessoas, id_empresas } = req.query;
 
       const consumidores = await this.consumidoresRepository.searchConsumidores({
-        id: id ? Number(id) : undefined,
-        nome: nome ? String(nome) : undefined,
-        fantasy: fantasy ? String(fantasy) : undefined,
-        id_pessoas: id_pessoas ? Number(id_pessoas) : undefined,
-        id_empresas: id_empresas ? Number(id_empresas) : undefined
+        id: id !== undefined ? Number(id) : undefined,
+        nome: nome !== undefined ? String(nome) : undefined,
+        fantasy: fantasy !== undefined ? String(fantasy) : undefined,
+        id_pessoas: id_pessoas !== undefined ? Number(id_pessoas) : undefined,
+        id_empresas: id_empresas !== undefined ? Number(id_empresas) : undefined
       });
 
-      return res.status(200).send({ success: true, consumidores });
+      return res.status(200).send({
+        success: true,
+        consumidores
+      });
     } catch (error) {
       next(error);
     }
   }
 
   /** GET → Busca por nome aproximado */
-  async searchConsumidoresNome(req: Request, res: Response, next: NextFunction) {
+  async searchConsumidoresNome(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const text = req.query.text ? String(req.query.text) : undefined;
+      const text =
+        req.query.text !== undefined ? String(req.query.text) : undefined;
+
       const consumidores =
         await this.consumidoresRepository.searchNameParcialConsumidores(text);
 
-      return res.status(200).send({ success: true, consumidores });
+      return res.status(200).send({
+        success: true,
+        consumidores
+      });
     } catch (error) {
       next(error);
     }
@@ -66,11 +235,16 @@ export class ConsumidoresController {
     next: NextFunction
   ) {
     try {
-      const text = req.query.text ? String(req.query.text) : undefined;
+      const text =
+        req.query.text !== undefined ? String(req.query.text) : undefined;
+
       const consumidores =
         await this.consumidoresRepository.searchFantasyParcialConsumidores(text);
 
-      return res.status(200).send({ success: true, consumidores });
+      return res.status(200).send({
+        success: true,
+        consumidores
+      });
     } catch (error) {
       next(error);
     }
@@ -83,7 +257,8 @@ export class ConsumidoresController {
     next: NextFunction
   ) {
     try {
-      const nome = req.query?.nome as string;
+      const nome =
+        req.query.nome !== undefined ? String(req.query.nome) : undefined;
 
       if (!nome) {
         throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
@@ -108,7 +283,8 @@ export class ConsumidoresController {
     next: NextFunction
   ) {
     try {
-      const nome = req.query?.nome as string;
+      const nome =
+        req.query.nome !== undefined ? String(req.query.nome) : undefined;
 
       if (!nome) {
         throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
@@ -134,7 +310,8 @@ export class ConsumidoresController {
     next: NextFunction
   ) {
     try {
-      const fantasy = req.query?.fantasy as string;
+      const fantasy =
+        req.query.fantasy !== undefined ? String(req.query.fantasy) : undefined;
 
       if (!fantasy) {
         throw new HttpException(400, "Parâmetro 'fantasy' é obrigatório");
@@ -159,7 +336,8 @@ export class ConsumidoresController {
     next: NextFunction
   ) {
     try {
-      const fantasy = req.query?.fantasy as string;
+      const fantasy =
+        req.query.fantasy !== undefined ? String(req.query.fantasy) : undefined;
 
       if (!fantasy) {
         throw new HttpException(400, "Parâmetro 'fantasy' é obrigatório");
@@ -178,7 +356,7 @@ export class ConsumidoresController {
     }
   }
 
-  /** GET → Buscar todos os consumidores por id_pessoas */
+  /** GET → Buscar todos os consumidores por pessoa */
   async findAllConsumidoresPessoasId(
     req: Request<{ pessoasId: string }>,
     res: Response,
@@ -187,12 +365,14 @@ export class ConsumidoresController {
     try {
       const pessoasId = Number(req.params.pessoasId);
 
-      if (!pessoasId || Number.isNaN(pessoasId) || pessoasId <= 0) {
+      if (Number.isNaN(pessoasId) || pessoasId <= 0) {
         throw new HttpException(400, 'ID da pessoa inválido');
       }
 
       const consumidores =
-        await this.consumidoresRepository.findAllConsumidoresByPessoasId(pessoasId);
+        await this.consumidoresRepository.findAllConsumidoresByPessoasId(
+          pessoasId
+        );
 
       return res.status(200).send({
         success: true,
@@ -204,7 +384,7 @@ export class ConsumidoresController {
     }
   }
 
-  /** GET → Buscar todos os consumidores por id_empresas */
+  /** GET → Buscar todos os consumidores por empresa */
   async findAllConsumidoresEmpresasId(
     req: Request<{ empresasId: string }>,
     res: Response,
@@ -213,12 +393,14 @@ export class ConsumidoresController {
     try {
       const empresasId = Number(req.params.empresasId);
 
-      if (!empresasId || Number.isNaN(empresasId) || empresasId <= 0) {
+      if (Number.isNaN(empresasId) || empresasId <= 0) {
         throw new HttpException(400, 'ID da empresa inválido');
       }
 
       const consumidores =
-        await this.consumidoresRepository.findAllConsumidoresByEmpresasId(empresasId);
+        await this.consumidoresRepository.findAllConsumidoresByEmpresasId(
+          empresasId
+        );
 
       return res.status(200).send({
         success: true,
@@ -230,7 +412,7 @@ export class ConsumidoresController {
     }
   }
 
-  /** GET → Lista detalhada com pessoas + empresas */
+  /** GET → Lista consumidores com detalhes */
   async listAllConsumidoresDetails(
     req: Request,
     res: Response,
@@ -242,105 +424,10 @@ export class ConsumidoresController {
 
       return res.status(200).send({
         success: true,
-        total: consumidores.length,
         consumidores
       });
     } catch (error) {
       next(error);
     }
   }
-
-  // =========================================================================
-  // CRUD
-  // =========================================================================
-
-  /** POST → Criar novo consumidor */
-  async createNewConsumidores(
-    req: Request<{}, {}, ConsumidoresCreate>,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      const { nome, fantasy } = req.body;
-
-      if (!nome || !fantasy) {
-        throw new HttpException(400, 'Nome e fantasy são obrigatórios');
-      }
-
-      const consumidores =
-        await this.consumidoresRepository.createConsumidores(req.body);
-
-      return res.status(201).send({ success: true, consumidores });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** PATCH → Atualizar consumidor pelo ID */
-  async updateIdConsumidores(
-    req: Request<{ consumidoresId: string }, {}, ConsumidoresUpdate>,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      const consumidoresId = Number(req.params.consumidoresId);
-
-      if (!consumidoresId || Number.isNaN(consumidoresId) || consumidoresId <= 0) {
-        throw new HttpException(400, 'ID do consumidor inválido');
-      }
-
-      const consumidores = await this.consumidoresRepository.updateConsumidoresId(
-        consumidoresId,
-        req.body
-      );
-
-      return res.status(200).send({ success: true, consumidores });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** DELETE → Remover consumidor */
-  async removeIdConsumidores(
-    req: Request<{ consumidoresId: string }>,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      const consumidoresId = Number(req.params.consumidoresId);
-
-      if (Number.isNaN(consumidoresId) || consumidoresId <= 0) {
-        throw new HttpException(400, 'ID inválido');
-      }
-
-      await this.consumidoresRepository.deleteConsumidoresId(consumidoresId);
-
-      return res.status(200).send({ success: true });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /** GET → Buscar consumidor pelo ID */
-  async getOneConsumidoresId(
-    req: Request<{ consumidoresId: string }>,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      const consumidoresId = Number(req.params.consumidoresId);
-
-      if (Number.isNaN(consumidoresId) || consumidoresId <= 0) {
-        throw new HttpException(400, 'ID inválido');
-      }
-
-      const consumidores =
-        await this.consumidoresRepository.findOneConsumidoresById(consumidoresId);
-
-      return res.status(200).send({ success: true, consumidores });
-    } catch (error) {
-      next(error);
-    }
-  }
 }
-

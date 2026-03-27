@@ -1,6 +1,6 @@
 
-
 // C:\repository\proj-full-stack-backend\src\use-cases\pessoa\index.ts
+
 import { PessoasRepository } from './pessoas.repository';
 
 export { PessoasController } from './pessoas.controller';
@@ -16,6 +16,3 @@ export const pessoasConfig = {
   repoClass: PessoasRepository,
   findAll: 'findPessoasAll'
 };
-
-
-

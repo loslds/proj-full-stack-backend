@@ -1,4 +1,3 @@
-
 // src/services/tables/estados.service.ts
 import { AppDataSource } from '../../config/db';
 import { estadosSeed } from './seed/estados.seed';
@@ -6,21 +5,29 @@ import { estadosSeed } from './seed/estados.seed';
 export const estadosService = {
   tableName: 'estados',
 
+  // ============================================================
+  // * CONNECTION *
+  // ============================================================
+
   async ensureConnection(): Promise<void> {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }
   },
 
+  // ============================================================
+  // * CREATE TABLE *
+  // ============================================================
+
   async create(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [estadosService] create() iniciado');
+    console.log(`>>> [${this.tableName}Service] create() iniciado`);
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-    console.log('>>> [estadosService] banco atual:', currentDb);
+    console.log(`>>> [${this.tableName}Service] banco atual:`, currentDb);
 
     await AppDataSource.query(`
-      CREATE TABLE IF NOT EXISTS estados (
+      CREATE TABLE IF NOT EXISTS ${this.tableName} (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
         nome VARCHAR(60)
@@ -50,33 +57,43 @@ export const estadosService = {
       )
     `);
 
-    console.log('>>> [estadosService] create() concluído');
+    console.log(`>>> [${this.tableName}Service] create() concluído`);
   },
-
+  // ============================================================
+  // * SEED *
+  // ============================================================
   async seed(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [estadosService] seed() iniciado');
+    console.log(`>>> [${this.tableName}Service] seed() iniciado`);
 
-    for (const p of estadosSeed) {
-      console.log('>>> [estadosService] inserindo registro:', p);
+    for (const { nome, prefixo, createdBy, updatedBy } of estadosSeed) {
+      console.log(`>>> [${this.tableName}Service] inserindo registro:`, {
+        nome,
+        prefixo,
+        createdBy,
+        updatedBy
+      });
 
       await AppDataSource.query(
         `
-        INSERT INTO estados (nome, prefixo, createdBy, updatedBy)
+        INSERT INTO ${this.tableName} (nome, prefixo, createdBy, updatedBy)
         VALUES (?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
           updatedBy = VALUES(updatedBy),
           updatedAt = CURRENT_TIMESTAMP
         `,
-        [p.nome, p.prefixo, p.createdBy ?? 0, p.updatedBy ?? 0]
+        [nome, prefixo, createdBy ?? 0, updatedBy ?? 0]
       );
     }
 
-    console.log('>>> [estadosService] seed() concluído');
+    console.log(`>>> [${this.tableName}Service] seed() concluído`);
   },
+
+  // ============================================================
+  // * UPDATE TABLE *
+  // ============================================================
 
   async update(): Promise<void> {
     // reservado
-  },
+  }
 };
-

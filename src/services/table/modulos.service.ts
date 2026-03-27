@@ -5,14 +5,14 @@ import { AppDataSource } from '../../config/db';
 import { modulosSeed } from './seed/modulos.seed';
 
 type ModuloSeedRow = {
-  name: string;
+  nome: string;
   createdBy?: number;
   updatedBy?: number;
 };
 
 type ModuloErroRow = {
   index: number;
-  name: string;
+  nome: string;
   motivo: string;
 };
 
@@ -39,7 +39,7 @@ export const modulosService = {
       CREATE TABLE IF NOT EXISTS modulos (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
-        name VARCHAR(30)
+        nome VARCHAR(30)
           NOT NULL
           COLLATE utf8mb4_general_ci,
 
@@ -76,27 +76,29 @@ export const modulosService = {
     const rows: Array<[string, number, number]> = [];
     const registrosComErro: ModuloErroRow[] = [];
 
+
+
     for (let index = 0; index < modulosSeed.length; index++) {
       const modulo = modulosSeed[index] as ModuloSeedRow;
 
-      if (!modulo.name || modulo.name.trim().length < 3) {
+      if (!modulo.nome || modulo.nome.trim().length < 3) {
         const erro: ModuloErroRow = {
           index: index + 1,
-          name: modulo.name ?? '',
-          motivo: 'name inválido'
+          nome: modulo.nome ?? '',
+          motivo: 'nome inválido'
         };
 
         registrosComErro.push(erro);
 
         console.error(
-          `>>> [modulosService][ERRO] registro ${erro.index} | módulo: ${erro.name} | motivo: ${erro.motivo}`
+          `>>> [modulosService][ERRO] registro ${erro.index} | módulo: ${erro.nome} | motivo: ${erro.motivo}`
         );
 
         continue;
       }
 
       rows.push([
-        modulo.name.trim(),
+        modulo.nome.trim(),
         modulo.createdBy ?? 0,
         modulo.updatedBy ?? 0
       ]);
@@ -118,7 +120,7 @@ export const modulosService = {
 
       await AppDataSource.query(
         `
-        INSERT INTO modulos (name, createdBy, updatedBy)
+        INSERT INTO modulos (nome, createdBy, updatedBy)
         VALUES ${placeholders}
         ON DUPLICATE KEY UPDATE
           updatedBy = VALUES(updatedBy),

@@ -27,8 +27,15 @@
 // estado do São Paulo           644 reg.
 // estado do Tocantins           138 reg.
 //  total de registros ======> 5.402
-export const cidadesSeed = [
-  // estado do Acre     22 reg.
+
+type CidadesSeedType = {
+  nome: string;
+  id_estados: number;
+  createdBy?: number;
+  updatedBy?: number;
+};
+export const cidadesSeed: CidadesSeedType[] = [
+// estado do Acre     22 reg.
 { nome: 'Acrelândia', id_estados: 1 , createdBy: 0, updatedBy: 0 },
 { nome: 'Assis Brasil', id_estados: 1, createdBy: 0, updatedBy: 0 },
 { nome: 'Brasiléia', id_estados: 1, createdBy: 0, updatedBy: 0 },

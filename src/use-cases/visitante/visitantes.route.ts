@@ -1,5 +1,6 @@
   
 // C:\repository\proj-full-stack-backend\src\use-cases\visitante\visitantes.route.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\visitante\visitantes.route.ts
 import { Router } from 'express';
 import { AppDataSource } from '../../config/db';
 import { VisitantesController } from './visitantes.controller';
@@ -43,32 +44,51 @@ visitantesRoute.get('/one-fantasy', controller.findOneVisitantesFantasy.bind(con
 visitantesRoute.get('/all-fantasy', controller.findAllVisitantesFantasy.bind(controller));
 
 // GET -> Busca todos os visitantes por pessoa
-visitantesRoute.get('/pessoas/:pessoasId', controller.findAllVisitantesPessoasId.bind(controller));
+visitantesRoute.get(
+  '/pessoas/:pessoasId',
+  controller.findAllVisitantesPessoasId.bind(controller)
+);
 
 // GET -> Busca todos os visitantes por empresa
-visitantesRoute.get('/empresas/:empresasId', controller.findAllVisitantesEmpresasId.bind(controller));
+visitantesRoute.get(
+  '/empresas/:empresasId',
+  controller.findAllVisitantesEmpresasId.bind(controller)
+);
 
 // GET -> Lista visitantes com detalhes
-visitantesRoute.get('/details', controller.listAllVisitantesDetails.bind(controller));
+visitantesRoute.get(
+  '/details',
+  controller.listAllVisitantesDetails.bind(controller)
+);
 
 // POST -> Cria novo visitante
-visitantesRoute.post('/', visitantescreateValidation, controller.createNewVisitantes.bind(controller));
+visitantesRoute.post(
+  '/',
+  visitantescreateValidation,
+  controller.createNewVisitantes.bind(controller)
+);
 
 // ==========================================================
 // ROTAS DINÂMICAS
 // ==========================================================
 
 // GET -> Busca visitante por ID
-visitantesRoute.get('/:visitantesId', controller.getOneVisitantesId.bind(controller));
+visitantesRoute.get(
+  '/:visitantesId',
+  controller.getOneVisitantesId.bind(controller)
+);
 
 // PATCH -> Atualiza visitante por ID
-visitantesRoute.patch('/:visitantesId', visitantesupdateValidation, controller.updateIdVisitantes.bind(controller));
+visitantesRoute.patch(
+  '/:visitantesId',
+  visitantesupdateValidation,
+  controller.updateIdVisitantes.bind(controller)
+);
 
 // DELETE -> Remove visitante por ID
-visitantesRoute.delete('/:visitantesId', controller.removeIdVisitantes.bind(controller));
+visitantesRoute.delete(
+  '/:visitantesId',
+  controller.removeIdVisitantes.bind(controller)
+);
 
 export { visitantesRoute as visitantesRoutes };
-
-
- 
-

@@ -7,7 +7,6 @@ import { EstadosEntity } from './estados.entity';
 // =========================
 // CREATE
 // =========================
-
 export const estadosCreateSchema = z.object({
   nome: z
     .string()

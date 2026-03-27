@@ -1,5 +1,7 @@
 
-//C:\repository\proj-full-stack-backend\src\use-cases\fornecedor\fornecedores.reposytory.ts
+
+// C:\repository\proj-full-stack-backend\src\use-cases\fornecedor\fornecedores.repository.ts
+
 import {
   DataSource,
   DeepPartial,
@@ -18,9 +20,9 @@ export class FornecedoresRepository {
     this.repo = this.dataSource.getRepository(FornecedoresEntity);
   }
 
-  // ==========================================================
-  // DUPLICIDADE
-  // ==========================================================
+  // ============================================================
+  // * DUPLICIDADE *
+  // ============================================================
   async hasDuplicated(
     nome?: string,
     fantasy?: string,
@@ -53,9 +55,25 @@ export class FornecedoresRepository {
     return query.getOne();
   }
 
-  // ==========================================================
-  // CREATE
-  // ==========================================================
+  // ============================================================
+  // * CRUD *
+  // ============================================================
+  async findFornecedoresAll(
+    where?:
+      | FindOptionsWhere<FornecedoresEntity>
+      | FindOptionsWhere<FornecedoresEntity>[],
+    orderBy: FindOptionsOrder<FornecedoresEntity> = { id: 'ASC' }
+  ): Promise<FornecedoresEntity[]> {
+    return this.repo.find({
+      where,
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: orderBy
+    });
+  }
+
   async createFornecedores(
     fornecedores: FornecedoresCreate
   ): Promise<FornecedoresEntity> {
@@ -68,14 +86,12 @@ export class FornecedoresRepository {
 
     if (duplicated) {
       throw new Error(
-        'Fornecedor duplicado! Nome, fantasy, pessoa e empresa já existentes.'
+        'Consumidor duplicado! Nome, fantasy, pessoa e empresa já existentes.'
       );
     }
 
     const data = this.repo.create({
       ...fornecedores,
-      id_pessoas: fornecedores.id_pessoas ?? 0,
-      id_empresas: fornecedores.id_empresas ?? 0,
       createdBy: fornecedores.createdBy ?? 0,
       updatedBy: fornecedores.updatedBy ?? 0
     });
@@ -83,13 +99,26 @@ export class FornecedoresRepository {
     return this.repo.save(data);
   }
 
-  // ==========================================================
-  // UPDATE
-  // ==========================================================
+  async findOneFornecedoresById(
+    fornecedoresId: number
+  ): Promise<FornecedoresEntity | null> {
+    this.validateId(fornecedoresId);
+
+    return this.repo.findOne({
+      where: { id: fornecedoresId },
+      relations: {
+        pessoas: true,
+        empresas: true
+      }
+    });
+  }
+
   async updateFornecedoresId(
     fornecedoresId: number,
     fornecedores: DeepPartial<FornecedoresEntity>
   ): Promise<FornecedoresEntity> {
+    this.validateId(fornecedoresId);
+
     const current = await this.repo.findOne({
       where: { id: fornecedoresId }
     });
@@ -121,54 +150,21 @@ export class FornecedoresRepository {
     return this.repo.save(data);
   }
 
-  // ==========================================================
-  // DELETE
-  // ==========================================================
   async deleteFornecedoresId(fornecedoresId: number): Promise<boolean> {
+    this.validateId(fornecedoresId);
+
     const result = await this.repo.delete(fornecedoresId);
 
     if (result.affected === 0) {
-      throw new Error(`Fornecedor com ID ${fornecedoresId} não encontrado.`);
+      throw new Error(`Consumidor com ID ${fornecedoresId} não encontrado.`);
     }
 
     return true;
   }
 
-  // ==========================================================
-  // BUSCA POR ID
-  // ==========================================================
-  async findOneFornecedoresById(
-    fornecedoresId: number
-  ): Promise<FornecedoresEntity | null> {
-    return this.repo.findOne({
-      where: { id: fornecedoresId },
-      relations: {
-        pessoas: true,
-        empresas: true
-      }
-    });
-  }
-
-  // ==========================================================
-  // LISTA TODOS
-  // ==========================================================
-  async findFornecedoresAll(
-    where?: FindOptionsWhere<FornecedoresEntity> | FindOptionsWhere<FornecedoresEntity>[],
-    orderBy: FindOptionsOrder<FornecedoresEntity> = { id: 'ASC' }
-  ): Promise<FornecedoresEntity[]> {
-    return this.repo.find({
-      where,
-      relations: {
-        pessoas: true,
-        empresas: true
-      },
-      order: orderBy
-    });
-  }
-
-  // ==========================================================
-  // BUSCA EXATA POR NOME
-  // ==========================================================
+  // ============================================================
+  // * CONSULTAS PERSONALIZADAS *
+  // ============================================================
   async findOneFornecedoresByNome(
     nome: string
   ): Promise<FornecedoresEntity | null> {
@@ -181,10 +177,9 @@ export class FornecedoresRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA TODOS POR NOME EXATO
-  // ==========================================================
-  async findAllFornecedoresByNome(nome: string): Promise<FornecedoresEntity[]> {
+  async findAllFornecedoresByNome(
+    nome: string
+  ): Promise<FornecedoresEntity[]> {
     return this.repo.find({
       where: { nome },
       relations: {
@@ -195,9 +190,6 @@ export class FornecedoresRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA EXATA POR FANTASY
-  // ==========================================================
   async findOneFornecedoresByFantasy(
     fantasy: string
   ): Promise<FornecedoresEntity | null> {
@@ -210,9 +202,6 @@ export class FornecedoresRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA TODOS POR FANTASY EXATO
-  // ==========================================================
   async findAllFornecedoresByFantasy(
     fantasy: string
   ): Promise<FornecedoresEntity[]> {
@@ -226,9 +215,6 @@ export class FornecedoresRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA PARCIAL POR NOME
-  // ==========================================================
   async searchNameParcialFornecedores(
     txt?: string
   ): Promise<FornecedoresEntity[]> {
@@ -248,9 +234,6 @@ export class FornecedoresRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // BUSCA PARCIAL POR FANTASY
-  // ==========================================================
   async searchFantasyParcialFornecedores(
     txt?: string
   ): Promise<FornecedoresEntity[]> {
@@ -270,9 +253,6 @@ export class FornecedoresRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // PESQUISA GERAL
-  // ==========================================================
   async searchFornecedores(params: {
     id?: number;
     nome?: string;
@@ -286,7 +266,7 @@ export class FornecedoresRepository {
       .leftJoinAndSelect('fornecedores.empresas', 'empresas')
       .orderBy('fornecedores.id', 'ASC');
 
-    if (params.id) {
+    if (typeof params.id === 'number') {
       query.andWhere('fornecedores.id = :id', { id: params.id });
     }
 
@@ -319,9 +299,6 @@ export class FornecedoresRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // LISTA POR ID_PESSOAS
-  // ==========================================================
   async findAllFornecedoresByPessoasId(
     pessoasId: number
   ): Promise<FornecedoresEntity[]> {
@@ -335,9 +312,6 @@ export class FornecedoresRepository {
     });
   }
 
-  // ==========================================================
-  // LISTA POR ID_EMPRESAS
-  // ==========================================================
   async findAllFornecedoresByEmpresasId(
     empresasId: number
   ): Promise<FornecedoresEntity[]> {
@@ -351,9 +325,6 @@ export class FornecedoresRepository {
     });
   }
 
-  // ==========================================================
-  // LISTA DETALHADA
-  // ==========================================================
   async listAllFornecedoresDetails(): Promise<FornecedoresEntity[]> {
     return this.repo
       .createQueryBuilder('fornecedores')
@@ -364,14 +335,11 @@ export class FornecedoresRepository {
   }
 
   // ============================================================
-  // UTIL
+  // * UTIL *
   // ============================================================
   private validateId(id: number): void {
-    if (!id || isNaN(id) || id <= 0) {
+    if (typeof id !== 'number' || isNaN(id) || id <= 0) {
       throw new Error('Invalid fornecedoresId');
     }
   }
 }
-
-
-

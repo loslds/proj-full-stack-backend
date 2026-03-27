@@ -1,66 +1,89 @@
 
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+// C:\repository\proj-full-stack-backend\src\use-cases\user\users.entity.ts
+
+// C:\repository\proj-full-stack-backend\src\use-cases\user\users.entity.ts
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  Index
+} from 'typeorm';
+
 import { CadastrosEntity } from '../cadastro/cadastros.entity';
 
 @Entity('users')
+@Index('idx_users_id_cadastros', ['id_cadastros'])
 export class UsersEntity {
-  @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
+  @PrimaryGeneratedColumn({
+    type: 'int',
+    unsigned: true
+  })
   id: number;
 
-  // Relacionamento com a entidade CadastroEntity
-  @ManyToOne('CadastrosEntity', (entity: CadastrosEntity) => entity.usuarios)
-  @JoinColumn({ name: 'id_cadastros' })
-  cadastro: CadastrosEntity;
-
-  @Column({ type: 'int', nullable: false })
+  // ==========================================================
+  // RELAÇÃO COM CADASTROS
+  // ==========================================================
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
   id_cadastros: number;
 
-  // Define se o usuário está bloqueado 
-  @Column({ type: 'int', nullable: false, default: 0 })
-  bloqueado: number;
-
-  // Contagem de acessos
-  @Column({ type: 'int', nullable: false })
-  qdd_acesso: number;
-
-  // Último acesso (como data e hora)
-  @Column({ 
-    type: 'timestamp',
-    precision: null,
+  @ManyToOne(() => CadastrosEntity, {
     nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
   })
-  ult_acesso: Date;
+  @JoinColumn({ name: 'id_cadastros' })
+  cadastros: CadastrosEntity;
 
-  // Data e hora do login
-  @Column({ 
-    type: 'timestamp',
-    precision: null,
+  // ==========================================================
+  // CONTROLE DE USUÁRIO
+  // ==========================================================
+  
+  @Column({
+    type: 'tinyint',
+    width: 1,
     nullable: false,
+    default: 1
   })
-  data_login: Date;
+  is_actived: number;
 
-  // Data e hora do logout
-  @Column({ type: 'timestamp', nullable: false })
-  data_logout: Date;
+  // ==========================================================
+  // AUDITORIA
+  // ==========================================================
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
+  createdBy: number;
 
-  // Data e hora de criação do registro
   @Column({
     type: 'datetime',
     nullable: true,
-    precision: null,
-    default: () => 'CURRENT_TIMESTAMP',
+    default: () => 'CURRENT_TIMESTAMP'
   })
   createdAt: Date;
 
-  // Usuário que realizou a última atualização
-  @Column({ type: 'int', nullable: true })
-  updatedBy?: number;
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: true,
+    default: 0
+  })
+  updatedBy: number;
 
-  // Data e hora da última atualização
   @Column({
     type: 'datetime',
     nullable: true,
-    precision: null,
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP'
   })
-  updatedAt?: Date;
+  updatedAt: Date;
 }

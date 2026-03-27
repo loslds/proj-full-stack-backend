@@ -1,30 +1,21 @@
 
-//C:\repository\proj-full-stack-backend\src\use-cases\acao\route.ts
 // C:\repository\proj-full-stack-backend\src\use-cases\acao\acoes.route.ts
-
 import { Router } from 'express';
 import { AppDataSource } from '../../config/db';
 import { AcoesController } from './acoes.controller';
 import { AcoesRepository } from './acoes.repository';
 import {
-  acoesCreateValidation,
-  acoesUpdateValidation
+  acoescreateValidation,
+  acoesupdateValidation
 } from './acoes.validation';
 
 const acoesRepository = new AcoesRepository(AppDataSource);
 const controller = new AcoesController(acoesRepository);
 const acoesRoute = Router();
 
-// ==========================================================
-// ROTAS FIXAS
-// Sempre declarar antes das rotas dinâmicas
-// ==========================================================
-
-// GET -> Lista todas as ações
-acoesRoute.get(
-  '/',
-  controller.findAllAcoes.bind(controller)
-);
+// ============================================================
+// * CONSULTAS PERSONALIZADAS *
+// ============================================================
 
 // GET -> Pesquisa combinada
 acoesRoute.get(
@@ -42,6 +33,12 @@ acoesRoute.get(
 acoesRoute.get(
   '/search-abrev',
   controller.searchAcoesAbrev.bind(controller)
+);
+
+// GET -> Pesquisa por cor aproximada
+acoesRoute.get(
+  '/search-cor',
+  controller.searchAcoesCor.bind(controller)
 );
 
 // GET -> Busca uma ação por nome exato
@@ -80,16 +77,22 @@ acoesRoute.get(
   controller.findAllAcoesNivel.bind(controller)
 );
 
+// ============================================================
+// * CRUD *
+// ============================================================
+
+// GET -> Lista todas as ações
+acoesRoute.get(
+  '/',
+  controller.findAllAcoes.bind(controller)
+);
+
 // POST -> Cria nova ação
 acoesRoute.post(
   '/',
-  acoesCreateValidation,
+  acoescreateValidation,
   controller.createNewAcoes.bind(controller)
 );
-
-// ==========================================================
-// ROTAS DINÂMICAS
-// ==========================================================
 
 // GET -> Busca ação por ID
 acoesRoute.get(
@@ -100,7 +103,7 @@ acoesRoute.get(
 // PATCH -> Atualiza ação por ID
 acoesRoute.patch(
   '/:acoesId',
-  acoesUpdateValidation,
+  acoesupdateValidation,
   controller.updateIdAcoes.bind(controller)
 );
 

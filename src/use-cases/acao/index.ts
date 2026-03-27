@@ -1,6 +1,4 @@
-
 // C:\repository\proj-full-stack-backend\src\use-cases\acao\index.ts
-
 import { AcoesRepository } from './acoes.repository';
 
 export { AcoesController } from './acoes.controller';

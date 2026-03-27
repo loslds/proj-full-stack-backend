@@ -1,4 +1,5 @@
 
+
 // C:\repository\proj-full-stack-backend\src\use-cases\cliente\clientes.validation.ts
 import { zodBodyValidation } from '../../helpers/zod-validation';
 import {
@@ -8,5 +9,3 @@ import {
 
 export const clientescreateValidation = zodBodyValidation(clientesCreateSchema);
 export const clientesupdateValidation = zodBodyValidation(clientesUpdateSchema);
-
-

@@ -1,3 +1,6 @@
+
+// C:\repository\proj-full-stack-backend\src\use-cases\email\emails.dto.ts
+
 import { z } from 'zod';
 
 export const emailsCreateSchema = z.object({

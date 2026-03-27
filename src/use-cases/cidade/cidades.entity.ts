@@ -38,7 +38,7 @@ export class CidadesEntity {
   @JoinColumn({
     name: 'id_estados'
   })
-  estado: EstadosEntity;
+  estados: EstadosEntity;
 
   /**
    * Nome da cidade

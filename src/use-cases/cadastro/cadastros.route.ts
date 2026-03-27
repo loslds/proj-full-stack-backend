@@ -1,38 +1,74 @@
 
-// /use-cases/consumidor/consumidores.route.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\cadastro\cadastros.route.ts
 import { Router } from 'express';
-import { ClientesController } from './cadastros.controller';
-import { ClientesRepository } from './cadastros.repository';
-import { dbSource } from '../../database';
-import { clientescreateValidation, clientesupdateValidation } from './cadastros.validation';
-import { ParsedQs } from 'qs';
+import { AppDataSource } from '../../config/db';
+import { CadastrosController } from './cadastros.controller';
+import { CadastrosRepository } from './cadastros.repository';
+import {
+  cadastroscreateValidation,
+  cadastrosupdateValidation
+} from './cadastros.validation';
 
-interface SearchQuery extends ParsedQs {
-  id?: string;
-  nome?: string;
-  fantasy?: string;
-}
-const clientesRepository = new ClientesRepository(dbSource);
-const controller = new ClientesController(clientesRepository);
-const clientesRoute = Router();
+const cadastrosRepository = new CadastrosRepository(AppDataSource);
+const controller = new CadastrosController(cadastrosRepository);
+const cadastrosRoute = Router();
 
-// Tipagem para a rota de busca
-interface SearchQuery {
-  id?: string;
-  nome?: string;
-  fantasy?: string;
-}
+// ==========================================================
+// ROTAS FIXAS
+// Sempre declarar antes das rotas dinâmicas
+// ==========================================================
 
-clientesRoute.get('/', controller.findAllClientes.bind(controller));
-clientesRoute.post('/', clientescreateValidation, controller.createNewClientes.bind(controller));
-clientesRoute.get('/:clientesId', controller.getOneClientesId.bind(controller));
-clientesRoute.patch('/:clientesId', clientesupdateValidation, controller.updateIdClientes.bind(controller));
-clientesRoute.delete('/:clientesId', controller.removeIdClientes.bind(controller));
-clientesRoute.get('/by-one-name', controller.findOneClientesNome.bind(controller));
-clientesRoute.get('/by-one-fantasy', controller.findOneClientesFantasy.bind(controller));
-clientesRoute.get('/by-pessoas/:pessoasId', controller.findAllClientesPessoasId.bind(controller));
-clientesRoute.get('/by-imagens/:imagensId', controller.findAllClientesImagensId.bind(controller));
-clientesRoute.get('/search', controller.searchByClientes.bind(controller));
-clientesRoute.get('/details', controller.findAllClientesByDetails.bind(controller));
+// GET -> Lista todos os cadastros
+cadastrosRoute.get('/', controller.findAllCadastros.bind(controller));
 
-export { clientesRoute as clientesRoutes };
+// GET -> Pesquisa combinada
+cadastrosRoute.get('/search', controller.searchCadastrosAll.bind(controller));
+
+// GET -> Pesquisa por endereço aproximado
+cadastrosRoute.get('/search-endereco', controller.searchCadastrosEndereco.bind(controller));
+
+// GET -> Pesquisa por bairro aproximado
+cadastrosRoute.get('/search-bairro', controller.searchCadastrosBairro.bind(controller));
+
+// GET -> Pesquisa por cep aproximado
+cadastrosRoute.get('/search-cep', controller.searchCadastrosCep.bind(controller));
+
+// GET -> Busca todos os cadastros por empresa
+cadastrosRoute.get('/empresas/:empresasId', controller.findAllCadastrosEmpresasId.bind(controller));
+
+// GET -> Busca todos os cadastros por visitante
+cadastrosRoute.get('/visitantes/:visitantesId', controller.findAllCadastrosVisitantesId.bind(controller));
+
+// GET -> Busca todos os cadastros por consumidor
+cadastrosRoute.get('/consumidores/:consumidoresId', controller.findAllCadastrosConsumidoresId.bind(controller));
+
+// GET -> Busca todos os cadastros por cliente
+cadastrosRoute.get('/clientes/:clientesId', controller.findAllCadastrosClientesId.bind(controller));
+
+// GET -> Busca todos os cadastros por fornecedor
+cadastrosRoute.get('/fornecedores/:fornecedoresId', controller.findAllCadastrosFornecedoresId.bind(controller));
+
+// GET -> Busca todos os cadastros por funcionário
+cadastrosRoute.get('/funcionarios/:funcionariosId', controller.findAllCadastrosFuncionariosId.bind(controller));
+
+// GET -> Lista cadastros com detalhes
+cadastrosRoute.get('/details', controller.listAllCadastrosDetails.bind(controller));
+
+// POST -> Cria novo cadastro
+cadastrosRoute.post('/', cadastroscreateValidation, controller.createNewCadastros.bind(controller)
+);
+
+// ==========================================================
+// ROTAS DINÂMICAS
+// ==========================================================
+
+// GET -> Busca cadastro por ID
+cadastrosRoute.get('/:cadastrosId', controller.getOneCadastrosId.bind(controller));
+
+// PATCH -> Atualiza cadastro por ID
+cadastrosRoute.patch('/:cadastrosId', cadastrosupdateValidation, controller.updateIdCadastros.bind(controller));
+
+// DELETE -> Remove cadastro por ID
+cadastrosRoute.delete('/:cadastrosId', controller.removeIdCadastros.bind(controller));
+
+export { cadastrosRoute as cadastrosRoutes };

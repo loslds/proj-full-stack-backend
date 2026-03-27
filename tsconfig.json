@@ -24,7 +24,8 @@
   "include": [
     "src/**/*.ts",
     "deletado/syncsysTables.ts.tts",
-    "deletado/syncTablesRoutes.ts.tts"
-  ], // Inclui todos os TS na pasta src
+    "deletado/syncTablesRoutes.ts.tts",
+    "src/use-cases/pegresp/pergsresps.validation.ts"
+, "src/use-cases/fornecedor/index.ts"  ], // Inclui todos os TS na pasta src
   "exclude": ["node_modules", "dist"] // Ignora dependências e saída compilada
 }

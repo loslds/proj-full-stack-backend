@@ -1,9 +1,10 @@
+
 // C:\repository\proj-full-stack-backend\src\use-cases\cadastro\cadastros.entity.ts
 
 import {
+  Column,
   Entity,
   PrimaryGeneratedColumn,
-  Column,
   ManyToOne,
   JoinColumn,
   Index,
@@ -12,136 +13,191 @@ import {
 } from 'typeorm';
 
 import { EmpresasEntity } from '../empresa/empresas.entity';
-import { CidadesEntity } from '../cidade/cidades.entity';
-import { ImagensEntity } from '../imagen/imagens.entity';
+import { VisitantesEntity } from '../visitante/visitantes.entity';
 import { ConsumidoresEntity } from '../consumidor/consumidores.entity';
 import { ClientesEntity } from '../cliente/clientes.entity';
 import { FornecedoresEntity } from '../fornecedor/fornecedores.entity';
 import { FuncionariosEntity } from '../funcionario/funcionarios.entity';
+import { CidadesEntity } from '../cidade/cidades.entity';
+import { ImagensEntity } from '../imagen/imagens.entity';
 
 @Entity('cadastros')
+@Index('idx_cadastros_id_empresas', ['id_empresas'])
+@Index('idx_cadastros_id_visitantes', ['id_visitantes'])
+@Index('idx_cadastros_id_consumidores', ['id_consumidores'])
+@Index('idx_cadastros_id_clientes', ['id_clientes'])
+@Index('idx_cadastros_id_fornecedores', ['id_fornecedores'])
+@Index('idx_cadastros_id_funcionarios', ['id_funcionarios'])
+@Index('idx_cadastros_id_cidades', ['id_cidades'])
+@Index('idx_cadastros_id_imagens', ['id_imagens'])
+@Index('idx_cadastros_cep', ['cep'])
 export class CadastrosEntity {
-  @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
+  @PrimaryGeneratedColumn({
+    type: 'int',
+    unsigned: true
+  })
   id: number;
 
-  @Index('idx_cadastros_grupo', ['grupo'])
   @Column({
-    type: 'varchar',
-    length: 30,
+    type: 'int',
+    unsigned: true,
     nullable: false,
-    collation: 'utf8mb4_general_ci'
+    default: 0
   })
-  grupo: string;
-
-  @Index('idx_cadastros_status', ['status'])
-  @Column({
-    type: 'varchar',
-    length: 20,
-    nullable: false,
-    default: 'ativo',
-    collation: 'utf8mb4_general_ci'
-  })
-  status: string;
-
-  @Column({ type: 'int', unsigned: true, nullable: false })
   id_empresas: number;
 
-  @ManyToOne(() => EmpresasEntity)
+  @ManyToOne(() => EmpresasEntity, {
+    nullable: true,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn({ name: 'id_empresas' })
-  empresas: EmpresasEntity;
+  empresas: EmpresasEntity | null;
 
-  @Column({ type: 'int', unsigned: true, nullable: false })
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
+  id_visitantes: number;
+
+  @ManyToOne(() => VisitantesEntity, {
+    nullable: true,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
+  @JoinColumn({ name: 'id_visitantes' })
+  visitantes: VisitantesEntity | null;
+
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
   id_consumidores: number;
 
-  @ManyToOne(() => ConsumidoresEntity)
+  @ManyToOne(() => ConsumidoresEntity, {
+    nullable: true,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn({ name: 'id_consumidores' })
-  consumidores: ConsumidoresEntity;
+  consumidores: ConsumidoresEntity | null;
 
-  @Column({ type: 'int', unsigned: true, nullable: false })
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
   id_clientes: number;
 
-  @ManyToOne(() => ClientesEntity)
+  @ManyToOne(() => ClientesEntity, {
+    nullable: true,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn({ name: 'id_clientes' })
-  clientes: ClientesEntity;
+  clientes: ClientesEntity | null;
 
-  @Column({ type: 'int', unsigned: true, nullable: false })
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
   id_fornecedores: number;
 
-  @ManyToOne(() => FornecedoresEntity)
+  @ManyToOne(() => FornecedoresEntity, {
+    nullable: true,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn({ name: 'id_fornecedores' })
-  fornecedores: FornecedoresEntity;
+  fornecedores: FornecedoresEntity | null;
 
-  @Column({ type: 'int', unsigned: true, nullable: false })
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
   id_funcionarios: number;
 
-  @ManyToOne(() => FuncionariosEntity)
+  @ManyToOne(() => FuncionariosEntity, {
+    nullable: true,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn({ name: 'id_funcionarios' })
-  funcionarios: FuncionariosEntity;
+  funcionarios: FuncionariosEntity | null;
 
-  @Column({ type: 'int', unsigned: true, nullable: false })
-  id_imagens: number;
-
-  @ManyToOne(() => ImagensEntity)
-  @JoinColumn({ name: 'id_imagens' })
-  imagens: ImagensEntity;
-
-  @Column({ type: 'int', unsigned: true, nullable: false })
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
   id_cidades: number;
 
-  @ManyToOne(() => CidadesEntity)
+  @ManyToOne(() => CidadesEntity, {
+    nullable: true,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn({ name: 'id_cidades' })
-  cidades: CidadesEntity;
+  cidades: CidadesEntity | null;
+
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
+  id_imagens: number;
+
+  @ManyToOne(() => ImagensEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE'
+  })
+  @JoinColumn({ name: 'id_imagens' })
+  imagens: ImagensEntity | null;
 
   @Column({
     type: 'varchar',
     length: 200,
-    nullable: false,
+    nullable: true,
     collation: 'utf8mb4_general_ci'
   })
-  endereco: string;
+  endereco: string | null;
 
   @Column({
     type: 'varchar',
     length: 200,
-    nullable: false,
+    nullable: true,
     collation: 'utf8mb4_general_ci'
   })
-  complemento: string;
+  complemento: string | null;
 
   @Column({
     type: 'varchar',
     length: 100,
-    nullable: false,
+    nullable: true,
     collation: 'utf8mb4_general_ci'
   })
-  bairro: string;
+  bairro: string | null;
 
   @Column({
     type: 'varchar',
-    length: 10,
-    nullable: false,
+    length: 8,
+    nullable: true,
     collation: 'utf8mb4_general_ci'
   })
-  cep: string;
+  cep: string | null;
 
-  /**
-   * Flag para indicar se o cadastro terá documento
-   * 0 = não
-   * 1 = sim
-   */
-  @Column({
-    type: 'tinyint',
-    width: 1,
-    nullable: false,
-    default: 0
-  })
-  has_doc: number;
-
-  /**
-   * Flag para indicar se o cadastro terá email
-   * 0 = não
-   * 1 = sim
-   */
   @Column({
     type: 'tinyint',
     width: 1,
@@ -150,11 +206,14 @@ export class CadastrosEntity {
   })
   has_email: number;
 
-  /**
-   * Flag para indicar se o cadastro terá telefone
-   * 0 = não
-   * 1 = sim
-   */
+  @Column({
+    type: 'tinyint',
+    width: 1,
+    nullable: false,
+    default: 0
+  })
+  has_doc: number;
+
   @Column({
     type: 'tinyint',
     width: 1,

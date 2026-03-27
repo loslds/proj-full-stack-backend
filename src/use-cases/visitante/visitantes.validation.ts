@@ -1,6 +1,6 @@
 
+//C:\repository\proj-full-stack-backend\src\use-cases\visitante\visitantes.validation.ts
 
-// C:\repository\proj-full-stack-backend\src\use-cases\visitante\visitantes.validation.ts
 import { zodBodyValidation } from '../../helpers/zod-validation';
 import {
   visitantesCreateSchema,
@@ -9,4 +9,3 @@ import {
 
 export const visitantescreateValidation = zodBodyValidation(visitantesCreateSchema);
 export const visitantesupdateValidation = zodBodyValidation(visitantesUpdateSchema);
-

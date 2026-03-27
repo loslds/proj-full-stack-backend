@@ -1,5 +1,5 @@
 
-// src/services/tables/pessoas.service.ts
+// C:\repository\proj-full-stack-backend\src\services\table\pessoas.service.ts
 import { AppDataSource } from '../../config/db';
 import { pessoasSeed } from './seed/pessoas.seed';
 

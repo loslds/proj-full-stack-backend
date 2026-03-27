@@ -1,6 +1,6 @@
 
-  
 // C:\repository\proj-full-stack-backend\src\use-cases\estado\index.ts
+
 import { EstadosRepository } from './estados.repository';
 
 export { EstadosController } from './estados.controller';
@@ -16,5 +16,3 @@ export const estadosConfig = {
   repoClass: EstadosRepository,
   findAll: 'findEstadosAll'
 };
-
-

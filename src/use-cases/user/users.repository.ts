@@ -1,8 +1,15 @@
 
 
-import { DataSource, DeepPartial, FindOptionsWhere, Repository } from 'typeorm';
+// C:\repository\proj-full-stack-backend\src\use-cases\user\users.repository.ts
+import {
+  DataSource,
+  DeepPartial,
+  FindOptionsWhere,
+  FindOptionsOrder,
+  Repository
+} from 'typeorm';
+
 import { UsersEntity } from './users.entity';
-import type { UsersCreate } from './users.dto';
 
 export class UsersRepository {
   private repo: Repository<UsersEntity>;
@@ -11,109 +18,92 @@ export class UsersRepository {
     this.repo = this.dataSource.getRepository(UsersEntity);
   }
 
-  // Cria um novo registro de Users
-  async createUsers(users: UsersCreate): Promise<UsersEntity> {
+  // ==========================================================
+  // CREATE
+  // ==========================================================
+  async createUsers(users: DeepPartial<UsersEntity>): Promise<UsersEntity> {
     const data = this.repo.create(users);
     return this.repo.save(data);
   }
 
-  // Atualiza um registro de Users pelo ID fornecido
-  async updateUsers(
+  // ==========================================================
+  // UPDATE
+  // ==========================================================
+  async updateUsersId(
     usersId: number,
-    users: DeepPartial<UsersEntity>,
+    users: DeepPartial<UsersEntity>
   ): Promise<UsersEntity> {
-    if (!usersId || isNaN(usersId) || usersId <= 0) {
-      throw new Error('Invalid usersId');
+    const current = await this.repo.findOne({ where: { id: usersId } });
+
+    if (!current) {
+      throw new Error(`User ID ${usersId} não encontrado.`);
     }
 
-    await this.repo.update(usersId, users);
-    const updatedusers = await this.findUsersById(usersId);
+    const data = this.repo.create({
+      ...current,
+      ...users,
+      id: usersId
+    });
 
-    if (!updatedusers) {
-      throw new Error(`Users with id ${usersId} not found`);
+    return this.repo.save(data);
+  }
+
+  // ==========================================================
+  // DELETE
+  // ==========================================================
+  async deleteUsersId(usersId: number): Promise<boolean> {
+    const result = await this.repo.delete(usersId);
+
+    if (result.affected === 0) {
+      throw new Error(`User ID ${usersId} não encontrado.`);
     }
 
-    return updatedusers;
+    return true;
   }
 
-  // Deleta um registro de Users pelo ID
-  async deleteUsers(usersId: number): Promise<void> {
-    if (!usersId || isNaN(usersId) || usersId <= 0) {
-      throw new Error('Invalid usersId');
+  // ==========================================================
+  // GET BY ID
+  // ==========================================================
+  async findOneUsersById(usersId: number): Promise<UsersEntity | null> {
+    return this.repo.findOne({
+      where: { id: usersId },
+      relations: {
+        cadastros: true
+      }
+    });
+  }
+
+  // ==========================================================
+  // LIST ALL
+  // ==========================================================
+  async findUsersAll(
+    where?: FindOptionsWhere<UsersEntity> | FindOptionsWhere<UsersEntity>[],
+    orderBy: FindOptionsOrder<UsersEntity> = { id: 'ASC' }
+  ): Promise<UsersEntity[]> {
+    return this.repo.find({
+      where,
+      relations: {
+        cadastros: true
+      },
+      order: orderBy
+    });
+  }
+
+  async findUsersAllActived(is_actived?: boolean): Promise<UsersEntity[]> {
+    const qb = this.repo
+      .createQueryBuilder('users')
+      .leftJoinAndSelect('users.cadastros', 'cadastros');
+
+    if (is_actived !== undefined) {
+      qb.where('users.is_actived = :is_actived', { is_actived });
     }
-    await this.repo.delete(usersId);
-  }
 
-  // Busca todos os registros de Users com condição opcional
-  async findUsersAll(where?: FindOptionsWhere<UsersEntity>): Promise<UsersEntity[]> {
-    return this.repo.find({ where });
-  }
+    qb.orderBy('users.id', 'ASC');
 
-  // Busca um registro de Users pelo ID
-  async findUsersById(usersId: number): Promise<UsersEntity | null> {
-    if (!usersId || isNaN(usersId) || usersId <= 0) {
-      throw new Error('Invalid usersId');
-    }
-    return this.repo.findOne({ where: { id: usersId } });
-  }
-//////////////////////////
-  // Busca todos os registros de Users pelo campo bloqueado
-  async findUsersAllBloqueado( bloqueado: number ): Promise<UsersEntity[]> {
-    return this.repo.find({ where: { bloqueado } });
-  }
+    // troque "nome" se o campo real do cadastro tiver outro nome
+    qb.addOrderBy('cadastros.nome', 'ASC');
 
-  // Busca um registro de User pelo campo bloqueado
-  async findUsersByBloqueado(bloqueado: number): Promise<UsersEntity | null> {
-    return this.repo.findOne({ where: { bloqueado } });
-  }
-  ///////////////////////
-  // Busca todos os registros de Users pelo campo ult_acesso
-  async findUsersAllQdd_Acesso(qdd_acesso: number): Promise<UsersEntity[]> {
-    return this.repo.find({ where: { qdd_acesso } });
-  }
-
-  // Busca um registro de User pelo campo fonec
-  async findUserByQdd_Acesso(qdd_acesso: number): Promise<UsersEntity | null> {
-    return this.repo.findOne({ where: { qdd_acesso } });
-  }
-  ///////////////////////
-  // Busca todos os registros de Users pelo campo ult_acesso
-  async findUsersAllUlt_Acesso(ult_acesso: Date): Promise<UsersEntity[]> {
-    return this.repo.find({ where: { ult_acesso } });
-  }
-
-  // Busca um registro de Fones pelo campo ult_acesso
-  async findUsersByUlt_Acesso(ult_acesso: Date): Promise<UsersEntity | null> {
-    return this.repo.findOne({ where: { ult_acesso } });
-  }
-////////////////////
-  // Busca todos os registros de User pelo campo data_login
-  async findUsersAllData_Login(data_login: Date): Promise<UsersEntity[]> {
-    return this.repo.find({ where: { data_login} });
-  }
-
-  // Busca um registro de User pelo campo fonez
-  async findUsersByData_Login(data_login: Date): Promise<UsersEntity | null> {
-    return this.repo.findOne({ where: { data_login } });
-  }
-/////////////////////////// 
-  // Busca todos os registros de User pelo campo data_login
-  async findUsersAllData_Logout(data_login: Date): Promise<UsersEntity[]> {
-    return this.repo.find({ where: { data_login} });
-  }
-
-  // Busca um registro de User pelo campo fonez
-  async findUsersByData_Logout(data_logout: Date): Promise<UsersEntity | null> {
-    return this.repo.findOne({ where: { data_logout } });
-  }
-///////////////////////////
-
-  
-  // Busca todos os registros de Docs pelo campo id_cadastro
-  async findUsersByCadastrosId(cadastrosId: number): Promise<UsersEntity[]> {
-    if (!cadastrosId || isNaN(cadastrosId) || cadastrosId <= 0) {
-      throw new Error('Invalid cadastrosId');
-    }
-    return this.repo.find({ where: { id_cadastros: cadastrosId } });
+    return await qb.getMany();
   }
 }
+

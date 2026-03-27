@@ -1,190 +1,321 @@
-import { NextFunction, Request, Response } from "express";
-import { EmpresasRepository } from "./empresas.repository";
+
+// C:\repository\proj-full-stack-backend\src\use-cases\empresa\empresas.controller.ts
+import { NextFunction, Request, Response } from 'express';
+import { EmpresasRepository } from './empresas.repository';
 import { EmpresasCreate, EmpresasUpdate } from './empresas.dto';
-import { EmpresasEntity } from './empresas.entity';
-import { FindOptionsWhere } from "typeorm";
-import { DeepPartial } from "typeorm";
-export type EmpresasDto = DeepPartial<EmpresasEntity>;
-import { HttpException } from "../../exceptions/HttpException";
-import { ParsedQs } from 'qs';
+import { HttpException } from '../../exceptions/HttpException';
 
-// Tipagem para query string da rota /search
-interface SearchQuery extends ParsedQs {
-  id?: string;
-  nome?: string;
-  fantasy?: string;
-}
-
-export class EmpresasController {  
+export class EmpresasController {
   constructor(private readonly empresasRepository: EmpresasRepository) {}
 
-  /** 1 POST Cria Tabela Empresas */
+  // ============================================================
+  // * CRUD *
+  // ============================================================
+
+  /** POST → Criar nova empresa */
   async createNewEmpresas(
     req: Request<{}, {}, EmpresasCreate>,
     res: Response,
     next: NextFunction
   ) {
     try {
+      const { nome, fantasy, id_pessoas } = req.body;
+
+      if (!nome || !fantasy || !id_pessoas) {
+        throw new HttpException(
+          400,
+          'Nome, fantasy e id_pessoas são obrigatórios'
+        );
+      }
+
       const empresas = await this.empresasRepository.createEmpresas(req.body);
-      return res.status(201).send({ success: true, empresas }).end();
+
+      return res.status(201).send({
+        success: true,
+        empresas
+      });
     } catch (error) {
       next(error);
     }
   }
 
-
-  /** 2 PATCH Atualiza um registro de Empresas */
+  /** PATCH → Atualizar empresa pelo ID */
   async updateIdEmpresas(
-    req: Request<{ empresasId: string }, {}, Partial<EmpresasUpdate>>,
+    req: Request<{ empresasId: string }, {}, EmpresasUpdate>,
     res: Response,
     next: NextFunction
-    ) {
-    const empresasId = Number(req.params.empresasId);
-    if (isNaN(empresasId) || empresasId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid empresasId' }).end();
-      }
+  ) {
     try {
-      const empresas = await this.empresasRepository.updateEmpresas(empresasId, req.body);
-        return res.status(200).send({ success: true, empresas }).end();
+      const empresasId = Number(req.params.empresasId);
+
+      if (Number.isNaN(empresasId) || empresasId <= 0) {
+        throw new HttpException(400, 'ID da empresa inválido');
+      }
+
+      const empresas = await this.empresasRepository.updateEmpresasId(
+        empresasId,
+        req.body
+      );
+
+      return res.status(200).send({
+        success: true,
+        empresas
+      });
     } catch (error) {
       next(error);
     }
   }
 
-  /** 3 DELETE Remove um registro ID */
+  /** DELETE → Remover empresa */
   async removeIdEmpresas(
     req: Request<{ empresasId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const empresasId = Number(req.params.empresasId);
-
-    if (isNaN(empresasId) || empresasId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid empresasId' }).end();
-    }
-
     try {
-      const success = await this.empresasRepository.deleteEmpresasId(empresasId);
-      return res.status(200).send({ success });
+      const empresasId = Number(req.params.empresasId);
+
+      if (Number.isNaN(empresasId) || empresasId <= 0) {
+        throw new HttpException(400, 'ID inválido');
+      }
+
+      await this.empresasRepository.deleteEmpresasId(empresasId);
+
+      return res.status(200).send({
+        success: true
+      });
     } catch (error) {
       next(error);
     }
   }
 
-  
-  /** 4 GET Busca todos os registros */
-  async findAllEmpresas(
-    req: Request, 
-    res: Response, 
-    next: NextFunction
-  ) {
-    
-    try {
-      const { ativo } = req.query;
-      let where: FindOptionsWhere<EmpresasEntity> | undefined;
-  
-      if (ativo !== undefined) {
-        where = { ativo: ativo === "true" } as FindOptionsWhere<EmpresasEntity>;
-      }
-  
-      const empresas = await this.empresasRepository.findEmpresasAll(where, { nome: "ASC" });
-      return res.status(200).send({ success: true, empresas });
-  
-    } catch (error) {
-        next(error);
-    }    
-  }
-  
-  /** 5 GET Busca um registro de Empresas por ID */
+  /** GET → Buscar empresa pelo ID */
   async getOneEmpresasId(
     req: Request<{ empresasId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const empresasId = Number(req.params.empresasId);
-    if (isNaN(empresasId) || empresasId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid empresasId' }).end();
-    }
     try {
-      const empresas = await this.empresasRepository.findOneEmpresasById(empresasId);
-      return res.status(200).send({ success: true, empresas });
-    } catch (error) {
-      next(error);
-    }
-  }
-  
-  /** 6 GET Busca um registro de Empresas por Nome */
-  async findOneEmpresasNome(
-    req: Request<{}, {}, {}, Partial<{ nome: string }>>, 
-    res: Response, 
-    next: NextFunction
-  ) {
-    const { nome } = req.query;
-    if (!nome) {
-      return res.status(400).send({ success: false, message: 'Nome parameter is required' }).end();
-    }
-    try {
-      const empresas = await this.empresasRepository.findOneEmpresasByNome(nome);
-      return res.status(200).send({ success: true, empresas });
-    } catch (error) {
-      next(error);
-    }
-  }
+      const empresasId = Number(req.params.empresasId);
 
-  /** 7 GET Busca um registro de Empresas por Nome Fantasia  */
-  async findOneEmpresasFantasy(
-    req: Request<{}, {}, {}, Partial<{ fantasy: string }>>, 
-    res: Response, 
-    next: NextFunction
-  ) {
-    const { fantasy } = req.query;
-    if (!fantasy) {
-      return res.status(400).send({ success: false, message: 'Fantasy parameter is required' }).end();
-    }
-    try {
-      const empresas = await this.empresasRepository.findOneEmpresasByFantasy(fantasy);
-      return res.status(200).send({ success: true, empresas });
-    } catch (error) {
-      next(error);
-    }
-  }
+      if (Number.isNaN(empresasId) || empresasId <= 0) {
+        throw new HttpException(400, 'ID inválido');
+      }
 
-  /** 8 pesquisaregistro de Empresas através do ID ou NOME ou FANTASY */
-  async searchByEmpresas(req: Request<{}, {}, {}, SearchQuery>, res: Response, next: NextFunction) {
-    try {
-      const { id, nome, fantasy } = req.query;
-      const results = await this.empresasRepository.searchEmpresas({
-        id: id ? Number(id) : undefined,
-        nome,
-        fantasy,
+      const empresas = await this.empresasRepository.findOneEmpresasById(
+        empresasId
+      );
+
+      return res.status(200).send({
+        success: true,
+        empresas
       });
-      return res.json(results);
     } catch (error) {
       next(error);
     }
   }
 
-  /** 9 GET todos refistros com id_pessoas em empresa */
+  /** GET → Lista todas as empresas */
+  async findAllEmpresas(req: Request, res: Response, next: NextFunction) {
+    try {
+      const empresas = await this.empresasRepository.findEmpresasAll(
+        undefined,
+        { nome: 'ASC' }
+      );
+
+      return res.status(200).send({
+        success: true,
+        empresas
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // ============================================================
+  // * CONSULTAS PERSONALIZADAS *
+  // ============================================================
+
+  /** GET → Pesquisa combinada por id, nome, fantasy e pessoa */
+  async searchEmpresasAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id, nome, fantasy, id_pessoas } = req.query;
+
+      const empresas = await this.empresasRepository.searchEmpresas({
+        id: id !== undefined ? Number(id) : undefined,
+        nome: nome !== undefined ? String(nome) : undefined,
+        fantasy: fantasy !== undefined ? String(fantasy) : undefined,
+        id_pessoas:
+          id_pessoas !== undefined ? Number(id_pessoas) : undefined
+      });
+
+      return res.status(200).send({
+        success: true,
+        empresas
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Busca por nome aproximado */
+  async searchEmpresasNome(req: Request, res: Response, next: NextFunction) {
+    try {
+      const text =
+        req.query.text !== undefined ? String(req.query.text) : undefined;
+
+      const empresas =
+        await this.empresasRepository.searchNameParcialEmpresas(text);
+
+      return res.status(200).send({
+        success: true,
+        empresas
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Busca por fantasy aproximado */
+  async searchEmpresasFantasy(req: Request, res: Response, next: NextFunction) {
+    try {
+      const text =
+        req.query.text !== undefined ? String(req.query.text) : undefined;
+
+      const empresas =
+        await this.empresasRepository.searchFantasyParcialEmpresas(text);
+
+      return res.status(200).send({
+        success: true,
+        empresas
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar uma empresa pelo nome exato */
+  async findOneEmpresasNome(req: Request, res: Response, next: NextFunction) {
+    try {
+      const nome =
+        req.query.nome !== undefined ? String(req.query.nome) : undefined;
+
+      if (!nome) {
+        throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
+      }
+
+      const empresas = await this.empresasRepository.findOneEmpresasByNome(
+        nome
+      );
+
+      return res.status(200).send({
+        success: true,
+        empresas
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar todas as empresas com nome exato */
+  async findAllEmpresasNome(req: Request, res: Response, next: NextFunction) {
+    try {
+      const nome =
+        req.query.nome !== undefined ? String(req.query.nome) : undefined;
+
+      if (!nome) {
+        throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
+      }
+
+      const empresas = await this.empresasRepository.findAllEmpresasByNome(
+        nome
+      );
+
+      return res.status(200).send({
+        success: true,
+        total: empresas.length,
+        empresas
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar uma empresa pelo fantasy exato */
+  async findOneEmpresasFantasy(req: Request, res: Response, next: NextFunction) {
+    try {
+      const fantasy =
+        req.query.fantasy !== undefined ? String(req.query.fantasy) : undefined;
+
+      if (!fantasy) {
+        throw new HttpException(400, "Parâmetro 'fantasy' é obrigatório");
+      }
+
+      const empresas = await this.empresasRepository.findOneEmpresasByFantasy(
+        fantasy
+      );
+
+      return res.status(200).send({
+        success: true,
+        empresas
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar todas as empresas com fantasy exato */
+  async findAllEmpresasFantasy(req: Request, res: Response, next: NextFunction) {
+    try {
+      const fantasy =
+        req.query.fantasy !== undefined ? String(req.query.fantasy) : undefined;
+
+      if (!fantasy) {
+        throw new HttpException(400, "Parâmetro 'fantasy' é obrigatório");
+      }
+
+      const empresas = await this.empresasRepository.findAllEmpresasByFantasy(
+        fantasy
+      );
+
+      return res.status(200).send({
+        success: true,
+        total: empresas.length,
+        empresas
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar todas as empresas por pessoa */
   async findAllEmpresasPessoasId(
     req: Request<{ pessoasId: string }>,
     res: Response,
     next: NextFunction
   ) {
-    const pessoasId = Number(req.params.pessoasId);
-    if (isNaN(pessoasId) || pessoasId <= 0) {
-      return res.status(400).send({ success: false, message: 'Invalid pessoasId' }).end();
-    }
-
     try {
-      const empresas = await this.empresasRepository.findAllEmpresasByPessoasId(pessoasId);
-      return res.status(200).send({ success: true, empresas });
+      const pessoasId = Number(req.params.pessoasId);
+
+      if (Number.isNaN(pessoasId) || pessoasId <= 0) {
+        throw new HttpException(400, 'ID da pessoa inválido');
+      }
+
+      const empresas =
+        await this.empresasRepository.findAllEmpresasByPessoasId(pessoasId);
+
+      return res.status(200).send({
+        success: true,
+        total: empresas.length,
+        empresas
+      });
     } catch (error) {
       next(error);
     }
   }
 
-/** 10 GET - Lista detalhes das empresas */
-  async findAllEmpresasDetails(
+  /** GET → Lista empresas com detalhes */
+  async listAllEmpresasDetails(
     req: Request,
     res: Response,
     next: NextFunction
@@ -192,21 +323,12 @@ export class EmpresasController {
     try {
       const empresas = await this.empresasRepository.listAllEmpresasDetails();
 
-      return res.status(200).json({
+      return res.status(200).send({
         success: true,
-        data: empresas,
+        empresas
       });
-
-    } catch (err: any) {
-      console.error('Erro ao listar empresas:', err);
-    
-      return res.status(500).json({
-        success: false,
-        message: 'Erro ao listar empresas',
-        error: err.message,
-      });
+    } catch (error) {
+      next(error);
     }
   }
 }
-
-

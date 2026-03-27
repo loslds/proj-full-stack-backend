@@ -1,5 +1,7 @@
 
-//C:\repository\proj-full-stack-backend\src\use-cases\cliente\clientes.reposytory.ts
+
+// C:\repository\proj-full-stack-backend\src\use-cases\cliente\clientes.repository.ts
+
 import {
   DataSource,
   DeepPartial,
@@ -18,9 +20,9 @@ export class ClientesRepository {
     this.repo = this.dataSource.getRepository(ClientesEntity);
   }
 
-  // ==========================================================
-  // DUPLICIDADE
-  // ==========================================================
+  // ============================================================
+  // * DUPLICIDADE *
+  // ============================================================
   async hasDuplicated(
     nome?: string,
     fantasy?: string,
@@ -53,107 +55,13 @@ export class ClientesRepository {
     return query.getOne();
   }
 
-  // ==========================================================
-  // CREATE
-  // ==========================================================
-  async createClientes(
-    clientes: ClientesCreate
-  ): Promise<ClientesEntity> {
-    const duplicated = await this.hasDuplicated(
-      clientes.nome,
-      clientes.fantasy,
-      clientes.id_pessoas,
-      clientes.id_empresas
-    );
-
-    if (duplicated) {
-      throw new Error(
-        'Cliente duplicado! Nome, fantasy, pessoa e empresa já existentes.'
-      );
-    }
-
-    const data = this.repo.create({
-      ...clientes,
-      id_pessoas: clientes.id_pessoas ?? 0,
-      id_empresas: clientes.id_empresas ?? 0,
-      createdBy: clientes.createdBy ?? 0,
-      updatedBy: clientes.updatedBy ?? 0
-    });
-
-    return this.repo.save(data);
-  }
-
-  // ==========================================================
-  // UPDATE
-  // ==========================================================
-  async updateClientesId(
-    clientesId: number,
-    clientes: DeepPartial<ClientesEntity>
-  ): Promise<ClientesEntity> {
-    const current = await this.repo.findOne({
-      where: { id: clientesId }
-    });
-
-    if (!current) {
-      throw new Error(`Cliente com ID ${clientesId} não encontrado.`);
-    }
-
-    const duplicated = await this.hasDuplicated(
-      clientes.nome ?? current.nome,
-      clientes.fantasy ?? current.fantasy,
-      clientes.id_pessoas ?? current.id_pessoas,
-      clientes.id_empresas ?? current.id_empresas,
-      [clientesId]
-    );
-
-    if (duplicated) {
-      throw new Error(
-        'Cliente duplicado! Nome, fantasy, pessoa e empresa já existentes.'
-      );
-    }
-
-    const data = this.repo.create({
-      ...current,
-      ...clientes,
-      id: clientesId
-    });
-
-    return this.repo.save(data);
-  }
-
-  // ==========================================================
-  // DELETE
-  // ==========================================================
-  async deleteClientesId(clientesId: number): Promise<boolean> {
-    const result = await this.repo.delete(clientesId);
-
-    if (result.affected === 0) {
-      throw new Error(`Cliente com ID ${clientesId} não encontrado.`);
-    }
-
-    return true;
-  }
-
-  // ==========================================================
-  // BUSCA POR ID
-  // ==========================================================
-  async findOneClientesById(
-    clientesId: number
-  ): Promise<ClientesEntity | null> {
-    return this.repo.findOne({
-      where: { id: clientesId },
-      relations: {
-        pessoas: true,
-        empresas: true
-      }
-    });
-  }
-
-  // ==========================================================
-  // LISTA TODOS
-  // ==========================================================
+  // ============================================================
+  // * CRUD *
+  // ============================================================
   async findClientesAll(
-    where?: FindOptionsWhere<ClientesEntity> | FindOptionsWhere<ClientesEntity>[],
+    where?:
+      | FindOptionsWhere<ClientesEntity>
+      | FindOptionsWhere<ClientesEntity>[],
     orderBy: FindOptionsOrder<ClientesEntity> = { id: 'ASC' }
   ): Promise<ClientesEntity[]> {
     return this.repo.find({
@@ -166,9 +74,97 @@ export class ClientesRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA EXATA POR NOME
-  // ==========================================================
+  async createClientes(
+    clientes: ClientesCreate
+  ): Promise<ClientesEntity> {
+    const duplicated = await this.hasDuplicated(
+      clientes.nome,
+      clientes.fantasy,
+      clientes.id_pessoas,
+      clientes.id_empresas
+    );
+
+    if (duplicated) {
+      throw new Error(
+        'Consumidor duplicado! Nome, fantasy, pessoa e empresa já existentes.'
+      );
+    }
+
+    const data = this.repo.create({
+      ...clientes,
+      createdBy: clientes.createdBy ?? 0,
+      updatedBy: clientes.updatedBy ?? 0
+    });
+
+    return this.repo.save(data);
+  }
+
+  async findOneClientesById(
+    clientesId: number
+  ): Promise<ClientesEntity | null> {
+    this.validateId(clientesId);
+
+    return this.repo.findOne({
+      where: { id: clientesId },
+      relations: {
+        pessoas: true,
+        empresas: true
+      }
+    });
+  }
+
+  async updateClientesId(
+    clientesId: number,
+    clientes: DeepPartial<ClientesEntity>
+  ): Promise<ClientesEntity> {
+    this.validateId(clientesId);
+
+    const current = await this.repo.findOne({
+      where: { id: clientesId }
+    });
+
+    if (!current) {
+      throw new Error(`Consumidor com ID ${clientesId} não encontrado.`);
+    }
+
+    const duplicated = await this.hasDuplicated(
+      clientes.nome ?? current.nome,
+      clientes.fantasy ?? current.fantasy,
+      clientes.id_pessoas ?? current.id_pessoas,
+      clientes.id_empresas ?? current.id_empresas,
+      [clientesId]
+    );
+
+    if (duplicated) {
+      throw new Error(
+        'Consumidor duplicado! Nome, fantasy, pessoa e empresa já existentes.'
+      );
+    }
+
+    const data = this.repo.create({
+      ...current,
+      ...clientes,
+      id: clientesId
+    });
+
+    return this.repo.save(data);
+  }
+
+  async deleteClientesId(clientesId: number): Promise<boolean> {
+    this.validateId(clientesId);
+
+    const result = await this.repo.delete(clientesId);
+
+    if (result.affected === 0) {
+      throw new Error(`Consumidor com ID ${clientesId} não encontrado.`);
+    }
+
+    return true;
+  }
+
+  // ============================================================
+  // * CONSULTAS PERSONALIZADAS *
+  // ============================================================
   async findOneClientesByNome(
     nome: string
   ): Promise<ClientesEntity | null> {
@@ -181,10 +177,9 @@ export class ClientesRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA TODOS POR NOME EXATO
-  // ==========================================================
-  async findAllClientesByNome(nome: string): Promise<ClientesEntity[]> {
+  async findAllClientesByNome(
+    nome: string
+  ): Promise<ClientesEntity[]> {
     return this.repo.find({
       where: { nome },
       relations: {
@@ -195,9 +190,6 @@ export class ClientesRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA EXATA POR FANTASY
-  // ==========================================================
   async findOneClientesByFantasy(
     fantasy: string
   ): Promise<ClientesEntity | null> {
@@ -210,9 +202,6 @@ export class ClientesRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA TODOS POR FANTASY EXATO
-  // ==========================================================
   async findAllClientesByFantasy(
     fantasy: string
   ): Promise<ClientesEntity[]> {
@@ -226,9 +215,6 @@ export class ClientesRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA PARCIAL POR NOME
-  // ==========================================================
   async searchNameParcialClientes(
     txt?: string
   ): Promise<ClientesEntity[]> {
@@ -248,9 +234,6 @@ export class ClientesRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // BUSCA PARCIAL POR FANTASY
-  // ==========================================================
   async searchFantasyParcialClientes(
     txt?: string
   ): Promise<ClientesEntity[]> {
@@ -270,9 +253,6 @@ export class ClientesRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // PESQUISA GERAL
-  // ==========================================================
   async searchClientes(params: {
     id?: number;
     nome?: string;
@@ -286,7 +266,7 @@ export class ClientesRepository {
       .leftJoinAndSelect('clientes.empresas', 'empresas')
       .orderBy('clientes.id', 'ASC');
 
-    if (params.id) {
+    if (typeof params.id === 'number') {
       query.andWhere('clientes.id = :id', { id: params.id });
     }
 
@@ -319,9 +299,6 @@ export class ClientesRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // LISTA POR ID_PESSOAS
-  // ==========================================================
   async findAllClientesByPessoasId(
     pessoasId: number
   ): Promise<ClientesEntity[]> {
@@ -335,9 +312,6 @@ export class ClientesRepository {
     });
   }
 
-  // ==========================================================
-  // LISTA POR ID_EMPRESAS
-  // ==========================================================
   async findAllClientesByEmpresasId(
     empresasId: number
   ): Promise<ClientesEntity[]> {
@@ -351,9 +325,6 @@ export class ClientesRepository {
     });
   }
 
-  // ==========================================================
-  // LISTA DETALHADA
-  // ==========================================================
   async listAllClientesDetails(): Promise<ClientesEntity[]> {
     return this.repo
       .createQueryBuilder('clientes')
@@ -364,16 +335,11 @@ export class ClientesRepository {
   }
 
   // ============================================================
-  // UTIL
+  // * UTIL *
   // ============================================================
   private validateId(id: number): void {
-    if (!id || isNaN(id) || id <= 0) {
+    if (typeof id !== 'number' || isNaN(id) || id <= 0) {
       throw new Error('Invalid clientesId');
     }
   }
 }
-
-
-
-
-

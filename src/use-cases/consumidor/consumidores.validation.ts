@@ -9,5 +9,3 @@ import {
 
 export const consumidorescreateValidation = zodBodyValidation(consumidoresCreateSchema);
 export const consumidoresupdateValidation = zodBodyValidation(consumidoresUpdateSchema);
-
-

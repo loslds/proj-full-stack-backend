@@ -1,5 +1,5 @@
  
-// src/use-cases/pessoa/pessoas.repository.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.repository.ts
 import {
   DataSource,
   DeepPartial,
@@ -39,7 +39,7 @@ export class PessoasRepository {
       query.andWhere('pessoas.sigla = :sigla', { sigla });
     }
 
-    if (excludeId) {
+    if (typeof excludeId === 'number') {
       query.andWhere('pessoas.id != :excludeId', { excludeId });
     }
 
@@ -55,7 +55,10 @@ export class PessoasRepository {
     where?: FindOptionsWhere<PessoasEntity>,
     order?: FindOptionsOrder<PessoasEntity>
   ): Promise<PessoasEntity[]> {
-    return this.repo.find({ where, order });
+    return this.repo.find({
+      where,
+      order: order ?? { id: 'ASC' }
+    });
   }
 
   async createPessoas(pessoas: PessoasCreate): Promise<PessoasEntity> {
@@ -149,7 +152,7 @@ export class PessoasRepository {
       .select(['pessoas.id', 'pessoas.nome', 'pessoas.sigla'])
       .orderBy('pessoas.id', 'ASC');
 
-    if (params.id) {
+    if (typeof params.id === 'number') {
       query.andWhere('pessoas.id = :id', { id: params.id });
     }
 
@@ -229,9 +232,8 @@ export class PessoasRepository {
   // ============================================================
 
   private validateId(id: number): void {
-    if (!id || isNaN(id) || id <= 0) {
+    if (typeof id !== 'number' || isNaN(id) || id <= 0) {
       throw new Error('Invalid pessoasId');
     }
   }
 }
-

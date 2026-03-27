@@ -7,7 +7,6 @@ import { PessoasEntity } from './pessoas.entity';
 // =========================
 // CREATE
 // =========================
-
 export const pessoasCreateSchema = z.object({
 
   nome: z

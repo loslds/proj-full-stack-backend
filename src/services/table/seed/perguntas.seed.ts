@@ -1,27 +1,32 @@
   
 // C:\repository\proj-full-stack-backend\src\services\table\seed\perguntas.seed.ts
-export const perguntasSeed = [
-  { nome: 'De que maneira você vê o "mundo" ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual a sua "religião" ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "nome" você mais gosta ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "praia" você ja visitou ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "país" você ja visitou ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual a "cidade" que você nasceu ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual é a sua "idade" ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual a sua "profissão" ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "cor" você prefere ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "marca" de veículo você prefere ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "passeio" você prefere ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "sorvete" você prefere ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "pizza" você prefere ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "lanche" você prefere ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "bebida" você prefere ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "comida" você prefere ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "música" você prefere ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual parte do "dia" você prefere ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual "esporte" você prefere ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Qual a raça de "animal" você gosta ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Voce tem : "Casa" , "Apart." ou mora de "Aluguél" ?', createdBy: 0, updatedBy: 0 },
+type PerguntasSeedType = {
+  nome: string;
+  createdBy?: number;
+  updatedBy?: number;
+};
+export const perguntasSeed: PerguntasSeedType[] = [
+  { nome: 'De que maneira você vê o "Mundo" ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual a sua "Religião" ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Nome" você mais gosta ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Praia" você ja visitou ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "País" você ja visitou ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual a "Cidade" que você nasceu ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual é a sua "Idade" ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual é a sua "Fruta" preferida ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual a sua "Profissão" ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Côr" você prefere ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Veículo" você prefere ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Passeio" você prefere ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Sorvete" você prefere ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Pizza" você prefere ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Lanche" você prefere ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Bebida" você prefere ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Comida" você prefere ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Música" você prefere ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual parte do "Dia" você prefere ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual "Esporte" você prefere ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Qual a raça de "Animal" você gosta ?', createdBy: 0, updatedBy: 0 },
   { nome: 'Você se sente : "Magro", "Nornmal" ou "Gordo" ?', createdBy: 0, updatedBy: 0 },
   { nome: 'Você se sente Jovem : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
   { nome: 'Você se tem filhos : "Sim"/"Não"/"não sabe" ?', createdBy: 0, updatedBy: 0 },
@@ -38,9 +43,9 @@ export const perguntasSeed = [
   { nome: 'Você já fêz passeios de caronas : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
   { nome: 'Você já fêz passeios noturnos : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
   { nome: 'Você faz ginásticas, exercícios de alguma maneira : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Você se acha uma pessoa "inteligente" : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Você se acha uma pessoa "curiosa" : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
-  { nome: 'Você se acha uma pessoa "simpática" : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Você se acha uma pessoa "Inteligente" : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Você se acha uma pessoa "Curiosa" : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
+  { nome: 'Você se acha uma pessoa "Simpática" : "Sim"/"Não" ?', createdBy: 0, updatedBy: 0 },
 ];
 
 

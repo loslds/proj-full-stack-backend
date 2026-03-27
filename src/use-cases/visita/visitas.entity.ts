@@ -17,6 +17,7 @@ import { VisitantesEntity } from '../visitante/visitantes.entity';
 
 @Entity('visitas')
 @Index('idx_visitas_id_visitantes', ['id_visitantes'])
+@Index('idx_visitas_saidaAt', ['saidaAt'])
 export class VisitasEntity {
   @PrimaryGeneratedColumn({
     type: 'int',
@@ -32,7 +33,11 @@ export class VisitasEntity {
   })
   id_visitantes: number;
 
-  @ManyToOne(() => VisitantesEntity, { nullable: false })
+  @ManyToOne(() => VisitantesEntity, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn({ name: 'id_visitantes' })
   visitantes: VisitantesEntity;
 

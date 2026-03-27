@@ -1,4 +1,5 @@
   
+// C:\repository\proj-full-stack-backend\src\use-cases\visitante\visitantes.controller.ts
 // C:\repository\proj-full-stack-backend\src\use-cases\visitante\visitantes.repository.ts
 import {
   DataSource,
@@ -18,9 +19,9 @@ export class VisitantesRepository {
     this.repo = this.dataSource.getRepository(VisitantesEntity);
   }
 
-  // ==========================================================
-  // DUPLICIDADE
-  // ==========================================================
+  // ============================================================
+  // * DUPLICIDADE *
+  // ============================================================
   async hasDuplicated(
     nome?: string,
     fantasy?: string,
@@ -53,9 +54,25 @@ export class VisitantesRepository {
     return query.getOne();
   }
 
-  // ==========================================================
-  // CREATE
-  // ==========================================================
+  // ============================================================
+  // * CRUD *
+  // ============================================================
+  async findVisitantesAll(
+    where?:
+      | FindOptionsWhere<VisitantesEntity>
+      | FindOptionsWhere<VisitantesEntity>[],
+    orderBy: FindOptionsOrder<VisitantesEntity> = { id: 'ASC' }
+  ): Promise<VisitantesEntity[]> {
+    return this.repo.find({
+      where,
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: orderBy
+    });
+  }
+
   async createVisitantes(
     visitantes: VisitantesCreate
   ): Promise<VisitantesEntity> {
@@ -74,8 +91,6 @@ export class VisitantesRepository {
 
     const data = this.repo.create({
       ...visitantes,
-      id_pessoas: visitantes.id_pessoas ?? 0,
-      id_empresas: visitantes.id_empresas ?? 0,
       createdBy: visitantes.createdBy ?? 0,
       updatedBy: visitantes.updatedBy ?? 0
     });
@@ -83,13 +98,26 @@ export class VisitantesRepository {
     return this.repo.save(data);
   }
 
-  // ==========================================================
-  // UPDATE
-  // ==========================================================
+  async findOneVisitantesById(
+    visitantesId: number
+  ): Promise<VisitantesEntity | null> {
+    this.validateId(visitantesId);
+
+    return this.repo.findOne({
+      where: { id: visitantesId },
+      relations: {
+        pessoas: true,
+        empresas: true
+      }
+    });
+  }
+
   async updateVisitantesId(
     visitantesId: number,
     visitantes: DeepPartial<VisitantesEntity>
   ): Promise<VisitantesEntity> {
+    this.validateId(visitantesId);
+
     const current = await this.repo.findOne({
       where: { id: visitantesId }
     });
@@ -121,10 +149,9 @@ export class VisitantesRepository {
     return this.repo.save(data);
   }
 
-  // ==========================================================
-  // DELETE
-  // ==========================================================
   async deleteVisitantesId(visitantesId: number): Promise<boolean> {
+    this.validateId(visitantesId);
+
     const result = await this.repo.delete(visitantesId);
 
     if (result.affected === 0) {
@@ -134,41 +161,10 @@ export class VisitantesRepository {
     return true;
   }
 
-  // ==========================================================
-  // BUSCA POR ID
-  // ==========================================================
-  async findOneVisitantesById(
-    visitantesId: number
-  ): Promise<VisitantesEntity | null> {
-    return this.repo.findOne({
-      where: { id: visitantesId },
-      relations: {
-        pessoas: true,
-        empresas: true
-      }
-    });
-  }
+  // ============================================================
+  // * CONSULTAS PERSONALIZADAS *
+  // ============================================================
 
-  // ==========================================================
-  // LISTA TODOS
-  // ==========================================================
-  async findVisitantesAll(
-    where?: FindOptionsWhere<VisitantesEntity> | FindOptionsWhere<VisitantesEntity>[],
-    orderBy: FindOptionsOrder<VisitantesEntity> = { id: 'ASC' }
-  ): Promise<VisitantesEntity[]> {
-    return this.repo.find({
-      where,
-      relations: {
-        pessoas: true,
-        empresas: true
-      },
-      order: orderBy
-    });
-  }
-
-  // ==========================================================
-  // BUSCA EXATA POR NOME
-  // ==========================================================
   async findOneVisitantesByNome(
     nome: string
   ): Promise<VisitantesEntity | null> {
@@ -181,10 +177,9 @@ export class VisitantesRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA TODOS POR NOME EXATO
-  // ==========================================================
-  async findAllVisitantesByNome(nome: string): Promise<VisitantesEntity[]> {
+  async findAllVisitantesByNome(
+    nome: string
+  ): Promise<VisitantesEntity[]> {
     return this.repo.find({
       where: { nome },
       relations: {
@@ -195,9 +190,6 @@ export class VisitantesRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA EXATA POR FANTASY
-  // ==========================================================
   async findOneVisitantesByFantasy(
     fantasy: string
   ): Promise<VisitantesEntity | null> {
@@ -210,9 +202,6 @@ export class VisitantesRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA TODOS POR FANTASY EXATO
-  // ==========================================================
   async findAllVisitantesByFantasy(
     fantasy: string
   ): Promise<VisitantesEntity[]> {
@@ -226,9 +215,6 @@ export class VisitantesRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA PARCIAL POR NOME
-  // ==========================================================
   async searchNameParcialVisitantes(
     txt?: string
   ): Promise<VisitantesEntity[]> {
@@ -248,9 +234,6 @@ export class VisitantesRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // BUSCA PARCIAL POR FANTASY
-  // ==========================================================
   async searchFantasyParcialVisitantes(
     txt?: string
   ): Promise<VisitantesEntity[]> {
@@ -270,9 +253,6 @@ export class VisitantesRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // PESQUISA GERAL
-  // ==========================================================
   async searchVisitantes(params: {
     id?: number;
     nome?: string;
@@ -286,7 +266,7 @@ export class VisitantesRepository {
       .leftJoinAndSelect('visitantes.empresas', 'empresas')
       .orderBy('visitantes.id', 'ASC');
 
-    if (params.id) {
+    if (typeof params.id === 'number') {
       query.andWhere('visitantes.id = :id', { id: params.id });
     }
 
@@ -319,9 +299,6 @@ export class VisitantesRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // LISTA POR ID_PESSOAS
-  // ==========================================================
   async findAllVisitantesByPessoasId(
     pessoasId: number
   ): Promise<VisitantesEntity[]> {
@@ -335,9 +312,6 @@ export class VisitantesRepository {
     });
   }
 
-  // ==========================================================
-  // LISTA POR ID_EMPRESAS
-  // ==========================================================
   async findAllVisitantesByEmpresasId(
     empresasId: number
   ): Promise<VisitantesEntity[]> {
@@ -351,9 +325,6 @@ export class VisitantesRepository {
     });
   }
 
-  // ==========================================================
-  // LISTA DETALHADA
-  // ==========================================================
   async listAllVisitantesDetails(): Promise<VisitantesEntity[]> {
     return this.repo
       .createQueryBuilder('visitantes')
@@ -364,12 +335,11 @@ export class VisitantesRepository {
   }
 
   // ============================================================
-  // UTIL
+  // * UTIL *
   // ============================================================
   private validateId(id: number): void {
-    if (!id || isNaN(id) || id <= 0) {
+    if (typeof id !== 'number' || isNaN(id) || id <= 0) {
       throw new Error('Invalid visitantesId');
     }
   }
 }
-

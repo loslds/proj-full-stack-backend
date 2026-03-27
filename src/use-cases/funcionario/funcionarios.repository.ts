@@ -1,5 +1,6 @@
 
 //C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.reposytory.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.repository.ts
 import {
   DataSource,
   DeepPartial,
@@ -18,9 +19,9 @@ export class FuncionariosRepository {
     this.repo = this.dataSource.getRepository(FuncionariosEntity);
   }
 
-  // ==========================================================
-  // DUPLICIDADE
-  // ==========================================================
+  // ============================================================
+  // * DUPLICIDADE *
+  // ============================================================
   async hasDuplicated(
     nome?: string,
     fantasy?: string,
@@ -53,9 +54,25 @@ export class FuncionariosRepository {
     return query.getOne();
   }
 
-  // ==========================================================
-  // CREATE
-  // ==========================================================
+  // ============================================================
+  // * CRUD *
+  // ============================================================
+  async findFuncionariosAll(
+    where?:
+      | FindOptionsWhere<FuncionariosEntity>
+      | FindOptionsWhere<FuncionariosEntity>[],
+    orderBy: FindOptionsOrder<FuncionariosEntity> = { id: 'ASC' }
+  ): Promise<FuncionariosEntity[]> {
+    return this.repo.find({
+      where,
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: orderBy
+    });
+  }
+
   async createFuncionarios(
     funcionarios: FuncionariosCreate
   ): Promise<FuncionariosEntity> {
@@ -74,8 +91,6 @@ export class FuncionariosRepository {
 
     const data = this.repo.create({
       ...funcionarios,
-      id_pessoas: funcionarios.id_pessoas ?? 0,
-      id_empresas: funcionarios.id_empresas ?? 0,
       createdBy: funcionarios.createdBy ?? 0,
       updatedBy: funcionarios.updatedBy ?? 0
     });
@@ -83,13 +98,26 @@ export class FuncionariosRepository {
     return this.repo.save(data);
   }
 
-  // ==========================================================
-  // UPDATE
-  // ==========================================================
+  async findOneFuncionariosById(
+    funcionariosId: number
+  ): Promise<FuncionariosEntity | null> {
+    this.validateId(funcionariosId);
+
+    return this.repo.findOne({
+      where: { id: funcionariosId },
+      relations: {
+        pessoas: true,
+        empresas: true
+      }
+    });
+  }
+
   async updateFuncionariosId(
     funcionariosId: number,
     funcionarios: DeepPartial<FuncionariosEntity>
   ): Promise<FuncionariosEntity> {
+    this.validateId(funcionariosId);
+
     const current = await this.repo.findOne({
       where: { id: funcionariosId }
     });
@@ -121,10 +149,9 @@ export class FuncionariosRepository {
     return this.repo.save(data);
   }
 
-  // ==========================================================
-  // DELETE
-  // ==========================================================
   async deleteFuncionariosId(funcionariosId: number): Promise<boolean> {
+    this.validateId(funcionariosId);
+
     const result = await this.repo.delete(funcionariosId);
 
     if (result.affected === 0) {
@@ -134,41 +161,9 @@ export class FuncionariosRepository {
     return true;
   }
 
-  // ==========================================================
-  // BUSCA POR ID
-  // ==========================================================
-  async findOneFuncionariosById(
-    funcionariosId: number
-  ): Promise<FuncionariosEntity | null> {
-    return this.repo.findOne({
-      where: { id: funcionariosId },
-      relations: {
-        pessoas: true,
-        empresas: true
-      }
-    });
-  }
-
-  // ==========================================================
-  // LISTA TODOS
-  // ==========================================================
-  async findFuncionariosAll(
-    where?: FindOptionsWhere<FuncionariosEntity> | FindOptionsWhere<FuncionariosEntity>[],
-    orderBy: FindOptionsOrder<FuncionariosEntity> = { id: 'ASC' }
-  ): Promise<FuncionariosEntity[]> {
-    return this.repo.find({
-      where,
-      relations: {
-        pessoas: true,
-        empresas: true
-      },
-      order: orderBy
-    });
-  }
-
-  // ==========================================================
-  // BUSCA EXATA POR NOME
-  // ==========================================================
+  // ============================================================
+  // * CONSULTAS PERSONALIZADAS *
+  // ============================================================
   async findOneFuncionariosByNome(
     nome: string
   ): Promise<FuncionariosEntity | null> {
@@ -181,10 +176,9 @@ export class FuncionariosRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA TODOS POR NOME EXATO
-  // ==========================================================
-  async findAllFuncionariosByNome(nome: string): Promise<FuncionariosEntity[]> {
+  async findAllFuncionariosByNome(
+    nome: string
+  ): Promise<FuncionariosEntity[]> {
     return this.repo.find({
       where: { nome },
       relations: {
@@ -195,9 +189,6 @@ export class FuncionariosRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA EXATA POR FANTASY
-  // ==========================================================
   async findOneFuncionariosByFantasy(
     fantasy: string
   ): Promise<FuncionariosEntity | null> {
@@ -210,9 +201,6 @@ export class FuncionariosRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA TODOS POR FANTASY EXATO
-  // ==========================================================
   async findAllFuncionariosByFantasy(
     fantasy: string
   ): Promise<FuncionariosEntity[]> {
@@ -226,9 +214,6 @@ export class FuncionariosRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA PARCIAL POR NOME
-  // ==========================================================
   async searchNameParcialFuncionarios(
     txt?: string
   ): Promise<FuncionariosEntity[]> {
@@ -248,9 +233,6 @@ export class FuncionariosRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // BUSCA PARCIAL POR FANTASY
-  // ==========================================================
   async searchFantasyParcialFuncionarios(
     txt?: string
   ): Promise<FuncionariosEntity[]> {
@@ -270,9 +252,6 @@ export class FuncionariosRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // PESQUISA GERAL
-  // ==========================================================
   async searchFuncionarios(params: {
     id?: number;
     nome?: string;
@@ -286,7 +265,7 @@ export class FuncionariosRepository {
       .leftJoinAndSelect('funcionarios.empresas', 'empresas')
       .orderBy('funcionarios.id', 'ASC');
 
-    if (params.id) {
+    if (typeof params.id === 'number') {
       query.andWhere('funcionarios.id = :id', { id: params.id });
     }
 
@@ -319,9 +298,6 @@ export class FuncionariosRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // LISTA POR ID_PESSOAS
-  // ==========================================================
   async findAllFuncionariosByPessoasId(
     pessoasId: number
   ): Promise<FuncionariosEntity[]> {
@@ -335,9 +311,6 @@ export class FuncionariosRepository {
     });
   }
 
-  // ==========================================================
-  // LISTA POR ID_EMPRESAS
-  // ==========================================================
   async findAllFuncionariosByEmpresasId(
     empresasId: number
   ): Promise<FuncionariosEntity[]> {
@@ -351,9 +324,6 @@ export class FuncionariosRepository {
     });
   }
 
-  // ==========================================================
-  // LISTA DETALHADA
-  // ==========================================================
   async listAllFuncionariosDetails(): Promise<FuncionariosEntity[]> {
     return this.repo
       .createQueryBuilder('funcionarios')
@@ -364,12 +334,11 @@ export class FuncionariosRepository {
   }
 
   // ============================================================
-  // UTIL
+  // * UTIL *
   // ============================================================
   private validateId(id: number): void {
-    if (!id || isNaN(id) || id <= 0) {
+    if (typeof id !== 'number' || isNaN(id) || id <= 0) {
       throw new Error('Invalid funcionariosId');
     }
   }
 }
-

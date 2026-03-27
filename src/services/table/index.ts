@@ -11,6 +11,15 @@ import { cargosService } from './cargos.service';
 import { acoesService } from './acoes.service';
 import { perguntasService } from './perguntas.service';
 
+import { empresasService } from './empresas.service';
+import { visitantesService } from './visitantes.service';
+import { visitasService } from './visitas.service';
+import { consumidoresService } from './consumidores.service';
+import { clientesService } from './clientes.service';
+import { fornecedoresService } from './fornecedores.service';
+import { funcionariosService } from './funcionarios.service';
+import { cadastrosService } from './cadastros.service';
+
 
 // ==================================================
 // Lista de services de tabelas do sistema
@@ -25,6 +34,15 @@ export const tableServices: TableService[] = [
   cargosService,
   acoesService,
   perguntasService,
+  empresasService, 
+  visitantesService,      
+  visitasService,
+  consumidoresService,    
+  clientesService,        
+  fornecedoresService,    
+  funcionariosService,    
+  cadastrosService,
+
 
   // próximos:  
 ];

@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity('modulos')
-@Unique(['name'])
+@Unique(['nome'])
 export class ModulosEntity {
 
   @PrimaryGeneratedColumn({
@@ -36,7 +36,7 @@ export class ModulosEntity {
     nullable: false,
     collation: 'utf8mb4_general_ci'
   })
-  name: string;
+  nome: string;
 
   /**
    * Usuário que criou o registro

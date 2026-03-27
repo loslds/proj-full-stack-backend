@@ -1,26 +1,33 @@
+
+
+/// C:\repository\proj-full-stack-backend\src\use-cases\user\users.dto.ts
+
+import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
+import { UsersEntity } from './users.entity';
 
-// Schema para criação de usuários
+// ==========================================================
+// CREATE
+// ==========================================================
 export const usersCreateSchema = z.object({
-  bloqueado: z.number().nonnegative().optional(), // Validações adicionais
-  qdd_acesso: z.number(), // Número inteiro
-  ult_acesso: z.string().datetime(), // String no formato ISO 8601 (data e hora)
-  data_login: z.string().datetime(), // String no formato ISO 8601 (data e hora)
-  data_logout: z.string().datetime().optional(), // Opcional (string no formato ISO 8601)
-  id_cadastros: z.number().int().positive(), // Número inteiro positivo
+  id_cadastros: z.number().int().nonnegative().optional(),
+  
+  is_actived: z.number().int().min(0).max(1).optional(),
+
+  createdBy: z.number().int().nonnegative().optional(),
+  updatedBy: z.number().int().nonnegative().optional()
 });
 
-// Schema para atualização de usuários
-export const usersUpdateSchema = z.object({
-  bloqueado: z.number().nonnegative().optional(), // Validações adicionais
-  qdd_acesso: z.number().optional(), // Opcional para atualizações
-  ult_acesso: z.string().datetime().optional(), // Opcional
-  data_login: z.string().datetime().optional(), // Opcional
-  data_logout: z.string().datetime().optional(), // Opcional
-  id_cadastros: z.number().int().positive(), // Número inteiro positivo obrigatório
+// ==========================================================
+// UPDATE
+// ==========================================================
+export const usersUpdateSchema = usersCreateSchema.partial().extend({
+  id: z.number().int().positive().optional()
 });
 
-// Tipos inferidos a partir dos schemas
+// ==========================================================
+// TYPES
+// ==========================================================
 export type UsersCreate = z.infer<typeof usersCreateSchema>;
 export type UsersUpdate = z.infer<typeof usersUpdateSchema>;
-
+export type UsersDto = DeepPartial<UsersEntity>;

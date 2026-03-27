@@ -44,28 +44,51 @@ consumidoresRoute.get('/one-fantasy', controller.findOneConsumidoresFantasy.bind
 consumidoresRoute.get('/all-fantasy', controller.findAllConsumidoresFantasy.bind(controller));
 
 // GET -> Busca todos os consumidores por pessoa
-consumidoresRoute.get('/pessoas/:pessoasId', controller.findAllConsumidoresPessoasId.bind(controller));
+consumidoresRoute.get(
+  '/pessoas/:pessoasId',
+  controller.findAllConsumidoresPessoasId.bind(controller)
+);
 
 // GET -> Busca todos os consumidores por empresa
-consumidoresRoute.get('/empresas/:empresasId', controller.findAllConsumidoresEmpresasId.bind(controller));
+consumidoresRoute.get(
+  '/empresas/:empresasId',
+  controller.findAllConsumidoresEmpresasId.bind(controller)
+);
 
 // GET -> Lista consumidores com detalhes
-consumidoresRoute.get('/details', controller.listAllConsumidoresDetails.bind(controller));
+consumidoresRoute.get(
+  '/details',
+  controller.listAllConsumidoresDetails.bind(controller)
+);
 
 // POST -> Cria novo consumidor
-consumidoresRoute.post('/', consumidorescreateValidation, controller.createNewConsumidores.bind(controller));
+consumidoresRoute.post(
+  '/',
+  consumidorescreateValidation,
+  controller.createNewConsumidores.bind(controller)
+);
 
 // ==========================================================
 // ROTAS DINÂMICAS
 // ==========================================================
 
 // GET -> Busca consumidor por ID
-consumidoresRoute.get('/:consumidoresId', controller.getOneConsumidoresId.bind(controller));
+consumidoresRoute.get(
+  '/:consumidoresId',
+  controller.getOneConsumidoresId.bind(controller)
+);
 
 // PATCH -> Atualiza consumidor por ID
-consumidoresRoute.patch('/:consumidoresId', consumidoresupdateValidation, controller.updateIdConsumidores.bind(controller));
+consumidoresRoute.patch(
+  '/:consumidoresId',
+  consumidoresupdateValidation,
+  controller.updateIdConsumidores.bind(controller)
+);
 
 // DELETE -> Remove consumidor por ID
-consumidoresRoute.delete('/:consumidoresId', controller.removeIdConsumidores.bind(controller));
+consumidoresRoute.delete(
+  '/:consumidoresId',
+  controller.removeIdConsumidores.bind(controller)
+);
 
 export { consumidoresRoute as consumidoresRoutes };

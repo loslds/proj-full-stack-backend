@@ -40,7 +40,7 @@ export class EstadosRepository {
       query.andWhere('estados.prefixo = :prefixo', { prefixo });
     }
 
-    if (excludeId) {
+    if (typeof excludeId === 'number') {
       query.andWhere('estados.id != :excludeId', { excludeId });
     }
 
@@ -56,7 +56,10 @@ export class EstadosRepository {
     where?: FindOptionsWhere<EstadosEntity>,
     order?: FindOptionsOrder<EstadosEntity>
   ): Promise<EstadosEntity[]> {
-    return this.repo.find({ where, order });
+    return this.repo.find({
+      where,
+      order: order ?? { id: 'ASC' }
+    });
   }
 
   async createEstados(estados: EstadosCreate): Promise<EstadosEntity> {
@@ -150,7 +153,7 @@ export class EstadosRepository {
       .select(['estados.id', 'estados.nome', 'estados.prefixo'])
       .orderBy('estados.id', 'ASC');
 
-    if (params.id) {
+    if (typeof params.id === 'number') {
       query.andWhere('estados.id = :id', { id: params.id });
     }
 
@@ -232,9 +235,8 @@ export class EstadosRepository {
   // ============================================================
 
   private validateId(id: number): void {
-    if (!id || isNaN(id) || id <= 0) {
+    if (typeof id !== 'number' || isNaN(id) || id <= 0) {
       throw new Error('Invalid estadosId');
     }
   }
 }
-

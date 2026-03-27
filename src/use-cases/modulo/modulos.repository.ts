@@ -23,15 +23,15 @@ export class ModulosRepository {
   // * DUPLICIDADE *
   // ============================================================
   async hasDuplicated(
-    name?: string,
+    nome?: string,
     excludeId?: number
   ): Promise<boolean> {
     const query = this.repo
       .createQueryBuilder('modulos')
       .select(['modulos.id']);
 
-    if (name) {
-      query.andWhere('modulos.name = :name', { name });
+    if (nome) {
+      query.andWhere('modulos.name = :name', { nome });
     }
 
     if (excludeId) {
@@ -53,11 +53,11 @@ export class ModulosRepository {
   }
 
   async createModulos(modulos: ModulosCreate): Promise<ModulosEntity> {
-    const exists = await this.hasDuplicated(modulos.name);
+    const exists = await this.hasDuplicated(modulos.nome);
 
     if (exists) {
       throw new Error(
-        `Módulo duplicado! Já existe registro com nome "${modulos.name}".`
+        `Módulo duplicado! Já existe registro com nome "${modulos.nome}".`
       );
     }
 
@@ -92,13 +92,13 @@ export class ModulosRepository {
       throw new Error(`Módulo com id ${modulosId} não encontrado`);
     }
 
-    const name = modulos.name ?? current.name;
+    const nome = modulos.nome ?? current.nome;
 
-    const exists = await this.hasDuplicated(name, modulosId);
+    const exists = await this.hasDuplicated(nome, modulosId);
 
     if (exists) {
       throw new Error(
-        `Módulo duplicado! Já existe registro com nome "${name}".`
+        `Módulo duplicado! Já existe registro com nome "${nome}".`
       );
     }
 
@@ -133,21 +133,21 @@ export class ModulosRepository {
   // ============================================================
   async searchModulos(params: {
     id?: number;
-    name?: string;
+    nome?: string;
   }): Promise<ModulosEntity[]> {
     const query = this.repo
       .createQueryBuilder('modulos')
-      .select(['modulos.id', 'modulos.name'])
+      .select(['modulos.id', 'modulos.nome'])
       .orderBy('modulos.id', 'ASC');
 
     if (params.id) {
       query.andWhere('modulos.id = :id', { id: params.id });
     }
 
-    if (params.name) {
+    if (params.nome) {
       query.andWhere(
-        'modulos.name LIKE :name COLLATE utf8mb4_general_ci',
-        { name: `%${params.name}%` }
+        'modulos.nome LIKE :name COLLATE utf8mb4_general_ci',
+        { nome: `%${params.nome}%` }
       );
     }
 
@@ -157,7 +157,7 @@ export class ModulosRepository {
   async searchNameModulos(text?: string): Promise<ModulosEntity[]> {
     const query = this.repo
       .createQueryBuilder('modulos')
-      .select(['modulos.id', 'modulos.name'])
+      .select(['modulos.id', 'modulos.nome'])
       .orderBy('modulos.id', 'ASC')
       .limit(100);
 
@@ -171,15 +171,15 @@ export class ModulosRepository {
     return query.getMany();
   }
 
-  async findOneNameModulos(name: string): Promise<ModulosEntity | null> {
+  async findOneNameModulos(nome: string): Promise<ModulosEntity | null> {
     return this.repo.findOne({
-      where: { name }
+      where: { nome }
     });
   }
 
-  async findAllNameModulos(name: string): Promise<ModulosEntity[]> {
+  async findAllNameModulos(nome: string): Promise<ModulosEntity[]> {
     return this.repo.find({
-      where: { name },
+      where: { nome },
       order: { id: 'ASC' },
       take: 100
     });

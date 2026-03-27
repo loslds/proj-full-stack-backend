@@ -1,6 +1,5 @@
 
-//C:\repository\proj-full-stack-backend\src\use-cases\acao\acoes.repository.ts
-
+// C:\repository\proj-full-stack-backend\src\use-cases\acao\acoes.repository.ts
 import {
   DataSource,
   DeepPartial,
@@ -32,19 +31,28 @@ export class AcoesRepository {
       .createQueryBuilder('acoes')
       .select(['acoes.id']);
 
+    const checks: string[] = [];
+
     if (nome) {
-      query.orWhere('acoes.nome = :nome', { nome });
+      checks.push('acoes.nome = :nome');
+      query.setParameter('nome', nome);
     }
 
     if (abrev) {
-      query.orWhere('acoes.abrev = :abrev', { abrev });
+      checks.push('acoes.abrev = :abrev');
+      query.setParameter('abrev', abrev);
     }
 
     if (typeof nivel === 'number') {
-      query.orWhere('acoes.nivel = :nivel', { nivel });
+      checks.push('acoes.nivel = :nivel');
+      query.setParameter('nivel', nivel);
     }
 
-    if (excludeId) {
+    if (checks.length > 0) {
+      query.where(`(${checks.join(' OR ')})`);
+    }
+
+    if (typeof excludeId === 'number') {
       query.andWhere('acoes.id != :excludeId', { excludeId });
     }
 
@@ -59,7 +67,10 @@ export class AcoesRepository {
     where?: FindOptionsWhere<AcoesEntity>,
     order?: FindOptionsOrder<AcoesEntity>
   ): Promise<AcoesEntity[]> {
-    return this.repo.find({ where, order });
+    return this.repo.find({
+      where,
+      order: order ?? { id: 'ASC' }
+    });
   }
 
   async createAcoes(acoes: AcoesCreate): Promise<AcoesEntity> {
@@ -156,6 +167,7 @@ export class AcoesRepository {
     id?: number;
     nome?: string;
     abrev?: string;
+    cor?: string;
     nivel?: number;
   }): Promise<AcoesEntity[]> {
     const query = this.repo
@@ -169,7 +181,7 @@ export class AcoesRepository {
       ])
       .orderBy('acoes.id', 'ASC');
 
-    if (params.id) {
+    if (typeof params.id === 'number') {
       query.andWhere('acoes.id = :id', { id: params.id });
     }
 
@@ -184,6 +196,13 @@ export class AcoesRepository {
       query.andWhere(
         'acoes.abrev LIKE :abrev COLLATE utf8mb4_general_ci',
         { abrev: `%${params.abrev}%` }
+      );
+    }
+
+    if (params.cor) {
+      query.andWhere(
+        'acoes.cor LIKE :cor COLLATE utf8mb4_general_ci',
+        { cor: `%${params.cor}%` }
       );
     }
 
@@ -240,6 +259,29 @@ export class AcoesRepository {
     return query.getMany();
   }
 
+  async searchCorAcoes(text?: string): Promise<AcoesEntity[]> {
+    const query = this.repo
+      .createQueryBuilder('acoes')
+      .select([
+        'acoes.id',
+        'acoes.nome',
+        'acoes.abrev',
+        'acoes.cor',
+        'acoes.nivel'
+      ])
+      .orderBy('acoes.id', 'ASC')
+      .limit(100);
+
+    if (text) {
+      query.andWhere(
+        'acoes.cor LIKE :text COLLATE utf8mb4_general_ci',
+        { text: `%${text}%` }
+      );
+    }
+
+    return query.getMany();
+  }
+
   async findOneNomeAcoes(nome: string): Promise<AcoesEntity | null> {
     return this.repo.findOne({
       where: { nome }
@@ -268,6 +310,20 @@ export class AcoesRepository {
     });
   }
 
+  async findOneCorAcoes(cor: string): Promise<AcoesEntity | null> {
+    return this.repo.findOne({
+      where: { cor }
+    });
+  }
+
+  async findAllCorAcoes(cor: string): Promise<AcoesEntity[]> {
+    return this.repo.find({
+      where: { cor },
+      order: { id: 'ASC' },
+      take: 100
+    });
+  }
+
   async findOneNivelAcoes(nivel: number): Promise<AcoesEntity | null> {
     return this.repo.findOne({
       where: { nivel }
@@ -286,9 +342,8 @@ export class AcoesRepository {
   // * UTIL *
   // ============================================================
   private validateId(id: number): void {
-    if (!id || isNaN(id) || id <= 0) {
+    if (typeof id !== 'number' || isNaN(id) || id <= 0) {
       throw new Error('Invalid acoesId');
     }
   }
 }
-

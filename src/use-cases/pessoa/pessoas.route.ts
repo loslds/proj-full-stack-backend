@@ -1,7 +1,5 @@
 
-
 // C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.route.ts
-
 import { Router } from 'express';
 import { AppDataSource } from '../../config/db';
 import { PessoasController } from './pessoas.controller';
@@ -15,16 +13,9 @@ const pessoasRepository = new PessoasRepository(AppDataSource);
 const controller = new PessoasController(pessoasRepository);
 const pessoasRoute = Router();
 
-// ==========================================================
-// ROTAS FIXAS
-// Sempre declarar antes das rotas com parâmetros dinâmicos
-// ==========================================================
-
-// GET -> Lista todas as pessoas
-pessoasRoute.get(
-  '/',
-  controller.findAllPessoas.bind(controller)
-);
+// ============================================================
+// * CONSULTAS PERSONALIZADAS *
+// ============================================================
 
 // GET -> Pesquisa combinada
 pessoasRoute.get(
@@ -34,7 +25,7 @@ pessoasRoute.get(
 
 // GET -> Pesquisa por nome aproximado
 pessoasRoute.get(
-  '/search-name',
+  '/search-nome',
   controller.searchPessoasNome.bind(controller)
 );
 
@@ -68,16 +59,22 @@ pessoasRoute.get(
   controller.findAllPessoasSigla.bind(controller)
 );
 
+// ============================================================
+// * CRUD *
+// ============================================================
+
+// GET -> Lista todas as pessoas
+pessoasRoute.get(
+  '/',
+  controller.findAllPessoas.bind(controller)
+);
+
 // POST -> Cria nova pessoa
 pessoasRoute.post(
   '/',
   pessoascreateValidation,
   controller.createNewPessoas.bind(controller)
 );
-
-// ==========================================================
-// ROTAS DINÂMICAS
-// ==========================================================
 
 // GET -> Busca pessoa por ID
 pessoasRoute.get(
@@ -99,4 +96,3 @@ pessoasRoute.delete(
 );
 
 export { pessoasRoute as pessoasRoutes };
-

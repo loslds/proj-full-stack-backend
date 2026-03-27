@@ -1,6 +1,6 @@
 
 
-//C:\repository\proj-full-stack-backend\src\use-cases\consumidor\consumidores.reposytory.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\consumidor\consumidores.repository.ts
 import {
   DataSource,
   DeepPartial,
@@ -19,9 +19,9 @@ export class ConsumidoresRepository {
     this.repo = this.dataSource.getRepository(ConsumidoresEntity);
   }
 
-  // ==========================================================
-  // DUPLICIDADE
-  // ==========================================================
+  // ============================================================
+  // * DUPLICIDADE *
+  // ============================================================
   async hasDuplicated(
     nome?: string,
     fantasy?: string,
@@ -54,9 +54,25 @@ export class ConsumidoresRepository {
     return query.getOne();
   }
 
-  // ==========================================================
-  // CREATE
-  // ==========================================================
+  // ============================================================
+  // * CRUD *
+  // ============================================================
+  async findConsumidoresAll(
+    where?:
+      | FindOptionsWhere<ConsumidoresEntity>
+      | FindOptionsWhere<ConsumidoresEntity>[],
+    orderBy: FindOptionsOrder<ConsumidoresEntity> = { id: 'ASC' }
+  ): Promise<ConsumidoresEntity[]> {
+    return this.repo.find({
+      where,
+      relations: {
+        pessoas: true,
+        empresas: true
+      },
+      order: orderBy
+    });
+  }
+
   async createConsumidores(
     consumidores: ConsumidoresCreate
   ): Promise<ConsumidoresEntity> {
@@ -75,8 +91,6 @@ export class ConsumidoresRepository {
 
     const data = this.repo.create({
       ...consumidores,
-      id_pessoas: consumidores.id_pessoas ?? 0,
-      id_empresas: consumidores.id_empresas ?? 0,
       createdBy: consumidores.createdBy ?? 0,
       updatedBy: consumidores.updatedBy ?? 0
     });
@@ -84,13 +98,26 @@ export class ConsumidoresRepository {
     return this.repo.save(data);
   }
 
-  // ==========================================================
-  // UPDATE
-  // ==========================================================
+  async findOneConsumidoresById(
+    consumidoresId: number
+  ): Promise<ConsumidoresEntity | null> {
+    this.validateId(consumidoresId);
+
+    return this.repo.findOne({
+      where: { id: consumidoresId },
+      relations: {
+        pessoas: true,
+        empresas: true
+      }
+    });
+  }
+
   async updateConsumidoresId(
     consumidoresId: number,
     consumidores: DeepPartial<ConsumidoresEntity>
   ): Promise<ConsumidoresEntity> {
+    this.validateId(consumidoresId);
+
     const current = await this.repo.findOne({
       where: { id: consumidoresId }
     });
@@ -122,10 +149,9 @@ export class ConsumidoresRepository {
     return this.repo.save(data);
   }
 
-  // ==========================================================
-  // DELETE
-  // ==========================================================
   async deleteConsumidoresId(consumidoresId: number): Promise<boolean> {
+    this.validateId(consumidoresId);
+
     const result = await this.repo.delete(consumidoresId);
 
     if (result.affected === 0) {
@@ -135,41 +161,9 @@ export class ConsumidoresRepository {
     return true;
   }
 
-  // ==========================================================
-  // BUSCA POR ID
-  // ==========================================================
-  async findOneConsumidoresById(
-    consumidoresId: number
-  ): Promise<ConsumidoresEntity | null> {
-    return this.repo.findOne({
-      where: { id: consumidoresId },
-      relations: {
-        pessoas: true,
-        empresas: true
-      }
-    });
-  }
-
-  // ==========================================================
-  // LISTA TODOS
-  // ==========================================================
-  async findConsumidoresAll(
-    where?: FindOptionsWhere<ConsumidoresEntity> | FindOptionsWhere<ConsumidoresEntity>[],
-    orderBy: FindOptionsOrder<ConsumidoresEntity> = { id: 'ASC' }
-  ): Promise<ConsumidoresEntity[]> {
-    return this.repo.find({
-      where,
-      relations: {
-        pessoas: true,
-        empresas: true
-      },
-      order: orderBy
-    });
-  }
-
-  // ==========================================================
-  // BUSCA EXATA POR NOME
-  // ==========================================================
+  // ============================================================
+  // * CONSULTAS PERSONALIZADAS *
+  // ============================================================
   async findOneConsumidoresByNome(
     nome: string
   ): Promise<ConsumidoresEntity | null> {
@@ -182,10 +176,9 @@ export class ConsumidoresRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA TODOS POR NOME EXATO
-  // ==========================================================
-  async findAllConsumidoresByNome(nome: string): Promise<ConsumidoresEntity[]> {
+  async findAllConsumidoresByNome(
+    nome: string
+  ): Promise<ConsumidoresEntity[]> {
     return this.repo.find({
       where: { nome },
       relations: {
@@ -196,9 +189,6 @@ export class ConsumidoresRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA EXATA POR FANTASY
-  // ==========================================================
   async findOneConsumidoresByFantasy(
     fantasy: string
   ): Promise<ConsumidoresEntity | null> {
@@ -211,9 +201,6 @@ export class ConsumidoresRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA TODOS POR FANTASY EXATO
-  // ==========================================================
   async findAllConsumidoresByFantasy(
     fantasy: string
   ): Promise<ConsumidoresEntity[]> {
@@ -227,9 +214,6 @@ export class ConsumidoresRepository {
     });
   }
 
-  // ==========================================================
-  // BUSCA PARCIAL POR NOME
-  // ==========================================================
   async searchNameParcialConsumidores(
     txt?: string
   ): Promise<ConsumidoresEntity[]> {
@@ -249,9 +233,6 @@ export class ConsumidoresRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // BUSCA PARCIAL POR FANTASY
-  // ==========================================================
   async searchFantasyParcialConsumidores(
     txt?: string
   ): Promise<ConsumidoresEntity[]> {
@@ -271,9 +252,6 @@ export class ConsumidoresRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // PESQUISA GERAL
-  // ==========================================================
   async searchConsumidores(params: {
     id?: number;
     nome?: string;
@@ -287,7 +265,7 @@ export class ConsumidoresRepository {
       .leftJoinAndSelect('consumidores.empresas', 'empresas')
       .orderBy('consumidores.id', 'ASC');
 
-    if (params.id) {
+    if (typeof params.id === 'number') {
       query.andWhere('consumidores.id = :id', { id: params.id });
     }
 
@@ -320,9 +298,6 @@ export class ConsumidoresRepository {
     return query.getMany();
   }
 
-  // ==========================================================
-  // LISTA POR ID_PESSOAS
-  // ==========================================================
   async findAllConsumidoresByPessoasId(
     pessoasId: number
   ): Promise<ConsumidoresEntity[]> {
@@ -336,9 +311,6 @@ export class ConsumidoresRepository {
     });
   }
 
-  // ==========================================================
-  // LISTA POR ID_EMPRESAS
-  // ==========================================================
   async findAllConsumidoresByEmpresasId(
     empresasId: number
   ): Promise<ConsumidoresEntity[]> {
@@ -352,9 +324,6 @@ export class ConsumidoresRepository {
     });
   }
 
-  // ==========================================================
-  // LISTA DETALHADA
-  // ==========================================================
   async listAllConsumidoresDetails(): Promise<ConsumidoresEntity[]> {
     return this.repo
       .createQueryBuilder('consumidores')
@@ -365,15 +334,11 @@ export class ConsumidoresRepository {
   }
 
   // ============================================================
-  // UTIL
+  // * UTIL *
   // ============================================================
   private validateId(id: number): void {
-    if (!id || isNaN(id) || id <= 0) {
+    if (typeof id !== 'number' || isNaN(id) || id <= 0) {
       throw new Error('Invalid consumidoresId');
     }
   }
 }
-
-
-
-

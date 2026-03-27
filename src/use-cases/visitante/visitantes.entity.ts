@@ -1,5 +1,4 @@
-  
-// C:\repository\proj-full-stack-backend\src\use-cases\visitante\visitantes.entity.ts
+ // C:\repository\proj-full-stack-backend\src\use-cases\visitante\visitantes.entity.ts
 import {
   Column,
   Entity,
@@ -8,23 +7,19 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-  Index
+  Index,
+  Unique
 } from 'typeorm';
 
 import { PessoasEntity } from '../pessoa/pessoas.entity';
 import { EmpresasEntity } from '../empresa/empresas.entity';
 
 @Entity('visitantes')
+@Unique(['nome', 'fantasy', 'id_pessoas', 'id_empresas'])
 @Index('idx_visitantes_nome', ['nome'])
 @Index('idx_visitantes_fantasy', ['fantasy'])
 @Index('idx_visitantes_id_pessoas', ['id_pessoas'])
 @Index('idx_visitantes_id_empresas', ['id_empresas'])
-@Index('idx_visitantes_nome_fantasy_id_pessoas_id_empresas', [
-  'nome',
-  'fantasy',
-  'id_pessoas',
-  'id_empresas'
-])
 export class VisitantesEntity {
   @PrimaryGeneratedColumn({
     type: 'int',
@@ -40,7 +35,11 @@ export class VisitantesEntity {
   })
   id_empresas: number;
 
-  @ManyToOne(() => EmpresasEntity, { nullable: false })
+  @ManyToOne(() => EmpresasEntity, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn({ name: 'id_empresas' })
   empresas: EmpresasEntity;
 
@@ -52,7 +51,11 @@ export class VisitantesEntity {
   })
   id_pessoas: number;
 
-  @ManyToOne(() => PessoasEntity, { nullable: false })
+  @ManyToOne(() => PessoasEntity, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn({ name: 'id_pessoas' })
   pessoas: PessoasEntity;
 
@@ -98,5 +101,3 @@ export class VisitantesEntity {
   })
   updatedAt: Date;
 }
-
-

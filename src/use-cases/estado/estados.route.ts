@@ -1,27 +1,22 @@
 
   
 // C:\repository\proj-full-stack-backend\src\use-cases\estado\estados.route.ts
-
 import { Router } from 'express';
 import { AppDataSource } from '../../config/db';
 import { EstadosController } from './estados.controller';
 import { EstadosRepository } from './estados.repository';
-import {estadoscreateValidation, estadosupdateValidation } from './estados.validation';
+import {
+  estadoscreateValidation,
+  estadosupdateValidation
+} from './estados.validation';
 
 const estadosRepository = new EstadosRepository(AppDataSource);
 const controller = new EstadosController(estadosRepository);
 const estadosRoute = Router();
 
-// ==========================================================
-// ROTAS FIXAS
-// Sempre declarar antes das rotas dinâmicas
-// ==========================================================
-
-// GET -> Lista todos os estados
-estadosRoute.get(
-  '/',
-  controller.findAllEstados.bind(controller)
-);
+// ============================================================
+// * CONSULTAS PERSONALIZADAS *
+// ============================================================
 
 // GET -> Pesquisa combinada
 estadosRoute.get(
@@ -65,16 +60,22 @@ estadosRoute.get(
   controller.findAllEstadosPrefixo.bind(controller)
 );
 
+// ============================================================
+// * CRUD *
+// ============================================================
+
+// GET -> Lista todos os estados
+estadosRoute.get(
+  '/',
+  controller.findAllEstados.bind(controller)
+);
+
 // POST -> Cria novo estado
 estadosRoute.post(
   '/',
   estadoscreateValidation,
   controller.createNewEstados.bind(controller)
 );
-
-// ==========================================================
-// ROTAS DINÂMICAS
-// ==========================================================
 
 // GET -> Busca estado por ID
 estadosRoute.get(
@@ -96,5 +97,4 @@ estadosRoute.delete(
 );
 
 export { estadosRoute as estadosRoutes };
-
 

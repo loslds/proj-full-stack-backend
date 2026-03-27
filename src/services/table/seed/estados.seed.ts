@@ -1,7 +1,13 @@
 
 
 // src/services/tables/seed/estados.seed.ts
-export const estadosSeed = [
+type EstadosSeedType = {
+  nome: string;
+  prefixo: string;
+  createdBy?: number;
+  updatedBy?: number;
+};
+export const estadosSeed: EstadosSeedType[] = [
   { nome: 'Acre', prefixo: 'AC', createdBy: 0, updatedBy: 0 },
   { nome: 'Alagoas', prefixo: 'AL', createdBy: 0, updatedBy: 0 },
   { nome: 'Amazonas', prefixo: 'AM', createdBy: 0, updatedBy: 0 },
