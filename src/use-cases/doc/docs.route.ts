@@ -1,92 +1,75 @@
-import { Router, Request, Response, NextFunction } from 'express';
+
+// C:\repository\proj-full-stack-backend\src\use-cases\doc\docs.route.ts
+import { Router } from 'express';
+import { AppDataSource } from '../../config/db';
 import { DocsController } from './docs.controller';
 import { DocsRepository } from './docs.repository';
-import { dataSource } from '../start/dbSource';
-import { createValidation, updateValidation } from './docs.validation';
+import {
+  docscreateValidation,
+  docsupdateValidation
+} from './docs.validation';
 
-const docsRepository = new DocsRepository(dataSource);
+const docsRepository = new DocsRepository(AppDataSource);
 const controller = new DocsController(docsRepository);
 const docsRoute = Router();
 
-// Rota para listar todos os docs
-docsRoute.get('/', (req: Request, res: Response, next: NextFunction) => 
-  controller.findAll(req, res, next)
-);
+// ==========================================================
+// ROTAS FIXAS
+// ==========================================================
 
-// Rota para criar um novo docs
-docsRoute.post('/', createValidation, (req: Request, res: Response, next: NextFunction) => 
-  controller.create(req, res, next)
-);
+// GET → Lista todos
+docsRoute.get('/', controller.findAllDocs.bind(controller));
 
-// Rota para buscar um docs pelo ID
-docsRoute.get('/:docsId', (req: Request<{ docsId: string }>, res: Response, next: NextFunction) => 
-  controller.getOne(req, res, next)
-);
+// GET → Pesquisa combinada
+docsRoute.get('/search', controller.searchDocsAll.bind(controller));
 
-// Rota para atualizar um docs pelo ID
-docsRoute.patch('/:docsId', updateValidation, (req: Request<{ docsId: string }>, res: Response, next: NextFunction) => 
-  controller.update(req, res, next)
-);
+// GET → Pesquisa parcial
+docsRoute.get('/search-text', controller.searchDocsParcial.bind(controller));
 
-// Rota para deletar um docs pelo ID
-docsRoute.delete('/:docsId', (req: Request<{ docsId: string }>, res: Response, next: NextFunction) => 
-  controller.remove(req, res, next)
-);
+// GET → CPF exato
+docsRoute.get('/one-cpf', controller.findOneDocsCpf.bind(controller));
 
-// Rota para buscar todos os docs por cpf
-docsRoute.get('/by-cpf', (req: Request<{}, {}, {}, { cpf: string }>, res: Response, next: NextFunction) => 
-  controller.findByCpf(req, res, next)
-);
+// GET → Todos CPF
+docsRoute.get('/all-cpf', controller.findAllDocsCpf.bind(controller));
 
-// Rota para buscar todos os docs por cpf (plural)
-docsRoute.get('/by-cpfs', (req: Request<{}, {}, {}, { cpf: string }>, res: Response, next: NextFunction) => 
-  controller.findAllCpf(req, res, next)
-);
+// GET → CNPJ exato
+docsRoute.get('/one-cnpj', controller.findOneDocsCnpj.bind(controller));
 
-// Rota para buscar um docs por cnpj
-docsRoute.get('/by-cnpj', (req: Request<{}, {}, {}, { cnpj: string }>, res: Response, next: NextFunction) => 
-  controller.findByCnpj(req, res, next)
-);
+// GET → Todos CNPJ
+docsRoute.get('/all-cnpj', controller.findAllDocsCnpj.bind(controller));
 
-// Rota para buscar todos os docs por cnpj (plural)
-docsRoute.get('/by-cnpjs', (req: Request<{}, {}, {}, { cnpj: string }>, res: Response, next: NextFunction) => 
-  controller.findAllCnpj(req, res, next)
-);
+// GET → INSCR_ESTADUAL exato
+docsRoute.get('/one-inscr-estadual', controller.findOneDocsByInscrEstadual.bind(controller));
 
-// Rota para buscar um docs por inscre
-docsRoute.get('/by-inscre', (req: Request<{}, {}, {}, { inscre: string }>, res: Response, next: NextFunction) => 
-  controller.findByInscre(req, res, next)
-);
+// GET → Todos INSCR_ESTADUAL
+docsRoute.get('/all-inscr-estadual', controller.findAllDocsByInscrEstadual.bind(controller));
 
-// Rota para buscar todos os docs por inscre (plural)
-docsRoute.get('/by-inscres', (req: Request<{}, {}, {}, { inscre: string }>, res: Response, next: NextFunction) => 
-  controller.findAllInscre(req, res, next)
-);
+// GET → INSCR_MUNICIPAL exato
+docsRoute.get('/one-inscr-municipal', controller.findOneDocsByInscrMunicipal.bind(controller));
 
+// GET → Todos INSCR_MUNICIPAL
+docsRoute.get('/all-inscr-municipal', controller.findAllDocsByInscrMunicipal.bind(controller));
 
-// Rota para buscar um docs por inscrm
-docsRoute.get('/by-inscrm', (req: Request<{}, {}, {}, { inscrm: string }>, res: Response, next: NextFunction) => 
-  controller.findByInscrm(req, res, next)
-);
+// GET → Por cadastro
+docsRoute.get('/cadastros/:cadastrosId', controller.findAllDocsCadastrosId.bind(controller));
 
-// Rota para buscar todos os docs por inscre (plural)
-docsRoute.get('/by-inscrms', (req: Request<{}, {}, {}, { inscrm: string }>, res: Response, next: NextFunction) => 
-  controller.findAllInscrm(req, res, next)
-);
+// GET → Details
+docsRoute.get('/details', controller.listAllDocsDetails.bind(controller));
 
-// Rota para buscar um docs por inscre
-docsRoute.get('/by-matricula', (req: Request<{}, {}, {}, { matricula: string }>, res: Response, next: NextFunction) => 
-  controller.findByMatric(req, res, next)
-);
+// POST → Criar
+docsRoute.post('/', docscreateValidation, controller.createNewDocs.bind(controller));
 
-// Rota para buscar todos os docs por inscre (plural)
-docsRoute.get('/by-matriculas', (req: Request<{}, {}, {}, { matricula: string }>, res: Response, next: NextFunction) => 
-  controller.findAllMatric(req, res, next)
-);
+// ==========================================================
+// ROTAS DINÂMICAS
+// ==========================================================
 
-// Rota para buscar docs por cadastrosId
-docsRoute.get('/docs/by-cadastros/:cadastrosId', (req: Request<{ cadastrosId: string }>, res: Response, next: NextFunction) => 
-  controller.findByCadastrosId(req, res, next)
-);
+// GET → Buscar por ID
+docsRoute.get('/:docsId', controller.getOneDocsId.bind(controller));
 
-export { docsRoute, docsRepository };
+// PATCH → Atualizar
+docsRoute.patch('/:docsId', docsupdateValidation, controller.updateIdDocs.bind(controller));
+
+// DELETE → Remover
+docsRoute.delete('/:docsId', controller.removeIdDocs.bind(controller));
+
+export { docsRoute as docsRoutes };

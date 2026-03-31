@@ -1,61 +1,62 @@
-import { Router, Request, Response, NextFunction } from 'express';
+// C:\repository\proj-full-stack-backend\src\use-cases\email\emails.route.ts
+import { Router } from 'express';
+import { AppDataSource } from '../../config/db';
 import { EmailsController } from './emails.controller';
 import { EmailsRepository } from './emails.repository';
-import { dataSource } from '../start/dbSource';
-import { createValidation, updateValidation } from './emails.validation';
+import {
+  emailscreateValidation,
+  emailsupdateValidation
+} from './emails.validation';
 
-const emailsRepository = new EmailsRepository(dataSource);
+const emailsRepository = new EmailsRepository(AppDataSource);
 const controller = new EmailsController(emailsRepository);
 const emailsRoute = Router();
 
-// Rota para listar todos os e-mails
-emailsRoute.get('/', (req: Request, res: Response, next: NextFunction) => 
-  controller.findAll(req, res, next)
-);
+// ==========================================================
+// ROTAS FIXAS
+// ==========================================================
 
-// Rota para criar um novo e-mail
-emailsRoute.post('/', createValidation, (req: Request, res: Response, next: NextFunction) => 
-  controller.create(req, res, next)
-);
+// GET → Lista todos
+emailsRoute.get('/', controller.findAllEmails.bind(controller));
 
-// Rota para buscar um e-mail pelo ID
-emailsRoute.get('/:mailId', (req: Request<{ mailId: string }>, res: Response, next: NextFunction) => 
-  controller.getOne(req, res, next)
-);
+// GET → Pesquisa combinada
+emailsRoute.get('/search', controller.searchEmailsAll.bind(controller));
 
-// Rota para atualizar um e-mail pelo ID
-emailsRoute.patch('/:mailId', updateValidation, (req: Request<{ mailId: string }>, res: Response, next: NextFunction) => 
-  controller.update(req, res, next)
-);
+// GET → Pesquisa parcial (text)
+emailsRoute.get('/search-text', controller.searchEmailsParcial.bind(controller));
 
-// Rota para deletar um e-mail pelo ID
-emailsRoute.delete('/:mailId', (req: Request<{ mailId: string }>, res: Response, next: NextFunction) => 
-  controller.remove(req, res, next)
-);
+// GET → Busca um email exato
+emailsRoute.get('/one-email', controller.findOneEmailsEmail.bind(controller));
 
-// Rota para buscar todos os e-mails por mail
-emailsRoute.get('/by-mail', (req: Request<{}, {}, {}, { mail: string }>, res: Response, next: NextFunction) => 
-  controller.findByMail(req, res, next)
-);
+// GET → Busca todos emails exatos
+emailsRoute.get('/all-email', controller.findAllEmailsEmail.bind(controller));
 
-// Rota para buscar todos os e-mails por mail (plural)
-emailsRoute.get('/by-mails', (req: Request<{}, {}, {}, { mail: string }>, res: Response, next: NextFunction) => 
-  controller.findAllMail(req, res, next)
-);
+// GET → Busca um email_resgate exato
+emailsRoute.get('/one-email-resgate', controller.findOneEmailsEmailResgate.bind(controller));
 
-// Rota para buscar todos os e-mails por mailresg (plural)
-emailsRoute.get('/by-mailregs', (req: Request<{}, {}, {}, { mailresg: string }>, res: Response, next: NextFunction) => 
-  controller.findAllMailresg(req, res, next)
-);
+// GET → Busca todos email_resgate
+emailsRoute.get('/all-email-resgate', controller.findAllEmailsEmailResgate.bind(controller));
 
-// Rota para buscar um e-mail por mailresg
-emailsRoute.get('/by-mailresg', (req: Request<{}, {}, {}, { mailresg: string }>, res: Response, next: NextFunction) => 
-  controller.findByMailresg(req, res, next)
-);
+// GET → Busca por cadastro
+emailsRoute.get('/cadastros/:cadastrosId', controller.findAllEmailsCadastrosId.bind(controller));
 
-// Rota para buscar e-mails por cadastroId
-emailsRoute.get('/email/by-cadastros/:cadastrosId', (req: Request<{ cadastrosId: string }>, res: Response, next: NextFunction) => 
-  controller.findByCadastrosId(req, res, next)
-);
+// GET → Details
+emailsRoute.get('/details', controller.listAllEmailsDetails.bind(controller));
 
-export { emailsRoute, emailsRepository };
+// POST → Criar
+emailsRoute.post('/', emailscreateValidation, controller.createNewEmails.bind(controller));
+
+// ==========================================================
+// ROTAS DINÂMICAS
+// ==========================================================
+
+// GET → Buscar por ID
+emailsRoute.get('/:emailsId', controller.getOneEmailsId.bind(controller));
+
+// PATCH → Atualizar
+emailsRoute.patch('/:emailsId', emailsupdateValidation, controller.updateIdEmails.bind(controller));
+
+// DELETE → Remover
+emailsRoute.delete('/:emailsId', controller.removeIdEmails.bind(controller));
+
+export { emailsRoute as emailsRoutes };

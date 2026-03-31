@@ -23,7 +23,10 @@ export const systemTables = [
   'clientes',        
   'fornecedores',    
   'funcionarios',
-  'cadastros',    
+  'cadastros',
+  'emails',
+  'docs',
+  'fones',
 
 
   // outras tabelas ......
@@ -51,6 +54,9 @@ export const tablesWithDefaults = [
   'fornecedores',    // * CONCLUIDOS
   'funcionarios',    // * CONCLUIDOS
   'cadastros',       // * CONCLUIDOS  
+  'emails',          // * CONCLUIDOS  
+  'docs',            // * CONCLUIDOS  
+  'fones',           // * CONCLUIDOS  
 
   'user',
   'chaves',

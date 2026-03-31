@@ -1,31 +1,66 @@
-import { Router, Request, Response, NextFunction } from 'express';
+
+// C:\repository\proj-full-stack-backend\src\use-cases\fone\fones.route.ts
+import { Router } from 'express';
+import { AppDataSource } from '../../config/db';
 import { FonesController } from './fones.controller';
 import { FonesRepository } from './fones.repository';
-import { dataSource } from '../start/dbSource';
-import { createValidation, updateValidation } from './fones.validation';
+import { fonescreateValidation, fonesupdateValidation } from './fones.validation';
 
-const fonesRepository = new FonesRepository(dataSource);
+const fonesRepository = new FonesRepository(AppDataSource);
 const controller = new FonesController(fonesRepository);
 const fonesRoute = Router();
 
-// Rota para listar todos os fones
-fonesRoute.get('/', (req: Request, res: Response, next: NextFunction) => controller.findAll(req, res, next));
-// Rota para criar um novo fones
-fonesRoute.post('/', createValidation, (req: Request, res: Response, next: NextFunction) => controller.create(req, res, next));
-// Rota para buscar em fones atraves do ID
-fonesRoute.get('/:fonesId', (req: Request<{ fonesId: string }>, res: Response, next: NextFunction) => controller.getOne(req, res, next));
-// Rota para atualiza em fones atraves do ID
-fonesRoute.patch('/:fonesId', updateValidation, (req: Request<{ fonesId: string }>, res: Response, next: NextFunction) =>   controller.update(req, res, next));
-// Rota para deletar em em fones atraves do ID
-fonesRoute.delete('/:fonesId', (req: Request<{ fonesId: string }>, res: Response, next: NextFunction) => controller.remove(req, res, next));
-// Rota para buscar em fones reg. fonex
-fonesRoute.get('/by-fonex', (req: Request<{}, {}, {}, { fonex: string }>, res: Response, next: NextFunction) => controller.findByFonex(req, res, next));
-// Rota para buscar em fones todos reg. fonex (plural)
-fonesRoute.get('/by-fonexs', (req: Request<{}, {}, {}, { fonex: string }>, res: Response, next: NextFunction) => controller.findAllFonex(req, res, next));
+// ==========================================================
+// ROTAS FIXAS
+// ==========================================================
 
-// Rota para buscar fones por cadastrosId
-fonesRoute.get('/fones/by-cadastros/:cadastrosId', (req: Request<{ cadastrosId: string }>, res: Response, next: NextFunction) => 
-  controller.findByCadastrosId(req, res, next)
-);
+// GET → Lista todos
+fonesRoute.get('/', controller.findAllFones.bind(controller));
 
-export { fonesRoute, fonesRepository };
+// GET → Pesquisa combinada
+fonesRoute.get('/search', controller.searchFonesAll.bind(controller));
+
+// GET → Pesquisa parcial
+fonesRoute.get('/search-text', controller.searchFonesParcial.bind(controller));
+
+// GET → Fone fixo exato
+fonesRoute.get('/one-fixo', controller.findOneFonesFixo.bind(controller));
+
+// GET → Todos fones fixos
+fonesRoute.get('/all-fixo', controller.findAllFonesFixo.bind(controller));
+
+// GET → Fone celular exato
+fonesRoute.get('/one-celular', controller.findOneFonesCelular.bind(controller));
+
+// GET → Todos fones celular
+fonesRoute.get('/all-celular', controller.findAllFonesCelular.bind(controller));
+
+// GET → Fone contacto exato
+fonesRoute.get('/one-contacto', controller.findOneFonesContacto.bind(controller));
+
+// GET → Todos fones contacto
+fonesRoute.get('/all-contacto', controller.findAllFonesContacto.bind(controller));
+
+// GET → Por cadastro
+fonesRoute.get('/cadastros/:cadastrosId', controller.findAllFonesCadastrosId.bind(controller));
+
+// GET → Details
+fonesRoute.get('/details', controller.listAllFonesDetails.bind(controller));
+
+// POST → Criar
+fonesRoute.post('/', fonescreateValidation, controller.createNewFones.bind(controller));
+
+// ==========================================================
+// ROTAS DINÂMICAS
+// ==========================================================
+
+// GET → Buscar por ID
+fonesRoute.get('/:fonesId', controller.getOneFonesId.bind(controller));
+
+// PATCH → Atualizar
+fonesRoute.patch('/:fonesId', fonesupdateValidation, controller.updateIdFones.bind(controller));
+
+// DELETE → Remover
+fonesRoute.delete('/:fonesId', controller.removeIdFones.bind(controller));
+
+export { fonesRoute as fonesRoutes };

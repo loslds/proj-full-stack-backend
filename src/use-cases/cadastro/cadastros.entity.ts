@@ -150,19 +150,21 @@ export class CadastrosEntity {
   @JoinColumn({ name: 'id_cidades' })
   cidades: CidadesEntity | null;
 
+  // FK para imagens
   @Column({
     type: 'int',
     unsigned: true,
-    nullable: false,
-    default: 0
+    nullable: true
   })
-  id_imagens: number;
+  id_imagens: number | null;
 
+  // relacionamento
   @ManyToOne(() => ImagensEntity, {
     nullable: true,
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE'
   })
+  
   @JoinColumn({ name: 'id_imagens' })
   imagens: ImagensEntity | null;
 

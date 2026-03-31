@@ -4,10 +4,7 @@ import { Router } from 'express';
 import { AppDataSource } from '../../config/db';
 import { CargosController } from './cargos.controller';
 import { CargosRepository } from './cargos.repository';
-import {
-  cargosCreateValidation,
-  cargosUpdateValidation
-} from './cargos.validation';
+import { cargoscreateValidation, cargosupdateValidation } from './cargos.validation';
 
 const cargosRepository = new CargosRepository(AppDataSource);
 const controller = new CargosController(cargosRepository);
@@ -23,11 +20,7 @@ cargosRoute.get('/search-nome', controller.searchCargosNome.bind(controller));
 cargosRoute.get('/one-nome', controller.findOneCargosNome.bind(controller));
 cargosRoute.get('/all-nome', controller.findAllCargosNome.bind(controller));
 
-cargosRoute.post(
-  '/',
-  cargosCreateValidation,
-  controller.createNewCargos.bind(controller)
-);
+cargosRoute.post('/', cargoscreateValidation, controller.createNewCargos.bind(controller));
 
 // ==========================================================
 // ROTAS DINÂMICAS
@@ -35,11 +28,7 @@ cargosRoute.post(
 
 cargosRoute.get('/:cargosId', controller.getOneCargosId.bind(controller));
 
-cargosRoute.patch(
-  '/:cargosId',
-  cargosUpdateValidation,
-  controller.updateIdCargos.bind(controller)
-);
+cargosRoute.patch('/:cargosId', cargosupdateValidation, controller.updateIdCargos.bind(controller));
 
 cargosRoute.delete('/:cargosId', controller.removeIdCargos.bind(controller));
 

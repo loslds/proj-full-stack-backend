@@ -1,20 +1,63 @@
 
 // C:\repository\proj-full-stack-backend\src\use-cases\email\emails.dto.ts
-
+import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
+import { EmailsEntity } from './emails.entity';
 
+// ==========================================================
+// CREATE
+// ==========================================================
 export const emailsCreateSchema = z.object({
-  mail: z.string().email(),  // Torna o campo format mail obrigatório para a criação
-  mailresg: z.string().email(),  // Torna o campo format mail obrigatório para a criação
-  id_cadastro: z.number(),
+  id_cadastros: z
+    .number()
+    .int()
+    .positive('id_cadastros deve ser maior que zero'),
+
+  email: z
+    .string()
+    .trim()
+    .min(5, 'Email deve ter ao menos 5 caracteres')
+    .max(120, 'Email deve ter no máximo 120 caracteres')
+    .email('Email inválido'),
+
+  email_resgate: z
+    .string()
+    .trim()
+    .max(120, 'Email de resgate deve ter no máximo 120 caracteres')
+    .email('Email de resgate inválido')
+    .optional()
+    .nullable(),
+
+  createdBy: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional(),
+
+  updatedBy: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
 });
 
-export const emailsUpdateSchema = z.object({
-  mail: z.string().email().email().optional(),
-  mailresg: z.string().email().optional(),  // Permite que fantasy seja opcional na atualização
-  id_cadastro: z.number().optional(),  // Permite que id_pessoa seja opcional na atualização
-});
+// ==========================================================
+// UPDATE
+// ==========================================================
+export const emailsUpdateSchema = emailsCreateSchema
+  .partial()
+  .extend({
+    id: z
+      .number()
+      .int()
+      .positive('ID inválido para update')
+      .optional()
+  });
 
+// ==========================================================
+// TYPES
+// ==========================================================
 export type EmailsCreate = z.infer<typeof emailsCreateSchema>;
 export type EmailsUpdate = z.infer<typeof emailsUpdateSchema>;
+export type EmailsDto = DeepPartial<EmailsEntity>;
 

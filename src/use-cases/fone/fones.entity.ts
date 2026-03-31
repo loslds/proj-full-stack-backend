@@ -1,53 +1,106 @@
 
-import { Column, Entity, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+
+// C:\repository\proj-full-stack-backend\src\use-cases\fone\fones.entity.ts
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+  Index,
+  Unique
+} from 'typeorm';
+
 import { CadastrosEntity } from '../cadastro/cadastros.entity';
 
 @Entity('fones')
-
+@Unique(['fone_fixo'])
+@Unique(['fone_celular'])
+@Index('idx_fones_id_cadastros', ['id_cadastros'])
+@Index('idx_fones_fone_fixo', ['fone_fixo'])
+@Index('idx_fones_fone_celular', ['fone_celular'])
+@Index('idx_fones_fone_contacto', ['fone_contacto'])
 export class FonesEntity {
-  @PrimaryGeneratedColumn({ type: 'int', unsigned: true })
+  @PrimaryGeneratedColumn({
+    type: 'int',
+    unsigned: true
+  })
   id: number;
 
-  // Relacionamento com a entidade CadastrosEntity
-  @ManyToOne(() => CadastrosEntity)
-  @JoinColumn({ name: 'id_cadastro' })
-  cadastros: CadastrosEntity;
-  
-  @Column({ type: 'int', nullable: false })
+  // ============================================================
+  // RELAÇÃO COM CADASTROS
+  // ============================================================
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
   id_cadastros: number;
 
-  ///////////////////////////////////
-  
-  @Column({ type: 'varchar', length: 10, nullable: true })
-  fonex: string;
+  @ManyToOne(() => CadastrosEntity, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
+  })
+  @JoinColumn({ name: 'id_cadastros' })
+  cadastros: CadastrosEntity;
 
-  @Column({ type: 'varchar', length: 10, nullable: true })
-  fonec: string;
-
-  @Column({ type: 'varchar', length: 10, nullable: true })
-  fonez: string;
-   
-  //////////////////////////////
-
-  @Column({ type: 'int', nullable: true, default: null })
-  createdBy?: number;
+  // ============================================================
+  // CAMPOS
+  // ============================================================
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+    collation: 'utf8mb4_general_ci'
+  })
+  fone_fixo: string | null;
 
   @Column({
-    type: 'datetime',
+    type: 'varchar',
+    length: 10,
     nullable: true,
-    precision: null,
-    default: () => 'CURRENT_TIMESTAMP',
+    collation: 'utf8mb4_general_ci'
+  })
+  fone_celular: string | null;
+
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+    collation: 'utf8mb4_general_ci'
+  })
+  fone_contacto: string | null;
+
+  // ============================================================
+  // AUDITORIA
+  // ============================================================
+  @Column({
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
+  })
+  createdBy: number;
+
+  @CreateDateColumn({
+    type: 'datetime'
   })
   createdAt: Date;
 
-  @Column({ type: 'int', nullable: true })
-  updatedBy?: number;
-
   @Column({
-    type: 'datetime',
-    nullable: true,
-    precision: null,
+    type: 'int',
+    unsigned: true,
+    nullable: false,
+    default: 0
   })
-  updatedAt?: Date;
+  updatedBy: number;
 
+  @UpdateDateColumn({
+    type: 'datetime'
+  })
+  updatedAt: Date;
 }

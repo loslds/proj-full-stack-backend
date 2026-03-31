@@ -1,4 +1,3 @@
-import { acoesSeed } from './../services/table/seed/acoes.seed';
 
 // C:\repository\proj-full-stack-backend\src\routes\indexRoute.ts
 
@@ -14,15 +13,17 @@ import { modulosRoutes } from "../use-cases/modulo";
 import { cargosRoutes } from "../use-cases/cargo";
 import { acoesRoutes } from "../use-cases/acao";
 import { perguntasRoutes } from '../use-cases/perguntas';
-
-import { empresasRoutes } from '@/use-cases/empresa';
-import { visitantesRoutes } from '@/use-cases/visitante';
-import { visitasRoutes } from '@/use-cases/visita';
-import { consumidoresRoutes } from '@/use-cases/consumidor';
-import { clientesRoutes } from '@/use-cases/cliente';
-import { fornecedoresRoutes } from '@/use-cases/fornecedor';
-import { funcionariosRoutes } from '@/use-cases/funcionario';
-import { cadastrosRoutes } from '@/use-cases/cadastro';
+import { empresasRoutes } from '../use-cases/empresa';
+import { visitantesRoutes } from '../use-cases/visitante';
+import { visitasRoutes } from '../use-cases/visita';
+import { consumidoresRoutes } from '../use-cases/consumidor';
+import { clientesRoutes } from '../use-cases/cliente';
+import { fornecedoresRoutes } from '../use-cases/fornecedor';
+import { funcionariosRoutes } from '../use-cases/funcionario';
+import { cadastrosRoutes } from '../use-cases/cadastro';
+import { emailsRoutes } from '../use-cases/email';
+import { docsRoutes } from '../use-cases/doc';
+import { fonesRoutes } from '../use-cases/fone';
 
 
 const indexRoute = Router();
@@ -51,5 +52,9 @@ indexRoute.use("/clientes", clientesRoutes);
 indexRoute.use("/fornecedores", fornecedoresRoutes);
 indexRoute.use("/funcionarios", funcionariosRoutes);
 indexRoute.use("/cadastros", cadastrosRoutes);
+indexRoute.use("/emails", emailsRoutes);
+indexRoute.use("/docs", docsRoutes);
+indexRoute.use("/fones", fonesRoutes);
+
 
 export { indexRoute };

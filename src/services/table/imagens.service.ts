@@ -1,6 +1,5 @@
 
- 
-// C:\repository\proj-full-stack-backend\src\services\tables\imagens.service.ts
+ // C:\repository\proj-full-stack-backend\src\services\tables\imagens.service.ts
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -30,14 +29,6 @@ type ImagemDbRow = {
   svg: string;
 };
 
-type ZipPadrao =
-  | 'avt_sys.zip'
-  | 'btn_sys.zip'
-  | 'lg_sys.zip'
-  | 'pnl_sys.zip'
-  | 'fot_sys.zip'
-  | 'img_sys.zip';
-
 type SeedItemValido = ImagemRegistro;
 
 type SeedItemErro = {
@@ -47,6 +38,7 @@ type SeedItemErro = {
 };
 
 type SeedResultado = {
+  zipLidos: string[];
   validos: SeedItemValido[];
   invalidos: SeedItemErro[];
   duplicados: SeedItemErro[];
@@ -65,9 +57,6 @@ export const imagensService = {
   async create(): Promise<void> {
     await this.ensureConnection();
     console.log('>>> [imagensService] create() iniciado');
-
-    const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-    console.log('>>> [imagensService] banco atual:', currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS imagens (
@@ -115,7 +104,7 @@ export const imagensService = {
     console.log('>>> [imagensService] create() concluído');
   },
 
-  async seed(): Promise<void> {
+  async seed(): Promise<SeedResultado> {
     await this.ensureConnection();
     await this.create();
 
@@ -124,42 +113,28 @@ export const imagensService = {
     this.createFolders();
 
     const zipSourceDir = path.resolve(SYSTEM_PATHS.ZIP_SOURCE);
+    const resultado = this.criarEstruturaResultado();
 
     if (!fs.existsSync(zipSourceDir)) {
-      console.log(
-        `>>> [imagensService] pasta de origem não encontrada: ${zipSourceDir}`
-      );
-      console.log('>>> [imagensService] seed() encerrado sem processamento');
-      return;
+      console.log(`>>> [imagensService] pasta ZIP não encontrada: ${zipSourceDir}`);
+      return resultado;
     }
 
     const zipFiles = fs
       .readdirSync(zipSourceDir)
       .filter(file => file.toLowerCase().endsWith('.zip'));
 
+    resultado.zipLidos = [...zipFiles];
+
     if (zipFiles.length === 0) {
-      console.log(
-        '>>> [imagensService] nenhum arquivo .zip encontrado em src\\assets\\arq_zip'
-      );
-      console.log('>>> [imagensService] seed() encerrado sem processamento');
-      return;
+      console.log('>>> [imagensService] nenhum .zip encontrado para processar');
+      return resultado;
     }
 
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sgv-imagens-zip-'));
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sgb-imagens-zip-'));
 
     try {
-      const resultado = this.criarEstruturaResultado();
-
       for (const zipName of zipFiles) {
-        if (!this.isZipPadrao(zipName)) {
-          resultado.invalidos.push({
-            arquivo: zipName,
-            origem: zipSourceDir,
-            motivo: 'zip fora do padrão do sistema'
-          });
-          continue;
-        }
-
         const zipFullPath = path.join(zipSourceDir, zipName);
         const extractDir = path.join(
           tempRoot,
@@ -179,33 +154,32 @@ export const imagensService = {
           continue;
         }
 
-        const destinoDir = this.detectZipDestinoDir(zipName);
         const extractedFiles = this.walkFiles(extractDir);
+
+        if (extractedFiles.length === 0) {
+          resultado.invalidos.push({
+            arquivo: zipName,
+            origem: zipFullPath,
+            motivo: 'zip sem arquivos após descompactação'
+          });
+          continue;
+        }
 
         for (const filePath of extractedFiles) {
           const nome = path.basename(filePath);
 
-          if (!nome.toLowerCase().endsWith('.svg')) {
+          const classificacao = this.classifyExtractedFile(nome);
+
+          if (!classificacao.valid || !classificacao.destino || !classificacao.tipo) {
             resultado.invalidos.push({
               arquivo: nome,
               origem: filePath,
-              motivo: 'extensão inválida, somente .svg é permitido'
+              motivo: classificacao.motivo ?? 'arquivo fora do padrão'
             });
             continue;
           }
 
-          const validacao = this.validateFileForFolder(nome, destinoDir);
-
-          if (!validacao.valid) {
-            resultado.invalidos.push({
-              arquivo: nome,
-              origem: filePath,
-              motivo: validacao.motivo ?? 'nomenclatura inválida'
-            });
-            continue;
-          }
-
-          const finalPath = path.join(destinoDir, nome);
+          const finalPath = path.join(classificacao.destino, nome);
 
           if (fs.existsSync(finalPath)) {
             resultado.duplicados.push({
@@ -216,7 +190,11 @@ export const imagensService = {
             continue;
           }
 
-          if (resultado.validos.some(item => item.nome.toLowerCase() === nome.toLowerCase())) {
+          if (
+            resultado.validos.some(
+              item => item.nome.toLowerCase() === nome.toLowerCase()
+            )
+          ) {
             resultado.duplicados.push({
               arquivo: nome,
               origem: filePath,
@@ -227,11 +205,10 @@ export const imagensService = {
 
           try {
             const svg = fs.readFileSync(filePath, 'utf8');
-            const tipo = this.detectTipo(nome);
 
             resultado.validos.push({
               nome,
-              tipo,
+              tipo: classificacao.tipo,
               path_origem: filePath,
               path_dest: finalPath,
               svg,
@@ -242,7 +219,7 @@ export const imagensService = {
             resultado.erros.push({
               arquivo: nome,
               origem: filePath,
-              motivo: `falha ao ler svg: ${error?.message ?? 'erro desconhecido'}`
+              motivo: `falha ao ler arquivo: ${error?.message ?? 'erro desconhecido'}`
             });
           }
         }
@@ -252,7 +229,7 @@ export const imagensService = {
 
       if (resultado.validos.length === 0) {
         console.log('>>> [imagensService] nenhum arquivo válido encontrado para seed');
-        return;
+        return resultado;
       }
 
       for (const item of resultado.validos) {
@@ -275,6 +252,7 @@ export const imagensService = {
       await this.persistirSeed(resultado.validos);
 
       console.log('>>> [imagensService] seed() concluído');
+      return resultado;
     } finally {
       try {
         fs.rmSync(tempRoot, { recursive: true, force: true });
@@ -317,9 +295,7 @@ export const imagensService = {
           ]
         );
 
-        console.log(
-          `>>> [imagensService] INSERT imagem: ${item.nome} (${item.tipo})`
-        );
+        console.log(`>>> [imagensService] INSERT imagem: ${item.nome} (${item.tipo})`);
         continue;
       }
 
@@ -355,14 +331,13 @@ export const imagensService = {
         ]
       );
 
-      console.log(
-        `>>> [imagensService] UPDATE imagem: ${item.nome} (${item.tipo})`
-      );
+      console.log(`>>> [imagensService] UPDATE imagem: ${item.nome} (${item.tipo})`);
     }
   },
 
   criarEstruturaResultado(): SeedResultado {
     return {
+      zipLidos: [],
       validos: [],
       invalidos: [],
       duplicados: [],
@@ -372,12 +347,19 @@ export const imagensService = {
 
   printSeedReport(resultado: SeedResultado): void {
     console.log('>>> [imagensService] resumo do seed');
+    console.log(`>>> zips lidos: ${resultado.zipLidos.length}`);
     console.log(`>>> válidos: ${resultado.validos.length}`);
     console.log(`>>> inválidos: ${resultado.invalidos.length}`);
     console.log(`>>> duplicados: ${resultado.duplicados.length}`);
     console.log(`>>> erros: ${resultado.erros.length}`);
 
+    if (resultado.zipLidos.length > 0) {
+      console.log('>>> [imagensService] zips encontrados:');
+      console.table(resultado.zipLidos.map(zip => ({ zip })));
+    }
+
     if (resultado.validos.length > 0) {
+      console.log('>>> [imagensService] arquivos válidos:');
       console.table(
         resultado.validos.map(item => ({
           nome: item.nome,
@@ -418,7 +400,7 @@ export const imagensService = {
   },
 
   async update(): Promise<void> {
-    // reservado
+    console.log('>>> [imagensService] update() reservado');
   },
 
   createFolders(): void {
@@ -438,42 +420,14 @@ export const imagensService = {
     }
   },
 
-  isZipPadrao(zipName: string): zipName is ZipPadrao {
-    const lower = zipName.toLowerCase();
-
-    return (
-      lower === 'avt_sys.zip' ||
-      lower === 'btn_sys.zip' ||
-      lower === 'lg_sys.zip' ||
-      lower === 'pnl_sys.zip' ||
-      lower === 'fot_sys.zip' ||
-      lower === 'img_sys.zip'
-    );
-  },
-
-  detectZipDestinoDir(zipName: ZipPadrao): string {
-    switch (zipName.toLowerCase()) {
-      case 'avt_sys.zip':
-      case 'btn_sys.zip':
-      case 'lg_sys.zip':
-      case 'pnl_sys.zip':
-        return SYSTEM_PATHS.IMAGENS_DEFAULT;
-
-      case 'fot_sys.zip':
-        return SYSTEM_PATHS.IMAGENS_FOTO;
-
-      case 'img_sys.zip':
-        return SYSTEM_PATHS.IMAGENS_IMG;
-
-      default:
-        throw new Error(`Zip inválido para destino: ${zipName}`);
-    }
-  },
-
-  validateFileForFolder(
-    fileName: string,
-    folderPath: string
-  ): { valid: boolean; motivo?: string } {
+  classifyExtractedFile(
+    fileName: string
+  ): {
+    valid: boolean;
+    destino?: string;
+    tipo?: ImagemTipo;
+    motivo?: string;
+  } {
     const lower = fileName.toLowerCase();
 
     if (!lower.endsWith('.svg')) {
@@ -483,52 +437,51 @@ export const imagensService = {
       };
     }
 
-    if (folderPath === SYSTEM_PATHS.IMAGENS_DEFAULT) {
-      const prefixosValidos = ['avt_', 'btn_', 'lg_', 'pnl_'];
-      const prefixoOk = prefixosValidos.some(prefixo => lower.startsWith(prefixo));
-
-      if (!prefixoOk) {
-        return {
-          valid: false,
-          motivo: 'prefixo inválido para pasta default'
-        };
-      }
-
-      if (!lower.includes('_def_')) {
-        return {
-          valid: false,
-          motivo: 'arquivo em default precisa conter _def_ no nome'
-        };
-      }
-
-      return { valid: true };
+    if (
+      (lower.startsWith('avt_') ||
+        lower.startsWith('btn_') ||
+        lower.startsWith('lg_') ||
+        lower.startsWith('pnl_')) &&
+      lower.includes('_def_')
+    ) {
+      return {
+        valid: true,
+        destino: SYSTEM_PATHS.IMAGENS_DEFAULT,
+        tipo: this.detectTipo(lower)
+      };
     }
 
-    if (folderPath === SYSTEM_PATHS.IMAGENS_FOTO) {
-      if (!lower.startsWith('fot_')) {
-        return {
-          valid: false,
-          motivo: 'arquivo inválido para pasta foto, esperado prefixo fot_'
-        };
-      }
-
-      return { valid: true };
+    if (lower.startsWith('fot_')) {
+      return {
+        valid: true,
+        destino: SYSTEM_PATHS.IMAGENS_FOTO,
+        tipo: this.detectTipo(lower)
+      };
     }
 
-    if (folderPath === SYSTEM_PATHS.IMAGENS_IMG) {
-      if (!lower.startsWith('img_')) {
-        return {
-          valid: false,
-          motivo: 'arquivo inválido para pasta img, esperado prefixo img_'
-        };
-      }
+    if (lower.startsWith('img_')) {
+      return {
+        valid: true,
+        destino: SYSTEM_PATHS.IMAGENS_IMG,
+        tipo: this.detectTipo(lower)
+      };
+    }
 
-      return { valid: true };
+    if (
+      lower.startsWith('avt_') ||
+      lower.startsWith('btn_') ||
+      lower.startsWith('lg_') ||
+      lower.startsWith('pnl_')
+    ) {
+      return {
+        valid: false,
+        motivo: 'arquivo de default precisa conter _def_ no nome'
+      };
     }
 
     return {
       valid: false,
-      motivo: 'pasta de destino desconhecida'
+      motivo: 'nome fora do padrão esperado'
     };
   },
 
@@ -560,22 +513,22 @@ export const imagensService = {
 
     for (const filePath of allFiles) {
       const nome = path.basename(filePath);
-      const validacao = this.validateFileForFolder(nome, folderPath);
 
-      if (!validacao.valid) {
+      const classificacao = this.classifyExtractedFile(nome);
+
+      if (!classificacao.valid || !classificacao.tipo) {
         console.warn(
-          `>>> [imagensService][ARQUIVO INVÁLIDO] ignorado: ${filePath} | motivo: ${validacao.motivo}`
+          `>>> [imagensService][ARQUIVO INVÁLIDO] ignorado: ${filePath} | motivo: ${classificacao.motivo}`
         );
         continue;
       }
 
       try {
         const svg = fs.readFileSync(filePath, 'utf8');
-        const tipo = this.detectTipo(nome);
 
         registrosPreparados.push({
           nome,
-          tipo,
+          tipo: classificacao.tipo,
           path_origem: filePath,
           path_dest: filePath,
           svg,
@@ -598,6 +551,8 @@ export const imagensService = {
   },
 
   async exportAllFromDbToDisk(): Promise<void> {
+    await this.ensureConnection();
+
     const rows: ImagemDbRow[] = await AppDataSource.query(`
       SELECT id, nome, tipo, path_origem, path_dest, svg
       FROM imagens
@@ -609,12 +564,17 @@ export const imagensService = {
         continue;
       }
 
-      this.writeSvgToDisk(row.path_dest, row.svg);
+      try {
+        this.writeSvgToDisk(row.path_dest, row.svg);
+      } catch (error) {
+        console.error(
+          `>>> [imagensService] erro ao exportar arquivo ${row.nome} para ${row.path_dest}`,
+          error
+        );
+      }
     }
 
-    console.log(
-      `>>> [imagensService] exportação concluída: ${rows.length} arquivo(s)`
-    );
+    console.log(`>>> [imagensService] exportação concluída: ${rows.length} arquivo(s)`);
   },
 
   extractZip(zipFullPath: string, extractDir: string): void {
@@ -648,4 +608,3 @@ export const imagensService = {
     return files;
   }
 };
-

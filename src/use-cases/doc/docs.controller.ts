@@ -1,278 +1,451 @@
 
-  import { NextFunction, Request, Response } from 'express';
-  import { DocsRepository } from './docs.repository';
-  import { DocsCreate, DocsUpdate } from './docs.dto';
-  
-  export class DocsController {
-    constructor(private readonly docsRepository: DocsRepository) {}
-  
-    /** POST Cria Tabela Docs */
-    async create(
-      req: Request<{}, {}, DocsCreate>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const docs = await this.docsRepository.createDocs(req.body);
-        return res.status(201).send({ success: true, docs });
-      } catch (error) {
-        next(error);
+// C:\repository\proj-full-stack-backend\src\use-cases\doc\docs.controller.ts
+import { NextFunction, Request, Response } from 'express';
+import { DocsRepository } from './docs.repository';
+import { DocsCreate, DocsUpdate } from './docs.dto';
+import { HttpException } from '../../exceptions/HttpException';
+
+export class DocsController {
+  constructor(private readonly docsRepository: DocsRepository) {}
+
+  // ============================================================
+  // * CRUD *
+  // ============================================================
+
+  /** POST → Criar novo documento */
+  async createNewDocs(
+    req: Request<{}, {}, DocsCreate>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { id_cadastros } = req.body;
+
+      if (!id_cadastros) {
+        throw new HttpException(400, 'id_cadastros é obrigatório');
       }
-    }
-  
-    /** PATCH Atualiza um registro de Docs */
-    async update(
-      req: Request<{ docsId: string }, {}, Partial<DocsUpdate>>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const docsId = Number(req.params.docsId);
-        const docs = await this.docsRepository.updateDocs(docsId, req.body);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** DELETE Remove um registro de Docs */
-    async remove(
-      req: Request<{ docsId: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const docsId = Number(req.params.docsId);
-        await this.docsRepository.deleteDocs(docsId);
-        return res.status(200).send({ success: true });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** GET Lista todos os registros de Docs */
-    async findAll(
-      req: Request,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const docs = await this.docsRepository.findDocsAll();
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** GET Busca um registro de Docs por ID */
-    async getOne(
-      req: Request<{ docsId: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const docsId = Number(req.params.docsId);
-        const docs = await this.docsRepository.findDocsById(docsId);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** GET Lista todos os registros de Docs por cpf */
-    async findAllCpf(
-      req: Request<{}, {}, {}, { cpf: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const { cpf } = req.query;
-        if (!cpf) {
-          return res.status(400).send({ success: false, message: 'cpf parameter is required' });
-        }
-        const docs = await this.docsRepository.findDocsAllCpf(cpf);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** GET Busca um registro de Docs por cpf */
-    async findByCpf(
-      req: Request<{}, {}, {}, { cpf: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const { cpf } = req.query;
-        if (!cpf) {
-          return res.status(400).send({ success: false, message: 'cpf parameter is required' });
-        }
-        const docs = await this.docsRepository.findDocsByCpf(cpf);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** GET Lista todos os registros de Docs por cnpj */
-    async findAllCnpj(
-      req: Request<{}, {}, {}, { cnpj: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const { cnpj } = req.query;
-        if (!cnpj) {
-          return res.status(400).send({ success: false, message: 'cnpj parameter is required' });
-        }
-        const docs = await this.docsRepository.findDocsAllCnpj(cnpj);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** GET Busca um registro de Docs por cnpj */
-    async findByCnpj(
-      req: Request<{}, {}, {}, { cnpj: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const { cnpj } = req.query;
-        if (!cnpj) {
-          return res.status(400).send({ success: false, message: 'cnpj parameter is required' });
-        }
-        const docs = await this.docsRepository.findDocsByCnpj(cnpj);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-    
-    /** GET Lista todos os registros de Docs por inscre */
-    async findAllInscre(
-      req: Request<{}, {}, {}, { inscre: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const { inscre } = req.query;
-        if (!inscre) {
-          return res.status(400).send({ success: false, message: 'inscre parameter is required' });
-        }
-        const docs = await this.docsRepository.findDocsAllInscre(inscre);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** GET Busca um registro de Email por inscre */
-    async findByInscre(
-      req: Request<{}, {}, {}, { inscre: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const { inscre } = req.query;
-        if (!inscre) {
-          return res.status(400).send({ success: false, message: 'inscre parameter is required' });
-        }
-        const docs = await this.docsRepository.findDocsByInscre(inscre);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** GET Lista todos os registros de Docs por inscrm */
-    async findAllInscrm(
-      req: Request<{}, {}, {}, { inscrm: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const { inscrm } = req.query;
-        if (!inscrm) {
-          return res.status(400).send({ success: false, message: 'inscrm parameter is required' });
-        }
-        const docs = await this.docsRepository.findDocsAllInscre(inscrm);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** GET Busca um registro de Email por inscrm */
-    async findByInscrm(
-      req: Request<{}, {}, {}, { inscrm: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const { inscrm } = req.query;
-        if (!inscrm) {
-          return res.status(400).send({ success: false, message: 'inscrm parameter is required' });
-        }
-        const docs = await this.docsRepository.findDocsByInscre(inscrm);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    
-    /** GET Lista todos os registros de Docs por matricula */
-    async findAllMatric(
-      req: Request<{}, {}, {}, { matricula: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const { matricula } = req.query;
-        if (!matricula) {
-          return res.status(400).send({ success: false, message: 'matricula parameter is required' });
-        }
-        const docs = await this.docsRepository.findDocsAllMatric(matricula);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** GET Busca um registro de Email por matricula */
-    async findByMatric(
-      req: Request<{}, {}, {}, { matricula: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const { matricula } = req.query;
-        if (!matricula) {
-          return res.status(400).send({ success: false, message: 'matricula parameter is required' });
-        }
-        const docs = await this.docsRepository.findDocsByMatric(matricula);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
-    }
-  
-    /** GET Lista todos os registros de Email por cadastroId */
-    async findByCadastrosId(
-      req: Request<{ cadastrosId: string }>,
-      res: Response,
-      next: NextFunction
-    ) {
-      try {
-        const cadastrosId = Number(req.params.cadastrosId);
-        const docs = await this.docsRepository.findDocsByCadastrosId(cadastrosId);
-        return res.status(200).send({ success: true, docs });
-      } catch (error) {
-        next(error);
-      }
+
+      const docs = await this.docsRepository.createDocs(req.body);
+
+      return res.status(201).send({
+        success: true,
+        docs
+      });
+    } catch (error) {
+      next(error);
     }
   }
+
+  /** PATCH → Atualizar documento */
+  async updateIdDocs(
+    req: Request<{ docsId: string }, {}, DocsUpdate>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const docsId = Number(req.params.docsId);
+
+      if (Number.isNaN(docsId) || docsId <= 0) {
+        throw new HttpException(400, 'ID inválido');
+      }
+
+      const docs = await this.docsRepository.updateDocsId(
+        docsId,
+        req.body
+      );
+
+      return res.status(200).send({
+        success: true,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** DELETE → Remover documento */
+  async removeIdDocs(
+    req: Request<{ docsId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const docsId = Number(req.params.docsId);
+
+      if (Number.isNaN(docsId) || docsId <= 0) {
+        throw new HttpException(400, 'ID inválido');
+      }
+
+      await this.docsRepository.deleteDocsId(docsId);
+
+      return res.status(200).send({
+        success: true,
+        message: `Documento ID ${docsId} removido com sucesso.`
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Buscar por ID */
+  async getOneDocsId(
+    req: Request<{ docsId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const docsId = Number(req.params.docsId);
+
+      if (Number.isNaN(docsId) || docsId <= 0) {
+        throw new HttpException(400, 'ID inválido');
+      }
+
+      const docs = await this.docsRepository.findOneDocsById(docsId);
+
+      if (!docs) {
+        throw new HttpException(404, `Documento ID ${docsId} não encontrado.`);
+      }
+
+      return res.status(200).send({
+        success: true,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Lista todos */
+  async findAllDocs(req: Request, res: Response, next: NextFunction) {
+    try {
+      const docs = await this.docsRepository.findDocsAll(
+        undefined,
+        { id: 'ASC' }
+      );
+
+      return res.status(200).send({
+        success: true,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // ============================================================
+  // * CONSULTAS *
+  // ============================================================
+
+  /** GET → Pesquisa combinada */
+  async searchDocsAll(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const {
+        id,
+        id_cadastros,
+        cpf,
+        cnpj,
+        inscr_estadual,
+        inscr_municipal
+      } = req.query;
+
+      const docs = await this.docsRepository.searchDocs({
+        id: id !== undefined ? Number(id) : undefined,
+        id_cadastros:
+          id_cadastros !== undefined ? Number(id_cadastros) : undefined,
+        cpf: cpf !== undefined ? String(cpf) : undefined,
+        cnpj: cnpj !== undefined ? String(cnpj) : undefined,
+        inscr_estadual:
+          inscr_estadual !== undefined
+            ? String(inscr_estadual)
+            : undefined,
+        inscr_municipal:
+          inscr_municipal !== undefined
+            ? String(inscr_municipal)
+            : undefined
+      });
+
+      return res.status(200).send({
+        success: true,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Busca parcial */
+  async searchDocsParcial(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const text =
+        req.query.text !== undefined ? String(req.query.text) : undefined;
+
+      const docs = await this.docsRepository.searchDocsParcial(text);
+
+      return res.status(200).send({
+        success: true,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → CPF exato */
+  async findOneDocsCpf(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const cpf =
+        req.query.cpf !== undefined ? String(req.query.cpf) : undefined;
+
+      if (!cpf) {
+        throw new HttpException(400, "Parâmetro 'cpf' é obrigatório");
+      }
+
+      const docs = await this.docsRepository.findOneDocsCpf(cpf);
+
+      return res.status(200).send({
+        success: true,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Todos CPF */
+  async findAllDocsCpf(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const cpf =
+        req.query.cpf !== undefined ? String(req.query.cpf) : undefined;
+
+      if (!cpf) {
+        throw new HttpException(400, "Parâmetro 'cpf' é obrigatório");
+      }
+
+      const docs = await this.docsRepository.findAllDocsCpf(cpf);
+
+      return res.status(200).send({
+        success: true,
+        total: docs.length,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → CNPJ exato */
+  async findOneDocsCnpj(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const cnpj =
+        req.query.cnpj !== undefined ? String(req.query.cnpj) : undefined;
+
+      if (!cnpj) {
+        throw new HttpException(400, "Parâmetro 'cnpj' é obrigatório");
+      }
+
+      const docs = await this.docsRepository.findOneDocsCnpj(cnpj);
+
+      return res.status(200).send({
+        success: true,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Todos CNPJ */
+  async findAllDocsCnpj(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const cnpj =
+        req.query.cnpj !== undefined ? String(req.query.cnpj) : undefined;
+
+      if (!cnpj) {
+        throw new HttpException(400, "Parâmetro 'cnpj' é obrigatório");
+      }
+
+      const docs = await this.docsRepository.findAllDocsCnpj(cnpj);
+
+      return res.status(200).send({
+        success: true,
+        total: docs.length,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+////////////////////////////////////////////////
+  /** GET → Inscr_Estadual exato */
+  async findOneDocsByInscrEstadual(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const inscr_estadual =
+        req.query.inscr_estadual !== undefined ? String(req.query.inscr_estadual) : undefined;
+
+      if (!inscr_estadual) {
+        throw new HttpException(400, "Parâmetro 'inscr_estadual' é obrigatório");
+      }
+
+      const docs = await this.docsRepository.findOneDocsInscrEstadual(inscr_estadual);
+
+      return res.status(200).send({
+        success: true,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Todos Inscr_Estadual */
+  async findAllDocsByInscrEstadual(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const inscr_estadual =
+        req.query.inscr_estadual !== undefined ? String(req.query.inscr_estadual) : undefined;
+
+      if (!inscr_estadual) {
+        throw new HttpException(400, "Parâmetro 'inscr_estadual' é obrigatório");
+      }
+
+      const docs = await this.docsRepository.findAllDocsInscrEstadual(inscr_estadual);
+
+      return res.status(200).send({
+        success: true,
+        total: docs.length,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Inscr_Estadual exato */
+  async findOneDocsByInscrMunicipal(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const inscr_municipal =
+        req.query.inscr_municipal !== undefined ? String(req.query.inscr_municipal) : undefined;
+
+      if (!inscr_municipal) {
+        throw new HttpException(400, "Parâmetro 'inscr_municipal' é obrigatório");
+      }
+
+      const docs = await this.docsRepository.findOneDocsInscrMunicipal(inscr_municipal);
+
+      return res.status(200).send({
+        success: true,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Todos Inscr_Municipal */
+  async findAllDocsByInscrMunicipal(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const inscr_municipal =
+        req.query.inscr_municipal !== undefined ? String(req.query.inscr_municipal) : undefined;
+
+      if (!inscr_municipal) {
+        throw new HttpException(400, "Parâmetro 'inscr_municipal' é obrigatório");
+      }
+
+      const docs = await this.docsRepository.findAllDocsInscrMunicipal(inscr_municipal);
+
+      return res.status(200).send({
+        success: true,
+        total: docs.length,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Por cadastro */
+  async findAllDocsCadastrosId(
+    req: Request<{ cadastrosId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const cadastrosId = Number(req.params.cadastrosId);
+
+      if (Number.isNaN(cadastrosId) || cadastrosId <= 0) {
+        throw new HttpException(400, 'ID inválido');
+      }
+
+      const docs =
+        await this.docsRepository.findAllDocsByCadastrosId(cadastrosId);
+
+      return res.status(200).send({
+        success: true,
+        total: docs.length,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET → Details */
+  async listAllDocsDetails(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const docs = await this.docsRepository.listAllDocsDetails();
+
+      return res.status(200).send({
+        success: true,
+        docs
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+
   

@@ -19,6 +19,9 @@ import { clientesService } from './clientes.service';
 import { fornecedoresService } from './fornecedores.service';
 import { funcionariosService } from './funcionarios.service';
 import { cadastrosService } from './cadastros.service';
+import { emailsService } from './emails.service';
+import { docsService } from './docs.service';
+import { fonesService } from './fones.service';
 
 
 // ==================================================
@@ -42,6 +45,9 @@ export const tableServices: TableService[] = [
   fornecedoresService,    
   funcionariosService,    
   cadastrosService,
+  emailsService,
+  docsService,
+  fonesService,
 
 
   // próximos:  
