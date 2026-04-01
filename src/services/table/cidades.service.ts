@@ -1,6 +1,6 @@
 
+
 //C:\repository\proj-full-stack-backend\src\services\tables\cidades.service.ts
-// src/services/tables/cidades.service.ts
 
 import { AppDataSource } from '../../config/db';
 import { cidadesSeed } from './seed/cidades.seed';
@@ -160,3 +160,4 @@ export const cidadesService = {
     // reservado para futuras atualizações
   },
 };
+
