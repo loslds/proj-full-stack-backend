@@ -57,7 +57,8 @@ export class SystemTableController {
 
       // Linhas
       const rows = await AppDataSource.query(
-        `SELECT * FROM \`${dbName}\`.\`${raw}\` LIMIT 500`
+         `SELECT * FROM \`${dbName}\`.\`${raw}\``
+        //`SELECT * FROM \`${dbName}\`.\`${raw}\` LIMIT 500`
       );
 
       return res.json({

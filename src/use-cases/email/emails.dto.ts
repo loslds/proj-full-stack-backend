@@ -1,13 +1,13 @@
-
 // C:\repository\proj-full-stack-backend\src\use-cases\email\emails.dto.ts
+
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
 import { EmailsEntity } from './emails.entity';
 
 // ==========================================================
-// CREATE
+// BASE
 // ==========================================================
-export const emailsCreateSchema = z.object({
+const emailsBaseSchema = z.object({
   id_cadastros: z
     .number()
     .int()
@@ -42,9 +42,14 @@ export const emailsCreateSchema = z.object({
 });
 
 // ==========================================================
+// CREATE
+// ==========================================================
+export const emailsCreateSchema = emailsBaseSchema;
+
+// ==========================================================
 // UPDATE
 // ==========================================================
-export const emailsUpdateSchema = emailsCreateSchema
+export const emailsUpdateSchema = emailsBaseSchema
   .partial()
   .extend({
     id: z
@@ -60,4 +65,3 @@ export const emailsUpdateSchema = emailsCreateSchema
 export type EmailsCreate = z.infer<typeof emailsCreateSchema>;
 export type EmailsUpdate = z.infer<typeof emailsUpdateSchema>;
 export type EmailsDto = DeepPartial<EmailsEntity>;
-

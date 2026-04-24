@@ -1,31 +1,27 @@
-// C:\repository\proj-full-stack-backend\tsconfig.json
 {
   "compilerOptions": {
-    "target": "ES2020", // Código de saída moderno, compatível com Node 14+
-    "module": "commonjs", // Usa require/import compatível com Node
-    "rootDir": "src", // Onde ficam os arquivos de entrada
-    "outDir": "dist", // Onde será gerado o JS compilado
-    "baseUrl": "src",
+    "target": "ES2020",
+    "module": "Node16",
+    "moduleResolution": "node16",
+
+    "rootDir": "src",
+    "outDir": "dist",
+
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["./src/*"]
     },
-    "strict": true, // Habilita checagens mais rigorosas do TypeScript
-    "esModuleInterop": true, // Permite import padrão de libs CommonJS
-    "skipLibCheck": true, // Ignora verificação de tipos de libs (mais rápido)
+
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node",
     "sourceMap": true,
-    "noImplicitAny": false, // Permite variáveis sem tipo explícito
-    "experimentalDecorators": true, // Para decorators
+    "noImplicitAny": false,
+    "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false
   },
-  "include": [
-    "src/**/*.ts",
-    "deletado/syncsysTables.ts.tts",
-    "deletado/syncTablesRoutes.ts.tts",
-    "src/use-cases/pegresp/pergsresps.validation.ts"
-, "src/use-cases/fornecedor/index.ts"  ], // Inclui todos os TS na pasta src
-  "exclude": ["node_modules", "dist"] // Ignora dependências e saída compilada
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

@@ -35,7 +35,6 @@ export const modulosCreateSchema = z.object({
 // =========================
 
 export const modulosUpdateSchema = modulosCreateSchema.partial().extend({
-
   id: z
     .number()
     .int()
