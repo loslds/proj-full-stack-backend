@@ -1,7 +1,5 @@
 
 
-//C:\repository\proj-full-stack-backend\src\services\table\visitantes.services.ts
-
 // C:\repository\proj-full-stack-backend\src\services\table\visitantes.service.ts
 import { AppDataSource } from '../../config/db';
 

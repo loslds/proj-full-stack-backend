@@ -8,16 +8,6 @@ import { systemRoutes } from "./systemRoutes";
 import { authRoute } from "../use-cases/auth";
 import { pessoasRoutes } from "../use-cases/pessoa";
 import { empresasRoutes } from "../use-cases/empresa";
-
-import { estadosRoutes } from "../use-cases/estado";
-import { cidadesRoutes } from "../use-cases/cidade";
-
-import { imagensRoutes } from "../use-cases/imagen";
-import { modulosRoutes } from "../use-cases/modulo";
-import { cargosRoutes } from "../use-cases/cargo";
-import { acoesRoutes } from "../use-cases/acao";
-import { perguntasRoutes } from '../use-cases/perguntas';
-
 import { visitantesRoutes } from '../use-cases/visitante';
 import { visitasRoutes } from '../use-cases/visita';
 import { consumidoresRoutes } from '../use-cases/consumidor';
@@ -25,9 +15,20 @@ import { clientesRoutes } from '../use-cases/cliente';
 import { fornecedoresRoutes } from '../use-cases/fornecedor';
 import { funcionariosRoutes } from '../use-cases/funcionario';
 import { cadastrosRoutes } from '../use-cases/cadastro';
+import { estadosRoutes } from "../use-cases/estado";
+import { cidadesRoutes } from "../use-cases/cidade";
+import { imagensRoutes } from "../use-cases/imagen";
 import { emailsRoutes } from '../use-cases/email';
 import { docsRoutes } from '../use-cases/doc';
 import { fonesRoutes } from '../use-cases/fone';
+
+//import { usersRoutes } from '../use-cases/users';
+import { modulosRoutes } from "../use-cases/modulo";
+import { cargosRoutes } from "../use-cases/cargo";
+import { acoesRoutes } from "../use-cases/acao";
+import { perguntasRoutes } from '../use-cases/perguntas';
+
+
 
 
 const indexRoute = Router();
@@ -60,6 +61,9 @@ indexRoute.use("/cadastros", cadastrosRoutes);
 indexRoute.use("/emails", emailsRoutes);
 indexRoute.use("/docs", docsRoutes);
 indexRoute.use("/fones", fonesRoutes);
+
+//indexRoute.use("/users", usersRoutes);
+
 
 // grids
 indexRoute.use("/grid", indexGridRoute);

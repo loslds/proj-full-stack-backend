@@ -1,9 +1,9 @@
 
 //C:\repository\proj-full-stack-backend\src\services\utility\cadastros\mapCadastroGridRow.ts
-import { resolveCadastroOrigem } from "./resolveCadastroOrigem";
+import { resolveCadastrosOrigem } from "./resolveCadastrosOrigem";
 
-export function mapCadastroGridRow(row) {
-  const origem = resolveCadastroOrigem(row);
+export function mapCadastrosGridRow(row) {
+  const origem = resolveCadastrosOrigem(row);
 
   return {
     id: row.id,

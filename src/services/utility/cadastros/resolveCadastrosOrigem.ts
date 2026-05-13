@@ -1,6 +1,7 @@
 
-//C:\repository\proj-full-stack-backend\src\services\utility\cadastros\resolveCadastroOrigem.ts
-export function resolveCadastroOrigem(row) {
+//C:\repository\proj-full-stack-backend\src\services\utility\cadastros\resolveCadastrosOrigem.ts
+
+export function resolveCadastrosOrigem(row) {
   if (row.id_empresas > 0) {
     return {
       id_origem: row.id_empresas,

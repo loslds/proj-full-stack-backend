@@ -1,5 +1,5 @@
 
-
+// C:\repository\proj-full-stack-backend\src\use-cases\login\logins.entity.ts
 import {
   Column,
   Entity,
@@ -100,3 +100,4 @@ export class LoginsEntity {
   })
   updatedAt: Date;
 }
+

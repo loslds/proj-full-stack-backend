@@ -2,6 +2,7 @@
 //C:\repository\proj-full-stack-backend\src\services\tables\index.ts
 import type { TableService } from './tableService.types';
 
+
 import { pessoasService } from './pessoas.service';
 import { estadosService } from './estados.service';
 import { cidadesService } from './cidades.service';
@@ -10,6 +11,7 @@ import { modulosService } from "./modulos.service";
 import { cargosService } from './cargos.service';
 import { acoesService } from './acoes.service';
 import { perguntasService } from './perguntas.service';
+
 
 import { empresasService } from './empresas.service';
 import { visitantesService } from './visitantes.service';
@@ -37,6 +39,7 @@ export const tableServices: TableService[] = [
   cargosService,
   acoesService,
   perguntasService,
+
   empresasService, 
   visitantesService,      
   visitasService,

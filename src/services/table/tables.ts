@@ -5,14 +5,6 @@
 export const systemTables = [
   'systables',
   'pessoas',
-  'estados',
-  'cidades',
-  'imagens',
-  'modulos',
-  'cargos',
-  'acoes',
-  'perguntas',
-
   'empresas',
   'visitantes',
   'visitas',
@@ -21,9 +13,21 @@ export const systemTables = [
   'fornecedores',
   'funcionarios',
   'cadastros',
+  'estados',
+  'cidades',
   'emails',
   'docs',
   'fones',
+  'imagens',
+  'perguntas',
+  'users',
+  'acessos',  
+  'modulos',
+  'cargos',
+  'acoes',
+  
+
+  
 ] as const;
 
 export const tablesWithDefaults = [

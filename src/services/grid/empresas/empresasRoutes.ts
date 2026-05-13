@@ -3,7 +3,7 @@
 
 import { Router } from "express";
 
-import { getEmpresas } from "../../controller/empresasController";
+import { getEmpresas } from "../empresas/empresasController";
 
 export const empresasRoutes = Router();
 

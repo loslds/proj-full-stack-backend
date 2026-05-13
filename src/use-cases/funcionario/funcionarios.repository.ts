@@ -1,6 +1,6 @@
 
-//C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.reposytory.ts
 // C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.repository.ts
+
 import {
   DataSource,
   DeepPartial,

@@ -1,8 +1,11 @@
 
-//C:\repository\proj-full-stack-backend\src\services\utility\cadastros\cadastroGridSelect.ts
-export const cadastroGridSelect = `
+//C:\repository\proj-full-stack-backend\src\services\utility\emails\emailsGridSelect.ts
+
+export const emailsGridSelect = `
 SELECT
-  c.id,
+  em.id,
+  em.id_cadastros AS id_cad,
+  em.email,
 
   c.id_empresas,
   c.id_visitantes,
@@ -16,18 +19,12 @@ SELECT
   co.nome AS consumidores_nome,
   cl.nome AS clientes_nome,
   f.nome  AS fornecedores_nome,
-  fu.nome AS funcionarios_nome,
+  fu.nome AS funcionarios_nome
 
-  c.endereco,
-  c.complemento,
-  c.bairro,
-  c.cep,
+FROM emails em
 
-  c.has_email,
-  c.has_doc,
-  c.has_fone
-
-FROM cadastros c
+LEFT JOIN cadastros c
+  ON c.id = em.id_cadastros
 
 LEFT JOIN empresas e
   ON e.id = c.id_empresas
@@ -46,4 +43,6 @@ LEFT JOIN fornecedores f
 
 LEFT JOIN funcionarios fu
   ON fu.id = c.id_funcionarios
+
+ORDER BY em.id ASC
 `;
