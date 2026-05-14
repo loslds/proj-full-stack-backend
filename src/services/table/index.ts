@@ -2,17 +2,9 @@
 //C:\repository\proj-full-stack-backend\src\services\tables\index.ts
 import type { TableService } from './tableService.types';
 
-
 import { pessoasService } from './pessoas.service';
 import { estadosService } from './estados.service';
 import { cidadesService } from './cidades.service';
-import { imagensService } from "./imagens.service";
-import { modulosService } from "./modulos.service";
-import { cargosService } from './cargos.service';
-import { acoesService } from './acoes.service';
-import { perguntasService } from './perguntas.service';
-
-
 import { empresasService } from './empresas.service';
 import { visitantesService } from './visitantes.service';
 import { visitasService } from './visitas.service';
@@ -24,6 +16,18 @@ import { cadastrosService } from './cadastros.service';
 import { emailsService } from './emails.service';
 import { docsService } from './docs.service';
 import { fonesService } from './fones.service';
+import { imagensService } from "./imagens.service";
+import { modulosService } from "./modulos.service";
+import { cargosService } from './cargos.service';
+import { acoesService } from './acoes.service';
+import { perguntasService } from './perguntas.service';
+import { usersService } from './users.service';
+import { loginsService } from './logins.service';
+import { acessosService } from './acessos.service';
+import { chavesService } from './chaves.service';
+import { pergsrespsService } from './pergsresps.service';
+
+
 
 
 // ==================================================
@@ -34,12 +38,6 @@ export const tableServices: TableService[] = [
   pessoasService,
   estadosService,
   cidadesService,
-  imagensService,
-  modulosService,
-  cargosService,
-  acoesService,
-  perguntasService,
-
   empresasService, 
   visitantesService,      
   visitasService,
@@ -51,8 +49,17 @@ export const tableServices: TableService[] = [
   emailsService,
   docsService,
   fonesService,
-
-
+  imagensService,
+  modulosService,
+  cargosService,
+  acoesService,
+  perguntasService,
+  usersService,
+  loginsService,
+  acessosService,
+  chavesService,
+  pergsrespsService,
+  
   // próximos:  
 ];
 

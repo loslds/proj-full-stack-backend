@@ -9,3 +9,4 @@ const perguntasRoutes = Router();
 perguntasRoutes.get("/", getPerguntasGrid);
 
 export { perguntasRoutes };
+

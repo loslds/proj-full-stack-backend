@@ -12,20 +12,25 @@ export const systemTables = [
   'clientes',
   'fornecedores',
   'funcionarios',
-  'cadastros',
   'estados',
   'cidades',
+  'cadastros',
   'emails',
   'docs',
   'fones',
   'imagens',
-  'perguntas',
-  'users',
-  'acessos',  
   'modulos',
   'cargos',
   'acoes',
+  'perguntas',
+  'users',
+  'logins',
+  'acessos',  
+  'chaves',
+  'pergsresps',
   
+
+
 
   
 ] as const;

@@ -1,76 +1,81 @@
 // C:\repository\proj-full-stack-backend\src\use-cases\user\users.route.ts
 
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router } from 'express';
+
+import { AppDataSource } from '../../config/db';
 import { UsersController } from './users.controller';
 import { UsersRepository } from './users.repository';
-import { AppDataSource } from '../../config/db';
-import { createValidation, updateValidation } from './users.validation';
+import { userscreateValidation, usersupdateValidation } from './users.validation';
 
 const usersRepository = new UsersRepository(AppDataSource);
+
 const controller = new UsersController(usersRepository);
+
 const usersRoute = Router();
 
 // ==========================================================
-// LIST ALL
-// GET /users
+// ROTAS FIXAS
+// Sempre declarar antes das rotas dinâmicas
 // ==========================================================
+
+// GET -> Lista todos os users
 usersRoute.get(
   '/',
-  (req: Request, res: Response, next: NextFunction) =>
-    controller.findAll(req, res, next)
+  controller.findAllUsers.bind(controller)
 );
-// ==========================================================
-// LIST BY is_actived
-// GET /users/actived
-// GET /users/actived?is_actived=true
-// GET /users/actived?is_actived=false
-// ==========================================================
+
+// GET -> Pesquisa combinada
 usersRoute.get(
-  '/actived',
-  (
-    req: Request<{}, {}, {}, { is_actived?: string }>,
-    res: Response,
-    next: NextFunction
-  ) => controller.findAllActived(req, res, next)
+  '/search',
+  controller.searchUsersAll.bind(controller)
 );
-// ==========================================================
-// CREATE
-// POST /users
-// ==========================================================
+
+// GET -> Lista users ativos/inativos
+usersRoute.get(
+  '/search-actived',
+  controller.findAllUsersActived.bind(controller)
+);
+
+// GET -> Busca todos os users por cadastro
+usersRoute.get(
+  '/cadastros/:cadastrosId',
+  controller.findAllUsersCadastrosId.bind(controller)
+);
+
+// GET -> Lista users com detalhes
+usersRoute.get(
+  '/details',
+  controller.listAllUsersDetails.bind(controller)
+);
+
+// POST -> Cria novo user
 usersRoute.post(
   '/',
-  createValidation,
-  (req: Request, res: Response, next: NextFunction) =>
-    controller.create(req, res, next)
+  userscreateValidation,
+  controller.createNewUsers.bind(controller)
 );
+
 // ==========================================================
-// GET BY ID
-// GET /users/:id
+// ROTAS DINÂMICAS
 // ==========================================================
+
+// GET -> Busca user por ID
 usersRoute.get(
-  '/:id',
-  (req: Request<{ id: string }>, res: Response, next: NextFunction) =>
-    controller.findById(req, res, next)
+  '/:usersId',
+  controller.getOneUsersId.bind(controller)
 );
-// ==========================================================
-// UPDATE BY ID
-// PATCH /users/:id
-// ==========================================================
+
+// PATCH -> Atualiza user por ID
 usersRoute.patch(
-  '/:id',
-  updateValidation,
-  (req: Request<{ id: string }>, res: Response, next: NextFunction) =>
-    controller.updateById(req, res, next)
+  '/:usersId',
+  usersupdateValidation,
+  controller.updateIdUsers.bind(controller)
 );
-// ==========================================================
-// DELETE BY ID
-// DELETE /users/:id
-// ==========================================================
+
+// DELETE -> Desativa user por ID
 usersRoute.delete(
-  '/:id',
-  (req: Request<{ id: string }>, res: Response, next: NextFunction) =>
-    controller.deleteById(req, res, next)
+  '/:usersId',
+  controller.removeIdUsers.bind(controller)
 );
 
-export { usersRoute, usersRepository };
-
+export { usersRoute as usersRoutes };

@@ -21,12 +21,18 @@ import { imagensRoutes } from "../use-cases/imagen";
 import { emailsRoutes } from '../use-cases/email';
 import { docsRoutes } from '../use-cases/doc';
 import { fonesRoutes } from '../use-cases/fone';
-
-//import { usersRoutes } from '../use-cases/users';
 import { modulosRoutes } from "../use-cases/modulo";
 import { cargosRoutes } from "../use-cases/cargo";
 import { acoesRoutes } from "../use-cases/acao";
 import { perguntasRoutes } from '../use-cases/perguntas';
+import { usersRoutes } from '../use-cases/user';
+import { loginsRoutes } from '../use-cases/login';
+import { acessosRoutes } from '../use-cases/acesso';
+import { chavesRoutes } from '../use-cases/chave';
+import { pergsrespsRoutes } from '../use-cases/pergresp';
+
+
+
 
 
 
@@ -36,7 +42,6 @@ const indexRoute = Router();
 // rotas do sistema
 
 indexRoute.use("/system", systemRoutes);
-
 // autenticação
 indexRoute.use("/auth", authRoute);
 
@@ -44,12 +49,6 @@ indexRoute.use("/auth", authRoute);
 indexRoute.use("/pessoas", pessoasRoutes);
 indexRoute.use("/estados", estadosRoutes);
 indexRoute.use("/cidades", cidadesRoutes);
-indexRoute.use("/imagens", imagensRoutes);
-indexRoute.use("/modulos", modulosRoutes);
-indexRoute.use("/cargos", cargosRoutes);
-indexRoute.use("/acoes", acoesRoutes);
-indexRoute.use("/perguntas", perguntasRoutes);
-
 indexRoute.use("/empresas", empresasRoutes);
 indexRoute.use("/visitantes", visitantesRoutes);
 indexRoute.use("/visitas", visitasRoutes);
@@ -58,11 +57,20 @@ indexRoute.use("/clientes", clientesRoutes);
 indexRoute.use("/fornecedores", fornecedoresRoutes);
 indexRoute.use("/funcionarios", funcionariosRoutes);
 indexRoute.use("/cadastros", cadastrosRoutes);
+indexRoute.use("/imagens", imagensRoutes);
 indexRoute.use("/emails", emailsRoutes);
 indexRoute.use("/docs", docsRoutes);
 indexRoute.use("/fones", fonesRoutes);
+indexRoute.use("/modulos", modulosRoutes);
+indexRoute.use("/cargos", cargosRoutes);
+indexRoute.use("/acoes", acoesRoutes);
+indexRoute.use("/perguntas", perguntasRoutes);
+indexRoute.use("/users", usersRoutes);
+indexRoute.use("/logins", loginsRoutes);
+indexRoute.use("/acessos", acessosRoutes);
+indexRoute.use("/chaves", chavesRoutes);
+indexRoute.use("/pergsresps", pergsrespsRoutes);
 
-//indexRoute.use("/users", usersRoutes);
 
 
 // grids

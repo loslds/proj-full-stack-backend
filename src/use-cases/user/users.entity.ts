@@ -1,7 +1,7 @@
 
-// C:\repository\proj-full-stack-backend\src\use-cases\user\users.entity.ts
 
 // C:\repository\proj-full-stack-backend\src\use-cases\user\users.entity.ts
+
 import {
   Column,
   Entity,
@@ -49,7 +49,7 @@ export class UsersEntity {
     type: 'tinyint',
     width: 1,
     nullable: false,
-    default: 1
+    default: 0
   })
   is_actived: number;
 
@@ -87,3 +87,4 @@ export class UsersEntity {
   })
   updatedAt: Date;
 }
+

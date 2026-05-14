@@ -1,6 +1,6 @@
 
 
-// C:\repository\proj-full-stack-backend\src\use-cases\pespsperg\pespspergs.entity.ts
+// C:\repository\proj-full-stack-backend\src\use-cases\pergresp\pergsresps.entity.ts
 
 import {
   Column,
@@ -13,9 +13,9 @@ import {
 
 import { ChavesEntity } from '../chave/chaves.entity';
 
-@Entity('pespspergs')
+@Entity('pergsresps')
 @Index('idx_pespspergs_id_chaves', ['id_chaves'])
-export class PegsRespsEntity {
+export class PergsrespsEntity {
   @PrimaryGeneratedColumn({
     type: 'int',
     unsigned: true
@@ -126,3 +126,4 @@ export class PegsRespsEntity {
   })
   updatedAt: Date;
 }
+

@@ -23,27 +23,25 @@ import { cargosRoutes } from "../services/grid/cargos";
 import { acoesRoutes } from "../services/grid/acoes";
 import { perguntasRoutes } from "../services/grid/perguntas";
 import { usersRoutes } from "../services/grid/users";
-
-
-//import { pergsrespsRoutes } from "../services/grid/pergsresps";
-//import { chavesRoutes } from "../services/grid/chaves";
-//import { acessosRoutes } from "../services/grid/acessos";
-//import { loginsRoutes } from "../services/grid/logins";
+import { loginsRoutes } from "../services/grid/logins";
+import { chavesRoutes } from "../services/grid/chaves";
+import { acessosRoutes } from "../services/grid/acessos";
+import { pergsrespsRoutes } from "../services/grid/pergsresps";
 
 
 const indexGridRoute = Router();
 
 indexGridRoute.use("/pessoas", pessoasRoutes);
+indexGridRoute.use("/estados", estadosRoutes);
+indexGridRoute.use("/cidades", cidadesRoutes);
 indexGridRoute.use("/empresas", empresasRoutes);
-indexGridRoute.use("/cadastros", cadastrosRoutes);
 indexGridRoute.use("/visitantes", visitantesRoutes);
 indexGridRoute.use("/visitas", visitasRoutes);
 indexGridRoute.use("/consumidores", consumidoresRoutes);
 indexGridRoute.use("/clientes", clientesRoutes);
 indexGridRoute.use("/fornecedores", fornecedoresRoutes);
 indexGridRoute.use("/funcionarios", funcionariosRoutes);
-indexGridRoute.use("/estados", estadosRoutes);
-indexGridRoute.use("/cidades", cidadesRoutes);
+indexGridRoute.use("/cadastros", cadastrosRoutes);
 indexGridRoute.use("/imagens", imagensRoutes);
 indexGridRoute.use("/emails", emailsRoutes);
 indexGridRoute.use("/docs", docsRoutes);
@@ -53,11 +51,9 @@ indexGridRoute.use("/cargos", cargosRoutes);
 indexGridRoute.use("/acoes", acoesRoutes);
 indexGridRoute.use("/perguntas", perguntasRoutes);
 indexGridRoute.use("/users", usersRoutes);
-
-//indexGridRoute.use("/pergsrespsRoutes", pergsresps);
-//indexGridRoute.use("/chavesRoutes", chaves);
-//indexGridRoute.use("/acessosRoutes", acessos);
-//indexGridRoute.use("/loginsRoutes", logins);
-
+indexGridRoute.use("/logins", loginsRoutes);
+indexGridRoute.use("/chaves", chavesRoutes);
+indexGridRoute.use("/acessos", acessosRoutes);
+indexGridRoute.use("/pergsresps", pergsrespsRoutes);
 
 export { indexGridRoute };

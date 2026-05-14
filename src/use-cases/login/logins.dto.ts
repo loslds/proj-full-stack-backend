@@ -33,3 +33,4 @@ export const loginsUpdateSchema = loginsCreateSchema.partial().extend({
 export type LoginsCreate = z.infer<typeof loginsCreateSchema>;
 export type LoginsUpdate = z.infer<typeof loginsUpdateSchema>;
 export type LoginsDto = DeepPartial<LoginsEntity>;
+

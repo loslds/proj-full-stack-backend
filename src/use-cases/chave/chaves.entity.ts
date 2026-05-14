@@ -1,7 +1,6 @@
 
-//C:\repository\proj-full-stack-backend\src\use-cases\chave\chaves.entity.ts
-
 // C:\repository\proj-full-stack-backend\src\use-cases\chave\chaves.entity.ts
+
 import {
   Column,
   Entity,
@@ -59,26 +58,28 @@ export class ChavesEntity {
 
   @Column({
     type: 'varchar',
-    length: 60,
+    length: 255,
     nullable: false
   })
   psw_hash: string;
 
   @Column({
     type: 'varchar',
-    length: 60,
+    length: 255,
     nullable: false
   })
   min_hash: string;
 
   // ==========================================================
-  // CONTROLE (OPCIONAL FUTURO)
+  // CONTROLE
   // ==========================================================
   @Column({
-    type: 'boolean',
-    default: true
+    type: 'tinyint',
+    width: 1,
+    nullable: false,
+    default: 1
   })
-  ativo: boolean;
+  ativo: number;
 
   // ==========================================================
   // AUDITORIA

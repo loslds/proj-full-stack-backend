@@ -250,3 +250,4 @@ export class CadastrosEntity {
   })
   updatedAt: Date;
 }
+

@@ -1,7 +1,6 @@
 
-//C:\repository\proj-full-stack-backend\src\use-cases\chave\chaves.dto.ts
+/// C:\repository\proj-full-stack-backend\src\use-cases\chave\chaves.dto.ts
 
-// C:\repository\proj-full-stack-backend\src\use-cases\chave\chaves.dto.ts
 import { DeepPartial } from 'typeorm';
 import { z } from 'zod';
 import { ChavesEntity } from './chaves.entity';
@@ -12,11 +11,11 @@ import { ChavesEntity } from './chaves.entity';
 export const chavesCreateSchema = z.object({
   id_users: z.number().int().nonnegative().optional(),
 
-  identificador: z.string().trim().min(4).max(60),
-  psw_hash: z.string().trim().min(10).max(60),
-  min_hash: z.string().trim().min(4).max(60),
+  identificador: z.string().trim().min(2).max(60),
+  psw_hash: z.string().trim().min(2).max(255),
+  min_hash: z.string().trim().min(2).max(255),
 
-  ativo: z.boolean().optional(),
+  ativo: z.number().int().min(0).max(1).optional(),
 
   createdBy: z.number().int().nonnegative().optional(),
   updatedBy: z.number().int().nonnegative().optional()
@@ -35,4 +34,3 @@ export const chavesUpdateSchema = chavesCreateSchema.partial().extend({
 export type ChavesCreate = z.infer<typeof chavesCreateSchema>;
 export type ChavesUpdate = z.infer<typeof chavesUpdateSchema>;
 export type ChavesDto = DeepPartial<ChavesEntity>;
-

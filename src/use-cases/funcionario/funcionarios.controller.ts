@@ -1,6 +1,6 @@
 
 //C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.controller.ts
-// C:\repository\proj-full-stack-backend\src\use-cases\funcionario\funcionarios.controller.ts
+
 import { NextFunction, Request, Response } from 'express';
 import { FuncionariosRepository } from './funcionarios.repository';
 import { FuncionariosCreate, FuncionariosUpdate } from './funcionarios.dto';
