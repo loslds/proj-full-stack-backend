@@ -2,6 +2,7 @@
 // C:\repository\proj-full-stack-backend\src\routes\indexRoute.ts
 
 import { Router } from "express";
+
 import { indexGridRoute } from "./indexGridRoute";
 
 import { systemRoutes } from "./systemRoutes";
@@ -31,12 +32,6 @@ import { acessosRoutes } from '../use-cases/acesso';
 import { chavesRoutes } from '../use-cases/chave';
 import { pergsrespsRoutes } from '../use-cases/pergresp';
 
-
-
-
-
-
-
 const indexRoute = Router();
 
 // rotas do sistema
@@ -44,7 +39,6 @@ const indexRoute = Router();
 indexRoute.use("/system", systemRoutes);
 // autenticação
 indexRoute.use("/auth", authRoute);
-
 // arquivos para os módulos do sistema
 indexRoute.use("/pessoas", pessoasRoutes);
 indexRoute.use("/estados", estadosRoutes);
@@ -70,8 +64,6 @@ indexRoute.use("/logins", loginsRoutes);
 indexRoute.use("/acessos", acessosRoutes);
 indexRoute.use("/chaves", chavesRoutes);
 indexRoute.use("/pergsresps", pergsrespsRoutes);
-
-
 
 // grids
 indexRoute.use("/grid", indexGridRoute);

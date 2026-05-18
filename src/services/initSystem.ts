@@ -1,4 +1,6 @@
- // src/services/initSystem.ts
+ 
+ // C:\repository\proj-full-stack-backend\src\services\initSystem.ts
+
 import { checkConnectionService } from './checkConectionService';
 import { checkTables } from './checkTables';
 
@@ -32,7 +34,6 @@ export interface InitResult {
 // ==================================================
 export async function initSystem(): Promise<InitResult> {
   console.log('>>> [initSystem] função foi chamada');
-
   const steps: InitStep[] = [];
   let checkedTables: string[] = [];
   let missingTables: string[] = [];
@@ -256,3 +257,4 @@ export async function initSystem(): Promise<InitResult> {
     };
   }
 }
+

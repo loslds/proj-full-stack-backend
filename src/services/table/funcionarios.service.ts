@@ -1,7 +1,6 @@
 
-//C:\repository\proj-full-stack-backend\src\services\table\funcionarios.services.ts
-
 // C:\repository\proj-full-stack-backend\src\services\table\funcionarios.service.ts
+
 import { AppDataSource } from '../../config/db';
 
 export const funcionariosService = {

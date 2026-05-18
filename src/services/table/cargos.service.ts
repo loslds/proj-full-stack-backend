@@ -1,5 +1,6 @@
 
 //C:\repository\proj-full-stack-backend\src\services\table\cargos.service.ts
+
 import { AppDataSource } from '../../config/db';
 import { cargosSeed } from './seed/cargos.seed';
 

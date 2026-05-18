@@ -1,5 +1,6 @@
 
 //C:\repository\proj-full-stack-backend\src\services\table\acoes.service.ts
+
 import { AppDataSource } from '../../config/db';
 import { acoesSeed } from './seed/acoes.seed';
 

@@ -1,13 +1,13 @@
 
-//C:\repository\proj-full-stack-backend\src\services\routes\empresasRoutes.ts
+// C:\repository\proj-full-stack-backend\src\services\grid\pessoas\pessoasRoutes.ts
 
 import { Router } from "express";
 
-import { getPessoas } from "./pessoasController.js";
+import { getPessoasGrid } from "./pessoasController";
 
-export const pessoasRoutes = Router();
+const pessoasRoutes = Router();
 
-pessoasRoutes.get("/", getPessoas);
+pessoasRoutes.get("/", getPessoasGrid);
 
-export default pessoasRoutes;
+export { pessoasRoutes };
 

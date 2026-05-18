@@ -1,7 +1,10 @@
 
 
-// C:\repository\proj-full-stack-backend\src\services\tables\tables.ts
-
+// C:\repository\proj-full-stack-backend\src\services\table\tables.ts
+// /**
+//  * Tabelas mínimas para o sistema iniciar
+//  * (infraestrutura / base)
+//  */
 export const systemTables = [
   'systables',
   'pessoas',
@@ -28,13 +31,14 @@ export const systemTables = [
   'acessos',  
   'chaves',
   'pergsresps',
-  
-
-
-
-  
+    
 ] as const;
-
+//////////////////////////////////////
+/**
+ * Tabelas que exigem inserção de dados padrão
+ * após a criação
+ */
+//////////////////////////////////////
 export const tablesWithDefaults = [
   'systables',
   'pessoas',
@@ -46,7 +50,12 @@ export const tablesWithDefaults = [
   'acoes',
   'perguntas',
 ] as const;
-
+//////////////////////////////////////
+/**
+ * Tabelas que futuramente exigirão
+ * sincronização / atualização de registros
+ */
+//////////////////////////////////////
 export const tablesWithUpdates = [
   'imagens',
 ] as const;
@@ -54,83 +63,4 @@ export const tablesWithUpdates = [
 export const SYSTEM_TABLES_TOTAL = systemTables.length;
 
 export type SystemTableName = (typeof systemTables)[number];
-
-
-
-
-
-
-
-
-
-
-
-
-// // C:\repository\proj-full-stack-backend\src\services\tables\tables.ts
-// /**
-//  * Tabelas mínimas para o sistema iniciar
-//  * (infraestrutura / base)
-//  */
-// export const systemTables = [
-//   // com seed
-//   'systables',
-//   'pessoas',
-//   'estados',
-//   'cidades',
-//   'imagens',
-//   'modulos',
-//   'cargos', 
-//   'acoes',
-//   'perguntas',
-//   // sem seed
-//   'empresas',        
-//   'visitantes',      
-//   'visitas',         
-//   'consumidores',    
-//   'clientes',        
-//   'fornecedores',    
-//   'funcionarios',
-//   'cadastros',
-//   'emails',
-//   'docs',
-//   'fones',
-
-
-//   // outras tabelas ......
-// ] as const;
-
-// /*////////////////////////////////////////////
-//  * Tabelas que exigem inserção de dados padrão
-//  * após a criação
-//  */////////////////////////////////////////// *** CONCLUIDO
-// export const tablesWithDefaults = [
-//   'pessoas',         
-//   'estados',         
-//   'cidades',         
-//   'imagens',         
-//   'modulos',         
-//   'cargos',          
-//   'acoes',           
-//   'perguntas',       
-  
-
-//   // outras tabelas ......
-
-// ] as const;
-
-// /**
-//  * Tabelas que futuramente exigirão
-//  * sincronização / atualização de registros
-//  */
-// export const tablesWithUpdates = [
-  
-//   'imagens',
-
-//   // outras tabelas ......
-// ] as const;
-
-// /*//////////////////////////////////////////////////////
-//  * Total esperado (controle e auditoria)
-//  *//////////////////////////////////////////////////
-// export const SYSTEM_TABLES_TOTAL = systemTables.length;
 

@@ -6,7 +6,7 @@ import { AppDataSource } from "../../../config/db";
 import { cadastrosGridSelect } from "../../utility/cadastros/cadastrosGridSelect";
 import { mapCadastrosGridRow } from "../../utility/cadastros/mapCadastrosGridRow";
 
-export async function getCadastros(req: Request, res: Response) {
+export async function getCadastrosGrid(req: Request, res: Response) {
   const rows = await AppDataSource.query(cadastrosGridSelect);
 
   const result = rows.map(mapCadastrosGridRow);

@@ -3,11 +3,11 @@
 
 import { Router } from "express";
 
-import { getEmpresas } from "../empresas/empresasController";
+import { getEmpresasGrid } from "../empresas/empresasController";
 
 export const empresasRoutes = Router();
 
-empresasRoutes.get("/", getEmpresas);
+empresasRoutes.get("/", getEmpresasGrid);
 
 export default empresasRoutes;
 

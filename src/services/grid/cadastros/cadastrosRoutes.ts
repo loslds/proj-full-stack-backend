@@ -2,11 +2,11 @@
 //C:\repository\proj-full-stack-backend\src\services\routes\cadastrosRoutes.ts
 
 import { Router } from "express";
-import { getCadastros } from "./cadastrosController";
+import { getCadastrosGrid } from "./cadastrosController";
 
 export const cadastrosRoutes = Router();
 
-cadastrosRoutes.get("/", getCadastros);
+cadastrosRoutes.get("/", getCadastrosGrid);
 
 export default cadastrosRoutes;
 

@@ -6,7 +6,7 @@ import { AppDataSource } from "../../../config/db";
 import { empresaGridSelect } from "../../utility/empresas/empresaGridSelect";
 import { mapEmpresaGridRow } from "../../utility/empresas/mapEmpresaGridRow";
 
-export async function getEmpresas(req: Request, res: Response) {
+export async function getEmpresasGrid(req: Request, res: Response) {
   const rows = await AppDataSource.query(empresaGridSelect);
 
   const result = rows.map(mapEmpresaGridRow);

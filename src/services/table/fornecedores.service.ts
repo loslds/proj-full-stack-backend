@@ -2,7 +2,6 @@
 
 //C:\repository\proj-full-stack-backend\src\services\table\fornecedores.services.ts
 
-// C:\repository\proj-full-stack-backend\src\services\table\fornecedores.service.ts
 import { AppDataSource } from '../../config/db';
 
 export const fornecedoresService = {

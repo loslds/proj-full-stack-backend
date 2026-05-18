@@ -1,6 +1,7 @@
 
 
 // C:\repository\proj-full-stack-backend\src\services\table\visitantes.service.ts
+
 import { AppDataSource } from '../../config/db';
 
 export const visitantesService = {

@@ -1,5 +1,6 @@
 
 // C:\repository\proj-full-stack-backend\src\services\table\fones.service.ts
+
 import { AppDataSource } from '../../config/db';
 
 export const fonesService = {

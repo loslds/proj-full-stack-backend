@@ -2,13 +2,10 @@
 
 // C:\repository\proj-full-stack-backend\src\index.ts
 import "dotenv/config";
-
 console.log("ENV MASTER_STATIC loaded?", Boolean(process.env.MASTER_STATIC));
-
 import net from "net";
 import express from "express";
 import cors from "cors";
-
 import { AppDataSource } from "./config/db";
 import { indexRoute } from "./routes/indexRoute";
 import { errorHandler } from "./middlewares/errorHandler";
@@ -18,8 +15,9 @@ import { systemHealthCheck } from "./services/systemHealthCheck";
 import { ensureSystemReady } from "./services/ensuresSystemReady";
 
 // ==================================================
-// 1️⃣ Verifica se a porta está livre
+// 1️⃣ Verifica se a porta está livre 15-05-2026
 // ==================================================
+
 const serverCheck = net.createServer();
 
 serverCheck.once("error", (err: any) => {
@@ -32,14 +30,11 @@ serverCheck.once("error", (err: any) => {
 serverCheck.once("listening", () => {
   serverCheck.close();
 });
-
 serverCheck.listen(appPort);
-
 // ==================================================
 // 2️⃣ Cria app Express
 // ==================================================
 const app = express();
-
 // ==================================================
 // 3️⃣ Configuração de CORS
 // ==================================================
@@ -92,13 +87,7 @@ app.use(errorHandler);
     if (healthResult.missingTables.length > 0) {
       console.warn("⚠️ Tabelas ausentes:", healthResult.missingTables);
     }
-
-    // console.log(
-    //   `🩺 Health | mode=${healthResult.mode} | initialized=${healthResult.initialized}`
-    // );
-
-    // console.log("ROTAS:", indexRoute.stack?.map((l: any) => l?.regexp?.toString?.() ?? l));
-
+    
     // 🔹 Inicia servidor
     app.listen(appPort, () => {
       console.log(`🚀 Backend rodando na porta ${appPort}`);

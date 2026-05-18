@@ -1,16 +1,14 @@
 
-
 // C:\repository\proj-full-stack-backend\src\services\checkTables.ts
+
 import { AppDataSource } from "../config/db";
 import { systemTables } from "./table/tables";
-
 export interface TableCheckStep {
   table: string;
   exists: boolean;
   records: number;
   message: string;
 }
-
 export interface CheckTablesResult {
   database: string;
   existingTables: string[];
@@ -34,17 +32,36 @@ export async function checkTables(): Promise<CheckTablesResult> {
   let database = "unknown";
 
   try {
+console.log(">>> [checkTables] iniciado");
+
     await queryRunner.connect();
 
-    const dbResult = await queryRunner.query("SELECT DATABASE() as db");
+    const dbResult = await queryRunner.query(
+      "SELECT DATABASE() as db"
+    );
+
     database = dbResult?.[0]?.db ?? "unknown";
 
+console.log(">>> [checkTables] database:", database);
+
     const tables = await queryRunner.query("SHOW TABLES");
-    const dbTables = tables.map((t: any) => String(Object.values(t)[0]));
+
+    const dbTables = tables.map(
+      (t: any) => String(Object.values(t)[0])
+    );
+
+console.log(">>> [checkTables] systemTables:", systemTables );
+
+console.log(">>> [checkTables] dbTables:", dbTables );
 
     for (const table of systemTables) {
+console.log(`>>> [checkTables] verificando tabela: ${table}` );
+
       if (!dbTables.includes(table)) {
+console.log( `>>> [checkTables] tabela ausente: ${table}` );
+
         missingTables.push(table);
+
         records[table] = 0;
 
         steps.push({
@@ -57,6 +74,8 @@ export async function checkTables(): Promise<CheckTablesResult> {
         continue;
       }
 
+console.log(`>>> [checkTables] tabela encontrada: ${table}` );
+
       existingTables.push(table);
 
       try {
@@ -65,7 +84,10 @@ export async function checkTables(): Promise<CheckTablesResult> {
         );
 
         const total = Number(result?.[0]?.total ?? 0);
+
         records[table] = total;
+
+console.log( `>>> [checkTables] ${table} total registros: ${total}` );
 
         steps.push({
           table,
@@ -73,7 +95,9 @@ export async function checkTables(): Promise<CheckTablesResult> {
           records: total,
           message: `Tabela <${table}> presente com ${total} registros.`,
         });
-      } catch {
+      } catch (error) {
+console.log( `>>> [checkTables] erro ao contar registros de ${table}`, error);
+
         records[table] = 0;
 
         steps.push({
@@ -84,6 +108,12 @@ export async function checkTables(): Promise<CheckTablesResult> {
         });
       }
     }
+
+console.log(">>> [checkTables] existingTables:", existingTables);
+
+console.log(">>> [checkTables] missingTables:", missingTables);
+
+console.log(">>> [checkTables] finalizado");
 
     return {
       database,
@@ -97,107 +127,3 @@ export async function checkTables(): Promise<CheckTablesResult> {
   }
 }
 
-
-
-
-
-
-
-
-
-// // src/services/checkTables.ts
-// import { AppDataSource } from "../config/db";
-// import { systemTables } from "./table/tables";
-
-// export interface TableCheckStep {
-//   table: string;
-//   exists: boolean;
-//   records: number;
-//   message: string;
-// }
-
-// export interface CheckTablesResult {
-//   database: string;
-//   existingTables: string[];
-//   missingTables: string[];
-//   records: Record<string, number>;
-//   steps: TableCheckStep[];
-// }
-
-// export async function checkTables(): Promise<CheckTablesResult> {
-//   if (!AppDataSource.isInitialized) {
-//     throw new Error("DataSource não inicializado");
-//   }
-
-//   const queryRunner = AppDataSource.createQueryRunner();
-
-//   const existingTables: string[] = [];
-//   const missingTables: string[] = [];
-//   const records: Record<string, number> = {};
-//   const steps: TableCheckStep[] = [];
-
-//   let database = "unknown";
-
-//   try {
-//     await queryRunner.connect();
-
-//     const dbResult = await queryRunner.query("SELECT DATABASE() as db");
-//     database = dbResult?.[0]?.db ?? "unknown";
-
-//     const tables = await queryRunner.query("SHOW TABLES");
-//     const dbTables = tables.map((t: any) => Object.values(t)[0]);
-
-//     for (const table of systemTables) {
-//       if (!dbTables.includes(table)) {
-//         missingTables.push(table);
-//         records[table] = 0;
-
-//         steps.push({
-//           table,
-//           exists: false,
-//           records: 0,
-//           message: `Tabela <${table}> ausente.`,
-//         });
-
-//         continue;
-//       }
-
-//       existingTables.push(table);
-
-//       try {
-//         const result = await queryRunner.query(
-//           `SELECT COUNT(*) as total FROM \`${table}\``
-//         );
-
-//         const total = Number(result[0]?.total ?? 0);
-//         records[table] = total;
-
-//         steps.push({
-//           table,
-//           exists: true,
-//           records: total,
-//           message: `Tabela <${table}> presente com ${total} registros.`,
-//         });
-//       } catch {
-//         records[table] = 0;
-
-//         steps.push({
-//           table,
-//           exists: true,
-//           records: 0,
-//           message: `Tabela <${table}> presente com 0 registros.`,
-//         });
-//       }
-//     }
-
-//     return {
-//       database,
-//       existingTables,
-//       missingTables,
-//       records,
-//       steps,
-//     };
-//   } finally {
-//     await queryRunner.release();
-//   }
-// }

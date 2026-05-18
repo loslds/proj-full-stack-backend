@@ -1,6 +1,6 @@
 
 
-//C:\repository\proj-full-stack-backend\src\services\tables\cidades.service.ts
+//C:\repository\proj-full-stack-backend\src\services\table\cidades.service.ts
 
 import { AppDataSource } from '../../config/db';
 import { cidadesSeed } from './seed/cidades.seed';

@@ -1,5 +1,6 @@
 
-//C:\repository\proj-full-stack-backend\src\services\tables\index.ts
+//C:\repository\proj-full-stack-backend\src\services\table\index.ts
+
 import type { TableService } from './tableService.types';
 
 import { pessoasService } from './pessoas.service';
@@ -26,9 +27,6 @@ import { loginsService } from './logins.service';
 import { acessosService } from './acessos.service';
 import { chavesService } from './chaves.service';
 import { pergsrespsService } from './pergsresps.service';
-
-
-
 
 // ==================================================
 // Lista de services de tabelas do sistema
@@ -63,6 +61,7 @@ export const tableServices: TableService[] = [
   // próximos:  
 ];
 
+console.log('>>> TABLE SERVICES CARREGADOS:',tableServices.map((service) => service.tableName));
 // ==================================================
 // MAPA DE CONSULTA RÁPIDA
 // tableName -> service

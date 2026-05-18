@@ -1,7 +1,6 @@
 
-
-
 // src/routes/initRoutes.ts
+
 import { Router } from "express";
 import { initSystem } from "../services/initSystem";
 
@@ -9,7 +8,6 @@ const router = Router();
 
 // será montado como /api/system/init
 router.get("/", async (_req, res) => {
-console.log('>>> rota /api/system/init chamada');  
   try {
     const result = await initSystem();
     res.json(result);
