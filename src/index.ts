@@ -6,6 +6,7 @@ console.log("ENV MASTER_STATIC loaded?", Boolean(process.env.MASTER_STATIC));
 import net from "net";
 import express from "express";
 import cors from "cors";
+import { SYSTEM_PATHS } from "./config/systemPaths";
 import { AppDataSource } from "./config/db";
 import { indexRoute } from "./routes/indexRoute";
 import { errorHandler } from "./middlewares/errorHandler";
@@ -51,6 +52,12 @@ app.use(
 );
 
 app.use(express.json());
+
+// ==================================================
+// 4️⃣ Rotas publicas
+// ==================================================
+app.use("/assets", express.static(SYSTEM_PATHS.IMAGENS_BASE)
+);
 
 // ==================================================
 // 4️⃣ Rotas

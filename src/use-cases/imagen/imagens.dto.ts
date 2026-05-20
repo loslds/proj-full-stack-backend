@@ -33,6 +33,12 @@ export const imagensCreateSchema = z.object({
     .nullable()
     .optional(),
 
+  public_url: z
+    .string()
+    .max(255, 'path_dest deve ter no máximo 255 caracteres')
+    .nullable()
+    .optional(),
+
   svg: z
     .string()
     .min(1, 'Conteúdo SVG é obrigatório'),

@@ -1,6 +1,6 @@
-
-
+ 
 // C:\repository\proj-full-stack-backend\src\services\table\imagens.service.ts
+
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -9,16 +9,22 @@ import { execFileSync } from 'child_process';
 import { AppDataSource } from '../../config/db';
 import { SYSTEM_PATHS } from '../../config/systemPaths';
 
-type ImagemTipo = 'avatar' | 'foto' | 'botao' | 'logo' | 'painel' | 'img';
+// ============================================================
+// * TYPES *
+// ============================================================
+
+type ImagemTipo = 'avatar' | 'botao' | 'foto' | 'logo' | 'painel' | 'img';
 
 type ImagemRegistro = {
   nome: string;
   tipo: ImagemTipo;
   path_origem: string;
   path_dest: string;
+  public_url: string;
   svg: string;
   createdBy: number;
   updatedBy: number;
+  persistir?: boolean;
 };
 
 type ImagemDbRow = {
@@ -27,6 +33,7 @@ type ImagemDbRow = {
   tipo: string;
   path_origem: string | null;
   path_dest: string | null;
+  public_url: string | null;
   svg: string;
 };
 
@@ -35,12 +42,14 @@ type SeedItemValido = ImagemRegistro;
 type SeedItemErro = {
   arquivo: string;
   origem?: string;
+  destino?: string;
   motivo: string;
 };
 
 type SeedResultado = {
   zipLidos: string[];
   validos: SeedItemValido[];
+  rejeitados: SeedItemErro[];
   invalidos: SeedItemErro[];
   duplicados: SeedItemErro[];
   erros: SeedItemErro[];
@@ -52,18 +61,27 @@ type UpdateResultado = {
   erros: SeedItemErro[];
 };
 
+// ============================================================
+// * SERVICE *
+// ============================================================
+
 export const imagensService = {
   tableName: 'imagens',
 
+  // ============================================================
+  // * CONNECTION *
+  // ============================================================
   async ensureConnection(): Promise<void> {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }
   },
 
+  // ============================================================
+  // * CREATE TABLE *
+  // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [imagensService] create() iniciado');
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS imagens (
@@ -82,6 +100,10 @@ export const imagensService = {
           COLLATE utf8mb4_general_ci,
 
         path_dest VARCHAR(255)
+          NULL
+          COLLATE utf8mb4_general_ci,
+
+        public_url VARCHAR(255)
           NULL
           COLLATE utf8mb4_general_ci,
 
@@ -104,13 +126,16 @@ export const imagensService = {
           DEFAULT CURRENT_TIMESTAMP
           ON UPDATE CURRENT_TIMESTAMP,
 
-        UNIQUE KEY uk_imagens_nome (nome)
+        UNIQUE KEY uk_imagens_nome (nome),
+        INDEX idx_imagens_tipo (tipo),
+        INDEX idx_imagens_public_url (public_url)
       )
     `);
-
-    console.log('>>> [imagensService] create() concluído');
   },
 
+  // ============================================================
+  // * COUNT *
+  // ============================================================
   async count(): Promise<number> {
     await this.ensureConnection();
 
@@ -119,25 +144,28 @@ export const imagensService = {
       FROM imagens
     `);
 
-    const total = Number(result?.[0]?.total ?? 0);
-    console.log('>>> [imagensService] total de registros:', total);
-
-    return total;
+    return Number(result?.[0]?.total ?? 0);
   },
 
+  // ============================================================
+  // * SEED *
+  // ============================================================
   async seed(): Promise<SeedResultado> {
     await this.ensureConnection();
     await this.create();
 
-    console.log('>>> [imagensService] seed() iniciado');
-
     this.createFolders();
 
-    const zipSourceDir = path.resolve(SYSTEM_PATHS.ZIP_SOURCE);
     const resultado = this.criarEstruturaResultado();
+    const zipSourceDir = path.resolve(SYSTEM_PATHS.ZIP_SOURCE);
 
     if (!fs.existsSync(zipSourceDir)) {
-      console.log(`>>> [imagensService] pasta ZIP não encontrada: ${zipSourceDir}`);
+      resultado.erros.push({
+        arquivo: 'ZIP_SOURCE',
+        origem: zipSourceDir,
+        motivo: 'pasta de zips não encontrada'
+      });
+
       return resultado;
     }
 
@@ -148,7 +176,6 @@ export const imagensService = {
     resultado.zipLidos = [...zipFiles];
 
     if (zipFiles.length === 0) {
-      console.log('>>> [imagensService] nenhum .zip encontrado para processar');
       return resultado;
     }
 
@@ -199,7 +226,33 @@ export const imagensService = {
             continue;
           }
 
-          const finalPath = path.join(classificacao.destino, nome);
+          const finalPath = this.resolveDestinationPath(
+            classificacao.destino,
+            nome,
+            classificacao.persistir === false
+          );
+
+          if (classificacao.persistir === false) {
+            try {
+              this.copyFileToDisk(filePath, finalPath);
+
+              resultado.rejeitados.push({
+                arquivo: nome,
+                origem: filePath,
+                destino: finalPath,
+                motivo: classificacao.motivo ?? 'arquivo enviado para quarentena'
+              });
+            } catch (error: any) {
+              resultado.erros.push({
+                arquivo: nome,
+                origem: filePath,
+                destino: finalPath,
+                motivo: `falha ao enviar para quarentena: ${error?.message ?? 'erro desconhecido'}`
+              });
+            }
+
+            continue;
+          }
 
           if (
             resultado.validos.some(
@@ -214,6 +267,8 @@ export const imagensService = {
             continue;
           }
 
+          const publicUrl = this.buildPublicUrl(finalPath);
+
           try {
             const svg = fs.readFileSync(filePath, 'utf8');
 
@@ -222,9 +277,11 @@ export const imagensService = {
               tipo: classificacao.tipo,
               path_origem: filePath,
               path_dest: finalPath,
+              public_url: publicUrl,
               svg,
               createdBy: 0,
-              updatedBy: 0
+              updatedBy: 0,
+              persistir: true
             });
           } catch (error: any) {
             resultado.erros.push({
@@ -234,13 +291,6 @@ export const imagensService = {
             });
           }
         }
-      }
-
-      this.printSeedReport(resultado);
-
-      if (resultado.validos.length === 0) {
-        console.log('>>> [imagensService] nenhum arquivo válido encontrado para seed');
-        return resultado;
       }
 
       for (const item of resultado.validos) {
@@ -255,14 +305,10 @@ export const imagensService = {
         }
       }
 
-      if (resultado.erros.length > 0) {
-        console.log('>>> [imagensService] erros após gravação em disco:');
-        console.table(resultado.erros);
-      }
+      await this.persistirSeed(
+        resultado.validos.filter(item => item.persistir !== false)
+      );
 
-      await this.persistirSeed(resultado.validos);
-
-      console.log('>>> [imagensService] seed() concluído');
       return resultado;
     } finally {
       try {
@@ -273,11 +319,12 @@ export const imagensService = {
     }
   },
 
+  // ============================================================
+  // * UPDATE / SYNC *
+  // ============================================================
   async update(): Promise<UpdateResultado> {
     await this.ensureConnection();
     await this.create();
-
-    console.log('>>> [imagensService] update() iniciado');
 
     this.createFolders();
 
@@ -287,9 +334,14 @@ export const imagensService = {
 
     try {
       const pastasParaSincronizar = [
-        SYSTEM_PATHS.IMAGENS_DEFAULT,
-        SYSTEM_PATHS.IMAGENS_FOTO,
-        SYSTEM_PATHS.IMAGENS_IMG
+        SYSTEM_PATHS.IMAGENS_DEFAULT_AVT,
+        SYSTEM_PATHS.IMAGENS_DEFAULT_BTN,
+        SYSTEM_PATHS.IMAGENS_DEFAULT_LG,
+        SYSTEM_PATHS.IMAGENS_DEFAULT_PNL,
+        SYSTEM_PATHS.IMAGENS_DEFAULT_FT,
+
+        SYSTEM_PATHS.IMAGENS_USERCLIENTS_FT,
+        SYSTEM_PATHS.IMAGENS_USERCLIENTS_LG
       ];
 
       for (const folderPath of pastasParaSincronizar) {
@@ -298,10 +350,6 @@ export const imagensService = {
       }
 
       exportadosNoDisco = await this.exportAllFromDbToDisk();
-
-      console.log(`>>> [imagensService] sincronizados no banco: ${sincronizadosNoBanco}`);
-      console.log(`>>> [imagensService] exportados no disco: ${exportadosNoDisco}`);
-      console.log('>>> [imagensService] update() concluído');
 
       return {
         sincronizadosNoBanco,
@@ -314,9 +362,6 @@ export const imagensService = {
         motivo: error?.message ?? 'erro desconhecido'
       });
 
-      console.log('>>> [imagensService] erros no update():');
-      console.table(erros);
-
       return {
         sincronizadosNoBanco,
         exportadosNoDisco,
@@ -325,149 +370,165 @@ export const imagensService = {
     }
   },
 
-  async persistirSeed(items: SeedItemValido[]): Promise<void> {
-    for (const item of items) {
-      const existingRows: ImagemDbRow[] = await AppDataSource.query(
-        `
-        SELECT id, nome, tipo, path_origem, path_dest, svg
-        FROM imagens
-        WHERE nome = ?
-        LIMIT 1
-        `,
-        [item.nome]
-      );
+/////////////////////////////////////////
+// ============================================================
+// * PERSIST DATABASE *
+// Persiste somente registros válidos.
+// Se o nome não existir, insere.
+// Se o nome já existir, atualiza sempre.
+// Isso força a versão mais recente do arquivo como oficial,
+// mesmo quando nome, tamanho ou path forem iguais.
+// Arquivos de quarentena nunca devem chegar aqui.
+// ============================================================
+async persistirSeed(items: SeedItemValido[]): Promise<void> {
+  for (const item of items) {
+    if (item.persistir === false) {
+      continue;
+    }
 
-      const existente = existingRows[0];
+    const existingRows: ImagemDbRow[] = await AppDataSource.query(
+      `
+      SELECT
+        id,
+        nome,
+        tipo,
+        path_origem,
+        path_dest,
+        public_url,
+        svg
+      FROM imagens
+      WHERE nome = ?
+      LIMIT 1
+      `,
+      [item.nome]
+    );
 
-      if (!existente) {
-        await AppDataSource.query(
-          `
-          INSERT INTO imagens
-            (nome, tipo, path_origem, path_dest, svg, createdBy, updatedBy)
-          VALUES
-            (?, ?, ?, ?, ?, ?, ?)
-          `,
-          [
-            item.nome,
-            item.tipo,
-            item.path_origem,
-            item.path_dest,
-            item.svg,
-            item.createdBy,
-            item.updatedBy
-          ]
-        );
+    const existente = existingRows[0];
 
-        console.log(`>>> [imagensService] INSERT imagem: ${item.nome} (${item.tipo})`);
-        continue;
-      }
-
-      const changed =
-        existente.svg !== item.svg ||
-        existente.tipo !== item.tipo ||
-        (existente.path_origem ?? '') !== item.path_origem ||
-        (existente.path_dest ?? '') !== item.path_dest;
-
-      if (!changed) {
-        console.log(`>>> [imagensService] sem alterações no banco: ${item.nome}`);
-        continue;
-      }
-
+    if (!existente) {
       await AppDataSource.query(
         `
-        UPDATE imagens
-           SET tipo = ?,
-               path_origem = ?,
-               path_dest = ?,
-               svg = ?,
-               updatedBy = ?,
-               updatedAt = CURRENT_TIMESTAMP
-         WHERE id = ?
+        INSERT INTO imagens
+          (
+            nome,
+            tipo,
+            path_origem,
+            path_dest,
+            public_url,
+            svg,
+            createdBy,
+            updatedBy
+          )
+        VALUES
+          (?, ?, ?, ?, ?, ?, ?, ?)
         `,
         [
+          item.nome,
           item.tipo,
           item.path_origem,
           item.path_dest,
+          item.public_url,
           item.svg,
-          item.updatedBy,
-          existente.id
+          item.createdBy,
+          item.updatedBy
         ]
       );
 
-      console.log(`>>> [imagensService] UPDATE imagem: ${item.nome} (${item.tipo})`);
+      console.info(`[IMAGENS][DB][INSERT] ${item.nome}`);
+      continue;
     }
-  },
 
+    await AppDataSource.query(
+      `
+      UPDATE imagens
+         SET tipo = ?,
+             path_origem = ?,
+             path_dest = ?,
+             public_url = ?,
+             svg = ?,
+             updatedBy = ?,
+             updatedAt = CURRENT_TIMESTAMP
+       WHERE id = ?
+      `,
+      [
+        item.tipo,
+        item.path_origem,
+        item.path_dest,
+        item.public_url,
+        item.svg,
+        item.updatedBy,
+        existente.id
+      ]
+    );
+
+    console.info(`[IMAGENS][DB][UPDATE-FORCADO] ${item.nome}`);
+  }
+},
+  // ============================================================
+  // * RESULT STRUCTURE *
+  // ============================================================
   criarEstruturaResultado(): SeedResultado {
     return {
       zipLidos: [],
       validos: [],
+      rejeitados: [],
       invalidos: [],
       duplicados: [],
       erros: []
     };
   },
 
-  printSeedReport(resultado: SeedResultado): void {
-    console.log('>>> [imagensService] resumo do seed');
-    console.log(`>>> zips lidos: ${resultado.zipLidos.length}`);
-    console.log(`>>> válidos: ${resultado.validos.length}`);
-    console.log(`>>> inválidos: ${resultado.invalidos.length}`);
-    console.log(`>>> duplicados: ${resultado.duplicados.length}`);
-    console.log(`>>> erros: ${resultado.erros.length}`);
-
-    if (resultado.zipLidos.length > 0) {
-      console.log('>>> [imagensService] zips encontrados:');
-      console.table(resultado.zipLidos.map(zip => ({ zip })));
-    }
-
-    if (resultado.validos.length > 0) {
-      console.log('>>> [imagensService] arquivos válidos:');
-      console.table(
-        resultado.validos.map(item => ({
-          nome: item.nome,
-          tipo: item.tipo,
-          path_dest: item.path_dest
-        }))
-      );
-    }
-
-    if (resultado.invalidos.length > 0) {
-      console.log('>>> [imagensService] arquivos inválidos:');
-      console.table(resultado.invalidos);
-    }
-
-    if (resultado.duplicados.length > 0) {
-      console.log('>>> [imagensService] arquivos duplicados:');
-      console.table(resultado.duplicados);
-    }
-
-    if (resultado.erros.length > 0) {
-      console.log('>>> [imagensService] erros encontrados:');
-      console.table(resultado.erros);
-    }
-  },
-
+  // ============================================================
+  // * FOLDERS *
+  // ============================================================
   createFolders(): void {
     const dirs = [
       SYSTEM_PATHS.IMAGENS_BASE,
-      SYSTEM_PATHS.IMAGENS_DEFAULT,
-      SYSTEM_PATHS.IMAGENS_FOTO,
-      SYSTEM_PATHS.IMAGENS_IMG,
+
+      SYSTEM_PATHS.IMAGENS_DEFAULTS,
+      SYSTEM_PATHS.IMAGENS_DEFAULT_AVT,
+      SYSTEM_PATHS.IMAGENS_DEFAULT_BTN,
+      SYSTEM_PATHS.IMAGENS_DEFAULT_LG,
+      SYSTEM_PATHS.IMAGENS_DEFAULT_PNL,
+      SYSTEM_PATHS.IMAGENS_DEFAULT_FT,
+
+      SYSTEM_PATHS.IMAGENS_USERCLIENTS,
+      SYSTEM_PATHS.IMAGENS_USERCLIENTS_FT,
+      SYSTEM_PATHS.IMAGENS_USERCLIENTS_LG,
+
+      SYSTEM_PATHS.IMAGENS_REJEITADAS_IMG,
+
       SYSTEM_PATHS.ZIP_SOURCE
     ];
 
     for (const dir of dirs) {
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
-        console.log(`>>> [imagensService] pasta criada: ${dir}`);
       }
     }
   },
 
+  // ============================================================
+  // * PUBLIC URL *
+  // ============================================================
+  buildPublicUrl(fullPath: string): string {
+    const base = path.resolve(SYSTEM_PATHS.IMAGENS_BASE);
+    const target = path.resolve(fullPath);
+
+    const relative = path
+      .relative(base, target)
+      .replace(/\\/g, '/');
+
+    return `/assets/${relative}`;
+  },
+
+  // ============================================================
+  // * CLASSIFICATION *
+  // ============================================================
   classifyExtractedFile(
     fileName: string
   ): {
+    persistir?: boolean;
     valid: boolean;
     destino?: string;
     tipo?: ImagemTipo;
@@ -475,58 +536,101 @@ export const imagensService = {
   } {
     const lower = fileName.toLowerCase();
 
+    // ==========================================================
+    // EXTENSÃO INVÁLIDA
+    // vai para quarentena, mas não entra no banco
+    // ==========================================================
     if (!lower.endsWith('.svg')) {
       return {
-        valid: false,
-        motivo: 'extensão inválida, somente .svg é permitido'
+        valid: true,
+        persistir: false,
+        destino: SYSTEM_PATHS.IMAGENS_REJEITADAS_IMG,
+        tipo: 'img',
+        motivo: 'extensão inválida enviada para quarentena'
       };
     }
 
-    if (
-      (lower.startsWith('avt_') ||
-        lower.startsWith('btn_') ||
-        lower.startsWith('lg_') ||
-        lower.startsWith('pnl_')) &&
-      lower.includes('_def_')
-    ) {
+    // ==========================================================
+    // DEFAULTS DO SISTEMA
+    // obrigatoriamente com _def_
+    // ==========================================================
+    if (lower.startsWith('avt_') && lower.includes('_def_')) {
       return {
         valid: true,
-        destino: SYSTEM_PATHS.IMAGENS_DEFAULT,
-        tipo: this.detectTipo(lower)
+        persistir: true,
+        destino: SYSTEM_PATHS.IMAGENS_DEFAULT_AVT,
+        tipo: 'avatar'
       };
     }
 
-    if (lower.startsWith('fot_')) {
+    if (lower.startsWith('btn_') && lower.includes('_def_')) {
       return {
         valid: true,
-        destino: SYSTEM_PATHS.IMAGENS_FOTO,
-        tipo: this.detectTipo(lower)
+        persistir: true,
+        destino: SYSTEM_PATHS.IMAGENS_DEFAULT_BTN,
+        tipo: 'botao'
       };
     }
 
-    if (lower.startsWith('img_')) {
+    if (lower.startsWith('ft_') && lower.includes('_def_')) {
       return {
         valid: true,
-        destino: SYSTEM_PATHS.IMAGENS_IMG,
-        tipo: this.detectTipo(lower)
+        persistir: true,
+        destino: SYSTEM_PATHS.IMAGENS_DEFAULT_FT,
+        tipo: 'foto'
       };
     }
 
-    if (
-      lower.startsWith('avt_') ||
-      lower.startsWith('btn_') ||
-      lower.startsWith('lg_') ||
-      lower.startsWith('pnl_')
-    ) {
+    if (lower.startsWith('lg_') && lower.includes('_def_')) {
       return {
-        valid: false,
-        motivo: 'arquivo de default precisa conter _def_ no nome'
+        valid: true,
+        persistir: true,
+        destino: SYSTEM_PATHS.IMAGENS_DEFAULT_LG,
+        tipo: 'logo'
       };
     }
 
+    if (lower.startsWith('pnl_') && lower.includes('_def_')) {
+      return {
+        valid: true,
+        persistir: true,
+        destino: SYSTEM_PATHS.IMAGENS_DEFAULT_PNL,
+        tipo: 'painel'
+      };
+    }
+
+    // ==========================================================
+    // USERCLIENTS
+    // ft_ e lg_ sem _def_ são imagens reais de cliente/empresa
+    // ==========================================================
+    if (lower.startsWith('ft_')) {
+      return {
+        valid: true,
+        persistir: true,
+        destino: SYSTEM_PATHS.IMAGENS_USERCLIENTS_FT,
+        tipo: 'foto'
+      };
+    }
+
+    if (lower.startsWith('lg_')) {
+      return {
+        valid: true,
+        persistir: true,
+        destino: SYSTEM_PATHS.IMAGENS_USERCLIENTS_LG,
+        tipo: 'logo'
+      };
+    }
+
+    // ==========================================================
+    // QUARENTENA
+    // qualquer SVG não reconhecido fica fora do banco
+    // ==========================================================
     return {
-      valid: false,
-      motivo: 'nome fora do padrão esperado'
+      valid: true,
+      persistir: false,
+      destino: SYSTEM_PATHS.IMAGENS_REJEITADAS_IMG,
+      tipo: 'img',
+      motivo: 'arquivo svg não reconhecido enviado para quarentena'
     };
   },
 
@@ -534,14 +638,17 @@ export const imagensService = {
     const lower = nome.toLowerCase();
 
     if (lower.startsWith('avt_')) return 'avatar';
-    if (lower.startsWith('fot_')) return 'foto';
     if (lower.startsWith('btn_')) return 'botao';
+    if (lower.startsWith('ft_')) return 'foto';
     if (lower.startsWith('lg_')) return 'logo';
     if (lower.startsWith('pnl_')) return 'painel';
 
     return 'img';
   },
 
+  // ============================================================
+  // * FILE SYSTEM *
+  // ============================================================
   writeSvgToDisk(fullPath: string, svg: string): void {
     const dir = path.dirname(fullPath);
 
@@ -552,6 +659,36 @@ export const imagensService = {
     fs.writeFileSync(fullPath, svg, 'utf8');
   },
 
+  copyFileToDisk(sourcePath: string, destPath: string): void {
+    const dir = path.dirname(destPath);
+
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    fs.copyFileSync(sourcePath, destPath);
+  },
+
+  resolveDestinationPath(destino: string, nome: string, avoidOverwrite = false): string {
+    const parsed = path.parse(nome);
+    let finalPath = path.join(destino, nome);
+
+    if (!avoidOverwrite || !fs.existsSync(finalPath)) {
+      return finalPath;
+    }
+
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[-:.TZ]/g, '');
+
+    finalPath = path.join(
+      destino,
+      `${parsed.name}_${timestamp}${parsed.ext}`
+    );
+
+    return finalPath;
+  },
+
   async syncFolderWithDatabase(folderPath: string): Promise<number> {
     const allFiles = this.walkFiles(folderPath);
     const registrosPreparados: ImagemRegistro[] = [];
@@ -560,10 +697,12 @@ export const imagensService = {
       const nome = path.basename(filePath);
       const classificacao = this.classifyExtractedFile(nome);
 
-      if (!classificacao.valid || !classificacao.tipo) {
-        console.warn(
-          `>>> [imagensService][ARQUIVO INVÁLIDO] ignorado: ${filePath} | motivo: ${classificacao.motivo}`
-        );
+      if (
+        !classificacao.valid ||
+        !classificacao.tipo ||
+        !classificacao.destino ||
+        classificacao.persistir === false
+      ) {
         continue;
       }
 
@@ -575,23 +714,19 @@ export const imagensService = {
           tipo: classificacao.tipo,
           path_origem: filePath,
           path_dest: filePath,
+          public_url: this.buildPublicUrl(filePath),
           svg,
           createdBy: 0,
-          updatedBy: 0
+          updatedBy: 0,
+          persistir: true
         });
-      } catch (error) {
-        console.error(
-          `>>> [imagensService][ERRO] falha ao ler arquivo: ${filePath}`,
-          error
-        );
+      } catch {
+        continue;
       }
     }
 
-    console.log(
-      `>>> [imagensService] registros preparados da pasta ${folderPath}: ${registrosPreparados.length}`
-    );
-
     await this.persistirSeed(registrosPreparados);
+
     return registrosPreparados.length;
   },
 
@@ -599,7 +734,14 @@ export const imagensService = {
     await this.ensureConnection();
 
     const rows: ImagemDbRow[] = await AppDataSource.query(`
-      SELECT id, nome, tipo, path_origem, path_dest, svg
+      SELECT
+        id,
+        nome,
+        tipo,
+        path_origem,
+        path_dest,
+        public_url,
+        svg
       FROM imagens
       ORDER BY id ASC
     `);
@@ -614,15 +756,11 @@ export const imagensService = {
       try {
         this.writeSvgToDisk(row.path_dest, row.svg);
         exportados++;
-      } catch (error) {
-        console.error(
-          `>>> [imagensService] erro ao exportar arquivo ${row.nome} para ${row.path_dest}`,
-          error
-        );
+      } catch {
+        continue;
       }
     }
 
-    console.log(`>>> [imagensService] exportação concluída: ${exportados} arquivo(s)`);
     return exportados;
   },
 
@@ -657,615 +795,4 @@ export const imagensService = {
     return files;
   }
 };
-
-
-//  // C:\repository\proj-full-stack-backend\src\services\tables\imagens.service.ts
-// import fs from 'fs';
-// import path from 'path';
-// import os from 'os';
-// import { execFileSync } from 'child_process';
-
-// import { AppDataSource } from '../../config/db';
-// import { SYSTEM_PATHS } from '../../config/systemPaths';
-
-// type ImagemTipo = 'avatar' | 'foto' | 'botao' | 'logo' | 'painel' | 'img';
-
-// type ImagemRegistro = {
-//   nome: string;
-//   tipo: ImagemTipo;
-//   path_origem: string;
-//   path_dest: string;
-//   svg: string;
-//   createdBy: number;
-//   updatedBy: number;
-// };
-
-// type ImagemDbRow = {
-//   id: number;
-//   nome: string;
-//   tipo: string;
-//   path_origem: string | null;
-//   path_dest: string | null;
-//   svg: string;
-// };
-
-// type SeedItemValido = ImagemRegistro;
-
-// type SeedItemErro = {
-//   arquivo: string;
-//   origem?: string;
-//   motivo: string;
-// };
-
-// type SeedResultado = {
-//   zipLidos: string[];
-//   validos: SeedItemValido[];
-//   invalidos: SeedItemErro[];
-//   duplicados: SeedItemErro[];
-//   erros: SeedItemErro[];
-// };
-
-// export const imagensService = {
-//   tableName: 'imagens',
-
-//   async ensureConnection(): Promise<void> {
-//     if (!AppDataSource.isInitialized) {
-//       await AppDataSource.initialize();
-//     }
-//   },
-
-//   async create(): Promise<void> {
-//     await this.ensureConnection();
-//     console.log('>>> [imagensService] create() iniciado');
-
-//     await AppDataSource.query(`
-//       CREATE TABLE IF NOT EXISTS imagens (
-//         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-
-//         nome VARCHAR(180)
-//           NOT NULL
-//           COLLATE utf8mb4_general_ci,
-
-//         tipo VARCHAR(30)
-//           NOT NULL
-//           COLLATE utf8mb4_general_ci,
-
-//         path_origem VARCHAR(255)
-//           NULL
-//           COLLATE utf8mb4_general_ci,
-
-//         path_dest VARCHAR(255)
-//           NULL
-//           COLLATE utf8mb4_general_ci,
-
-//         svg LONGTEXT
-//           NOT NULL
-//           COLLATE utf8mb4_general_ci,
-
-//         createdBy INT UNSIGNED
-//           NOT NULL
-//           DEFAULT 0,
-
-//         createdAt DATETIME
-//           DEFAULT CURRENT_TIMESTAMP,
-
-//         updatedBy INT UNSIGNED
-//           NOT NULL
-//           DEFAULT 0,
-
-//         updatedAt DATETIME
-//           DEFAULT CURRENT_TIMESTAMP
-//           ON UPDATE CURRENT_TIMESTAMP,
-
-//         UNIQUE KEY uk_imagens_nome (nome)
-//       )
-//     `);
-
-//     console.log('>>> [imagensService] create() concluído');
-//   },
-
-//   async seed(): Promise<SeedResultado> {
-//     await this.ensureConnection();
-//     await this.create();
-
-//     console.log('>>> [imagensService] seed() iniciado');
-
-//     this.createFolders();
-
-//     const zipSourceDir = path.resolve(SYSTEM_PATHS.ZIP_SOURCE);
-//     const resultado = this.criarEstruturaResultado();
-
-//     if (!fs.existsSync(zipSourceDir)) {
-//       console.log(`>>> [imagensService] pasta ZIP não encontrada: ${zipSourceDir}`);
-//       return resultado;
-//     }
-
-//     const zipFiles = fs
-//       .readdirSync(zipSourceDir)
-//       .filter(file => file.toLowerCase().endsWith('.zip'));
-
-//     resultado.zipLidos = [...zipFiles];
-
-//     if (zipFiles.length === 0) {
-//       console.log('>>> [imagensService] nenhum .zip encontrado para processar');
-//       return resultado;
-//     }
-
-//     const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sgb-imagens-zip-'));
-
-//     try {
-//       for (const zipName of zipFiles) {
-//         const zipFullPath = path.join(zipSourceDir, zipName);
-//         const extractDir = path.join(
-//           tempRoot,
-//           path.basename(zipName, path.extname(zipName))
-//         );
-
-//         fs.mkdirSync(extractDir, { recursive: true });
-
-//         try {
-//           this.extractZip(zipFullPath, extractDir);
-//         } catch (error: any) {
-//           resultado.erros.push({
-//             arquivo: zipName,
-//             origem: zipFullPath,
-//             motivo: `falha ao descompactar: ${error?.message ?? 'erro desconhecido'}`
-//           });
-//           continue;
-//         }
-
-//         const extractedFiles = this.walkFiles(extractDir);
-
-//         if (extractedFiles.length === 0) {
-//           resultado.invalidos.push({
-//             arquivo: zipName,
-//             origem: zipFullPath,
-//             motivo: 'zip sem arquivos após descompactação'
-//           });
-//           continue;
-//         }
-
-//         for (const filePath of extractedFiles) {
-//           const nome = path.basename(filePath);
-
-//           const classificacao = this.classifyExtractedFile(nome);
-
-//           if (!classificacao.valid || !classificacao.destino || !classificacao.tipo) {
-//             resultado.invalidos.push({
-//               arquivo: nome,
-//               origem: filePath,
-//               motivo: classificacao.motivo ?? 'arquivo fora do padrão'
-//             });
-//             continue;
-//           }
-
-//           const finalPath = path.join(classificacao.destino, nome);
-
-//           if (fs.existsSync(finalPath)) {
-//             resultado.duplicados.push({
-//               arquivo: nome,
-//               origem: finalPath,
-//               motivo: 'arquivo já existe na pasta destino'
-//             });
-//             continue;
-//           }
-
-//           if (
-//             resultado.validos.some(
-//               item => item.nome.toLowerCase() === nome.toLowerCase()
-//             )
-//           ) {
-//             resultado.duplicados.push({
-//               arquivo: nome,
-//               origem: filePath,
-//               motivo: 'arquivo duplicado dentro do processamento atual'
-//             });
-//             continue;
-//           }
-
-//           try {
-//             const svg = fs.readFileSync(filePath, 'utf8');
-
-//             resultado.validos.push({
-//               nome,
-//               tipo: classificacao.tipo,
-//               path_origem: filePath,
-//               path_dest: finalPath,
-//               svg,
-//               createdBy: 0,
-//               updatedBy: 0
-//             });
-//           } catch (error: any) {
-//             resultado.erros.push({
-//               arquivo: nome,
-//               origem: filePath,
-//               motivo: `falha ao ler arquivo: ${error?.message ?? 'erro desconhecido'}`
-//             });
-//           }
-//         }
-//       }
-
-//       this.printSeedReport(resultado);
-
-//       if (resultado.validos.length === 0) {
-//         console.log('>>> [imagensService] nenhum arquivo válido encontrado para seed');
-//         return resultado;
-//       }
-
-//       for (const item of resultado.validos) {
-//         try {
-//           this.writeSvgToDisk(item.path_dest, item.svg);
-//         } catch (error: any) {
-//           resultado.erros.push({
-//             arquivo: item.nome,
-//             origem: item.path_dest,
-//             motivo: `falha ao gravar em disco: ${error?.message ?? 'erro desconhecido'}`
-//           });
-//         }
-//       }
-
-//       if (resultado.erros.length > 0) {
-//         console.log('>>> [imagensService] erros após gravação em disco:');
-//         console.table(resultado.erros);
-//       }
-
-//       await this.persistirSeed(resultado.validos);
-
-//       console.log('>>> [imagensService] seed() concluído');
-//       return resultado;
-//     } finally {
-//       try {
-//         fs.rmSync(tempRoot, { recursive: true, force: true });
-//       } catch {
-//         // silencioso
-//       }
-//     }
-//   },
-
-//   async persistirSeed(items: SeedItemValido[]): Promise<void> {
-//     for (const item of items) {
-//       const existingRows: ImagemDbRow[] = await AppDataSource.query(
-//         `
-//         SELECT id, nome, tipo, path_origem, path_dest, svg
-//         FROM imagens
-//         WHERE nome = ?
-//         LIMIT 1
-//         `,
-//         [item.nome]
-//       );
-
-//       const existente = existingRows[0];
-
-//       if (!existente) {
-//         await AppDataSource.query(
-//           `
-//           INSERT INTO imagens
-//             (nome, tipo, path_origem, path_dest, svg, createdBy, updatedBy)
-//           VALUES
-//             (?, ?, ?, ?, ?, ?, ?)
-//           `,
-//           [
-//             item.nome,
-//             item.tipo,
-//             item.path_origem,
-//             item.path_dest,
-//             item.svg,
-//             item.createdBy,
-//             item.updatedBy
-//           ]
-//         );
-
-//         console.log(`>>> [imagensService] INSERT imagem: ${item.nome} (${item.tipo})`);
-//         continue;
-//       }
-
-//       const changed =
-//         existente.svg !== item.svg ||
-//         existente.tipo !== item.tipo ||
-//         (existente.path_origem ?? '') !== item.path_origem ||
-//         (existente.path_dest ?? '') !== item.path_dest;
-
-//       if (!changed) {
-//         console.log(`>>> [imagensService] sem alterações no banco: ${item.nome}`);
-//         continue;
-//       }
-
-//       await AppDataSource.query(
-//         `
-//         UPDATE imagens
-//            SET tipo = ?,
-//                path_origem = ?,
-//                path_dest = ?,
-//                svg = ?,
-//                updatedBy = ?,
-//                updatedAt = CURRENT_TIMESTAMP
-//          WHERE id = ?
-//         `,
-//         [
-//           item.tipo,
-//           item.path_origem,
-//           item.path_dest,
-//           item.svg,
-//           item.updatedBy,
-//           existente.id
-//         ]
-//       );
-
-//       console.log(`>>> [imagensService] UPDATE imagem: ${item.nome} (${item.tipo})`);
-//     }
-//   },
-
-//   criarEstruturaResultado(): SeedResultado {
-//     return {
-//       zipLidos: [],
-//       validos: [],
-//       invalidos: [],
-//       duplicados: [],
-//       erros: []
-//     };
-//   },
-
-//   printSeedReport(resultado: SeedResultado): void {
-//     console.log('>>> [imagensService] resumo do seed');
-//     console.log(`>>> zips lidos: ${resultado.zipLidos.length}`);
-//     console.log(`>>> válidos: ${resultado.validos.length}`);
-//     console.log(`>>> inválidos: ${resultado.invalidos.length}`);
-//     console.log(`>>> duplicados: ${resultado.duplicados.length}`);
-//     console.log(`>>> erros: ${resultado.erros.length}`);
-
-//     if (resultado.zipLidos.length > 0) {
-//       console.log('>>> [imagensService] zips encontrados:');
-//       console.table(resultado.zipLidos.map(zip => ({ zip })));
-//     }
-
-//     if (resultado.validos.length > 0) {
-//       console.log('>>> [imagensService] arquivos válidos:');
-//       console.table(
-//         resultado.validos.map(item => ({
-//           nome: item.nome,
-//           tipo: item.tipo,
-//           path_dest: item.path_dest
-//         }))
-//       );
-//     }
-
-//     if (resultado.invalidos.length > 0) {
-//       console.log('>>> [imagensService] arquivos inválidos:');
-//       console.table(resultado.invalidos);
-//     }
-
-//     if (resultado.duplicados.length > 0) {
-//       console.log('>>> [imagensService] arquivos duplicados:');
-//       console.table(resultado.duplicados);
-//     }
-
-//     if (resultado.erros.length > 0) {
-//       console.log('>>> [imagensService] erros encontrados:');
-//       console.table(resultado.erros);
-//     }
-//   },
-
-//   async count(): Promise<number> {
-//     await this.ensureConnection();
-
-//     const result = await AppDataSource.query(`
-//       SELECT COUNT(*) AS total
-//       FROM imagens
-//     `);
-
-//     const total = Number(result?.[0]?.total ?? 0);
-//     console.log('>>> [imagensService] total de registros:', total);
-
-//     return total;
-//   },
-
-//   async update(): Promise<void> {
-//     console.log('>>> [imagensService] update() reservado');
-//   },
-
-//   createFolders(): void {
-//     const dirs = [
-//       SYSTEM_PATHS.IMAGENS_BASE,
-//       SYSTEM_PATHS.IMAGENS_DEFAULT,
-//       SYSTEM_PATHS.IMAGENS_FOTO,
-//       SYSTEM_PATHS.IMAGENS_IMG,
-//       SYSTEM_PATHS.ZIP_SOURCE
-//     ];
-
-//     for (const dir of dirs) {
-//       if (!fs.existsSync(dir)) {
-//         fs.mkdirSync(dir, { recursive: true });
-//         console.log(`>>> [imagensService] pasta criada: ${dir}`);
-//       }
-//     }
-//   },
-
-//   classifyExtractedFile(
-//     fileName: string
-//   ): {
-//     valid: boolean;
-//     destino?: string;
-//     tipo?: ImagemTipo;
-//     motivo?: string;
-//   } {
-//     const lower = fileName.toLowerCase();
-
-//     if (!lower.endsWith('.svg')) {
-//       return {
-//         valid: false,
-//         motivo: 'extensão inválida, somente .svg é permitido'
-//       };
-//     }
-
-//     if (
-//       (lower.startsWith('avt_') ||
-//         lower.startsWith('btn_') ||
-//         lower.startsWith('lg_') ||
-//         lower.startsWith('pnl_')) &&
-//       lower.includes('_def_')
-//     ) {
-//       return {
-//         valid: true,
-//         destino: SYSTEM_PATHS.IMAGENS_DEFAULT,
-//         tipo: this.detectTipo(lower)
-//       };
-//     }
-
-//     if (lower.startsWith('fot_')) {
-//       return {
-//         valid: true,
-//         destino: SYSTEM_PATHS.IMAGENS_FOTO,
-//         tipo: this.detectTipo(lower)
-//       };
-//     }
-
-//     if (lower.startsWith('img_')) {
-//       return {
-//         valid: true,
-//         destino: SYSTEM_PATHS.IMAGENS_IMG,
-//         tipo: this.detectTipo(lower)
-//       };
-//     }
-
-//     if (
-//       lower.startsWith('avt_') ||
-//       lower.startsWith('btn_') ||
-//       lower.startsWith('lg_') ||
-//       lower.startsWith('pnl_')
-//     ) {
-//       return {
-//         valid: false,
-//         motivo: 'arquivo de default precisa conter _def_ no nome'
-//       };
-//     }
-
-//     return {
-//       valid: false,
-//       motivo: 'nome fora do padrão esperado'
-//     };
-//   },
-
-//   detectTipo(nome: string): ImagemTipo {
-//     const lower = nome.toLowerCase();
-
-//     if (lower.startsWith('avt_')) return 'avatar';
-//     if (lower.startsWith('fot_')) return 'foto';
-//     if (lower.startsWith('btn_')) return 'botao';
-//     if (lower.startsWith('lg_')) return 'logo';
-//     if (lower.startsWith('pnl_')) return 'painel';
-
-//     return 'img';
-//   },
-
-//   writeSvgToDisk(fullPath: string, svg: string): void {
-//     const dir = path.dirname(fullPath);
-
-//     if (!fs.existsSync(dir)) {
-//       fs.mkdirSync(dir, { recursive: true });
-//     }
-
-//     fs.writeFileSync(fullPath, svg, 'utf8');
-//   },
-
-//   async syncFolderWithDatabase(folderPath: string): Promise<void> {
-//     const allFiles = this.walkFiles(folderPath);
-//     const registrosPreparados: ImagemRegistro[] = [];
-
-//     for (const filePath of allFiles) {
-//       const nome = path.basename(filePath);
-
-//       const classificacao = this.classifyExtractedFile(nome);
-
-//       if (!classificacao.valid || !classificacao.tipo) {
-//         console.warn(
-//           `>>> [imagensService][ARQUIVO INVÁLIDO] ignorado: ${filePath} | motivo: ${classificacao.motivo}`
-//         );
-//         continue;
-//       }
-
-//       try {
-//         const svg = fs.readFileSync(filePath, 'utf8');
-
-//         registrosPreparados.push({
-//           nome,
-//           tipo: classificacao.tipo,
-//           path_origem: filePath,
-//           path_dest: filePath,
-//           svg,
-//           createdBy: 0,
-//           updatedBy: 0
-//         });
-//       } catch (error) {
-//         console.error(
-//           `>>> [imagensService][ERRO] falha ao ler arquivo: ${filePath}`,
-//           error
-//         );
-//       }
-//     }
-
-//     console.log(
-//       `>>> [imagensService] registros preparados da pasta ${folderPath}: ${registrosPreparados.length}`
-//     );
-
-//     await this.persistirSeed(registrosPreparados);
-//   },
-
-//   async exportAllFromDbToDisk(): Promise<void> {
-//     await this.ensureConnection();
-
-//     const rows: ImagemDbRow[] = await AppDataSource.query(`
-//       SELECT id, nome, tipo, path_origem, path_dest, svg
-//       FROM imagens
-//       ORDER BY id ASC
-//     `);
-
-//     for (const row of rows) {
-//       if (!row.path_dest || row.path_dest.trim() === '') {
-//         continue;
-//       }
-
-//       try {
-//         this.writeSvgToDisk(row.path_dest, row.svg);
-//       } catch (error) {
-//         console.error(
-//           `>>> [imagensService] erro ao exportar arquivo ${row.nome} para ${row.path_dest}`,
-//           error
-//         );
-//       }
-//     }
-
-//     console.log(`>>> [imagensService] exportação concluída: ${rows.length} arquivo(s)`);
-//   },
-
-//   extractZip(zipFullPath: string, extractDir: string): void {
-//     execFileSync(
-//       'powershell',
-//       [
-//         '-NoProfile',
-//         '-Command',
-//         `Expand-Archive -LiteralPath '${zipFullPath.replace(/'/g, "''")}' -DestinationPath '${extractDir.replace(/'/g, "''")}' -Force`
-//       ],
-//       { stdio: 'ignore' }
-//     );
-//   },
-
-//   walkFiles(dir: string): string[] {
-//     if (!fs.existsSync(dir)) return [];
-
-//     const entries = fs.readdirSync(dir, { withFileTypes: true });
-//     const files: string[] = [];
-
-//     for (const entry of entries) {
-//       const fullPath = path.join(dir, entry.name);
-
-//       if (entry.isDirectory()) {
-//         files.push(...this.walkFiles(fullPath));
-//       } else {
-//         files.push(fullPath);
-//       }
-//     }
-
-//     return files;
-//   }
-// };
 

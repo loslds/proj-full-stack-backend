@@ -50,6 +50,15 @@ export class ImagensEntity {
   path_dest: string | null;
 
   @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    default: null,
+    collation: 'utf8mb4_general_ci'
+  })
+  public_url: string | null;
+
+  @Column({
     type: 'longtext',
     nullable: false,
     collation: 'utf8mb4_general_ci'

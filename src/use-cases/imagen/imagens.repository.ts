@@ -42,6 +42,10 @@ export class ImagensRepository {
           NULL
           COLLATE utf8mb4_general_ci,
 
+        public_url VARCHAR(255)
+          NULL
+          COLLATE utf8mb4_general_ci,
+
         svg LONGTEXT
           NOT NULL
           COLLATE utf8mb4_general_ci,
@@ -176,6 +180,7 @@ export class ImagensRepository {
         'imagens.tipo',
         'imagens.path_origem',
         'imagens.path_dest',
+        'imagens.public_url',
         'imagens.createdAt',
         'imagens.updatedAt'
       ])
@@ -207,7 +212,10 @@ export class ImagensRepository {
         'imagens.id',
         'imagens.nome',
         'imagens.tipo',
-        'imagens.path_dest'
+        'imagens.path_dest',
+        'imagens.public_url',
+        'imagens.createdAt',
+        'imagens.updatedAt'
       ])
       .orderBy('imagens.id', 'ASC')
       .limit(100);
@@ -228,7 +236,10 @@ export class ImagensRepository {
         'imagens.id',
         'imagens.nome',
         'imagens.tipo',
-        'imagens.path_dest'
+        'imagens.path_dest',
+        'imagens.public_url',
+        'imagens.createdAt',
+        'imagens.updatedAt'
       ])
       .orderBy('imagens.id', 'ASC')
       .limit(100);
@@ -268,6 +279,14 @@ export class ImagensRepository {
 
   async findOnePathDestImagens(path_dest: string): Promise<ImagensEntity | null> {
     return this.repo.findOne({ where: { path_dest } });
+  }
+
+  async findonePublicUrlImagens(public_url: string): Promise<ImagensEntity | null> {
+    return this.repo.findOne({ where: { public_url } });
+  }
+
+  async findAllPublicUrlImagens(public_url: string): Promise<ImagensEntity[]> {
+    return this.repo.find({ where: { public_url } });
   }
 
   // ============================================================

@@ -367,4 +367,44 @@ export class ImagensController {
       next(error);
     }
   }
+
+  async getOnePublicUrlImagens(req: Request, res: Response): Promise<Response> {
+  try {
+    const { public_url } = req.query;
+
+    if (typeof public_url !== 'string' || !public_url.trim()) {
+      return res.status(400).json({
+        message: 'public_url é obrigatório.'
+      });
+    }
+
+    const imagem = await this.imagensRepository.findonePublicUrlImagens(public_url);
+
+    return res.status(200).json(imagem);
+  } catch (error) {
+    return res.status(500).json({
+      message: error instanceof Error ? error.message : 'Erro interno.'
+    });
+  }
+}
+
+async getAllPublicUrlImagens(req: Request, res: Response): Promise<Response> {
+  try {
+    const { public_url } = req.query;
+
+    if (typeof public_url !== 'string' || !public_url.trim()) {
+      return res.status(400).json({
+        message: 'public_url é obrigatório.'
+      });
+    }
+
+    const imagens = await this.imagensRepository.findAllPublicUrlImagens(public_url);
+
+    return res.status(200).json(imagens);
+  } catch (error) {
+    return res.status(500).json({
+      message: error instanceof Error ? error.message : 'Erro interno.'
+    });
+  }
+}
 }

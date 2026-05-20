@@ -57,4 +57,9 @@ imagensRoute.get('/all-tipo', controller.findAllTipoImagens.bind(controller));
 // 13 - GET -> Busca uma imagem por path_dest
 imagensRoute.get('/one-path-dest', controller.findOnePathDestImagens.bind(controller));
 
+// 13 - GET -> Busca uma imagem por public_url
+imagensRoute.get('/public-url/one', controller.getOnePublicUrlImagens.bind(controller));
+// 13 - GET -> Busca todas imagem por public_url
+imagensRoute.get('/public-url/all', controller.getAllPublicUrlImagens.bind(controller));
+
 export { imagensRoute as imagensRoutes };
