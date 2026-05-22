@@ -3,6 +3,9 @@
 
 import { AppDataSource } from '../../config/db';
 
+let createLogged = false;
+let countLogged = false;
+
 export const pergsrespsService = {
   tableName: 'pergsresps',
 
@@ -20,10 +23,12 @@ export const pergsrespsService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-    console.log(`>>> [${this.tableName}Service] create() iniciado`);
+console.log(`>>> [${this.tableName}Service] Iniciado`);
+
+//    console.log(`>>> [${this.tableName}Service] create() iniciado`);
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-    console.log(`>>> [${this.tableName}Service] banco atual:`, currentDb);
+    //console.log(`>>> [${this.tableName}Service] banco atual:`, currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
@@ -82,7 +87,7 @@ export const pergsrespsService = {
       )
     `);
 
-    console.log(`>>> [${this.tableName}Service] create() concluído`);
+    //console.log(`>>> [${this.tableName}Service] create() concluído`);
   },
 
   // ============================================================
@@ -98,10 +103,7 @@ export const pergsrespsService = {
 
     const total = Number(result?.[0]?.total ?? 0);
 
-    console.log(
-      `>>> [${this.tableName}Service] total de registros:`,
-      total
-    );
+console.log(`>>> [${this.tableName}Service] total de registros:`, total);
 
     return total;
   },

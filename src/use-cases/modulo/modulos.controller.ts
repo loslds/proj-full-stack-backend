@@ -17,7 +17,7 @@ export class ModulosController {
     try {
       const modulos = await this.modulosRepository.findModulosAll(
         undefined,
-        { name: 'ASC' }
+        { nome: 'ASC' }
       );
 
       return res.status(200).send({ success: true, modulos });
@@ -26,14 +26,14 @@ export class ModulosController {
     }
   }
 
-  /** GET → Pesquisa combinada por id e name */
+  /** GET → Pesquisa combinada por id e nome */
   async searchModulosAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id, name } = req.query;
+      const { id, nome } = req.query;
 
       const modulos = await this.modulosRepository.searchModulos({
         id: id ? Number(id) : undefined,
-        name: name ? String(name) : undefined
+        nome: nome ? String(nome) : undefined
       });
 
       return res.status(200).send({ success: true, modulos });
@@ -42,7 +42,7 @@ export class ModulosController {
     }
   }
 
-  /** GET → Busca por name aproximado */
+  /** GET → Busca por nome aproximado */
   async searchModulosName(req: Request, res: Response, next: NextFunction) {
     try {
       const text = req.query.text ? String(req.query.text) : undefined;
@@ -54,16 +54,16 @@ export class ModulosController {
     }
   }
 
-  /** GET → Buscar um módulo pelo name exato */
+  /** GET → Buscar um módulo pelo nome exato */
   async findOneModulosName(req: Request, res: Response, next: NextFunction) {
     try {
-      const name = req.query?.name as string;
+      const nome = req.query?.nome as string;
 
-      if (!name) {
-        throw new HttpException(400, "Parâmetro 'name' é obrigatório");
+      if (!nome) {
+        throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
       }
 
-      const modulos = await this.modulosRepository.findOneNameModulos(name);
+      const modulos = await this.modulosRepository.findOneNameModulos(nome);
 
       return res.status(200).send({ success: true, modulos });
     } catch (error) {
@@ -71,16 +71,16 @@ export class ModulosController {
     }
   }
 
-  /** GET → Buscar todos os módulos com name exato */
+  /** GET → Buscar todos os módulos com nome exato */
   async findAllModulosName(req: Request, res: Response, next: NextFunction) {
     try {
-      const name = req.query?.name as string;
+      const nome = req.query?.nome as string;
 
-      if (!name) {
-        throw new HttpException(400, "Parâmetro 'name' é obrigatório");
+      if (!nome) {
+        throw new HttpException(400, "Parâmetro 'nome' é obrigatório");
       }
 
-      const modulos = await this.modulosRepository.findAllNameModulos(name);
+      const modulos = await this.modulosRepository.findAllNameModulos(nome);
 
       return res.status(200).send({
         success: true,
@@ -103,10 +103,10 @@ export class ModulosController {
     next: NextFunction
   ) {
     try {
-      const { name } = req.body;
+      const { nome } = req.body;
 
-      if (!name) {
-        throw new HttpException(400, 'Name do módulo é obrigatório');
+      if (!nome) {
+        throw new HttpException(400, 'Nome do módulo é obrigatório');
       }
 
       const modulos = await this.modulosRepository.createModulos(req.body);

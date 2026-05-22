@@ -42,7 +42,7 @@ indexGridRoute.use("/clientes", clientesRoutes);
 indexGridRoute.use("/fornecedores", fornecedoresRoutes);
 indexGridRoute.use("/funcionarios", funcionariosRoutes);
 indexGridRoute.use("/cadastros", cadastrosRoutes);
-indexGridRoute.use("/imagens", imagensRoutes);
+//indexGridRoute.use("/imagens", imagensRoutes);
 indexGridRoute.use("/emails", emailsRoutes);
 indexGridRoute.use("/docs", docsRoutes);
 indexGridRoute.use("/fones", fonesRoutes);
@@ -55,5 +55,6 @@ indexGridRoute.use("/logins", loginsRoutes);
 indexGridRoute.use("/chaves", chavesRoutes);
 indexGridRoute.use("/acessos", acessosRoutes);
 indexGridRoute.use("/pergsresps", pergsrespsRoutes);
+indexGridRoute.use("/imagens", imagensRoutes);
 
 export { indexGridRoute };

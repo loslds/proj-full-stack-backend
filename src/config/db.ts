@@ -2,15 +2,9 @@
 //C:\repository\proj-full-stack-backend\src\config\db.ts
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
+
 import { SystablesEntity } from '../use-cases/systable/systables.entity';
 import { PessoasEntity } from './../use-cases/pessoa/pessoas.entity';
-import { EstadosEntity } from './../use-cases/estado/estados.entity';
-import { CidadesEntity } from './../use-cases/cidade/cidades.entity';
-import { ImagensEntity } from './../use-cases/imagen/imagens.entity';
-import { ModulosEntity } from './../use-cases/modulo/modulos.entity';
-import { CargosEntity } from './../use-cases/cargo/cargos.entity';
-import { AcoesEntity } from './../use-cases/acao/acoes.entity';
-import { PerguntasEntity } from './../use-cases/perguntas/perguntas.entity';
 import { EmpresasEntity } from './../use-cases/empresa/empresas.entity';
 import { VisitantesEntity } from './../use-cases/visitante/visitantes.entity';
 import { VisitasEntity } from './../use-cases/visita/visitas.entity';
@@ -19,9 +13,22 @@ import { ClientesEntity } from './../use-cases/cliente/clientes.entity';
 import { FornecedoresEntity } from './../use-cases/fornecedor/fornecedores.entity';
 import { FuncionariosEntity } from './../use-cases/funcionario/funcionarios.entity';
 import { CadastrosEntity } from './../use-cases/cadastro/cadastros.entity';
+import { EstadosEntity } from './../use-cases/estado/estados.entity';
+import { CidadesEntity } from './../use-cases/cidade/cidades.entity';
+import { ImagensEntity } from './../use-cases/imagen/imagens.entity';
 import { EmailsEntity } from './../use-cases/email/emails.entity';
 import { DocsEntity } from './../use-cases/doc/docs.entity';
 import { FonesEntity } from './../use-cases/fone/fones.entity';
+import { ModulosEntity } from './../use-cases/modulo/modulos.entity';
+import { CargosEntity } from './../use-cases/cargo/cargos.entity';
+import { AcoesEntity } from './../use-cases/acao/acoes.entity';
+import { PerguntasEntity } from './../use-cases/perguntas/perguntas.entity';
+
+import { UsersEntity } from './../use-cases/user/users.entity';
+import { LoginsEntity } from './../use-cases/login/logins.entity';
+import { AcessosEntity } from './../use-cases/acesso/acessos.entity';  
+import { ChavesEntity } from './../use-cases/chave/chaves.entity';
+import { PergsrespsEntity } from './../use-cases/pergresp/pergsresps.entity';
 
 export const dbConfig = {
   host: process.env.DB_HOST ?? 'localhost',
@@ -45,14 +52,7 @@ export const AppDataSource = new DataSource({
   entities: [
     SystablesEntity,
     PessoasEntity,
-    EstadosEntity,
-    CidadesEntity,
-    ImagensEntity,
-    ModulosEntity,
-    CargosEntity,
-    AcoesEntity,
-    PerguntasEntity,
-    EmpresasEntity, 
+    EmpresasEntity,
     VisitantesEntity,
     VisitasEntity,      
     ConsumidoresEntity,
@@ -60,13 +60,24 @@ export const AppDataSource = new DataSource({
     FornecedoresEntity,
     FuncionariosEntity,
     CadastrosEntity,
+    EstadosEntity,
+    CidadesEntity,
     EmailsEntity,
     DocsEntity,
     FonesEntity,
-      
+    ImagensEntity,
+    ModulosEntity,
+    CargosEntity,
+    AcoesEntity,
+    PerguntasEntity,
+    UsersEntity,
+    LoginsEntity,
+    AcessosEntity,  
+    ChavesEntity,
+    PergsrespsEntity,
   ],
   synchronize: true,
-  logging: true,
+  logging: ["error"],
 });
 
 

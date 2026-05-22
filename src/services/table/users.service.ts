@@ -3,6 +3,9 @@
 
 import { AppDataSource } from '../../config/db';
 
+let createLogged = false;
+let countLogged = false;
+
 export const usersService = {
   tableName: 'users',
 
@@ -20,10 +23,12 @@ export const usersService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-console.log(`>>> [${this.tableName}Service] create() iniciado`);
+    console.log(`>>> [${this.tableName}Service] Iniciado`);
+
+//console.log(`>>> [${this.tableName}Service] create() iniciado`);
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-console.log(`>>> [${this.tableName}Service] banco atual:`, currentDb);
+//console.log(`>>> [${this.tableName}Service] banco atual:`, currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
@@ -69,7 +74,7 @@ console.log(`>>> [${this.tableName}Service] banco atual:`, currentDb);
       )
     `);
 
-console.log(`>>> [${this.tableName}Service] create() concluído`);
+//console.log(`>>> [${this.tableName}Service] create() concluído`);
   },
 
   // ============================================================

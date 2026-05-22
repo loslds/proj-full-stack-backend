@@ -5,6 +5,9 @@
 import { AppDataSource } from '../../config/db';
 import { cidadesSeed } from './seed/cidades.seed';
 
+let createLogged = false;
+let countLogged = false;
+
 type CidadeSeedRow = {
   nome: string;
   id_estados: number;
@@ -30,10 +33,12 @@ export const cidadesService = {
 
   async create(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [cidadesService] create() iniciado');
+console.log('>>> [cidadesService] Iniciado Serviços');
+
+// console.log('>>> [cidadesService] create() iniciado');
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-    console.log('>>> [cidadesService] banco atual:', currentDb);
+//  console.log('>>> [cidadesService] banco atual:', currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS cidades (
@@ -70,12 +75,12 @@ export const cidadesService = {
       )
     `);
 
-    console.log('>>> [cidadesService] create() concluído');
+//console.log('>>> [cidadesService] create() concluído');
   },
 
   async seed(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [cidadesService] seed() iniciado');
+//  console.log('>>> [cidadesService] seed() iniciado');
 
     const BATCH_SIZE = 150;
     const rows: Array<[string, number, number, number]> = [];
@@ -113,8 +118,8 @@ export const cidadesService = {
     console.log(`>>> [cidadesService] registros com erro: ${registrosComErro.length}`);
 
     if (registrosComErro.length > 0) {
-      console.log('>>> [cidadesService] resumo dos registros com erro:');
-      console.table(registrosComErro);
+//      console.log('>>> [cidadesService] resumo dos registros com erro:');
+//      console.table(registrosComErro);
     }
 
     for (let i = 0; i < rows.length; i += BATCH_SIZE) {
@@ -134,12 +139,10 @@ export const cidadesService = {
         values
       );
 
-      console.log(
-        `>>> [cidadesService] lote inserido: ${i + 1} até ${i + batch.length}`
-      );
+//    console.log(`>>> [cidadesService] lote inserido: ${i + 1} até ${i + batch.length}`);
     }
 
-    console.log('>>> [cidadesService] seed() concluído');
+//    console.log('>>> [cidadesService] seed() concluído');
   },
 
   async count(): Promise<number> {
@@ -151,7 +154,7 @@ export const cidadesService = {
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
-    console.log('>>> [cidadesService] total de registros:', total);
+console.log('>>> [cidadesService] total de registros:', total);
 
     return total;
   },

@@ -31,21 +31,21 @@ modulosRoute.get(
   controller.searchModulosAll.bind(controller)
 );
 
-// GET -> Pesquisa por name aproximado
+// GET -> Pesquisa por nome aproximado
 modulosRoute.get(
-  '/search-name',
+  '/search-nome',
   controller.searchModulosName.bind(controller)
 );
 
-// GET -> Busca um módulo por name exato
+// GET -> Busca um módulo por nome exato
 modulosRoute.get(
-  '/one-name',
+  '/one-nome',
   controller.findOneModulosName.bind(controller)
 );
 
-// GET -> Busca todos os módulos por name exato
+// GET -> Busca todos os módulos por nome exato
 modulosRoute.get(
-  '/all-name',
+  '/all-nome',
   controller.findAllModulosName.bind(controller)
 );
 

@@ -4,6 +4,9 @@
 import { AppDataSource } from '../../config/db';
 import { acoesSeed } from './seed/acoes.seed';
 
+let createLogged = false;
+let countLogged = false;
+
 type AcaoSeedRow = {
   nome: string;
   abrev: string;
@@ -33,10 +36,11 @@ export const acoesService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [acoesService] create() iniciado');
+console.log(`>>> [${this.tableName}Service] Iniciado`);
+  //console.log('>>> [acoesService] create() iniciado');
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-    console.log('>>> [acoesService] banco atual:', currentDb);
+    //console.log('>>> [acoesService] banco atual:', currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS acoes (
@@ -78,7 +82,7 @@ export const acoesService = {
       )
     `);
 
-    console.log('>>> [acoesService] create() concluído');
+    //console.log('>>> [acoesService] create() concluído');
   },
 
   // ============================================================
@@ -86,7 +90,7 @@ export const acoesService = {
   // ============================================================
   async seed(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [acoesService] seed() iniciado');
+    //console.log('>>> [acoesService] seed() iniciado');
 
     const BATCH_SIZE = 50;
     const rows: Array<[string, string, string, number, number, number]> = [];
@@ -154,12 +158,10 @@ export const acoesService = {
         values
       );
 
-      console.log(
-        `>>> [acoesService] lote inserido: ${i + 1} até ${i + batch.length}`
-      );
+  //    console.log( `>>> [acoesService] lote inserido: ${i + 1} até ${i + batch.length}` );
     }
 
-    console.log('>>> [acoesService] seed() concluído');
+    //console.log('>>> [acoesService] seed() concluído');
   },
 
   // ============================================================

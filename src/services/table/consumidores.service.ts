@@ -1,8 +1,9 @@
 
-
-
 // C:\repository\proj-full-stack-backend\src\services\table\consumidores.service.ts
 import { AppDataSource } from '../../config/db';
+
+let createLogged = false;
+let countLogged = false;
 
 export const consumidoresService = {
   tableName: 'consumidores',
@@ -21,10 +22,12 @@ export const consumidoresService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-    console.log(`>>> [${this.tableName}Service] create() iniciado`);
+        console.log(`>>> [${this.tableName}Service] Iniciado`);
+
+    //console.log(`>>> [${this.tableName}Service] create() iniciado`);
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-    console.log(`>>> [${this.tableName}Service] banco atual:`, currentDb);
+    //console.log(`>>> [${this.tableName}Service] banco atual:`, currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
@@ -77,7 +80,7 @@ export const consumidoresService = {
       )
     `);
 
-    console.log(`>>> [${this.tableName}Service] create() concluído`);
+    //console.log(`>>> [${this.tableName}Service] create() concluído`);
   },
 
   // ============================================================
@@ -92,7 +95,7 @@ export const consumidoresService = {
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
-    console.log(`>>> [${this.tableName}Service] total de registros:`, total);
+console.log(`>>> [${this.tableName}Service] total de registros:`, total);
 
     return total;
   },

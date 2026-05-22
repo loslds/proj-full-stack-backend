@@ -4,6 +4,9 @@
 import { AppDataSource } from '../../config/db';
 import { cargosSeed } from './seed/cargos.seed';
 
+let createLogged = false;
+let countLogged = false;
+
 type CargoSeedRow = {
   nome: string;
   createdBy?: number;
@@ -30,10 +33,12 @@ export const cargosService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [cargosService] create() iniciado');
+console.log(`>>> [${this.tableName}Service] Iniciado`);
+
+//    console.log('>>> [cargosService] create() iniciado');
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-    console.log('>>> [cargosService] banco atual:', currentDb);
+  //  console.log('>>> [cargosService] banco atual:', currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS cargos (
@@ -62,7 +67,7 @@ export const cargosService = {
       )
     `);
 
-    console.log('>>> [cargosService] create() concluído');
+    //console.log('>>> [cargosService] create() concluído');
   },
 
   // ============================================================
@@ -70,7 +75,7 @@ export const cargosService = {
   // ============================================================
   async seed(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [cargosService] seed() iniciado');
+//    console.log('>>> [cargosService] seed() iniciado');
 
     const BATCH_SIZE = 50;
     const rows: Array<[string, number, number]> = [];
@@ -102,8 +107,8 @@ export const cargosService = {
       ]);
     }
 
-    console.log(`>>> [cargosService] registros válidos preparados: ${rows.length}`);
-    console.log(`>>> [cargosService] registros com erro: ${registrosComErro.length}`);
+//    console.log(`>>> [cargosService] registros válidos preparados: ${rows.length}`);
+//    console.log(`>>> [cargosService] registros com erro: ${registrosComErro.length}`);
 
     if (registrosComErro.length > 0) {
       console.log('>>> [cargosService] resumo dos registros com erro:');
@@ -127,12 +132,10 @@ export const cargosService = {
         values
       );
 
-      console.log(
-        `>>> [cargosService] lote inserido: ${i + 1} até ${i + batch.length}`
-      );
+console.log(`>>> [cargosService] lote inserido: ${i + 1} até ${i + batch.length}`);
     }
 
-    console.log('>>> [cargosService] seed() concluído');
+//    console.log('>>> [cargosService] seed() concluído');
   },
 
   // ============================================================
@@ -147,7 +150,7 @@ export const cargosService = {
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
-    console.log('>>> [cargosService] total de registros:', total);
+console.log('>>> [cargosService] total de registros:', total);
 
     return total;
   },

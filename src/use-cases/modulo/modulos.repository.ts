@@ -31,7 +31,7 @@ export class ModulosRepository {
       .select(['modulos.id']);
 
     if (nome) {
-      query.andWhere('modulos.name = :name', { nome });
+      query.andWhere('modulos.nome = :nome', { nome });
     }
 
     if (excludeId) {
@@ -146,7 +146,7 @@ export class ModulosRepository {
 
     if (params.nome) {
       query.andWhere(
-        'modulos.nome LIKE :name COLLATE utf8mb4_general_ci',
+        'modulos.nome LIKE :nome COLLATE utf8mb4_general_ci',
         { nome: `%${params.nome}%` }
       );
     }
@@ -163,7 +163,7 @@ export class ModulosRepository {
 
     if (text) {
       query.andWhere(
-        'modulos.name LIKE :text COLLATE utf8mb4_general_ci',
+        'modulos.nome LIKE :text COLLATE utf8mb4_general_ci',
         { text: `%${text}%` }
       );
     }

@@ -4,6 +4,9 @@
 import { AppDataSource } from '../../config/db';
 import { modulosSeed } from './seed/modulos.seed';
 
+let createLogged = false;
+let countLogged = false;
+
 type ModuloSeedRow = {
   nome: string;
   createdBy?: number;
@@ -30,10 +33,12 @@ export const modulosService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [modulosService] create() iniciado');
+console.log(`>>> [${this.tableName}Service] Iniciado`);
+
+//    console.log('>>> [modulosService] create() iniciado');
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-    console.log('>>> [modulosService] banco atual:', currentDb);
+  //  console.log('>>> [modulosService] banco atual:', currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS modulos (
@@ -70,7 +75,7 @@ export const modulosService = {
   // ============================================================
   async seed(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [modulosService] seed() iniciado');
+    //console.log('>>> [modulosService] seed() iniciado');
 
     const BATCH_SIZE = 50;
     const rows: Array<[string, number, number]> = [];
@@ -90,9 +95,7 @@ export const modulosService = {
 
         registrosComErro.push(erro);
 
-        console.error(
-          `>>> [modulosService][ERRO] registro ${erro.index} | módulo: ${erro.nome} | motivo: ${erro.motivo}`
-        );
+  //      console.error(`>>> [modulosService][ERRO] registro ${erro.index} | módulo: ${erro.nome} | motivo: ${erro.motivo}`);
 
         continue;
       }
@@ -104,8 +107,8 @@ export const modulosService = {
       ]);
     }
 
-    console.log(`>>> [modulosService] registros válidos preparados: ${rows.length}`);
-    console.log(`>>> [modulosService] registros com erro: ${registrosComErro.length}`);
+//    console.log(`>>> [modulosService] registros válidos preparados: ${rows.length}`);
+//    console.log(`>>> [modulosService] registros com erro: ${registrosComErro.length}`);
 
     if (registrosComErro.length > 0) {
       console.log('>>> [modulosService] resumo dos registros com erro:');
@@ -129,12 +132,10 @@ export const modulosService = {
         values
       );
 
-      console.log(
-        `>>> [modulosService] lote inserido: ${i + 1} até ${i + batch.length}`
-      );
+  //console.log(`>>> [modulosService] lote inserido: ${i + 1} até ${i + batch.length}` );
     }
 
-    console.log('>>> [modulosService] seed() concluído');
+    //console.log('>>> [modulosService] seed() concluído');
   },
 
   // ============================================================

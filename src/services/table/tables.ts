@@ -21,7 +21,7 @@ export const systemTables = [
   'emails',
   'docs',
   'fones',
-  'imagens',
+  
   'modulos',
   'cargos',
   'acoes',
@@ -31,6 +31,7 @@ export const systemTables = [
   'acessos',  
   'chaves',
   'pergsresps',
+  'imagens',
     
 ] as const;
 //////////////////////////////////////
@@ -44,11 +45,12 @@ export const tablesWithDefaults = [
   'pessoas',
   'estados',
   'cidades',
-  'imagens',
+  //'imagens',
   'modulos',
   'cargos',
   'acoes',
   'perguntas',
+  'imagens',
 ] as const;
 //////////////////////////////////////
 /**

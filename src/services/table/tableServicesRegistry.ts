@@ -43,7 +43,7 @@ export const tableServicesRegistry: Partial<
   pessoas: pessoasService,
   estados: estadosService,
   cidades: cidadesService,
-  imagens: imagensService,
+  //imagens: imagensService,
 
   empresas: empresasService,
   visitantes: visitantesService,
@@ -68,4 +68,6 @@ export const tableServicesRegistry: Partial<
   acessos: acessosService,
   chaves: chavesService,
   pergsresps: pergsrespsService,
+
+  imagens: imagensService,
 };

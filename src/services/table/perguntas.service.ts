@@ -5,6 +5,9 @@
 import { AppDataSource } from '../../config/db';
 import { perguntasSeed } from './seed/perguntas.seed';
 
+let createLogged = false;
+let countLogged = false;
+
 type PerguntaSeedRow = {
   nome: string;
   createdBy?: number;
@@ -31,10 +34,12 @@ export const perguntasService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [perguntasService] create() iniciado');
+console.log(`>>> [${this.tableName}Service] Iniciado`);
+
+//    console.log('>>> [perguntasService] create() iniciado');
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-    console.log('>>> [perguntasService] banco atual:', currentDb);
+  //  console.log('>>> [perguntasService] banco atual:', currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS perguntas (
@@ -63,7 +68,7 @@ export const perguntasService = {
       )
     `);
 
-    console.log('>>> [perguntasService] create() concluído');
+    //console.log('>>> [perguntasService] create() concluído');
   },
 
   // ============================================================
@@ -71,7 +76,7 @@ export const perguntasService = {
   // ============================================================
   async seed(): Promise<void> {
     await this.ensureConnection();
-    console.log('>>> [perguntasService] seed() iniciado');
+    //console.log('>>> [perguntasService] seed() iniciado');
 
     const BATCH_SIZE = 50;
     const rows: Array<[string, number, number]> = [];
@@ -103,8 +108,8 @@ export const perguntasService = {
       ]);
     }
 
-    console.log(`>>> [perguntasService] registros válidos preparados: ${rows.length}`);
-    console.log(`>>> [perguntasService] registros com erro: ${registrosComErro.length}`);
+//    console.log(`>>> [perguntasService] registros válidos preparados: ${rows.length}`);
+//    console.log(`>>> [perguntasService] registros com erro: ${registrosComErro.length}`);
 
     if (registrosComErro.length > 0) {
       console.log('>>> [perguntasService] resumo dos registros com erro:');
@@ -128,12 +133,10 @@ export const perguntasService = {
         values
       );
 
-      console.log(
-        `>>> [perguntasService] lote inserido: ${i + 1} até ${i + batch.length}`
-      );
+      //console.log(`>>> [perguntasService] lote inserido: ${i + 1} até ${i + batch.length}`);
     }
 
-    console.log('>>> [perguntasService] seed() concluído');
+    //console.log('>>> [perguntasService] seed() concluído');
   },
 
   // ============================================================
@@ -148,7 +151,7 @@ export const perguntasService = {
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
-    console.log('>>> [perguntasService] total de registros:', total);
+console.log('>>> [perguntasService] total de registros:', total);
 
     return total;
   },

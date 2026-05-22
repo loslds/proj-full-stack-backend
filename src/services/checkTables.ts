@@ -3,12 +3,14 @@
 
 import { AppDataSource } from "../config/db";
 import { systemTables } from "./table/tables";
+
 export interface TableCheckStep {
   table: string;
   exists: boolean;
   records: number;
   message: string;
 }
+
 export interface CheckTablesResult {
   database: string;
   existingTables: string[];
@@ -32,7 +34,7 @@ export async function checkTables(): Promise<CheckTablesResult> {
   let database = "unknown";
 
   try {
-console.log(">>> [checkTables] iniciado");
+    // console.log(">>> [checkTables] iniciado");
 
     await queryRunner.connect();
 
@@ -42,7 +44,9 @@ console.log(">>> [checkTables] iniciado");
 
     database = dbResult?.[0]?.db ?? "unknown";
 
-console.log(">>> [checkTables] database:", database);
+    // console.log(">>> [checkTables] database:", database);
+
+    console.log(`Inicio de checagem em Tabelas do BD "${database}"`);
 
     const tables = await queryRunner.query("SHOW TABLES");
 
@@ -50,15 +54,16 @@ console.log(">>> [checkTables] database:", database);
       (t: any) => String(Object.values(t)[0])
     );
 
-console.log(">>> [checkTables] systemTables:", systemTables );
-
-console.log(">>> [checkTables] dbTables:", dbTables );
+    // console.log(">>> [checkTables] systemTables:", systemTables);
+    // console.log(">>> [checkTables] dbTables:", dbTables);
 
     for (const table of systemTables) {
-console.log(`>>> [checkTables] verificando tabela: ${table}` );
+      // console.log(`>>> [checkTables] verificando tabela: ${table}`);
+
+      console.log(`Verificando Tabela ["${table}"]`);
 
       if (!dbTables.includes(table)) {
-console.log( `>>> [checkTables] tabela ausente: ${table}` );
+        // console.log(`>>> [checkTables] tabela ausente: ${table}`);
 
         missingTables.push(table);
 
@@ -74,7 +79,7 @@ console.log( `>>> [checkTables] tabela ausente: ${table}` );
         continue;
       }
 
-console.log(`>>> [checkTables] tabela encontrada: ${table}` );
+      // console.log(`>>> [checkTables] tabela encontrada: ${table}`);
 
       existingTables.push(table);
 
@@ -87,7 +92,7 @@ console.log(`>>> [checkTables] tabela encontrada: ${table}` );
 
         records[table] = total;
 
-console.log( `>>> [checkTables] ${table} total registros: ${total}` );
+        console.log(`>>> [checkTables] ${table} total registros: ${total}`);
 
         steps.push({
           table,
@@ -96,7 +101,10 @@ console.log( `>>> [checkTables] ${table} total registros: ${total}` );
           message: `Tabela <${table}> presente com ${total} registros.`,
         });
       } catch (error) {
-console.log( `>>> [checkTables] erro ao contar registros de ${table}`, error);
+        console.error(
+          `Erro ao contar registros da Tabela ["${table}"]`,
+          error
+        );
 
         records[table] = 0;
 
@@ -109,11 +117,11 @@ console.log( `>>> [checkTables] erro ao contar registros de ${table}`, error);
       }
     }
 
-console.log(">>> [checkTables] existingTables:", existingTables);
+    // console.log(">>> [checkTables] existingTables:", existingTables);
+    // console.log(">>> [checkTables] missingTables:", missingTables);
+    // console.log(">>> [checkTables] finalizado");
 
-console.log(">>> [checkTables] missingTables:", missingTables);
-
-console.log(">>> [checkTables] finalizado");
+    console.log(`Fim do check de Tabelas do BD "${database}"`);
 
     return {
       database,
