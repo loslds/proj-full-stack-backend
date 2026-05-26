@@ -19,14 +19,12 @@ export const pessoasService = {
   async create(): Promise<void> {
     await this.ensureConnection();
 
-    if (!createLogged) {
-      console.log(`>>> Serviços em [${this.tableName}] Iniciado`);
+    if (!createLogged) {//console.log(`>>> Iniciado "Serviços" em [${this.tableName}]`);
       createLogged = true;
     }
     
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-  //  console.log('>>> [pessoasService] banco atual:', currentDb);
-
+  
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS pessoas (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -71,7 +69,7 @@ export const pessoasService = {
     const total = Number(result?.[0]?.total ?? 0);
     
     if (!countLogged) {
-      console.log('>>> [pessoasService] total de registros:', total);
+      console.log(`>>> [${this.tableName}Service] total de registros:`, total);
       countLogged = true;
     }
 
@@ -80,10 +78,8 @@ export const pessoasService = {
 
   async seed(): Promise<void> {
     await this.ensureConnection();
-//    console.log('>>> [pessoasService] seed() iniciado');
 
     for (const p of pessoasSeed) {
-//      console.log('>>> [pessoasService] inserindo registro:', p);
 
       await AppDataSource.query(
         `
@@ -97,7 +93,6 @@ export const pessoasService = {
       );
     }
 
-  //  console.log('>>> [pessoasService] seed() concluído');
   },
 
   async update(): Promise<void> {

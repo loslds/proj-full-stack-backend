@@ -24,12 +24,12 @@ export const visitasService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-    console.log(`>>> [${this.tableName}Service] Iniciado`);
-
-//    console.log(`>>> [${this.tableName}Service] create() iniciado`);
+    
+    if (!createLogged) {// console.log(`>>> [${this.tableName}Service] Iniciado`);
+      createLogged = true;
+    }
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-  //  console.log(`>>> [${this.tableName}Service] banco atual:`, currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
@@ -72,7 +72,6 @@ export const visitasService = {
       )
     `);
 
-    //console.log(`>>> [${this.tableName}Service] create() concluído`);
   },
 
   // ============================================================

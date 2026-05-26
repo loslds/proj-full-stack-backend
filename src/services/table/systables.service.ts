@@ -6,7 +6,7 @@ import { AppDataSource } from '../../config/db';
 
 let createLogged = false;
 let countLogged = false;
-
+console.log(`>>> Iniciado "Services"`);
 /**
  * Service exclusivo da tabela systables
  *
@@ -29,6 +29,7 @@ export const systablesService = {
       await AppDataSource.initialize();
     }
   },
+  
 
   /**
    * Criação da tabela systables (estrutura física)
@@ -37,7 +38,7 @@ export const systablesService = {
     await this.ensureConnection();
 
     if (!createLogged) {
-      console.log(`>>> [${this.tableName}Service] Iniciado "Criação"`);
+      //console.log(`>>> Iniciado "Services"`);
       createLogged = true;
     }
 

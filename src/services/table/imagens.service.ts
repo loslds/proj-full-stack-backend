@@ -122,6 +122,10 @@ export const imagensService = {
   async create(): Promise<void> {
     await this.ensureConnection();
 
+    if (!createLogged) {// console.log(`>>> [${this.tableName}Service] Iniciado`);
+      createLogged = true;
+    }
+
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS imagens (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

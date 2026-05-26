@@ -26,7 +26,10 @@ export const estadosService = {
 
   async create(): Promise<void> {
     await this.ensureConnection();
-console.log(`>>> [${this.tableName}Service] Iniciado`);
+    if (!createLogged) {//console.log(`>>> Iniciado "Serviços" em [${this.tableName}]`);
+      createLogged = true;
+    }
+//console.log(`>>> [${this.tableName}Service] Iniciado`);
 
 //    console.log(`>>> [${this.tableName}Service] create() iniciado`);
 
@@ -79,8 +82,10 @@ console.log(`>>> [${this.tableName}Service] Iniciado`);
 
     const total = Number(result?.[0]?.total ?? 0);
 
-
-    console.log(`>>> [${this.tableName}Service] total de registros:`, total);
+    if (!countLogged) {
+      console.log(`>>> [${this.tableName}Service] total de registros:`, total);
+      countLogged = true;
+    }
 
     return total;
   },

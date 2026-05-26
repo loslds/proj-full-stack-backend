@@ -33,9 +33,10 @@ export const cargosService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-console.log(`>>> [${this.tableName}Service] Iniciado`);
 
-//    console.log('>>> [cargosService] create() iniciado');
+    if (!createLogged) {//console.log(`>>> [${this.tableName}Service] Iniciado`);
+      createLogged = true;
+    }
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
   //  console.log('>>> [cargosService] banco atual:', currentDb);
@@ -150,7 +151,11 @@ console.log(`>>> [cargosService] lote inserido: ${i + 1} até ${i + batch.length
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
-console.log('>>> [cargosService] total de registros:', total);
+
+    if (!countLogged) {
+      console.log(`>>> [${this.tableName}Service] total de registros:`, total);
+      countLogged = true;
+    }
 
     return total;
   },

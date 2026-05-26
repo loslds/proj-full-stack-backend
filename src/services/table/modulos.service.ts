@@ -33,9 +33,10 @@ export const modulosService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-console.log(`>>> [${this.tableName}Service] Iniciado`);
 
-//    console.log('>>> [modulosService] create() iniciado');
+    if (!createLogged) {// console.log(`>>> [${this.tableName}Service] Iniciado`);
+      createLogged = true;
+    }
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
   //  console.log('>>> [modulosService] banco atual:', currentDb);
@@ -67,7 +68,7 @@ console.log(`>>> [${this.tableName}Service] Iniciado`);
       )
     `);
 
-    console.log('>>> [modulosService] create() concluído');
+  //  console.log('>>> [modulosService] create() concluído');
   },
 
   // ============================================================
@@ -95,8 +96,6 @@ console.log(`>>> [${this.tableName}Service] Iniciado`);
 
         registrosComErro.push(erro);
 
-  //      console.error(`>>> [modulosService][ERRO] registro ${erro.index} | módulo: ${erro.nome} | motivo: ${erro.motivo}`);
-
         continue;
       }
 
@@ -106,9 +105,6 @@ console.log(`>>> [${this.tableName}Service] Iniciado`);
         modulo.updatedBy ?? 0
       ]);
     }
-
-//    console.log(`>>> [modulosService] registros válidos preparados: ${rows.length}`);
-//    console.log(`>>> [modulosService] registros com erro: ${registrosComErro.length}`);
 
     if (registrosComErro.length > 0) {
       console.log('>>> [modulosService] resumo dos registros com erro:');
@@ -132,10 +128,8 @@ console.log(`>>> [${this.tableName}Service] Iniciado`);
         values
       );
 
-  //console.log(`>>> [modulosService] lote inserido: ${i + 1} até ${i + batch.length}` );
     }
 
-    //console.log('>>> [modulosService] seed() concluído');
   },
 
   // ============================================================
@@ -150,7 +144,11 @@ console.log(`>>> [${this.tableName}Service] Iniciado`);
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
-    console.log('>>> [modulosService] total de registros:', total);
+
+    if (!countLogged) {
+      console.log(`>>> [${this.tableName}Service] total de registros:`, total);
+      countLogged = true;
+    }
 
     return total;
   },

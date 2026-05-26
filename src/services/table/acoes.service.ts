@@ -36,7 +36,11 @@ export const acoesService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-console.log(`>>> [${this.tableName}Service] Iniciado`);
+    
+    if (!createLogged) {//console.log(`>>> [${this.tableName}Service] Iniciado`);
+      createLogged = true;
+    }
+
   //console.log('>>> [acoesService] create() iniciado');
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
@@ -176,7 +180,11 @@ console.log(`>>> [${this.tableName}Service] Iniciado`);
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
-    console.log('>>> [acoesService] total de registros:', total);
+    if (!countLogged) {
+      console.log(`>>> [${this.tableName}Service] total de registros:`, total);
+      countLogged = true;
+    }
+
 
     return total;
   },

@@ -33,12 +33,12 @@ export const cidadesService = {
 
   async create(): Promise<void> {
     await this.ensureConnection();
-console.log('>>> [cidadesService] Iniciado Serviços');
 
-// console.log('>>> [cidadesService] create() iniciado');
+    if (!createLogged) {//console.log('>>> [cidadesService] Iniciado Serviços');
+      createLogged = true;
+    }
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-//  console.log('>>> [cidadesService] banco atual:', currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS cidades (
@@ -142,7 +142,6 @@ console.log('>>> [cidadesService] Iniciado Serviços');
 //    console.log(`>>> [cidadesService] lote inserido: ${i + 1} até ${i + batch.length}`);
     }
 
-//    console.log('>>> [cidadesService] seed() concluído');
   },
 
   async count(): Promise<number> {
@@ -154,7 +153,11 @@ console.log('>>> [cidadesService] Iniciado Serviços');
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
-console.log('>>> [cidadesService] total de registros:', total);
+    if (!countLogged) {
+      console.log(`>>> [${this.tableName}Service] total de registros:`, total);
+      countLogged = true;
+    }
+
 
     return total;
   },
