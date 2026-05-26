@@ -23,6 +23,7 @@ export const empresasService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
+    
     if (!createLogged) {// console.log(`>>> [${this.tableName}Service] Iniciado`);
       createLogged = true;
     }

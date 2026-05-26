@@ -185,7 +185,6 @@ export const acoesService = {
       countLogged = true;
     }
 
-
     return total;
   },
 

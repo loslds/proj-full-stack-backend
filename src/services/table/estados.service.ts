@@ -26,15 +26,12 @@ export const estadosService = {
 
   async create(): Promise<void> {
     await this.ensureConnection();
+    
     if (!createLogged) {//console.log(`>>> Iniciado "Serviços" em [${this.tableName}]`);
       createLogged = true;
     }
-//console.log(`>>> [${this.tableName}Service] Iniciado`);
-
-//    console.log(`>>> [${this.tableName}Service] create() iniciado`);
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-//    console.log(`>>> [${this.tableName}Service] banco atual:`, currentDb);
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (

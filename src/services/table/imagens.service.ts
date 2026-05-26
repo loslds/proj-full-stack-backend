@@ -98,6 +98,8 @@ type PastaPar = {
   terminal: string;
 };
 
+
+
 // ============================================================
 // * SERVICE *
 // ============================================================
@@ -188,7 +190,14 @@ export const imagensService = {
       FROM imagens
     `);
 
-    return Number(result?.[0]?.total ?? 0);
+    const total = Number(result?.[0]?.total ?? 0);
+
+    if (!countLogged) {
+      console.log(`>>> [${this.tableName}Service] total de registros:`, total);
+      countLogged = true;
+    }
+
+    return total;
   },
 
   // ============================================================

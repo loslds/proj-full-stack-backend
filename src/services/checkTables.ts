@@ -60,7 +60,7 @@ export async function checkTables(): Promise<CheckTablesResult> {
     for (const table of systemTables) {
       // console.log(`>>> [checkTables] verificando tabela: ${table}`);
 
-      console.log(`Verificando Tabela ["${table}"]`);
+      //console.log(`Verificando Tabela ["${table}"]`);
 
       if (!dbTables.includes(table)) {
         // console.log(`>>> [checkTables] tabela ausente: ${table}`);

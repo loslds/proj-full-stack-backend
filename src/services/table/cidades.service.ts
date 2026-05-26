@@ -153,6 +153,7 @@ export const cidadesService = {
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
+    
     if (!countLogged) {
       console.log(`>>> [${this.tableName}Service] total de registros:`, total);
       countLogged = true;

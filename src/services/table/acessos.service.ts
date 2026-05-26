@@ -23,13 +23,13 @@ export const acessosService = {
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
-console.log(`>>> [${this.tableName}Service] Iniciado`);
 
-//   console.log(`>>> [${this.tableName}Service] create() iniciado`);
+    if (!createLogged) {// console.log(`>>> [${this.tableName}Service] Iniciado`);
+      createLogged = true;
+    }
 
     const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
-  //  console.log(`>>> [${this.tableName}Service] banco atual:`, currentDb);
-
+  
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
         id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -87,8 +87,12 @@ console.log(`>>> [${this.tableName}Service] Iniciado`);
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
-console.log(`>>> [${this.tableName}Service] total de registros:`, total);
-
+    
+    if (!countLogged) {
+      console.log(`>>> [${this.tableName}Service] total de registros:`, total);
+      countLogged = true;
+    }
+    
     return total;
   },
 

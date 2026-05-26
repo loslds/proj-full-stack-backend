@@ -98,6 +98,7 @@ export const loginsService = {
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
+
 console.log(`>>> [${this.tableName}Service] total de registros:`, total);
 
     return total;

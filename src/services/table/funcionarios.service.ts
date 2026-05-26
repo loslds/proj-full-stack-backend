@@ -96,7 +96,11 @@ export const funcionariosService = {
     `);
 
     const total = Number(result?.[0]?.total ?? 0);
-console.log(`>>> [${this.tableName}Service] total de registros:`, total);
+
+    if (!countLogged) {
+      console.log(`>>> [${this.tableName}Service] total de registros:`, total);
+      countLogged = true;
+    }
 
     return total;
   },
