@@ -1,4 +1,5 @@
-
+ 
+// C:\repository\proj-full-stack-backend\src\config\systemPaths.ts
 import path from 'path';
 
 const IMAGENS_BASE = 'C:/imagens-sgv';
@@ -22,11 +23,9 @@ export const SYSTEM_PATHS = {
   SERVER_TEMP_IMG: path.resolve('src/assets/img'),
   SERVER_QUARENTENA: path.resolve('src/assets/quarentena'),
 
-  IMAGENS_ARQ_ZIP: path.join(IMAGENS_BASE, 'arq_zip'),
   // Terminal-client / pasta pública
   IMAGENS_BASE,
-
-  
+  IMAGENS_ARQ_ZIP: path.join(IMAGENS_BASE, 'arq_zip'),
 
   IMAGENS_DEFAULTS: path.join(IMAGENS_BASE, 'defaults'),
   IMAGENS_DEFAULT_AVT: path.join(IMAGENS_BASE, 'defaults', 'avt'),
@@ -35,9 +34,7 @@ export const SYSTEM_PATHS = {
   IMAGENS_DEFAULT_LG: path.join(IMAGENS_BASE, 'defaults', 'lg'),
   IMAGENS_DEFAULT_PNL: path.join(IMAGENS_BASE, 'defaults', 'pnl'),
 
-  IMAGENS_USERCLIENTS: path.join(IMAGENS_BASE, 'useclients'),
-  IMAGENS_USERCLIENTS_FT: path.join(IMAGENS_BASE, 'useclients', 'ft'),
-  IMAGENS_USERCLIENTS_LG: path.join(IMAGENS_BASE, 'useclients', 'lg'),
-
-  IMAGENS_REJEITADAS_IMG: path.join(IMAGENS_BASE, 'quarentena'),
+  IMAGENS_USERCLIENTS: path.join(IMAGENS_BASE, 'userclients'),
+  IMAGENS_USERCLIENTS_FT: path.join(IMAGENS_BASE, 'userclients', 'ft'),
+  IMAGENS_USERCLIENTS_LG: path.join(IMAGENS_BASE, 'userclients', 'lg'),
 };

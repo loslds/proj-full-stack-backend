@@ -1,4 +1,3 @@
-
 // C:\repository\proj-full-stack-backend\src\services\table\imagens.service.ts
 
 import fs from 'fs';
@@ -61,9 +60,13 @@ type SeedListas = {
   quarentena: string[];
   banco_insert: string[];
   banco_update: string[];
+  banco_ignorado: string[];
 
-  servidor_para_terminal: string[];
   banco_para_servidor: string[];
+  servidor_para_terminal: string[];
+
+  fisicos_servidor: string[];
+  fisicos_terminal: string[];
 
   pastas_criadas: string[];
   pastas_existentes: string[];
@@ -98,7 +101,89 @@ type PastaPar = {
   terminal: string;
 };
 
+type RegraArquivo = {
+  zip: string;
+  prefixos: string[];
+  tipo: ImagemTipo;
+  servidor: string;
+  terminal: string;
+  lista: keyof SeedListas;
+};
 
+// ============================================================
+// * CONSTANTS *
+// ============================================================
+
+const SLEEP_TIME_MS = 800;
+
+const ZIP_AUTORIZADOS = [
+  'avt_sys.zip',
+  'btn_sys.zip',
+  'ft_sys.zip',
+  'lg_sys.zip',
+  'pnl_sys.zip',
+  'ft_cli_sys.zip',
+  'lg_cli_sys.zip'
+];
+
+const REGRAS_ARQUIVOS: RegraArquivo[] = [
+  {
+    zip: 'avt_sys.zip',
+    prefixos: ['avt_def_'],
+    tipo: 'avatar',
+    servidor: SYSTEM_PATHS.SERVER_DEFAULT_AVT,
+    terminal: SYSTEM_PATHS.IMAGENS_DEFAULT_AVT,
+    lista: 'defaults_avt'
+  },
+  {
+    zip: 'btn_sys.zip',
+    prefixos: ['btn_def_'],
+    tipo: 'botao',
+    servidor: SYSTEM_PATHS.SERVER_DEFAULT_BTN,
+    terminal: SYSTEM_PATHS.IMAGENS_DEFAULT_BTN,
+    lista: 'defaults_btn'
+  },
+  {
+    zip: 'ft_sys.zip',
+    prefixos: ['ft_def_'],
+    tipo: 'foto',
+    servidor: SYSTEM_PATHS.SERVER_DEFAULT_FT,
+    terminal: SYSTEM_PATHS.IMAGENS_DEFAULT_FT,
+    lista: 'defaults_ft'
+  },
+  {
+    zip: 'lg_sys.zip',
+    prefixos: ['lg_def_'],
+    tipo: 'logo',
+    servidor: SYSTEM_PATHS.SERVER_DEFAULT_LG,
+    terminal: SYSTEM_PATHS.IMAGENS_DEFAULT_LG,
+    lista: 'defaults_lg'
+  },
+  {
+    zip: 'pnl_sys.zip',
+    prefixos: ['pnl_def_'],
+    tipo: 'painel',
+    servidor: SYSTEM_PATHS.SERVER_DEFAULT_PNL,
+    terminal: SYSTEM_PATHS.IMAGENS_DEFAULT_PNL,
+    lista: 'defaults_pnl'
+  },
+  {
+    zip: 'ft_cli_sys.zip',
+    prefixos: ['ft_cli_'],
+    tipo: 'foto',
+    servidor: SYSTEM_PATHS.SERVER_USERCLIENTS_FT,
+    terminal: SYSTEM_PATHS.IMAGENS_USERCLIENTS_FT,
+    lista: 'ft_cli'
+  },
+  {
+    zip: 'lg_cli_sys.zip',
+    prefixos: ['lg_cli_'],
+    tipo: 'logo',
+    servidor: SYSTEM_PATHS.SERVER_USERCLIENTS_LG,
+    terminal: SYSTEM_PATHS.IMAGENS_USERCLIENTS_LG,
+    lista: 'lg_cli'
+  }
+];
 
 // ============================================================
 // * SERVICE *
@@ -107,9 +192,17 @@ type PastaPar = {
 export const imagensService = {
   tableName: 'imagens',
 
+  
+  // ============================================================
+  // * tempo de espera para o próximo processo *
+  // ============================================================
+  async sleepTime(ms = SLEEP_TIME_MS ): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  },
+
+
   // ============================================================
   // * PASSO 1 - CONNECTION *
-  // Garante conexão com o banco de dados.
   // ============================================================
   async ensureConnection(): Promise<void> {
     if (!AppDataSource.isInitialized) {
@@ -119,12 +212,12 @@ export const imagensService = {
 
   // ============================================================
   // * PASSO 1 - CREATE TABLE *
-  // Verifica se a tabela imagens existe; se não existir, cria.
   // ============================================================
   async create(): Promise<void> {
     await this.ensureConnection();
 
-    if (!createLogged) {// console.log(`>>> [${this.tableName}Service] Iniciado`);
+    if (!createLogged) {
+      console.log(`>>> [${this.tableName}Service] Iniciado`);
       createLogged = true;
     }
 
@@ -180,7 +273,6 @@ export const imagensService = {
 
   // ============================================================
   // * COUNT *
-  // Conta registros persistidos.
   // ============================================================
   async count(): Promise<number> {
     await this.ensureConnection();
@@ -202,62 +294,87 @@ export const imagensService = {
 
   // ============================================================
   // * SEED *
-  // Processo principal exposto passo a passo.
+  // Arquitetura final:
+  // 1 conexão/tabela
+  // 2 pastas backend
+  // 3 pastas C:/imagens-sgv
+  // 4 limpar apenas src/assets/img
+  // 5 localizar ZIPs
+  // 6 validar ZIPs; inválido -> quarentena servidor
+  // 7 descompactar ZIPs válidos
+  // 8 classificar arquivos; inválido -> quarentena servidor; válido -> memória
+  // 9 insert/update banco
+  // 10 reconstruir src/assets a partir da tabela imagens
+  // 11 sincronizar src/assets para C:/imagens-sgv
+  // 12 exibir listas físicas reais
   // ============================================================
   async seed(): Promise<SeedResultado> {
     const resultado = this.criarEstruturaResultado();
+    let totalServidor = 0;
+    let totalTerminal = 0;
 
     try {
       this.logStep(1, 'Verificando conexão e tabela imagens');
       await this.ensureConnection();
       await this.create();
       this.logOk(1, 'Tabela imagens pronta');
+      await this.sleepTime();
 
-      this.logStep(2, 'Verificando pastas do servidor');
+      this.logStep(2, 'Criando/verificando pastas backend');
       this.passo02VerificarPastasServidor(resultado);
-      this.logOk(2, 'Pastas do servidor verificadas');
+      this.logOk(2, 'Pastas backend verificadas');
+      await this.sleepTime();
 
-      this.logStep(3, 'Verificando pastas do terminal-client');
+      this.logStep(3, 'Criando/verificando pastas C:/imagens-sgv');
       this.passo03VerificarPastasTerminalClient(resultado);
-      this.logOk(3, 'Pastas do terminal-client verificadas');
+      this.logOk(3, 'Pastas C:/imagens-sgv verificadas');
+      await this.sleepTime();
 
-      this.logStep(4, 'Limpando staging e quarentenas da sessão');
+      this.logStep(4, 'Limpando apenas src/assets/img');
       this.passo04LimparTemporarios(resultado);
-      this.logOk(4, 'Pastas temporárias limpas');
+      this.logOk(4, 'src/assets/img limpa');
+      await this.sleepTime();
 
-      this.logStep(5, 'Baixando tabela imagens para src/assets');
-      await this.passo05BaixarBancoParaServidor(resultado);
-      this.logOk(5, `Banco baixado para servidor: ${resultado.listas.banco_para_servidor.length}`);
+      this.logStep(5, 'Localizando ZIPs em src/assets/arq_zip');
+      const zipFiles = this.passo05LocalizarZips(resultado);
+      this.logOk(5, `ZIPs localizados: ${zipFiles.length}`);
+      await this.sleepTime();
 
-      this.logStep(6, 'Localizando ZIPs em src/assets/arq_zip');
-      const zipFiles = this.passo06ListarZips(resultado);
-      this.logOk(6, `ZIPs encontrados: ${zipFiles.length}`);
+      this.logStep(6, 'Validando ZIPs');
+      const zipsValidos = this.passo06ValidarZips(zipFiles, resultado);
+      this.logOk(6, `ZIPs válidos: ${zipsValidos.length} | rejeitados: ${resultado.listas.zip_rejeitados.length}`);
+      await this.sleepTime();
 
-      this.logStep(7, 'Descompactando ZIPs autorizados');
-      this.passo07DescompactarZips(zipFiles, resultado);
-      this.logOk(7, `ZIPs autorizados: ${resultado.listas.zip_autorizados.length}`);
+      this.logStep(7, 'Descompactando ZIPs válidos');
+      this.passo07DescompactarZips(zipsValidos, resultado);
+      this.logOk(7, `ZIPs descompactados: ${resultado.listas.zip_autorizados.length}`);
+      await this.sleepTime();
 
       this.logStep(8, 'Classificando arquivos extraídos');
-      this.passo08ClassificarEMoverArquivos(zipFiles, resultado);
-      this.logOk(8, `Arquivos válidos classificados: ${resultado.validos.length}`);
+      this.passo08ClassificarArquivos(resultado);
+      this.logOk(8, `Arquivos válidos em memória: ${resultado.validos.length} | quarentena: ${resultado.listas.quarentena.length}`);
+      await this.sleepTime();
 
       this.logStep(9, 'Persistindo registros válidos na tabela imagens');
       await this.passo09PersistirBanco(resultado);
       this.logOk(9, `Banco insert=${resultado.listas.banco_insert.length} update=${resultado.listas.banco_update.length}`);
+      await this.sleepTime();
 
-      this.logStep(10, 'Movendo sobras de src/assets/img para quarentena');
-      this.passo10MoverSobrasParaQuarentena(resultado);
-      this.logOk(10, `Quarentena: ${resultado.listas.quarentena.length}`);
+      this.logStep(10, 'Reconstruindo src/assets a partir da tabela imagens');
+      totalServidor = await this.passo10ReconstruirServidorAPartirDoBanco(resultado);
+      this.logOk(10, `Arquivos reconstruídos no servidor: ${totalServidor}`);
+      await this.sleepTime();
 
-      this.logStep(11, 'Copiando src/assets para C:/imagens-sgv');
-      const totalCopiados = this.passo11EspelharServidorParaTerminal(resultado);
-      this.logOk(11, `Arquivos copiados para terminal-client: ${totalCopiados}`);
+      this.logStep(11, 'Sincronizando src/assets para C:/imagens-sgv');
+      totalTerminal = this.passo11SincronizarServidorParaTerminal(resultado);
+      this.logOk(11, `Arquivos sincronizados para terminal-client: ${totalTerminal}`);
+      await this.sleepTime();
 
-      this.logStep(12, 'Exibindo listas finais');
-      this.passo12MostrarListas(resultado);
+      this.logStep(12, 'Exibindo listas físicas reais');
+      this.passo12ListarFisicosEExibir(resultado);
 
       console.info(
-        `[RESUMO][IMAGENS] validos=${resultado.validos.length} | rejeitados=${resultado.rejeitados.length} | erros=${resultado.erros.length} | copiados_terminal=${totalCopiados}`
+        `[RESUMO][IMAGENS] validos=${resultado.validos.length} | rejeitados=${resultado.rejeitados.length} | erros=${resultado.erros.length} | servidor=${totalServidor} | terminal=${totalTerminal}`
       );
 
       return resultado;
@@ -271,7 +388,7 @@ export const imagensService = {
 
       resultado.listas.erros.push(`seed | ${motivo}`);
       console.error(`[ERRO][IMAGENS] seed | ${motivo}`);
-      this.passo12MostrarListas(resultado);
+      this.passo12ListarFisicosEExibir(resultado);
 
       return resultado;
     }
@@ -279,182 +396,131 @@ export const imagensService = {
 
   // ============================================================
   // * UPDATE *
-  // Atualiza banco a partir das pastas do servidor e espelha terminal.
+  // Sincroniza arquivos operacionais do servidor com banco e terminal.
   // ============================================================
   async update(): Promise<UpdateResultado> {
     await this.ensureConnection();
     await this.create();
 
     const resultado = this.criarEstruturaResultado();
-    const erros: SeedItemErro[] = [];
 
     let sincronizadosNoBanco = 0;
     let exportadosNoDisco = 0;
 
     try {
-      console.info('[PASSO UPDATE 1] Verificando pastas');
+      console.info('[PASSO UPDATE 1][IMAGENS] Verificando pastas');
       this.passo02VerificarPastasServidor(resultado);
       this.passo03VerificarPastasTerminalClient(resultado);
+      await this.sleepTime();
 
-      console.info('[PASSO UPDATE 2] Sincronizando servidor com banco');
+      console.info('[PASSO UPDATE 2][IMAGENS] Sincronizando servidor com banco');
       for (const par of this.getParesOperacionais()) {
         sincronizadosNoBanco += await this.syncFolderWithDatabase(par.servidor, resultado);
       }
+      await this.sleepTime();
 
-      console.info('[PASSO UPDATE 3] Espelhando servidor para terminal-client');
-      exportadosNoDisco = this.passo11EspelharServidorParaTerminal(resultado);
+      console.info('[PASSO UPDATE 3][IMAGENS] Sincronizando servidor para terminal-client');
+      exportadosNoDisco = this.passo11SincronizarServidorParaTerminal(resultado);
+      await this.sleepTime();
 
-      this.passo12MostrarListas(resultado);
+      this.passo12ListarFisicosEExibir(resultado);
 
       console.info(
-        `[RESUMO] update | banco=${sincronizadosNoBanco} | terminal=${exportadosNoDisco}`
+        `[RESUMO][IMAGENS] update | banco=${sincronizadosNoBanco} | terminal=${exportadosNoDisco} | erros=${resultado.erros.length}`
       );
 
-      return { sincronizadosNoBanco, exportadosNoDisco, erros };
+      return {
+        sincronizadosNoBanco,
+        exportadosNoDisco,
+        erros: resultado.erros
+      };
     } catch (error: any) {
       const motivo = error?.message ?? 'erro desconhecido';
 
-      erros.push({
+      resultado.erros.push({
         arquivo: 'update',
         motivo
       });
 
-      console.error(`[ERRO] update | ${motivo}`);
+      resultado.listas.erros.push(`update | ${motivo}`);
+      console.error(`[ERRO][IMAGENS] update | ${motivo}`);
 
-      return { sincronizadosNoBanco, exportadosNoDisco, erros };
+      return {
+        sincronizadosNoBanco,
+        exportadosNoDisco,
+        erros: resultado.erros
+      };
     }
   },
 
   // ============================================================
   // * PASSO 2 *
-  // Verifica pastas do servidor.
+  // Verifica/cria pastas do backend.
+  // A quarentena existe somente no servidor para auditoria.
   // ============================================================
   passo02VerificarPastasServidor(resultado: SeedResultado): void {
-    const dirs = [
-      SYSTEM_PATHS.SERVER_ZIP_SOURCE,
+    this.ensureDirs(
+      [
+        SYSTEM_PATHS.SERVER_ZIP_SOURCE,
 
-      SYSTEM_PATHS.SERVER_DEFAULTS,
-      SYSTEM_PATHS.SERVER_DEFAULT_AVT,
-      SYSTEM_PATHS.SERVER_DEFAULT_BTN,
-      SYSTEM_PATHS.SERVER_DEFAULT_FT,
-      SYSTEM_PATHS.SERVER_DEFAULT_LG,
-      SYSTEM_PATHS.SERVER_DEFAULT_PNL,
+        SYSTEM_PATHS.SERVER_DEFAULTS,
+        SYSTEM_PATHS.SERVER_DEFAULT_AVT,
+        SYSTEM_PATHS.SERVER_DEFAULT_BTN,
+        SYSTEM_PATHS.SERVER_DEFAULT_FT,
+        SYSTEM_PATHS.SERVER_DEFAULT_LG,
+        SYSTEM_PATHS.SERVER_DEFAULT_PNL,
 
-      SYSTEM_PATHS.SERVER_USERCLIENTS,
-      SYSTEM_PATHS.SERVER_USERCLIENTS_FT,
-      SYSTEM_PATHS.SERVER_USERCLIENTS_LG,
+        SYSTEM_PATHS.SERVER_USERCLIENTS,
+        SYSTEM_PATHS.SERVER_USERCLIENTS_FT,
+        SYSTEM_PATHS.SERVER_USERCLIENTS_LG,
 
-      SYSTEM_PATHS.SERVER_TEMP_IMG,
-      SYSTEM_PATHS.SERVER_QUARENTENA
-    ];
-
-    this.ensureDirs(dirs, resultado);
+        SYSTEM_PATHS.SERVER_TEMP_IMG,
+        SYSTEM_PATHS.SERVER_QUARENTENA
+      ],
+      resultado
+    );
   },
 
   // ============================================================
   // * PASSO 3 *
-  // Verifica pastas do terminal-client.
+  // Verifica/cria pastas do terminal-client.
+  // Não existe pasta de rejeitadas no terminal-client.
   // ============================================================
   passo03VerificarPastasTerminalClient(resultado: SeedResultado): void {
-    const dirs = [
-      SYSTEM_PATHS.IMAGENS_BASE,
-      SYSTEM_PATHS.IMAGENS_ARQ_ZIP,
+    this.ensureDirs(
+      [
+        SYSTEM_PATHS.IMAGENS_BASE,
 
-      SYSTEM_PATHS.IMAGENS_DEFAULTS,
-      SYSTEM_PATHS.IMAGENS_DEFAULT_AVT,
-      SYSTEM_PATHS.IMAGENS_DEFAULT_BTN,
-      SYSTEM_PATHS.IMAGENS_DEFAULT_FT,
-      SYSTEM_PATHS.IMAGENS_DEFAULT_LG,
-      SYSTEM_PATHS.IMAGENS_DEFAULT_PNL,
+        SYSTEM_PATHS.IMAGENS_DEFAULTS,
+        SYSTEM_PATHS.IMAGENS_DEFAULT_AVT,
+        SYSTEM_PATHS.IMAGENS_DEFAULT_BTN,
+        SYSTEM_PATHS.IMAGENS_DEFAULT_FT,
+        SYSTEM_PATHS.IMAGENS_DEFAULT_LG,
+        SYSTEM_PATHS.IMAGENS_DEFAULT_PNL,
 
-      SYSTEM_PATHS.IMAGENS_USERCLIENTS,
-      SYSTEM_PATHS.IMAGENS_USERCLIENTS_FT,
-      SYSTEM_PATHS.IMAGENS_USERCLIENTS_LG,
-
-      SYSTEM_PATHS.IMAGENS_REJEITADAS_IMG
-    ];
-
-    this.ensureDirs(dirs, resultado);
+        SYSTEM_PATHS.IMAGENS_USERCLIENTS,
+        SYSTEM_PATHS.IMAGENS_USERCLIENTS_FT,
+        SYSTEM_PATHS.IMAGENS_USERCLIENTS_LG
+      ],
+      resultado
+    );
   },
 
   // ============================================================
   // * PASSO 4 *
-  // Limpa temporários da sessão atual.
-  // src/assets/img = staging.
-  // src/assets/quarentena = rejeitados da sessão.
-  // C:/imagens-sgv/quarentena = espelho de rejeitados da sessão.
-  // C:/imagens-sgv/arq_zip = área auxiliar limpa.
+  // Limpa apenas src/assets/img.
+  // Nunca limpa src/assets/quarentena, pois é auditoria.
+  // Nunca limpa pasta de rejeitados no terminal, pois ela não existe.
   // ============================================================
   passo04LimparTemporarios(resultado: SeedResultado): void {
     this.clearFolder(SYSTEM_PATHS.SERVER_TEMP_IMG, resultado);
-    this.clearFolder(SYSTEM_PATHS.SERVER_QUARENTENA, resultado);
-    this.clearFolder(SYSTEM_PATHS.IMAGENS_REJEITADAS_IMG, resultado);
-    this.clearFolder(SYSTEM_PATHS.IMAGENS_ARQ_ZIP, resultado);
   },
 
   // ============================================================
   // * PASSO 5 *
-  // Baixa a tabela imagens para suas devidas pastas do servidor.
-  // Isso garante que src/assets/* tenha a mesma base operacional do banco.
+  // Localiza ZIPs no backend.
   // ============================================================
-  async passo05BaixarBancoParaServidor(resultado: SeedResultado): Promise<number> {
-    const rows: ImagemDbRow[] = await AppDataSource.query(`
-      SELECT
-        id,
-        nome,
-        tipo,
-        path_origem,
-        path_dest,
-        public_url,
-        svg
-      FROM imagens
-      ORDER BY id ASC
-    `);
-
-    let total = 0;
-
-    for (const row of rows) {
-      const destinoServidor = this.getServerPathByNome(row.nome);
-
-      if (!destinoServidor) {
-        const motivo = `registro ignorado por prefixo inválido: ${row.nome}`;
-
-        resultado.erros.push({
-          arquivo: row.nome,
-          motivo
-        });
-
-        resultado.listas.erros.push(motivo);
-        console.error(`[ERRO] ${motivo}`);
-        continue;
-      }
-
-      try {
-        this.writeSvgToDisk(destinoServidor, row.svg);
-        resultado.listas.banco_para_servidor.push(row.nome);
-        total++;
-      } catch (error: any) {
-        const motivo = `falha ao baixar banco para servidor: ${error?.message ?? 'erro desconhecido'}`;
-
-        resultado.erros.push({
-          arquivo: row.nome,
-          destino: destinoServidor,
-          motivo
-        });
-
-        resultado.listas.erros.push(`${row.nome} | ${motivo}`);
-        console.error(`[ERRO] ${row.nome} | ${motivo}`);
-      }
-    }
-
-    return total;
-  },
-
-  // ============================================================
-  // * PASSO 6 *
-  // Lista ZIPs encontrados no servidor.
-  // ============================================================
-  passo06ListarZips(resultado: SeedResultado): string[] {
+  passo05LocalizarZips(resultado: SeedResultado): string[] {
     if (!fs.existsSync(SYSTEM_PATHS.SERVER_ZIP_SOURCE)) {
       return [];
     }
@@ -469,11 +535,13 @@ export const imagensService = {
   },
 
   // ============================================================
-  // * PASSO 7 *
-  // Descompacta ZIPs autorizados em src/assets/img.
-  // ZIP não autorizado vai para quarentena.
+  // * PASSO 6 *
+  // Valida ZIPs.
+  // ZIP inválido é copiado para src/assets/quarentena.
   // ============================================================
-  passo07DescompactarZips(zipFiles: string[], resultado: SeedResultado): void {
+  passo06ValidarZips(zipFiles: string[], resultado: SeedResultado): string[] {
+    const zipsValidos: string[] = [];
+
     for (const zipName of zipFiles) {
       const zipFullPath = path.join(SYSTEM_PATHS.SERVER_ZIP_SOURCE, zipName);
 
@@ -496,9 +564,27 @@ export const imagensService = {
         continue;
       }
 
+      zipsValidos.push(zipName);
+    }
+
+    return zipsValidos;
+  },
+
+  // ============================================================
+  // * PASSO 7 *
+  // Descompacta cada ZIP autorizado em subpasta temporária própria.
+  // ============================================================
+  passo07DescompactarZips(zipFiles: string[], resultado: SeedResultado): void {
+    for (const zipName of zipFiles) {
+      const zipFullPath = path.join(SYSTEM_PATHS.SERVER_ZIP_SOURCE, zipName);
+      const zipLower = zipName.toLowerCase();
+      const extractDir = this.getZipExtractDir(zipLower);
+
       try {
-        this.extractZip(zipFullPath, SYSTEM_PATHS.SERVER_TEMP_IMG);
+        this.clearFolder(extractDir, resultado);
+        this.extractZip(zipFullPath, extractDir);
         resultado.listas.zip_autorizados.push(zipName);
+        console.info(`[ZIP][IMAGENS] Processando ${zipName}`);
       } catch (error: any) {
         const motivo = `não foi possível descompactar: ${error?.message ?? 'erro desconhecido'}`;
 
@@ -509,85 +595,84 @@ export const imagensService = {
         });
 
         resultado.listas.erros.push(`${zipName} | ${motivo}`);
-        console.error(`[ERRO] ${zipName} | ${motivo}`);
+        console.error(`[ERRO][IMAGENS] ${zipName} | ${motivo}`);
       }
     }
   },
 
   // ============================================================
   // * PASSO 8 *
-  // Classifica cada arquivo extraído e move para a pasta correta do servidor.
-  // Arquivo inválido vai para quarentena.
+  // Classifica arquivos.
+  // Válido: fica em memória em resultado.validos.
+  // Inválido: cópia para src/assets/quarentena.
+  // Não move arquivo válido nesta etapa.
   // ============================================================
-  passo08ClassificarEMoverArquivos(zipFiles: string[], resultado: SeedResultado): void {
-    const arquivos = this.walkFiles(SYSTEM_PATHS.SERVER_TEMP_IMG);
+  passo08ClassificarArquivos(resultado: SeedResultado): void {
+    for (const zipName of resultado.listas.zip_autorizados) {
+      const zipLower = zipName.toLowerCase();
+      const extractDir = this.getZipExtractDir(zipLower);
+      const arquivos = this.walkFiles(extractDir);
 
-    for (const filePath of arquivos) {
-      const nome = path.basename(filePath);
-      const zipOrigem = this.detectarZipOrigemPorNome(nome, zipFiles);
-      const classificacao = this.classificarArquivo(nome, zipOrigem);
+      for (const filePath of arquivos) {
+        const nome = path.basename(filePath);
+        const classificacao = this.classificarArquivo(nome, zipLower);
 
-      if (!classificacao.valido) {
-        const destino = this.resolveDestinationPath(
-          SYSTEM_PATHS.SERVER_QUARENTENA,
-          nome,
-          true
-        );
+        if (!classificacao.valido) {
+          const destino = this.resolveDestinationPath(
+            SYSTEM_PATHS.SERVER_QUARENTENA,
+            nome,
+            true
+          );
 
-        this.enviarParaQuarentena(
-          filePath,
-          destino,
-          nome,
-          classificacao.motivo ?? 'arquivo rejeitado',
-          resultado
-        );
+          this.enviarParaQuarentena(
+            filePath,
+            destino,
+            nome,
+            classificacao.motivo ?? 'arquivo rejeitado',
+            resultado
+          );
 
-        continue;
-      }
+          continue;
+        }
 
-      const destinoServidor = path.join(classificacao.destinoServidor, nome);
-      const destinoTerminal = path.join(classificacao.destinoTerminal, nome);
+        try {
+          const destinoServidor = path.join(classificacao.destinoServidor, nome);
+          const destinoTerminal = path.join(classificacao.destinoTerminal, nome);
+          const svg = fs.readFileSync(filePath, 'utf8');
 
-      try {
-        this.copyFileToDisk(filePath, destinoServidor);
+          resultado.validos.push({
+            nome,
+            tipo: classificacao.tipo,
+            path_origem: destinoServidor,
+            path_dest: destinoTerminal,
+            public_url: this.buildPublicUrl(destinoTerminal),
+            svg,
+            createdBy: 0,
+            updatedBy: 0
+          });
 
-        const svg = fs.readFileSync(destinoServidor, 'utf8');
+          this.addLista(resultado, classificacao.lista, nome);
+        } catch (error: any) {
+          const destino = this.resolveDestinationPath(
+            SYSTEM_PATHS.SERVER_QUARENTENA,
+            nome,
+            true
+          );
 
-        resultado.validos.push({
-          nome,
-          tipo: classificacao.tipo,
-          path_origem: destinoServidor,
-          path_dest: destinoTerminal,
-          public_url: this.buildPublicUrl(destinoTerminal),
-          svg,
-          createdBy: 0,
-          updatedBy: 0
-        });
-
-        this.addLista(resultado, classificacao.lista, nome);
-      } catch (error: any) {
-        const destino = this.resolveDestinationPath(
-          SYSTEM_PATHS.SERVER_QUARENTENA,
-          nome,
-          true
-        );
-
-        this.enviarParaQuarentena(
-          filePath,
-          destino,
-          nome,
-          `falha ao mover arquivo para destino: ${error?.message ?? 'erro desconhecido'}`,
-          resultado
-        );
+          this.enviarParaQuarentena(
+            filePath,
+            destino,
+            nome,
+            `falha ao ler arquivo classificado: ${error?.message ?? 'erro desconhecido'}`,
+            resultado
+          );
+        }
       }
     }
   },
 
   // ============================================================
   // * PASSO 9 *
-  // Persiste válidos no banco.
-  // Se não existe, INSERT.
-  // Se existe, UPDATE forçado.
   // ============================================================
   async passo09PersistirBanco(resultado: SeedResultado): Promise<void> {
     await this.persistirSeed(resultado.validos, resultado);
@@ -595,45 +680,22 @@ export const imagensService = {
 
   // ============================================================
   // * PASSO 10 *
-  // Move qualquer sobra de src/assets/img para src/assets/quarentena.
-  // Depois remove o staging.
+  // Reconstrói pastas operacionais do servidor a partir do banco.
+  // Não apaga arq_zip nem quarentena.
   // ============================================================
-  passo10MoverSobrasParaQuarentena(resultado: SeedResultado): void {
-    const arquivos = this.walkFiles(SYSTEM_PATHS.SERVER_TEMP_IMG);
-
-    for (const filePath of arquivos) {
-      const nome = path.basename(filePath);
-
-      // Se o arquivo já foi copiado como válido, ele pode continuar no staging por causa da extração.
-      // Nesta etapa final, qualquer sobra física será preservada em quarentena para auditoria.
-      const destino = this.resolveDestinationPath(
-        SYSTEM_PATHS.SERVER_QUARENTENA,
-        nome,
-        true
-      );
-
-      if (resultado.validos.some(item => item.nome.toLowerCase() === nome.toLowerCase())) {
-        continue;
-      }
-
-      this.enviarParaQuarentena(
-        filePath,
-        destino,
-        nome,
-        'arquivo restante em staging',
-        resultado
-      );
-    }
-
-    this.clearFolder(SYSTEM_PATHS.SERVER_TEMP_IMG, resultado);
+  async passo10ReconstruirServidorAPartirDoBanco(resultado: SeedResultado): Promise<number> {
+    this.clearPastasOperacionaisServidor(resultado);
+    return this.baixarBancoParaServidor(resultado);
   },
 
   // ============================================================
   // * PASSO 11 *
-  // Espelha todas as pastas operacionais do servidor para C:/imagens-sgv.
-  // Isso garante que servidor e terminal-client tenham os mesmos arquivos.
+  // Sincroniza pastas operacionais do servidor para C:/imagens-sgv.
+  // Não copia quarentena para C:/imagens-sgv.
   // ============================================================
-  passo11EspelharServidorParaTerminal(resultado: SeedResultado): number {
+  passo11SincronizarServidorParaTerminal(resultado: SeedResultado): number {
+    this.clearPastasOperacionaisTerminal(resultado);
+
     let total = 0;
 
     for (const par of this.getParesOperacionais()) {
@@ -641,21 +703,8 @@ export const imagensService = {
       total += copiados.length;
 
       for (const nome of copiados) {
-        resultado.listas.servidor_para_terminal.push(`${par.lista}:${nome}`);
+        resultado.listas.servidor_para_terminal.push(`${String(par.lista)}:${nome}`);
       }
-    }
-
-    const quarentenaCopiados = this.copyFolderFiles(
-      SYSTEM_PATHS.SERVER_QUARENTENA,
-      SYSTEM_PATHS.IMAGENS_REJEITADAS_IMG,
-      resultado,
-      true
-    );
-
-    total += quarentenaCopiados.length;
-
-    for (const nome of quarentenaCopiados) {
-      resultado.listas.servidor_para_terminal.push(`quarentena:${nome}`);
     }
 
     return total;
@@ -663,8 +712,15 @@ export const imagensService = {
 
   // ============================================================
   // * PASSO 12 *
-  // Exibe listas finais do processo.
+  // Exibe listas finais, incluindo listas físicas reais.
   // ============================================================
+  passo12ListarFisicosEExibir(resultado: SeedResultado): void {
+    resultado.listas.fisicos_servidor = this.listarArquivosOperacionaisServidor();
+    resultado.listas.fisicos_terminal = this.listarArquivosOperacionaisTerminal();
+
+    this.passo12MostrarListas(resultado);
+  },
+
   passo12MostrarListas(resultado: SeedResultado): void {
     this.logLista('ZIP_LIDOS', resultado.listas.zip_lidos);
     this.logLista('ZIP_AUTORIZADOS', resultado.listas.zip_autorizados);
@@ -681,19 +737,22 @@ export const imagensService = {
     this.logLista('QUARENTENA', resultado.listas.quarentena);
     this.logLista('BANCO_INSERT', resultado.listas.banco_insert);
     this.logLista('BANCO_UPDATE', resultado.listas.banco_update);
+    this.logLista('BANCO_IGNORADO', resultado.listas.banco_ignorado);
     this.logLista('BANCO_PARA_SERVIDOR', resultado.listas.banco_para_servidor);
     this.logLista('SERVIDOR_PARA_TERMINAL', resultado.listas.servidor_para_terminal);
+    this.logLista('FISICOS_SERVIDOR', resultado.listas.fisicos_servidor);
+    this.logLista('FISICOS_TERMINAL', resultado.listas.fisicos_terminal);
+    this.logLista('PASTAS_CRIADAS', resultado.listas.pastas_criadas);
+    this.logLista('PASTAS_EXISTENTES', resultado.listas.pastas_existentes);
     this.logLista('ERROS', resultado.listas.erros);
   },
 
   // ============================================================
-  // * PERSIST DATABASE *
-  // Insere quando não existe.
-  // Atualiza sempre quando já existe.
+  // * DATABASE *
   // ============================================================
   async persistirSeed(items: ImagemRegistro[], resultado?: SeedResultado): Promise<void> {
     for (const item of items) {
-      const existingRows: ImagemDbRow[] = await AppDataSource.query(
+      const existingRows: Pick<ImagemDbRow, 'id'>[] = await AppDataSource.query(
         `
         SELECT id
         FROM imagens
@@ -765,10 +824,60 @@ export const imagensService = {
     }
   },
 
-  // ============================================================
-  // * SYNC FOLDER WITH DATABASE *
-  // Sincroniza pasta operacional do servidor com banco.
-  // ============================================================
+  async baixarBancoParaServidor(resultado: SeedResultado): Promise<number> {
+    const rows: ImagemDbRow[] = await AppDataSource.query(`
+      SELECT
+        id,
+        nome,
+        tipo,
+        path_origem,
+        path_dest,
+        public_url,
+        svg
+      FROM imagens
+      ORDER BY id ASC
+    `);
+
+    let total = 0;
+
+    for (const row of rows) {
+      const destinoServidor = this.getServerPathByNome(row.nome);
+
+      if (!destinoServidor) {
+        const motivo = `registro ignorado por prefixo inválido: ${row.nome}`;
+
+        resultado.erros.push({
+          arquivo: row.nome,
+          motivo
+        });
+
+        resultado.listas.erros.push(motivo);
+        resultado.listas.banco_ignorado.push(row.nome);
+        console.warn(`[IGNORADO][IMAGENS] ${motivo}`);
+        continue;
+      }
+
+      try {
+        this.writeSvgToDisk(destinoServidor, row.svg);
+        resultado.listas.banco_para_servidor.push(row.nome);
+        total++;
+      } catch (error: any) {
+        const motivo = `falha ao baixar banco para servidor: ${error?.message ?? 'erro desconhecido'}`;
+
+        resultado.erros.push({
+          arquivo: row.nome,
+          destino: destinoServidor,
+          motivo
+        });
+
+        resultado.listas.erros.push(`${row.nome} | ${motivo}`);
+        console.error(`[ERRO][IMAGENS] ${row.nome} | ${motivo}`);
+      }
+    }
+
+    return total;
+  },
+
   async syncFolderWithDatabase(folderPath: string, resultado?: SeedResultado): Promise<number> {
     const files = this.walkFiles(folderPath);
     const registros: ImagemRegistro[] = [];
@@ -810,8 +919,7 @@ export const imagensService = {
   },
 
   // ============================================================
-  // * CLASSIFICAR ARQUIVO *
-  // Valida arquivo conforme ZIP de origem e prefixo oficial.
+  // * CLASSIFICAÇÃO *
   // ============================================================
   classificarArquivo(nome: string, zipOrigem?: string): ClassificacaoArquivo {
     const lower = nome.toLowerCase();
@@ -821,37 +929,27 @@ export const imagensService = {
       return this.rejeitar(`Extensão inválida: ${nome}`);
     }
 
-    if (zip === 'avt_sys.zip' && lower.startsWith('avt_def_')) {
-      return this.aceitar('avatar', SYSTEM_PATHS.SERVER_DEFAULT_AVT, SYSTEM_PATHS.IMAGENS_DEFAULT_AVT, 'defaults_avt');
+    if (!zip || !this.isZipAutorizado(zip)) {
+      return this.rejeitar(
+        `Arquivo não compatível com destino: arquivo=${nome} zip=${zipOrigem ?? 'não identificado'}`
+      );
     }
 
-    if (zip === 'btn_sys.zip' && lower.startsWith('btn_def_')) {
-      return this.aceitar('botao', SYSTEM_PATHS.SERVER_DEFAULT_BTN, SYSTEM_PATHS.IMAGENS_DEFAULT_BTN, 'defaults_btn');
+    const regra = this.getRegraPorArquivo(lower);
+
+    if (!regra) {
+      return this.rejeitar(
+        `Arquivo não compatível com destino: arquivo=${nome} zip=${zipOrigem ?? 'não identificado'}`
+      );
     }
 
-    if (zip === 'ft_sys.zip' && lower.startsWith('ft_def_')) {
-      return this.aceitar('foto', SYSTEM_PATHS.SERVER_DEFAULT_FT, SYSTEM_PATHS.IMAGENS_DEFAULT_FT, 'defaults_ft');
+    if (regra.zip !== zip) {
+      return this.rejeitar(
+        `Arquivo não compatível com destino: arquivo=${nome} zip=${zipOrigem ?? 'não identificado'} esperado=${regra.zip}`
+      );
     }
 
-    if (zip === 'ft_sys.zip' && lower.startsWith('ft_cli_')) {
-      return this.aceitar('foto', SYSTEM_PATHS.SERVER_USERCLIENTS_FT, SYSTEM_PATHS.IMAGENS_USERCLIENTS_FT, 'ft_cli');
-    }
-
-    if (zip === 'lg_sys.zip' && lower.startsWith('lg_def_')) {
-      return this.aceitar('logo', SYSTEM_PATHS.SERVER_DEFAULT_LG, SYSTEM_PATHS.IMAGENS_DEFAULT_LG, 'defaults_lg');
-    }
-
-    if (zip === 'lg_sys.zip' && lower.startsWith('lg_cli_')) {
-      return this.aceitar('logo', SYSTEM_PATHS.SERVER_USERCLIENTS_LG, SYSTEM_PATHS.IMAGENS_USERCLIENTS_LG, 'lg_cli');
-    }
-
-    if (zip === 'pnl_sys.zip' && lower.startsWith('pnl_def_')) {
-      return this.aceitar('painel', SYSTEM_PATHS.SERVER_DEFAULT_PNL, SYSTEM_PATHS.IMAGENS_DEFAULT_PNL, 'defaults_pnl');
-    }
-
-    return this.rejeitar(
-      `Arquivo não compatível com destino: arquivo=${nome} zip=${zipOrigem ?? 'não identificado'}`
-    );
+    return this.aceitar(regra.tipo, regra.servidor, regra.terminal, regra.lista);
   },
 
   aceitar(
@@ -874,81 +972,56 @@ export const imagensService = {
       valido: false,
       tipo: 'img',
       destinoServidor: SYSTEM_PATHS.SERVER_QUARENTENA,
-      destinoTerminal: SYSTEM_PATHS.IMAGENS_REJEITADAS_IMG,
+      destinoTerminal: '',
       lista: 'quarentena',
       motivo
     };
   },
 
   // ============================================================
-  // * DETECTAR ZIP ORIGEM POR NOME *
-  // Detecta o ZIP esperado pelo prefixo oficial.
+  // * DETECÇÕES *
   // ============================================================
   detectarZipOrigemPorNome(nome: string, zipFiles: string[]): string | undefined {
-    const lower = nome.toLowerCase();
+    const regra = this.getRegraPorArquivo(nome.toLowerCase());
 
-    const esperado =
-      lower.startsWith('avt_def_') ? 'avt_sys.zip' :
-      lower.startsWith('btn_def_') ? 'btn_sys.zip' :
-      lower.startsWith('ft_def_') || lower.startsWith('ft_cli_') ? 'ft_sys.zip' :
-      lower.startsWith('lg_def_') || lower.startsWith('lg_cli_') ? 'lg_sys.zip' :
-      lower.startsWith('pnl_def_') ? 'pnl_sys.zip' :
-      undefined;
-
-    if (!esperado) {
+    if (!regra) {
       return undefined;
     }
 
-    return zipFiles.find(zip => zip.toLowerCase() === esperado);
+    return zipFiles.find(zip => zip.toLowerCase() === regra.zip);
   },
 
-  // ============================================================
-  // * DETECT TIPO *
-  // Só reconhece prefixos oficiais.
-  // ============================================================
   detectTipo(nome: string): ImagemTipo {
-    const lower = nome.toLowerCase();
+    const regra = this.getRegraPorArquivo(nome.toLowerCase());
+    return regra?.tipo ?? 'img';
+  },
 
-    if (lower.startsWith('avt_def_')) return 'avatar';
-    if (lower.startsWith('btn_def_')) return 'botao';
-    if (lower.startsWith('ft_def_')) return 'foto';
-    if (lower.startsWith('ft_cli_')) return 'foto';
-    if (lower.startsWith('lg_def_')) return 'logo';
-    if (lower.startsWith('lg_cli_')) return 'logo';
-    if (lower.startsWith('pnl_def_')) return 'painel';
+  getRegraPorArquivo(nomeLower: string): RegraArquivo | undefined {
+    return REGRAS_ARQUIVOS.find(regra =>
+      regra.prefixos.some(prefixo => nomeLower.startsWith(prefixo))
+    );
+  },
 
-    return 'img';
+  isZipAutorizado(zipName: string): boolean {
+    return ZIP_AUTORIZADOS.includes(zipName.toLowerCase());
   },
 
   // ============================================================
   // * PATH HELPERS *
   // ============================================================
   getServerPathByNome(nome: string): string | null {
-    const lower = nome.toLowerCase();
-
-    if (lower.startsWith('avt_def_')) return path.join(SYSTEM_PATHS.SERVER_DEFAULT_AVT, nome);
-    if (lower.startsWith('btn_def_')) return path.join(SYSTEM_PATHS.SERVER_DEFAULT_BTN, nome);
-    if (lower.startsWith('ft_def_')) return path.join(SYSTEM_PATHS.SERVER_DEFAULT_FT, nome);
-    if (lower.startsWith('ft_cli_')) return path.join(SYSTEM_PATHS.SERVER_USERCLIENTS_FT, nome);
-    if (lower.startsWith('lg_def_')) return path.join(SYSTEM_PATHS.SERVER_DEFAULT_LG, nome);
-    if (lower.startsWith('lg_cli_')) return path.join(SYSTEM_PATHS.SERVER_USERCLIENTS_LG, nome);
-    if (lower.startsWith('pnl_def_')) return path.join(SYSTEM_PATHS.SERVER_DEFAULT_PNL, nome);
-
-    return null;
+    const regra = this.getRegraPorArquivo(nome.toLowerCase());
+    return regra ? path.join(regra.servidor, nome) : null;
   },
 
   getTerminalPathByNome(nome: string): string | null {
-    const lower = nome.toLowerCase();
+    const regra = this.getRegraPorArquivo(nome.toLowerCase());
+    return regra ? path.join(regra.terminal, nome) : null;
+  },
 
-    if (lower.startsWith('avt_def_')) return path.join(SYSTEM_PATHS.IMAGENS_DEFAULT_AVT, nome);
-    if (lower.startsWith('btn_def_')) return path.join(SYSTEM_PATHS.IMAGENS_DEFAULT_BTN, nome);
-    if (lower.startsWith('ft_def_')) return path.join(SYSTEM_PATHS.IMAGENS_DEFAULT_FT, nome);
-    if (lower.startsWith('ft_cli_')) return path.join(SYSTEM_PATHS.IMAGENS_USERCLIENTS_FT, nome);
-    if (lower.startsWith('lg_def_')) return path.join(SYSTEM_PATHS.IMAGENS_DEFAULT_LG, nome);
-    if (lower.startsWith('lg_cli_')) return path.join(SYSTEM_PATHS.IMAGENS_USERCLIENTS_LG, nome);
-    if (lower.startsWith('pnl_def_')) return path.join(SYSTEM_PATHS.IMAGENS_DEFAULT_PNL, nome);
-
-    return null;
+  getZipExtractDir(zipName: string): string {
+    const parsed = path.parse(zipName.toLowerCase());
+    return path.join(SYSTEM_PATHS.SERVER_TEMP_IMG, parsed.name);
   },
 
   getParesOperacionais(): PastaPar[] {
@@ -991,6 +1064,18 @@ export const imagensService = {
     ];
   },
 
+  listarArquivosOperacionaisServidor(): string[] {
+    return this.getParesOperacionais().flatMap(par =>
+      this.walkFiles(par.servidor).map(filePath => `${String(par.lista)}:${path.basename(filePath)}`)
+    );
+  },
+
+  listarArquivosOperacionaisTerminal(): string[] {
+    return this.getParesOperacionais().flatMap(par =>
+      this.walkFiles(par.terminal).map(filePath => `${String(par.lista)}:${path.basename(filePath)}`)
+    );
+  },
+
   // ============================================================
   // * RESULT STRUCTURE *
   // ============================================================
@@ -1015,9 +1100,13 @@ export const imagensService = {
         quarentena: [],
         banco_insert: [],
         banco_update: [],
+        banco_ignorado: [],
 
-        servidor_para_terminal: [],
         banco_para_servidor: [],
+        servidor_para_terminal: [],
+
+        fisicos_servidor: [],
+        fisicos_terminal: [],
 
         pastas_criadas: [],
         pastas_existentes: [],
@@ -1076,7 +1165,19 @@ export const imagensService = {
       });
 
       resultado?.listas.erros.push(`${folderPath} | ${motivo}`);
-      console.error(`[ERRO] ${folderPath} | ${motivo}`);
+      console.error(`[ERRO][IMAGENS] ${folderPath} | ${motivo}`);
+    }
+  },
+
+  clearPastasOperacionaisServidor(resultado: SeedResultado): void {
+    for (const par of this.getParesOperacionais()) {
+      this.clearFolder(par.servidor, resultado);
+    }
+  },
+
+  clearPastasOperacionaisTerminal(resultado: SeedResultado): void {
+    for (const par of this.getParesOperacionais()) {
+      this.clearFolder(par.terminal, resultado);
     }
   },
 
@@ -1117,7 +1218,7 @@ export const imagensService = {
         });
 
         resultado.listas.erros.push(`${nome} | ${motivo}`);
-        console.error(`[ERRO] ${nome} | ${motivo}`);
+        console.error(`[ERRO][IMAGENS] ${nome} | ${motivo}`);
       }
     }
 
@@ -1154,7 +1255,7 @@ export const imagensService = {
       });
 
       resultado.listas.erros.push(`${arquivo} | ${motivoErro}`);
-      console.error(`[ERRO] ${arquivo} | ${motivoErro}`);
+      console.error(`[ERRO][IMAGENS] ${arquivo} | ${motivoErro}`);
     }
   },
 
@@ -1172,6 +1273,8 @@ export const imagensService = {
   },
 
   extractZip(zipFullPath: string, extractDir: string): void {
+    fs.mkdirSync(extractDir, { recursive: true });
+
     execFileSync(
       'powershell',
       [
@@ -1203,16 +1306,6 @@ export const imagensService = {
     return files;
   },
 
-  isZipAutorizado(zipName: string): boolean {
-    return [
-      'avt_sys.zip',
-      'btn_sys.zip',
-      'ft_sys.zip',
-      'lg_sys.zip',
-      'pnl_sys.zip'
-    ].includes(zipName.toLowerCase());
-  },
-
   buildPublicUrl(fullPath: string): string {
     const base = path.resolve(SYSTEM_PATHS.IMAGENS_BASE);
     const target = path.resolve(fullPath);
@@ -1231,6 +1324,10 @@ export const imagensService = {
   formatLista(lista: string[]): string {
     return lista.length > 0 ? lista.join(', ') : '-';
   },
+
+  //  async sleepTime(ms = SLEEP_TIME_MS): Promise<void> {
+  //   await new Promise(resolve => setTimeout(resolve, ms));
+  // },
 
   logStep(passo: number, mensagem: string): void {
     console.info(`[PASSO ${passo}][IMAGENS] ${mensagem}`);
