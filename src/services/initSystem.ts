@@ -1,5 +1,4 @@
- 
- // C:\repository\proj-full-stack-backend\src\services\initSystem.ts
+// C:\repository\proj-full-stack-backend\src\services\initSystem.ts
 
 import { checkConnectionService } from './checkConectionService';
 import { checkTables } from './checkTables';
@@ -31,9 +30,14 @@ export interface InitResult {
 
 // ==================================================
 // Inicialização do sistema (INSTALAÇÃO)
+// OBS:
+// Este arquivo NÃO deve processar imagens por ZIP.
+// O processo completo de imagens fica em:
+// src/services/ensuresSystemReady.ts
 // ==================================================
 export async function initSystem(): Promise<InitResult> {
   console.log('>>> [initSystem] função foi chamada');
+
   const steps: InitStep[] = [];
   let checkedTables: string[] = [];
   let missingTables: string[] = [];
@@ -84,6 +88,7 @@ export async function initSystem(): Promise<InitResult> {
     console.log('>>> [initSystem] executando checkTables()...');
 
     const tablesResult = await checkTables();
+
     checkedTables = tablesResult.existingTables;
     missingTables = tablesResult.missingTables;
 
@@ -137,6 +142,7 @@ export async function initSystem(): Promise<InitResult> {
           message: `⚠️ Não existe service registrado para <${tableName}>. Tabela não será criada automaticamente.`,
           success: true,
         });
+
         continue;
       }
 
@@ -257,4 +263,3 @@ export async function initSystem(): Promise<InitResult> {
     };
   }
 }
-

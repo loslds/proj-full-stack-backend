@@ -71,3 +71,4 @@ export const tableServicesRegistry: Partial<
 
   imagens: imagensService,
 };
+

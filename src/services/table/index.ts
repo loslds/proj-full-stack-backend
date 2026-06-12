@@ -47,6 +47,7 @@ export const tableServices: TableService[] = [
   emailsService,
   docsService,
   fonesService,
+  imagensService,
   modulosService,
   cargosService,
   acoesService,
@@ -56,9 +57,7 @@ export const tableServices: TableService[] = [
   acessosService,
   chavesService,
   pergsrespsService,
-    imagensService,
-
-  
+    
   // próximos:  
 ];
 

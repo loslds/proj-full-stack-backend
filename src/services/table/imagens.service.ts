@@ -1,3 +1,5 @@
+
+ 
 // C:\repository\proj-full-stack-backend\src\services\table\imagens.service.ts
 
 import fs from 'fs';
@@ -297,7 +299,7 @@ export const imagensService = {
   // Arquitetura final:
   // 1 conexão/tabela
   // 2 pastas backend
-  // 3 pastas C:/imagens-sgv
+  // 3 pastas C:/imagens-sgb
   // 4 limpar apenas src/assets/img
   // 5 localizar ZIPs
   // 6 validar ZIPs; inválido -> quarentena servidor
@@ -305,7 +307,7 @@ export const imagensService = {
   // 8 classificar arquivos; inválido -> quarentena servidor; válido -> memória
   // 9 insert/update banco
   // 10 reconstruir src/assets a partir da tabela imagens
-  // 11 sincronizar src/assets para C:/imagens-sgv
+  // 11 sincronizar src/assets para C:/imagens-sgb
   // 12 exibir listas físicas reais
   // ============================================================
   async seed(): Promise<SeedResultado> {
@@ -325,9 +327,9 @@ export const imagensService = {
       this.logOk(2, 'Pastas backend verificadas');
       await this.sleepTime();
 
-      this.logStep(3, 'Criando/verificando pastas C:/imagens-sgv');
+      this.logStep(3, 'Criando/verificando pastas C:/imagens-sgb');
       this.passo03VerificarPastasTerminalClient(resultado);
-      this.logOk(3, 'Pastas C:/imagens-sgv verificadas');
+      this.logOk(3, 'Pastas C:/imagens-sgb verificadas');
       await this.sleepTime();
 
       this.logStep(4, 'Limpando apenas src/assets/img');
@@ -365,7 +367,7 @@ export const imagensService = {
       this.logOk(10, `Arquivos reconstruídos no servidor: ${totalServidor}`);
       await this.sleepTime();
 
-      this.logStep(11, 'Sincronizando src/assets para C:/imagens-sgv');
+      this.logStep(11, 'Sincronizando src/assets para C:/imagens-sgb');
       totalTerminal = this.passo11SincronizarServidorParaTerminal(resultado);
       this.logOk(11, `Arquivos sincronizados para terminal-client: ${totalTerminal}`);
       await this.sleepTime();
@@ -690,8 +692,8 @@ export const imagensService = {
 
   // ============================================================
   // * PASSO 11 *
-  // Sincroniza pastas operacionais do servidor para C:/imagens-sgv.
-  // Não copia quarentena para C:/imagens-sgv.
+  // Sincroniza pastas operacionais do servidor para C:/imagens-sgb.
+  // Não copia quarentena para C:/imagens-sgb.
   // ============================================================
   passo11SincronizarServidorParaTerminal(resultado: SeedResultado): number {
     this.clearPastasOperacionaisTerminal(resultado);
@@ -1341,3 +1343,4 @@ export const imagensService = {
     console.info(`[LISTA][${nome}] ${this.formatLista(lista)}`);
   }
 };
+  
