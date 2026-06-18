@@ -21,7 +21,7 @@ export class SystemTableController {
         return res.status(400).json({ exists: false, rows: [] });
       }
 
-      const dbName = process.env.DB_NAME ?? "sgb";
+      const dbName = process.env.DB_NAME ?? "sgv";
 
       // Verifica existência
       const existsRows = await AppDataSource.query(

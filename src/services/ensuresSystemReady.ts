@@ -73,7 +73,7 @@ async function createAndPrepareTable(
     // - descompactação
     // - insert/update no banco
     // - reconstrução do servidor
-    // - sincronização com C:/imagens-sgb
+    // - sincronização com C:/imagens-sgv
     if (table === "imagens") {
       const imagensResult = await imagensService.seed();
 

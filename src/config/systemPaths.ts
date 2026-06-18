@@ -2,7 +2,7 @@
 // C:\repository\proj-full-stack-backend\src\config\systemPaths.ts
 import path from 'path';
 
-const IMAGENS_BASE = 'C:/imagens-sgb';
+const IMAGENS_BASE = 'C:/imagens-sgv';
 
 export const SYSTEM_PATHS = {
   // Servidor
