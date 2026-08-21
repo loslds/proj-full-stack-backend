@@ -1,6 +1,6 @@
 
+// C:\repository\proj-full-stack-backend\src\use-cases\grpservico\grpservicos.entity.ts
 
-// C:\repository\proj-full-stack-backend\src\use-cases\empresa\empresas.entity.ts
 import {
   Column,
   Entity,
@@ -11,56 +11,46 @@ import {
   Unique
 } from 'typeorm';
 
-import { PessoasEntity } from '../pessoa/pessoas.entity';
+import { ServicosEntity } from '../servico/servicos.entity';
 
-@Entity('empresas')
-@Unique(['nome', 'fantasy', 'id_pessoas'])
-@Index('idx_empresas_nome', ['nome'])
-@Index('idx_empresas_fantasy', ['fantasy'])
-@Index('idx_empresas_id_pessoas', ['id_pessoas'])
-export class EmpresasEntity {
+
+@Entity('grpservicos')
+@Unique(['nome', 'id_servicos'])
+@Index('idx_grpservicos_nome', ['nome'])
+@Index('idx_grpservicos_id_servicos', ['id_servicos'])
+export class GrpServicosEntity {
+
   @PrimaryGeneratedColumn({
     type: 'int',
     unsigned: true
   })
   id: number;
 
+
   @Column({
     type: 'int',
     unsigned: true,
-    nullable: false,
-    default: 0
+    nullable: false
   })
-  id_pessoas: number;
+  id_servicos: number;
 
-  @ManyToOne(() => PessoasEntity, {
+
+  @ManyToOne(() => ServicosEntity, {
     nullable: false,
     onDelete: 'RESTRICT'
   })
-  @JoinColumn({ name: 'id_pessoas' })
-  pessoas: PessoasEntity;
+  @JoinColumn({ name: 'id_servicos' })
+  servicos: ServicosEntity;
+
 
   @Column({
     type: 'varchar',
-    length: 60,
+    length: 150,
     nullable: false,
     collation: 'utf8mb4_general_ci'
   })
   nome: string;
 
-  @Column({
-    type: 'varchar',
-    length: 60,
-    nullable: false,
-    collation: 'utf8mb4_general_ci'
-  })
-  fantasy: string;
-
-  @Column({
-    type: 'mediumtext',
-    nullable: true,
-  })
-  formhlpemp: string | null;
 
   @Column({
     type: 'int',
@@ -70,12 +60,14 @@ export class EmpresasEntity {
   })
   createdBy: number;
 
+
   @Column({
     type: 'datetime',
     nullable: true,
     default: () => 'CURRENT_TIMESTAMP'
   })
   createdAt: Date;
+
 
   @Column({
     type: 'int',
@@ -85,6 +77,7 @@ export class EmpresasEntity {
   })
   updatedBy: number;
 
+
   @Column({
     type: 'datetime',
     nullable: true,
@@ -93,4 +86,3 @@ export class EmpresasEntity {
   })
   updatedAt: Date;
 }
-

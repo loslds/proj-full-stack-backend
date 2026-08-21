@@ -32,8 +32,12 @@ import { acessosService } from "./acessos.service";
 import { chavesService } from "./chaves.service";
 import { pergsrespsService } from "./pergsresps.service";
 
+import { servicosService } from "./servicos.service";
+import { grpservicosService } from "./grpservicos.service";
+
 import type { SystemTableName } from "./tables";
 import type { TableService } from "./tableService.types";
+
 
 export const tableServicesRegistry: Partial<
   Record<SystemTableName, TableService>
@@ -43,7 +47,7 @@ export const tableServicesRegistry: Partial<
   pessoas: pessoasService,
   estados: estadosService,
   cidades: cidadesService,
-  //imagens: imagensService,
+  imagens: imagensService,
 
   empresas: empresasService,
   visitantes: visitantesService,
@@ -69,6 +73,8 @@ export const tableServicesRegistry: Partial<
   chaves: chavesService,
   pergsresps: pergsrespsService,
 
-  imagens: imagensService,
+  servicos: servicosService,
+  grpservicos: grpservicosService
+  
 };
 

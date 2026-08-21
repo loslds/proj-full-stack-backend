@@ -44,6 +44,10 @@ export const empresasService = {
           NOT NULL
           COLLATE utf8mb4_general_ci,
 
+        formhelpemp MEDIUMTEXT
+          NULL
+          COLLATE utf8mb4_general_ci,
+
         createdBy INT UNSIGNED
           NOT NULL
           DEFAULT 0,

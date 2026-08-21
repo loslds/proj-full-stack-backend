@@ -29,6 +29,8 @@ import { LoginsEntity } from './../use-cases/login/logins.entity';
 import { AcessosEntity } from './../use-cases/acesso/acessos.entity';  
 import { ChavesEntity } from './../use-cases/chave/chaves.entity';
 import { PergsrespsEntity } from './../use-cases/pergresp/pergsresps.entity';
+import { ServicosEntity } from './../use-cases/servico/servicos.entity';
+import { GrpServicosEntity } from './../use-cases/grpservico/grpservicos.entity';
 
 export const dbConfig = {
   host: process.env.DB_HOST ?? 'localhost',

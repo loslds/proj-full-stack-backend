@@ -31,8 +31,9 @@ export const systemTables = [
   'acessos',  
   'chaves',
   'pergsresps',
-  
-    
+  'servicos',
+  'grpservicos'
+      
 ] as const;
 //////////////////////////////////////
 /**
@@ -50,6 +51,8 @@ export const tablesWithDefaults = [
   'cargos',
   'acoes',
   'perguntas',
+  'servicos',
+  'grpservicos'
 
 ] as const;
 //////////////////////////////////////

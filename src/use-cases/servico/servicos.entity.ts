@@ -1,18 +1,18 @@
 
-// C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.entity.ts
+
+// C:\repository\proj-full-stack-backend\src\use-cases\servico\servicos.entity.ts
 import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-  Unique,
-  Index
+  Index,
+  Unique
 } from 'typeorm';
 
-@Entity('pessoas')
-@Unique(['nome', 'sigla']) // garante que não existam duplicados (nome + sigla)
-@Index('idx_pessoas_nome', ['nome'])
-@Index('idx_pessoas_sigla', ['sigla'])
-export class PessoasEntity {
+@Entity('servicos')
+@Unique(['nome'])
+@Index('idx_servicos_nome', ['nome'])
+export class ServicosEntity {
   @PrimaryGeneratedColumn({
     type: 'int',
     unsigned: true
@@ -26,15 +26,7 @@ export class PessoasEntity {
     collation: 'utf8mb4_general_ci'
   })
   nome: string;
-
-  @Column({
-    type: 'varchar',
-    length: 5,
-    nullable: false,
-    collation: 'utf8mb4_general_ci'
-  })
-  sigla: string;
-
+  
   @Column({
     type: 'int',
     unsigned: true,
@@ -66,3 +58,4 @@ export class PessoasEntity {
   })
   updatedAt: Date;
 }
+

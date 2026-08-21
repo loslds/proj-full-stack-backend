@@ -1,6 +1,7 @@
 
 // src/config/app.ts
-export const appPort = 3000; // porta backend
+export const appPort = 5000; // porta backend
 export const frontendPort = 5173; // porta frontend
-export const frontendDomain = "https://meusite.com"; // seu domínio real
+export const frontendDomain = "http://localhost:5173"; // seu domínio LOCAL
 
+//export const frontendDomain = "https://meusite.com"; // seu domínio real

@@ -18,6 +18,19 @@ export const empresasCreateSchema = z.object({
     .trim()
     .min(2, 'Fantasy deve ter ao menos 2 caracteres')
     .max(60, 'Fantasy deve ter no máximo 60 caracteres'),
+  
+  formhelpemp: z.preprocess(
+    (valor) => {
+      if (typeof valor !== 'string') {
+        return valor;
+      }
+
+      const texto = valor.trim();
+
+      return texto === '' ? null : texto;
+    },
+    z.string().nullable().optional()
+  ),
 
   id_pessoas: z
     .number()
