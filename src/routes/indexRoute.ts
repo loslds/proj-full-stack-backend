@@ -31,6 +31,8 @@ import { loginsRoutes } from '../use-cases/login';
 import { acessosRoutes } from '../use-cases/acesso';
 import { chavesRoutes } from '../use-cases/chave';
 import { pergsrespsRoutes } from '../use-cases/pergresp';
+import { servicosRoutes } from '../use-cases/servico';
+import { grpservicosRoutes } from '../use-cases/grpservico';
 
 const indexRoute = Router();
 
@@ -64,6 +66,8 @@ indexRoute.use("/logins", loginsRoutes);
 indexRoute.use("/acessos", acessosRoutes);
 indexRoute.use("/chaves", chavesRoutes);
 indexRoute.use("/pergsresps", pergsrespsRoutes);
+indexRoute.use("/servicos", servicosRoutes);
+indexRoute.use("/grpservicos", grpservicosRoutes);
 
 // grids
 indexRoute.use("/grid", indexGridRoute);

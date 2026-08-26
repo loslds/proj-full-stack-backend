@@ -27,6 +27,8 @@ import { loginsService } from './logins.service';
 import { acessosService } from './acessos.service';
 import { chavesService } from './chaves.service';
 import { pergsrespsService } from './pergsresps.service';
+import { servicosService } from './servicos.service';
+import { grpservicosService } from './grpservicos.service';
 
 // ==================================================
 // Lista de services de tabelas do sistema
@@ -57,6 +59,8 @@ export const tableServices: TableService[] = [
   acessosService,
   chavesService,
   pergsrespsService,
+  servicosService,
+  grpservicosService,
     
   // próximos:  
 ];
