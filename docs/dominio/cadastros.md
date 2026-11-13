@@ -60,19 +60,37 @@ O que vem depois do contato (por exemplo, o primeiro usuário) o dono deixou **e
 - [código] `cidades` única por (`nome`, `id_estados`). `empresas` única por (`nome`, `fantasy`, `id_pessoas`). Tabela é `emails`, flag é `has_email`.
 - [código] Filiais têm CNPJ próprio (raiz comum, sufixo e dígitos diferentes): o `UNIQUE` em `cnpj` está correto.
 
+## Decisões do grill (2026-11-13) ✔
+
+1. **Unicidade por empresa**: documento, e-mail e telefone podem repetir entre empresas do mesmo banco, **não** dentro da mesma empresa. Troca o `UNIQUE` global por regra por empresa (`id_empresas` nas tabelas ou chave composta via `cadastros`; escolher na implementação).
+2. **Duplicidade na mesma empresa**: **documento bloqueia** (mostrando de quem é); **telefone e e-mail avisam** e deixam seguir; nome só sugere.
+3. **Arquivado**: flag `arquivado` (0/1) + data + quem, em **todas** as tabelas de papel; o **backend** filtra arquivados por padrão (hoje `/api/*` e `/api/grid/*` listam tudo); só a listagem de arquivados do Config os mostra.
+4. **OS aponta para o cadastro** (`id_cadastros`, que não muda) e guarda o papel usado à parte.
+
+5. **Arquivar o Consumidor** serve só para **não deletar** o registro. Só se arquiva **depois de checado** que ele **virou Cliente**.
+6. **Desarquivar** só no **Config** e só para **reparar um erro** na mudança; exige **justificativa** (registrada: quem, quando, motivo).
+7. **Rastro**: ao converter, guarda-se no cliente a **data e a origem** da conversão (o `id_consumidores` do cadastro zera).
+8. **Flags `has_doc`, `has_email`, `has_fone`**: o **backend** as atualiza na **mesma transação** que grava documento ou contatos; o frontend nunca as envia.
+9. **Assistente da empresa**: grava **passo a passo**, e o cadastro fica marcado **"incompleto"** até o fim, para o sistema **retomar** o assistente em vez de deixar registros órfãos.
+
+10. **Duplicidade com ajuda**: se o documento já existe, o sistema mostra **o nome de quem tem** e oferece **reaproveitar esse cadastro** (acrescentando o papel, ex.: Fornecedor que vira também Cliente) em vez de só recusar.
+11. **Validação no backend**: confere os **dígitos verificadores** de CPF e CNPJ e guarda **só os dígitos**; a formatação é só na tela (a busca por duplicata não erra por pontuação).
+12. **Obrigatório por papel**: Consumidor = nome e telefone. Cliente e Fornecedor = documento, e-mail e endereço. Funcionário = igual a Cliente.
+13. **Número do endereço**: nova coluna `numero` em `cadastros`, para a regra "complemento ou número diferente" funcionar.
+
+## Princípio de arquitetura (dono, 2026-11-13) ✔
+
+**Todo processo é efetuado no servidor, para não sobrecarregar o cliente (frontend).** O frontend só apresenta e coleta; validação, busca de duplicidade, filtros (estado → cidade, arquivados), importação, cálculo das flags `has_*` e regras de papel rodam no **backend**. Registrado em [../regras-de-ouro.md](../regras-de-ouro.md).
+
 ## Lacunas abertas (grill, na ordem de prioridade)
 
-1. **Unicidade por empresa × importação**: importar copia documento, e-mail e telefone para um 2º cadastro, mas o banco proíbe repetir. _Recomendação:_ unicidade **por empresa** (id_empresas nas três tabelas ou regra no backend).
-2. **Regra de duplicidade na mesma empresa**: _recomendação:_ **documento bloqueia** (mostrando de quem é), **telefone e e-mail avisam**, nome só sugere. O dono descreveu "nome, documento, telefone e e-mail iguais não podem" (ambíguo: qualquer um ou todos?).
-3. **Flag de arquivado**: _recomendação:_ `arquivado` (0/1) + data + quem, em **todas** as tabelas de papel; filtro **no backend** (hoje `/api/*` e `/api/grid/*` listam tudo). Recuperável? Rastro de "foi consumidor" (já que `id_consumidores` zera)?
-4. **OS aponta para o cadastro** (não muda) e guarda o papel à parte. _Recomendação:_ sim.
-5. Mensagem da duplicata: mostra **quem** tem o dado? Pode **reaproveitar** o cadastro existente?
-6. Regra "complemento/número diferente": só para o endereço da empresa ou qualquer cadastro? Onde fica o **número**? Endereço igual: recusa ou só avisa?
-7. Validação: dígito verificador de CPF/CNPJ; telefone com `libphonenumber-js`; guardar formatado ou só dígitos (afeta a busca por duplicata).
-8. Obrigatoriedade por papel (Consumidor: nome+telefone; Cliente/Fornecedor: documento, e-mail, endereço; Funcionário? empresa?).
-9. Flags `has_*`: derivadas ou mantidas? (Risco de dessincronizar; _recomendação:_ backend atualiza na mesma transação.)
+1. ~~Arquivado, rastro, flags `has_*`, retomada do assistente~~ (decididos acima). Resta definir a **justificativa** do desarquivar (campo e tabela de auditoria) e como marcar **"incompleto"** (campo `status` do cadastro?).
+5. ~~Mensagem da duplicata~~ (decisão 10).
+6. Regra "complemento/número diferente": coluna `numero` decidida (13). Resta: vale só para o endereço da **empresa** ou qualquer cadastro? Endereço igual: recusa ou só avisa?
+7. ~~Validação de documento~~ (decisão 11). Resta: telefone em formato internacional (`libphonenumber-js`, E.164) no backend?
+8. ~~Obrigatoriedade~~ (decisão 12). Resta: obrigatório para a **empresa dona** (documento, endereço, logo opcional)?
 10. Consumidor tem `id_pessoas` obrigatório: qual o padrão até virar Cliente (PF)?
-11. Assistente: **componente único** parametrizado por papel ou telas separadas (hoje há `Cad*` por domínio)? Grava passo a passo (órfãos se abandonar) ou tudo numa transação? Retomar depois?
+11. Assistente: **componente único** parametrizado por papel ou telas separadas (hoje há `Cad*` por domínio)? (Gravação passo a passo e retomada: decididos acima.)
 12. `formhlpemp`: texto simples ou formatado? Sanitizar? Tamanho?
 13. Logo: lista imagens do servidor ou faz upload? Tipos, tamanho, logo padrão, vale para outros papéis? Aparece antes do login?
 14. Endereço: um só por cadastro ou vários (entrega)? CEP preenche automático (`cepRoutes`)? `cidades`: seed nacional ou parcial? Permitir cidade nova?

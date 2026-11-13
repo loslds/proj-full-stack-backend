@@ -15,7 +15,15 @@ Visão do produto ditada pelo dono em 2026-11-13, dividida em um arquivo por ass
 
 ## Ponto de retomada
 
-Última posição (2026-11-13): captura concluída para cadastros, fluxo do pedido, multiempresa e visitante. **Grill iniciado por Cadastros**: o assistente montou quatro perguntas (unicidade por empresa, regra de duplicidade, flag de arquivado, OS aponta para o cadastro); o dono pediu antes **particionar o documento por assunto**, feito aqui. Próximo passo: o dono confirma o grill de [cadastros.md](cadastros.md) (as recomendações estão no fim do arquivo, na ordem de prioridade).
+Última posição (2026-11-13, fim do dia): captura concluída para cadastros, fluxo do pedido, multiempresa e visitante. **Grill de Cadastros em andamento**: 13 decisões registradas em [cadastros.md](cadastros.md) (seção "Decisões do grill") e o princípio "o servidor processa; o cliente só apresenta".
+
+**Próximo passo (ao retomar):** o dono responde (sim/corrige) ao último bloco **ainda não confirmado**, com a recomendação do assistente em cada item:
+1. Endereço igual **só avisa**; a regra "complemento/número diferente" vale para qualquer cadastro.
+2. Telefone guardado em **E.164** pelo backend (`libphonenumber-js`).
+3. Assistente como **componente único** parametrizado por papel.
+4. `formhlpemp` em **texto simples** limpo pelo backend; logo por **upload** com tipo/tamanho validados no servidor.
+
+Depois: restante das lacunas de Cadastros, então **Login e acesso**, **Recepção e OS** e os demais arquivos desta pasta. Ao fim do grill, migrar para `visao-geral.md`, `GLOSSARY.md`, ADRs e **reescrever o `roadmap.md`**.
 
 ## Termos novos (vão para o GLOSSARY depois do grill)
 

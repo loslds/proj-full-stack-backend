@@ -9,6 +9,10 @@ Leitura obrigatória antes de alterar o backend. **NUNCA** e **SEMPRE** não tê
 3. **Nomes de domínio vêm do [GLOSSARY.md](GLOSSARY.md).**
 4. **Docs junto do código.** Mudou comportamento, atualize o doc do assunto.
 
+## Princípio do dono
+
+**O servidor processa; o cliente só apresenta.** Validação, busca de duplicidade, filtros (incluindo arquivados e estado → cidade), importação, flags derivadas e regras de papel ficam no backend. O frontend não carrega listas inteiras para filtrar na tela nem decide regra de negócio.
+
 ## Regras
 
 - Código novo e arquivos novos em TypeScript estrito; sem `any` novo.
