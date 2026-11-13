@@ -78,6 +78,11 @@ O que vem depois do contato (por exemplo, o primeiro usuário) o dono deixou **e
 12. **Obrigatório por papel**: Consumidor = nome e telefone. Cliente e Fornecedor = documento, e-mail e endereço. Funcionário = igual a Cliente.
 13. **Número do endereço**: nova coluna `numero` em `cadastros`, para a regra "complemento ou número diferente" funcionar.
 
+14. **Endereço igual só avisa**; a regra "complemento ou número diferente" vale para **qualquer cadastro**.
+15. **Telefone** guardado em **E.164** pelo backend (`libphonenumber-js`), para o mesmo número não entrar de dois jeitos.
+16. **Assistente** = **componente único** parametrizado por papel (empresa, cliente, fornecedor, funcionário, consumidor); as telas `Cad*` atuais servem de base para listar e pesquisar.
+17. **`formhlpemp`** em **texto simples**, limpo pelo backend antes de gravar. **Logo** por **upload**, com tipo e tamanho validados no servidor.
+
 ## Princípio de arquitetura (dono, 2026-11-13) ✔
 
 **Todo processo é efetuado no servidor, para não sobrecarregar o cliente (frontend).** O frontend só apresenta e coleta; validação, busca de duplicidade, filtros (estado → cidade, arquivados), importação, cálculo das flags `has_*` e regras de papel rodam no **backend**. Registrado em [../regras-de-ouro.md](../regras-de-ouro.md).
