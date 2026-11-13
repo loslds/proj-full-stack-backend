@@ -12,6 +12,10 @@ Fonte única da documentação de backend **e** frontend. Estado verificado no c
 6. [roadmap.md](roadmap.md): MVP por módulo e fases futuras.
 7. [handoff.md](handoff.md): estado atual, dívidas, perguntas abertas, como começar.
 
+## Em captura (antes do grill terminar)
+
+- [dominio/](dominio/README.md): visão do dono por assunto (cadastros, login e acesso, recepção e OS, multiempresa, visitante, administração e config). Leia antes de implementar qualquer um desses assuntos; as decisões ✔ valem, as lacunas `?` ainda não.
+
 ## Outros
 
 - [padrao-de-documentacao.md](padrao-de-documentacao.md): como escrever e manter estes docs.

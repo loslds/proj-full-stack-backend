@@ -9,6 +9,8 @@ Estado em **2026-11-13**. Atualize ao fim de cada sessão de trabalho (data, o q
 - Segurança: **a API não valida token em nenhuma rota.** Prioridade do MVP (roadmap módulo 2).
 - Git: backend e frontend têm repositórios próprios; ambos têm alterações não commitadas. A raiz `C:\repository` não versiona os projetos. Commits antigos usam mensagens do tipo data (`26-08-26`).
 
+**Atenção:** a visão do dono (2026-11-13) está em [dominio/](dominio/README.md) e **corrige** partes deste handoff e do roadmap (Visitante é vitrine anônima; Design é setor; várias empresas por banco; mesma pessoa com vários papéis). Em conflito, vale `dominio/`.
+
 ## Como começar (nova pessoa/agente)
 
 1. Leia `README.md`, `visao-geral.md`, `GLOSSARY.md`.

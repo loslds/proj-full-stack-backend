@@ -8,7 +8,11 @@ Produto SaaS multiempresa. Nenhuma tabela tem coluna de tenant. `empresas` não 
 
 ## Direção do dono (2026-11-13)
 
-Cada empresa terá **um DB próprio**, criado na aquisição (opção A). Hoje só roda em loco e a criação de DB ainda não existe; o provisionamento entrará no módulo Config. Esta nota supera a "proposta" B abaixo, mas o ADR segue **pendente** até serem respondidas as perguntas de provisionamento (ver `rascunho-visao-geral.md` e, depois do grill, o handoff).
+Cada empresa terá **um DB próprio**, criado na aquisição (opção A). Hoje só roda em loco e a criação de DB ainda não existe; o provisionamento entrará no módulo Config. Esta nota supera a "proposta" B abaixo, mas o ADR segue **pendente** até serem respondidas as perguntas de provisionamento (ver [../dominio/multi-empresa-e-instalacao.md](../dominio/multi-empresa-e-instalacao.md) e, depois do grill, o handoff).
+
+### Refinamento (2026-11-13, Input 12)
+
+Um mesmo DB pode ter **mais de uma empresa** (ex.: uma ME com CNPJ e um MEI, no mesmo prédio, usando o mesmo sistema). Portanto o isolamento do SaaS é **por instalação** (DB), e as **empresas** dentro dela precisam de regra própria de compartilhamento (clientes, usuários, preços, OS). Matriz e filiais **não** se ligam: cada filial é uma empresa independente.
 
 ## Opções
 
