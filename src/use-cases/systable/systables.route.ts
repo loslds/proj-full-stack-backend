@@ -1,7 +1,7 @@
  
 // C:\repository\proj-full-stack-backend\src\use-cases\systable\systables.route.ts
 import { AppDataSource } from '../../config/db';
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Request } from 'express';
 import { SystablesController } from './systables.controller';
 import { SystablesRepository } from './systables.repository';
 import { createValidation, updateValidation } from './systables.validation';

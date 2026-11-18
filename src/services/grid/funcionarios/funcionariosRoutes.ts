@@ -1,4 +1,4 @@
-import { ClientesController } from '../../../use-cases/cliente/clientes.controller';
+//import { ClientesController } from '../../../use-cases/cliente/clientes.controller';
 
 //C:\repository\proj-full-stack-backend\src\services\grid\visitantes\visitantesRoutes.ts
 

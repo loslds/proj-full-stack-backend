@@ -10,7 +10,8 @@ import {
 } from 'typeorm';
 
 @Entity('servicos')
-@Unique(['nome'])
+// Nomes iguais aos do banco (uk_/idx_) para o synchronize não recriar índices
+@Unique('uk_servicos_nome', ['nome'])
 @Index('idx_servicos_nome', ['nome'])
 export class ServicosEntity {
   @PrimaryGeneratedColumn({
@@ -21,7 +22,7 @@ export class ServicosEntity {
 
   @Column({
     type: 'varchar',
-    length: 60,
+    length: 100,
     nullable: false,
     collation: 'utf8mb4_general_ci'
   })
@@ -45,7 +46,7 @@ export class ServicosEntity {
   @Column({
     type: 'int',
     unsigned: true,
-    nullable: true,
+    nullable: false,
     default: 0
   })
   updatedBy: number;

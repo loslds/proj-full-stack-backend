@@ -27,8 +27,8 @@ import { loginsRoutes } from "../services/grid/logins";
 import { chavesRoutes } from "../services/grid/chaves";
 import { acessosRoutes } from "../services/grid/acessos";
 import { pergsrespsRoutes } from "../services/grid/pergsresps";
-import { servicosRoutes } from "../services/grid/servicos";
-import { grpservicosRoutes } from "../services/grid/grpservicos";
+//import { servicosRoutes } from "../services/grid/servicos";
+//import { grpservicosRoutes } from "../services/grid/grpservicos";
 
 
 const indexGridRoute = Router();

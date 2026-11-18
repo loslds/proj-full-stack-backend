@@ -77,6 +77,8 @@ export const AppDataSource = new DataSource({
     AcessosEntity,  
     ChavesEntity,
     PergsrespsEntity,
+    ServicosEntity,
+    GrpServicosEntity,
   ],
   synchronize: true,
   logging: ["error"],

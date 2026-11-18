@@ -28,7 +28,7 @@ export const clientesService = {
       createLogged = true;
     }
 
-    const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
+    await AppDataSource.query('SELECT DATABASE() AS db');
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (

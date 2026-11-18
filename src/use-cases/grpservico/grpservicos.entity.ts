@@ -15,7 +15,8 @@ import { ServicosEntity } from '../servico/servicos.entity';
 
 
 @Entity('grpservicos')
-@Unique(['nome', 'id_servicos'])
+// Nomes iguais aos do banco (uk_/idx_/fk_) para o synchronize não recriar índices
+@Unique('uk_grpservicos_nome_servico', ['nome', 'id_servicos'])
 @Index('idx_grpservicos_nome', ['nome'])
 @Index('idx_grpservicos_id_servicos', ['id_servicos'])
 export class GrpServicosEntity {
@@ -37,9 +38,10 @@ export class GrpServicosEntity {
 
   @ManyToOne(() => ServicosEntity, {
     nullable: false,
-    onDelete: 'RESTRICT'
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE'
   })
-  @JoinColumn({ name: 'id_servicos' })
+  @JoinColumn({ name: 'id_servicos', foreignKeyConstraintName: 'fk_grpservicos_servicos' })
   servicos: ServicosEntity;
 
 
@@ -72,7 +74,7 @@ export class GrpServicosEntity {
   @Column({
     type: 'int',
     unsigned: true,
-    nullable: true,
+    nullable: false,
     default: 0
   })
   updatedBy: number;

@@ -38,7 +38,7 @@ export const cargosService = {
       createLogged = true;
     }
 
-    const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
+    await AppDataSource.query('SELECT DATABASE() AS db');
   //  console.log('>>> [cargosService] banco atual:', currentDb);
 
     await AppDataSource.query(`

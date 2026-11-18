@@ -7,7 +7,7 @@ export const errorHandler = (
   err: unknown,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   if (err instanceof HttpException) {
     console.error(`[HTTP ${err.status}] ${err.message}`);
