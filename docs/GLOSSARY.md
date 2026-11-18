@@ -74,3 +74,6 @@ Rotina que cria tabelas, aplica seeds e sincroniza imagens.
 
 **LEVE / DEV / PROD**
 Modos de estado do sistema reportados pelo health check.
+
+**Terceirizado**
+Fornecedor que presta serviço ou fornece material à empresa (ex.: silkscreen, estamparia). Pode também comprar produtos da empresa usando o crédito que tem como Fornecedor.
