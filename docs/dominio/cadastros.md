@@ -17,8 +17,8 @@ Um usuário, cliente, fornecedor ou consumidor pertence **a uma só empresa** (F
 
 ## Combinações de papéis ✔
 
-- Funcionário pode ser também Fornecedor e Cliente. Fornecedor pode ser Cliente. Depois de Cliente, pode também ser Fornecedor.
-- **Consumidor** é **estágio**: só vira Cliente, não coexiste com outro papel.
+- **Cliente, Fornecedor e Usuário combinam livremente**, em qualquer ordem e em qualquer combinação (os três ao mesmo tempo, ou dois quaisquer) ✔ (confirmado em 2026-11-18). Funcionário também pode ser Fornecedor e Cliente.
+- **Consumidor** é **estágio**: não coexiste com outro papel. Só pode virar **Cliente ou Fornecedor** e, **depois disso**, acumular outros papéis. **Nunca volta a ser Consumidor** (o registro de consumidor fica arquivado).
 - Mecanismo: **um único registro em `cadastros`** com várias colunas de papel preenchidas (`id_clientes` e `id_fornecedores` ao mesmo tempo). Mesmos dados; na Administração, uma **conta corrente por papel** ([administracao-e-config.md](administracao-e-config.md)).
 - [código] `utils/resolveCadastroOrigem.ts` devolve só **uma** origem (primeira FK > 0). Precisa listar todas.
 
@@ -29,6 +29,8 @@ Um usuário, cliente, fornecedor ou consumidor pertence **a uma só empresa** (F
 - [código] `consumidores.id_pessoas` hoje é **obrigatório** (`nullable: false`, FK `RESTRICT`, default 0). Isso conflita com esta regra: o Consumidor nasce sem tipo. Segue a convenção do dono: **`id = 0` é o valor padrão "não definido"** em todas as FKs (unsigned, sem bug de nulo e fácil de testar se existe vínculo). Consumidor nasce com `id_pessoas = 0`. [código] O seed de `pessoas` só tem PF e PJ, **sem linha `id = 0`**; com FK `RESTRICT` o MySQL recusaria o 0 (ver pergunta 17).
 
 ## Consumidor → Cliente ✔
+
+> O mesmo fluxo vale para **Consumidor → Fornecedor** (troque Cliente por Fornecedor e `id_clientes` por `id_fornecedores`).
 
 1. Só vira Cliente se aceitar; preenche o formulário de Cliente (local, CPF ou CNPJ escolhendo PF/PJ; o telefone já existe).
 2. Cria-se o registro em `clientes`.
@@ -106,7 +108,7 @@ O que vem depois do contato (por exemplo, o primeiro usuário) o dono deixou **e
 13. Logo: lista imagens do servidor ou faz upload? Tipos, tamanho, logo padrão, vale para outros papéis? Aparece antes do login?
 14. Endereço: um só por cadastro ou vários (entrega)? CEP preenche automático (`cepRoutes`)? `cidades`: seed nacional ou parcial? Permitir cidade nova?
 15. Importação: que campos copia (tudo, contato, endereço)? Guarda o cadastro de origem (rastro)?
-16. ~~Usuário~~ ✔ é papel de qualquer cadastro com acesso. Resta: Consumidor pode virar Fornecedor/Funcionário direto?
+16. ~~Usuário~~ ✔ é papel de qualquer cadastro com acesso. Consumidor vira **Cliente ou Fornecedor** direto (decidido); resta confirmar se pode ir direto a Funcionário.
 17. ✔ Convenção: `id = 0` é o padrão "não definido". [código] Falta garantir que a linha `id = 0` exista nas tabelas-pai (seed; `AUTO_INCREMENT` troca o 0 pelo próximo id, exige `NO_AUTO_VALUE_ON_ZERO`) ou que a FK não seja imposta. Verificar no banco real antes de mexer em `cadastros`.
 18. Busca por telefone (Recepção): só na empresa A? Mostra nome completo de Usuário/Fornecedor? LGPD.
 19. MEI: CPF **ou** CNPJ próprio, ou os dois? (O dono diz CPF; na prática o MEI costuma ter CNPJ.)
