@@ -1,10 +1,10 @@
 # Handoff
 
-Estado em **2026-11-13**. Atualize ao fim de cada sessão de trabalho (data, o que mudou, o que ficou).
+Estado em **2026-11-18**. Atualize ao fim de cada sessão de trabalho (data, o que mudou, o que ficou).
 
 ## Estado
 
-- Backend: CRUD completo para 27 tabelas, init/seed, health, imagens, master key. Compila e roda localmente (não reverificado nesta data).
+- Backend: CRUD completo para 27 tabelas, init/seed, health, imagens, master key. `tsc --noEmit` passa sem erros (verificado 2026-11-18); execução em runtime não reverificada.
 - Frontend: telas CRUD existem para quase todos os domínios, mas só `Home`, `Visitante` e `Config` estão roteados.
 - Segurança: **a API não valida token em nenhuma rota.** Prioridade do MVP (roadmap módulo 2).
 - Git: backend e frontend têm repositórios próprios; ambos têm alterações não commitadas. A raiz `C:\repository` não versiona os projetos. Commits antigos usam mensagens do tipo data (`26-08-26`).
@@ -37,7 +37,7 @@ Estado em **2026-11-13**. Atualize ao fim de cada sessão de trabalho (data, o q
 
 1. **Multi-tenant**: estrutura e tabelas por tenant ainda não definidas; o dono pediu ajuda para organizar. Proposta e perguntas em [adr/0002-multi-tenant-pendente.md](adr/0002-multi-tenant-pendente.md). Não bloqueia o MVP (single-tenant).
 2. Papel exato de cada módulo (Design, Produção, Acabamento, Expedição, Administração) e do Visitante: descrições em `visao-geral.md` foram inferidas.
-3. Diferença entre Consumidor e Cliente; significado da sigla em Pessoa.
+3. Diferença entre Consumidor e Cliente. (Sigla em Pessoa: decidido em 2026-11-18, é PF/PJ para listar nome + sigla.)
 4. Como o Visitante autentica (usa master/login ou fluxo próprio sem login)?
 5. A master tem expiração/rotação definida para nuvem (hoje: data do dia, PIN, chave fixa em env)?
 6. Modelo da Ordem de Serviço (necessário só na fase 2).
@@ -56,3 +56,4 @@ Estado em **2026-11-13**. Atualize ao fim de cada sessão de trabalho (data, o q
 | Data | Quem | O que mudou | O que falta |
 | ---- | ---- | ----------- | ----------- |
 | 2026-11-13 | Claude | Criada a documentação inicial (`docs/`, AGENTS.md, CLAUDE.md) a partir da leitura do código. Nada executado ou testado. | Validar o doc rodando o sistema; responder perguntas abertas. |
+| 2026-11-18 | Lindsay + Claude | Commit `40cc3c5`: migração do ESLint (`eslint.config.cjs`, scripts `lint` sem `--ext`), `copy-assets` sem `cpx`, `ServicosEntity`/`GrpServicosEntity` registradas em `db.ts`, rotas `/grid` de servicos/grpservicos comentadas em `indexGridRoute.ts`, ajustes de lint nos services. `tsc --noEmit` ok. Retomado o plano: fechar decisões de cadastros que bloqueiam o login (FK com valor 0, Usuário papel ou acesso, `id_pessoas` do Consumidor) e depois autenticar as rotas. | Autenticação das rotas; decisões restantes de `dominio/cadastros.md`; atualizar a dívida de servicos/grpservicos (entities agora registradas, rotas `/grid` ainda desligadas). |

@@ -8,6 +8,7 @@ Visão do produto ditada pelo dono em 2026-11-13, dividida em um arquivo por ass
 | ------- | ------- | ------ |
 | Cadastros, papéis, assistente da empresa, importar | [cadastros.md](cadastros.md) | **Grill começa aqui** |
 | Login, chave-master, resgate, permissões | [login-e-acesso.md](login-e-acesso.md) | Depois de Cadastros |
+| Como se entra no sistema (instalação → config → login) | [acesso-ao-sistema.md](acesso-ao-sistema.md) | Rascunho 2026-11-18 |
 | Recepção, OS, fluxo do pedido, exceções | [recepcao-e-os.md](recepcao-e-os.md) | OS não existe no banco |
 | Multiempresa, instalação, abertura do sistema | [multi-empresa-e-instalacao.md](multi-empresa-e-instalacao.md) | Direção definida |
 | Visitante e vitrine | [vitrine-visitante.md](vitrine-visitante.md) | Cadastro de Visitante é futuro |

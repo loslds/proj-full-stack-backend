@@ -6,11 +6,11 @@ Ordem de implementação decidida pelo dono: **primeiro o cadastramento, depois 
 
 ## Papéis de pessoa
 
-- **Consumidor** ✔: pede orçamento e, depois, serviço; no futuro consulta o serviço prestado. Cadastro mínimo: **nome e telefone**.
+- **Consumidor** ✔: pede orçamento e, depois, serviço; no futuro consulta o serviço prestado. Cadastro mínimo: **nome e telefone**. Não tem tipo de pessoa (PF/PJ) nem documento ao ser criado.
 - **Cliente** ✔: volta várias vezes. Vira Cliente quem aceita e preenche o cadastro de cliente (endereço, documento CPF ou CNPJ, e-mail…).
 - **Fornecedor** ✔: fornece material e/ou presta serviço à empresa. Mesmos requisitos de cadastro do Cliente.
 - **Funcionário** ✔: trabalha na empresa; pode ou não ter acesso ao sistema.
-- **Usuário** ✔: usa o sistema, com permissão por ação ([login-e-acesso.md](login-e-acesso.md)).
+- **Usuário** ✔: papel de **qualquer cadastro que obtém acesso** ao sistema (Funcionário, Cliente, Fornecedor…), não só de Funcionário. Tem permissão por ação ([login-e-acesso.md](login-e-acesso.md)).
 - **Visitante**: sem cadastro no MVP ([vitrine-visitante.md](vitrine-visitante.md)).
 
 Um usuário, cliente, fornecedor ou consumidor pertence **a uma só empresa** (FK) ✔.
@@ -21,6 +21,12 @@ Um usuário, cliente, fornecedor ou consumidor pertence **a uma só empresa** (F
 - **Consumidor** é **estágio**: só vira Cliente, não coexiste com outro papel.
 - Mecanismo: **um único registro em `cadastros`** com várias colunas de papel preenchidas (`id_clientes` e `id_fornecedores` ao mesmo tempo). Mesmos dados; na Administração, uma **conta corrente por papel** ([administracao-e-config.md](administracao-e-config.md)).
 - [código] `utils/resolveCadastroOrigem.ts` devolve só **uma** origem (primeira FK > 0). Precisa listar todas.
+
+## Nota fiscal para Consumidor ✔
+
+- Dados fiscais só **no momento da emissão** da nota. Nesse momento o sistema pergunta o tipo de **Pessoa (PF ou PJ)**.
+- Definido o tipo, os dados são gravados em `cadastros` e `docs` (CPF ou CNPJ) do mesmo cadastro, sem criar Cliente.
+- [código] `consumidores.id_pessoas` hoje é **obrigatório** (`nullable: false`, FK `RESTRICT`, default 0). Isso conflita com esta regra: o Consumidor nasce sem tipo. Segue a convenção do dono: **`id = 0` é o valor padrão "não definido"** em todas as FKs (unsigned, sem bug de nulo e fácil de testar se existe vínculo). Consumidor nasce com `id_pessoas = 0`. [código] O seed de `pessoas` só tem PF e PJ, **sem linha `id = 0`**; com FK `RESTRICT` o MySQL recusaria o 0 (ver pergunta 17).
 
 ## Consumidor → Cliente ✔
 
@@ -67,7 +73,7 @@ O que vem depois do contato (por exemplo, o primeiro usuário) o dono deixou **e
 3. **Arquivado**: flag `arquivado` (0/1) + data + quem, em **todas** as tabelas de papel; o **backend** filtra arquivados por padrão (hoje `/api/*` e `/api/grid/*` listam tudo); só a listagem de arquivados do Config os mostra.
 4. **OS aponta para o cadastro** (`id_cadastros`, que não muda) e guarda o papel usado à parte.
 
-5. **Arquivar o Consumidor** serve só para **não deletar** o registro. Só se arquiva **depois de checado** que ele **virou Cliente**.
+5. **Arquivar o Consumidor** serve só para **não deletar** o registro. Só se arquiva **depois de checado** que ele **virou Cliente**. Vale para qualquer registro **transferido (importado)** para outro papel (Cliente, Fornecedor etc.): o arquivado **mantém o id** (sem buraco de registro deletado na sequência) e **preserva o histórico**, para saber o que ocorreu.
 6. **Desarquivar** só no **Config** e só para **reparar um erro** na mudança; exige **justificativa** (registrada: quem, quando, motivo).
 7. **Rastro**: ao converter, guarda-se no cliente a **data e a origem** da conversão (o `id_consumidores` do cadastro zera).
 8. **Flags `has_doc`, `has_email`, `has_fone`**: o **backend** as atualiza na **mesma transação** que grava documento ou contatos; o frontend nunca as envia.
@@ -94,14 +100,14 @@ O que vem depois do contato (por exemplo, o primeiro usuário) o dono deixou **e
 6. Regra "complemento/número diferente": coluna `numero` decidida (13). Resta: vale só para o endereço da **empresa** ou qualquer cadastro? Endereço igual: recusa ou só avisa?
 7. ~~Validação de documento~~ (decisão 11). Resta: telefone em formato internacional (`libphonenumber-js`, E.164) no backend?
 8. ~~Obrigatoriedade~~ (decisão 12). Resta: obrigatório para a **empresa dona** (documento, endereço, logo opcional)?
-10. Consumidor tem `id_pessoas` obrigatório: qual o padrão até virar Cliente (PF)?
+10. ~~Padrão de `id_pessoas` do Consumidor~~ Pessoa é só o tipo PF/PJ (a `sigla` serve para listar nome + sigla). Decidido: o Consumidor **não tem tipo** até a emissão de nota fiscal ou virar Cliente (ver "Nota fiscal para Consumidor"). A entity já aceita 0 como padrão.
 11. Assistente: **componente único** parametrizado por papel ou telas separadas (hoje há `Cad*` por domínio)? (Gravação passo a passo e retomada: decididos acima.)
 12. `formhlpemp`: texto simples ou formatado? Sanitizar? Tamanho?
 13. Logo: lista imagens do servidor ou faz upload? Tipos, tamanho, logo padrão, vale para outros papéis? Aparece antes do login?
 14. Endereço: um só por cadastro ou vários (entrega)? CEP preenche automático (`cepRoutes`)? `cidades`: seed nacional ou parcial? Permitir cidade nova?
 15. Importação: que campos copia (tudo, contato, endereço)? Guarda o cadastro de origem (rastro)?
-16. Combinações restantes: **Usuário** é papel ou acesso de um Funcionário? Consumidor pode virar Fornecedor/Funcionário direto?
-17. FK com valor 0: existe registro `id = 0` nas tabelas-pai ou a FK não é imposta? Revisar antes de mexer em `cadastros`.
+16. ~~Usuário~~ ✔ é papel de qualquer cadastro com acesso. Resta: Consumidor pode virar Fornecedor/Funcionário direto?
+17. ✔ Convenção: `id = 0` é o padrão "não definido". [código] Falta garantir que a linha `id = 0` exista nas tabelas-pai (seed; `AUTO_INCREMENT` troca o 0 pelo próximo id, exige `NO_AUTO_VALUE_ON_ZERO`) ou que a FK não seja imposta. Verificar no banco real antes de mexer em `cadastros`.
 18. Busca por telefone (Recepção): só na empresa A? Mostra nome completo de Usuário/Fornecedor? LGPD.
 19. MEI: CPF **ou** CNPJ próprio, ou os dois? (O dono diz CPF; na prática o MEI costuma ter CNPJ.)
 20. Matriz e filiais **não se ligam** ✔ (cada filial é uma empresa independente).

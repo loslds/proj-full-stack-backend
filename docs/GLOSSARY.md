@@ -7,13 +7,13 @@ Credencial de suporte com acesso total, sempre disponível. Aceita: data de hoje
 _Evitar_: "admin" para designar a master (Administrador é um cargo).
 
 **Usuário**
-Pessoa com login (identificador e senha) que acessa módulos conforme suas permissões. Vinculado a um Cadastro.
+Papel de qualquer cadastro (funcionário, cliente, fornecedor…) que obtém acesso ao sistema: login (identificador e senha) e módulos conforme suas permissões. Vinculado a um Cadastro.
 
 **Cadastro**
 Ficha de uma pessoa ou empresa em um papel (visitante, consumidor, cliente, fornecedor, funcionário). Agrupa contatos (e-mails, documentos, fones), endereço e imagem.
 
 **Pessoa (tipo)**
-Classificação do cadastro, com sigla (ex.: física, jurídica) **(a confirmar)**.
+Tipo do cadastro: Pessoa Física (PF) ou Pessoa Jurídica (PJ). Não é papel: o papel (empresa, visitante, consumidor, cliente, fornecedor, usuário) é do cadastro. A `sigla` existe para as listagens mostrarem **nome e sigla** juntos (ex.: "Pessoa Física (PF)").
 
 **Empresa**
 Organização relacionada a um cadastro (por exemplo, de onde vem o Visitante). Não é o cliente SaaS.
