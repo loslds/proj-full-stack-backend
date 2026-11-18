@@ -8,6 +8,7 @@ Status (2026-11-13): Administração **sem modelo e fora do MVP**; Config em uso
 - É ela que faz **recebimentos e pagamentos**.
 - Recebe direto os Clientes **faturados** ([recepcao-e-os.md](recepcao-e-os.md)).
 - Cada pessoa com dois papéis tem **uma conta corrente por papel** (como Cliente e como Fornecedor).
+- ✔ Haverá conta corrente de **Clientes, Fornecedores e Funcionários**, com **débitos e créditos** conforme a existência de cada um (decidido em 2026-11-18). O detalhe, inclusive se o **Terceirizado** (Fornecedor parceiro) precisa de marca própria para a conta de prestação de serviço, **fica para o módulo Administração** (fora do MVP).
 - Gerentes de filial têm liberdade para faturar desde que sigam as normas acordadas com a matriz; **preços** são independentes por filial/empresa.
 
 ## Config ✔
