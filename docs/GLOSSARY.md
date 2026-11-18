@@ -76,4 +76,4 @@ Rotina que cria tabelas, aplica seeds e sincroniza imagens.
 Modos de estado do sistema reportados pelo health check.
 
 **Terceirizado**
-Fornecedor que presta serviço ou fornece material à empresa (ex.: silkscreen, estamparia). Pode também comprar produtos da empresa usando o crédito que tem como Fornecedor.
+Fornecedor **parceiro** da empresa: outra empresa cadastrada para atender o cliente quando a empresa não executa o serviço (ex.: silkscreen, estamparia). Tem o **cadastro completo de Fornecedor**, como qualquer outro; existe como terceirizado para que a Administração tenha uma **conta corrente de prestação de serviço**.

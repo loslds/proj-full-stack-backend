@@ -32,7 +32,7 @@ Um usuário, cliente, fornecedor ou consumidor pertence **a uma só empresa** (F
 
 > O mesmo fluxo vale para **Consumidor → Fornecedor** (troque Cliente por Fornecedor e `id_clientes` por `id_fornecedores`).
 >
-> Esse caminho é **raro**. Se um Consumidor quiser fornecer serviço (pós-trabalho) ou material à empresa, é cadastrado como **Fornecedor** na modalidade **terceirizado**; e, tendo crédito como Fornecedor, pode também **comprar produtos da empresa** abatendo desse crédito (conta corrente do papel Fornecedor, ver [administracao-e-config.md](administracao-e-config.md)).
+> Esse caminho é **raro**. Quem fornece serviço ou material à empresa é **Fornecedor**; o **Terceirizado** é o Fornecedor **parceiro** (empresa cadastrada para a empresa não deixar o cliente sem atendimento), com cadastro completo de Fornecedor e **conta corrente de prestação de serviço** na Administração ([administracao-e-config.md](administracao-e-config.md)). Um Consumidor que passe a fornecer, ou queira comprar da empresa com crédito de Fornecedor, segue o mesmo fluxo.
 
 1. Só vira Cliente se aceitar; preenche o formulário de Cliente (local, CPF ou CNPJ escolhendo PF/PJ; o telefone já existe).
 2. Cria-se o registro em `clientes`.
