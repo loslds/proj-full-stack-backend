@@ -1,3 +1,4 @@
+
 // C:\repository\proj-full-stack-backend\src\use-cases\pessoa\pessoas.entity.ts
 import {
   Column,

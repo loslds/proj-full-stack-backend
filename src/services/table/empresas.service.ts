@@ -28,7 +28,7 @@ export const empresasService = {
       createLogged = true;
     }
 
-    const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
+    await AppDataSource.query('SELECT DATABASE() AS db');
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
@@ -42,6 +42,10 @@ export const empresasService = {
 
         fantasy VARCHAR(60)
           NOT NULL
+          COLLATE utf8mb4_general_ci,
+
+        formhelpemp MEDIUMTEXT
+          NULL
           COLLATE utf8mb4_general_ci,
 
         createdBy INT UNSIGNED

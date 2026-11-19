@@ -28,7 +28,7 @@ export const clientesService = {
       createLogged = true;
     }
 
-    const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
+    await AppDataSource.query('SELECT DATABASE() AS db');
 
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
@@ -44,6 +44,8 @@ export const clientesService = {
         fantasy VARCHAR(60)
           NOT NULL
           COLLATE utf8mb4_general_ci,
+
+        arquivado TINYINT(1) NOT NULL DEFAULT 0,
 
         createdBy INT UNSIGNED
           NOT NULL

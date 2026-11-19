@@ -9,6 +9,7 @@ export const systemTables = [
   'systables',
   'pessoas',
   'empresas',
+  'arquivados',
   'visitantes',
   'visitas',
   'consumidores',
@@ -21,7 +22,7 @@ export const systemTables = [
   'emails',
   'docs',
   'fones',
-  
+  'imagens',
   'modulos',
   'cargos',
   'acoes',
@@ -31,8 +32,9 @@ export const systemTables = [
   'acessos',  
   'chaves',
   'pergsresps',
-  'imagens',
-    
+  'servicos',
+  'grpservicos'
+      
 ] as const;
 //////////////////////////////////////
 /**
@@ -45,12 +47,14 @@ export const tablesWithDefaults = [
   'pessoas',
   'estados',
   'cidades',
-  //'imagens',
+  //**'imagens', ( seed especifico, não generico) */
   'modulos',
   'cargos',
   'acoes',
   'perguntas',
-  'imagens',
+  'servicos',
+  'grpservicos'
+
 ] as const;
 //////////////////////////////////////
 /**
@@ -58,9 +62,7 @@ export const tablesWithDefaults = [
  * sincronização / atualização de registros
  */
 //////////////////////////////////////
-export const tablesWithUpdates = [
-  'imagens',
-] as const;
+export const tablesWithUpdates = [] as const;
 
 export const SYSTEM_TABLES_TOTAL = systemTables.length;
 

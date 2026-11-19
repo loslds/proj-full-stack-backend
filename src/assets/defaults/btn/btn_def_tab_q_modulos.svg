@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW 2021 (64 Bit) -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="400px" height="400px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 2.53 2.53"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:xodm="http://www.corel.com/coreldraw/odm/2003">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .str0 {stroke:#B8B4B6;stroke-width:0.19;stroke-miterlimit:22.9256}
+    .str2 {stroke:black;stroke-width:0.01;stroke-miterlimit:22.9256}
+    .str1 {stroke:black;stroke-width:0.03;stroke-miterlimit:22.9256}
+    .str3 {stroke:black;stroke-width:0.02;stroke-miterlimit:22.9256}
+    .fil3 {fill:#00CCFF}
+    .fil4 {fill:lime}
+    .fil1 {fill:#B3B3B3}
+    .fil2 {fill:#E0DDDD}
+    .fil6 {fill:fuchsia}
+    .fil7 {fill:#FFCC00}
+    .fil5 {fill:yellow}
+    .fil0 {fill:white}
+   ]]>
+  </style>
+ </defs>
+ <g id="Camada_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <g id="_2069920047776">
+   <path class="fil0 str0" d="M0.2 0.09l2.13 0c0.06,0 0.1,0.06 0.1,0.12l0 2.11c0,0.06 -0.04,0.11 -0.1,0.11l-2.13 0c-0.06,0 -0.1,-0.05 -0.1,-0.11 0,-0.26 -0.01,-2.04 0,-2.13 0,-0.05 0.06,-0.1 0.1,-0.1z"/>
+   <g>
+    <polygon class="fil1 str1" points="0.78,0.87 0.64,0.99 0.64,0.82 0.78,0.7 "/>
+    <polygon class="fil2 str2" points="1.24,0.47 0.21,1.37 1.24,2.27 2.26,1.37 "/>
+    <polygon class="fil3 str1" points="0.64,0.99 0.98,1.28 0.98,1.11 0.64,0.82 "/>
+    <polygon class="fil3 str1" points="0.21,1.2 0.21,1.37 0.64,0.99 0.64,0.82 "/>
+    <polygon class="fil3 str1" points="0.21,1.2 0.21,1.37 0.54,1.66 0.54,1.49 "/>
+    <polygon class="fil3 str1" points="0.54,1.49 0.54,1.66 0.88,1.37 0.88,1.23 0.92,1.2 0.92,1.33 0.98,1.28 0.98,1.11 "/>
+    <polygon class="fil4 str1" points="1.24,0.47 1.57,0.76 1.57,0.59 1.24,0.3 "/>
+    <polygon class="fil4 str1" points="0.78,0.7 0.78,0.87 1.24,0.47 1.24,0.3 "/>
+    <polygon class="fil4 str1" points="0.78,0.7 0.78,0.87 1.11,1.16 1.11,0.99 "/>
+    <polygon class="fil4 str1" points="1.11,0.99 1.11,1.16 1.47,0.85 1.47,0.71 1.52,0.67 1.52,0.81 1.57,0.76 1.57,0.59 "/>
+    <polygon class="fil5 str1" points="1.64,1.33 1.49,1.47 1.49,1.33 1.45,1.36 1.45,1.5 1.34,1.6 1.34,1.43 1.64,1.16 "/>
+    <polygon class="fil6 str1" points="1.34,1.6 1.67,1.89 1.67,1.72 1.34,1.43 "/>
+    <polygon class="fil6 str1" points="0.9,1.8 0.9,1.98 1.18,1.73 1.18,1.6 1.24,1.55 1.24,1.69 1.34,1.6 1.34,1.43 "/>
+    <polygon class="fil6 str1" points="0.9,1.81 0.9,1.98 1.24,2.27 1.24,2.1 "/>
+    <polygon class="fil6 str1" points="1.24,2.1 1.24,2.27 1.67,1.89 1.67,1.72 "/>
+    <polygon class="fil1 str1" points="0.9,1.98 0.78,1.87 0.78,1.74 0.66,1.64 0.66,1.77 0.54,1.66 0.54,1.49 0.9,1.81 "/>
+    <polygon class="fil1 str2" points="1.93,1.08 1.57,0.76 1.57,0.59 1.93,0.91 "/>
+    <polygon class="fil7 str1" points="1.93,0.91 1.93,1.08 2.26,1.37 2.27,1.2 "/>
+    <polygon class="fil7 str1" points="1.64,1.16 1.64,1.33 1.85,1.15 1.85,1.01 1.89,0.98 1.89,1.11 1.93,1.08 1.93,0.91 "/>
+    <polygon class="fil5 str1" points="1.64,1.16 1.64,1.33 1.98,1.62 1.98,1.45 "/>
+    <polygon class="fil7 str1" points="1.98,1.45 1.98,1.62 2.26,1.37 2.27,1.2 "/>
+    <polygon class="fil5 str3" points="1.67,1.89 1.98,1.62 1.98,1.45 1.67,1.72 "/>
+   </g>
+  </g>
+ </g>
+</svg>

@@ -43,7 +43,7 @@ export const acoesService = {
 
   //console.log('>>> [acoesService] create() iniciado');
 
-    const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
+    await AppDataSource.query('SELECT DATABASE() AS db');
     //console.log('>>> [acoesService] banco atual:', currentDb);
 
     await AppDataSource.query(`

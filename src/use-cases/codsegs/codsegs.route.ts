@@ -1,10 +1,10 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { CodsegsController } from './codsegs.controller';
 import { CodsegsRepository } from './codsegs.repository';
-import { dataSource } from '../start/dbSource';
+import { AppDataSource } from '../../config/db';
 import { createValidation, updateValidation } from './codsegs.validation';
 
-const codsegsRepository = new CodsegsRepository(dataSource);
+const codsegsRepository = new CodsegsRepository(AppDataSource);
 const controller = new CodsegsController(codsegsRepository);
 const codsegsRoute = Router();
 

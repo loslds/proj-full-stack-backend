@@ -57,6 +57,12 @@ export class EmpresasEntity {
   fantasy: string;
 
   @Column({
+    type: 'mediumtext',
+    nullable: true,
+  })
+  formhlpemp: string | null;
+
+  @Column({
     type: 'int',
     unsigned: true,
     nullable: false,

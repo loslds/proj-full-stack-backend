@@ -5,7 +5,7 @@
 import { AppDataSource } from '../../config/db';
 import { perguntasSeed } from './seed/perguntas.seed';
 
-let createLogged = false;
+//const createLogged = false;
 let countLogged = false;
 
 type PerguntaSeedRow = {
@@ -39,7 +39,7 @@ export const perguntasService = {
       countLogged = true;
     }
 
-    const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
+    await AppDataSource.query('SELECT DATABASE() AS db');
   //  console.log('>>> [perguntasService] banco atual:', currentDb);
 
     await AppDataSource.query(`

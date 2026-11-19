@@ -54,6 +54,10 @@ export class FornecedoresEntity {
   @Column({ type: 'varchar', length: 60, collation: 'utf8mb4_general_ci' })
   fantasy: string;
 
+  // 1 = arquivado (histórico em `arquivados`); listagens normais o escondem
+  @Column({ type: 'tinyint', width: 1, nullable: false, default: 0 })
+  arquivado: number;
+
   @Column({ type: 'int', unsigned: true, default: 0 })
   createdBy: number;
 

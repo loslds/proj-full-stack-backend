@@ -9,6 +9,8 @@ import {
 } from "./table/tables";
 import { tableServicesRegistry } from "./table/tableServicesRegistry";
 import { systablesService } from "./table/systables.service";
+import {imagensService} from "./table/imagens.service";
+
 
 export interface EnsureTableStep {
   table: string;
@@ -60,28 +62,80 @@ async function createAndPrepareTable(
 
     const totalBeforeSeed = await service.count();
 
-    if (hasSeed(table) && totalBeforeSeed === 0 && service.seed) {
-      await service.seed(
-        table === "systables" ? systemTables : undefined
-      );
+    // ==================================================
+    // REGRA ESPECIAL: imagens
+    // ==================================================
+    // imagens precisa executar seed() sempre,
+    // porque seed() faz:
+    // - leitura dos ZIPs
+    // - validação
+    // - quarentena
+    // - descompactação
+    // - insert/update no banco
+    // - reconstrução do servidor
+    // - sincronização com C:/imagens-sgv
+    if (table === "imagens") {
+      const imagensResult = await imagensService.seed();
 
       steps.push({
         table,
         action: "seed",
         success: true,
-        message: `Seed executado para <${table}>.`
+        message:
+          `Imagens processadas. ` +
+          `ZIPs lidos=${imagensResult.listas.zip_lidos.length}, ` +
+          `autorizados=${imagensResult.listas.zip_autorizados.length}, ` +
+          `rejeitados=${imagensResult.listas.zip_rejeitados.length}, ` +
+          `quarentena=${imagensResult.listas.quarentena.length}.`
       });
-    }
 
-    if (hasUpdate(table) && service.update) {
-      await service.update();
+      if (imagensResult.listas.zip_rejeitados.length > 0) {
+        steps.push({
+          table,
+          action: "error",
+          success: true,
+          message:
+            `ZIPs rejeitados enviados para quarentena no servidor: ` +
+            `${imagensResult.listas.zip_rejeitados.join(", ")}. ` +
+            `Informe o administrador.`
+        });
+      }
 
-      steps.push({
-        table,
-        action: "update",
-        success: true,
-        message: `Update executado para <${table}>.`
-      });
+      if (imagensResult.listas.quarentena.length > 0) {
+        steps.push({
+          table,
+          action: "error",
+          success: true,
+          message:
+            `Arquivos enviados para quarentena no servidor: ` +
+            `${imagensResult.listas.quarentena.join(", ")}. ` +
+            `Informe o administrador.`
+        });
+      }
+    } else {
+      if (hasSeed(table) && totalBeforeSeed === 0 && service.seed) {
+        await service.seed(
+          table === "systables" ? systemTables : undefined
+        );
+
+        steps.push({
+          table,
+          action: "seed",
+          success: true,
+          message: `Seed executado para <${table}>.`
+        });
+      }
+
+      if (hasUpdate(table) && service.update) {
+        await service.update();
+
+        steps.push({
+          table,
+          action: "update",
+          success: true,
+          message: `Update executado para <${table}>.`
+        });
+      }
     }
 
     const totalAfter = await service.count();
@@ -149,3 +203,5 @@ export async function ensureSystemReady(): Promise<EnsureSystemReadyResult> {
     steps
   };
 }
+
+

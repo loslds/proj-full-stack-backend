@@ -9,6 +9,7 @@ import { systemRoutes } from "./systemRoutes";
 import { authRoute } from "../use-cases/auth";
 import { pessoasRoutes } from "../use-cases/pessoa";
 import { empresasRoutes } from "../use-cases/empresa";
+import { arquivadosRoutes } from "../use-cases/arquivado";
 import { visitantesRoutes } from '../use-cases/visitante';
 import { visitasRoutes } from '../use-cases/visita';
 import { consumidoresRoutes } from '../use-cases/consumidor';
@@ -31,6 +32,8 @@ import { loginsRoutes } from '../use-cases/login';
 import { acessosRoutes } from '../use-cases/acesso';
 import { chavesRoutes } from '../use-cases/chave';
 import { pergsrespsRoutes } from '../use-cases/pergresp';
+import { servicosRoutes } from '../use-cases/servico';
+import { grpservicosRoutes } from '../use-cases/grpservico';
 
 const indexRoute = Router();
 
@@ -44,6 +47,7 @@ indexRoute.use("/pessoas", pessoasRoutes);
 indexRoute.use("/estados", estadosRoutes);
 indexRoute.use("/cidades", cidadesRoutes);
 indexRoute.use("/empresas", empresasRoutes);
+indexRoute.use("/arquivados", arquivadosRoutes);
 indexRoute.use("/visitantes", visitantesRoutes);
 indexRoute.use("/visitas", visitasRoutes);
 indexRoute.use("/consumidores", consumidoresRoutes);
@@ -64,6 +68,8 @@ indexRoute.use("/logins", loginsRoutes);
 indexRoute.use("/acessos", acessosRoutes);
 indexRoute.use("/chaves", chavesRoutes);
 indexRoute.use("/pergsresps", pergsrespsRoutes);
+indexRoute.use("/servicos", servicosRoutes);
+indexRoute.use("/grpservicos", grpservicosRoutes);
 
 // grids
 indexRoute.use("/grid", indexGridRoute);

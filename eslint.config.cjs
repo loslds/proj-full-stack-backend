@@ -1,38 +1,33 @@
-
-//C:\repository\proj-full-stack-backend\eslint.config.cjs
-
 // C:\repository\proj-full-stack-backend\eslint.config.cjs
-const { FlatCompat } = require('@eslint/eslintrc');
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommended: true,
-});
+const js = require('@eslint/js');
+const globals = require('globals');
+const tsPlugin = require('@typescript-eslint/eslint-plugin');
 
 module.exports = [
-  // Ativa ESLint para arquivos TypeScript
+  // Pastas e arquivos fora do lint
+  {
+    ignores: ['dist/**', 'node_modules/**', 'anterior/**', '**/*.bck*'],
+  },
+
+  // Regras recomendadas do ESLint e do typescript-eslint (flat config)
+  js.configs.recommended,
+  ...tsPlugin.configs['flat/recommended'],
+
+  // Ajustes do projeto para arquivos TypeScript
   {
     files: ['**/*.ts'],
     languageOptions: {
-      parser: '@typescript-eslint/parser',
-      parserOptions: {
-        project: './tsconfig.json', // aponta para seu tsconfig
-        tsconfigRootDir: __dirname,
-        ecmaVersion: 2020,
-        sourceType: 'module',
-      },
-    },
-    plugins: {
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
+      ecmaVersion: 2020,
+      sourceType: 'module',
+      globals: globals.node,
     },
     rules: {
-      // Regras TS personalizadas
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
+      // Express usa Request<{}, {}, {}, Query> para params/body vazios
+      '@typescript-eslint/no-empty-object-type': ['error', { allowObjectTypes: 'always', allowInterfaces: 'with-single-extends' }],
+      // Prefixo _ marca parâmetro obrigatório não usado (ex.: next do errorHandler)
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none' }],
     },
   },
-
-  // Compat com regras recomendadas
-  ...compat.extends('eslint:recommended'),
-  ...compat.extends('plugin:@typescript-eslint/recommended'),
 ];

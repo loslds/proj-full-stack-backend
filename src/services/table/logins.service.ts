@@ -4,7 +4,7 @@
 import { AppDataSource } from '../../config/db';
 
 let createLogged = false;
-let countLogged = false;
+//const countLogged = false;
 
 export const loginsService = {
   tableName: 'logins',
@@ -28,7 +28,7 @@ export const loginsService = {
       createLogged = true;
     }
 
-    const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
+    await AppDataSource.query('SELECT DATABASE() AS db');
   
     await AppDataSource.query(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (

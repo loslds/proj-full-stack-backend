@@ -38,7 +38,7 @@ export const modulosService = {
       createLogged = true;
     }
 
-    const currentDb = await AppDataSource.query('SELECT DATABASE() AS db');
+    await AppDataSource.query('SELECT DATABASE() AS db');
   //  console.log('>>> [modulosService] banco atual:', currentDb);
 
     await AppDataSource.query(`

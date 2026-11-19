@@ -21,9 +21,6 @@
     "esModuleInterop": true,
      "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
     
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -34,6 +31,6 @@
     
     
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/services/table/grpservicos.service.ts"],
   "exclude": ["node_modules", "dist"]
 }

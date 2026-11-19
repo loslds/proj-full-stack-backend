@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { SystablesEntity } from '../use-cases/systable/systables.entity';
 import { PessoasEntity } from './../use-cases/pessoa/pessoas.entity';
 import { EmpresasEntity } from './../use-cases/empresa/empresas.entity';
+import { ArquivadosEntity } from './../use-cases/arquivado/arquivados.entity';
 import { VisitantesEntity } from './../use-cases/visitante/visitantes.entity';
 import { VisitasEntity } from './../use-cases/visita/visitas.entity';
 import { ConsumidoresEntity } from './../use-cases/consumidor/consumidores.entity';
@@ -29,13 +30,15 @@ import { LoginsEntity } from './../use-cases/login/logins.entity';
 import { AcessosEntity } from './../use-cases/acesso/acessos.entity';  
 import { ChavesEntity } from './../use-cases/chave/chaves.entity';
 import { PergsrespsEntity } from './../use-cases/pergresp/pergsresps.entity';
+import { ServicosEntity } from './../use-cases/servico/servicos.entity';
+import { GrpServicosEntity } from './../use-cases/grpservico/grpservicos.entity';
 
 export const dbConfig = {
   host: process.env.DB_HOST ?? 'localhost',
   port: Number(process.env.DB_PORT ?? 3306),
   username: process.env.DB_USER ?? 'root',
   password: process.env.DB_PASSWORD ?? '123456',
-  database: process.env.DB_NAME ?? 'sgb',
+  database: process.env.DB_NAME ?? 'sgv',
   charset: 'utf8mb4',
 };
 
@@ -45,7 +48,7 @@ export const AppDataSource = new DataSource({
   port: Number(process.env.DB_PORT ?? 3306),
   username: process.env.DB_USER ?? 'root',
   password: process.env.DB_PASSWORD ?? '123456',
-  database: process.env.DB_NAME ?? 'sgb',
+  database: process.env.DB_NAME ?? 'sgv',
   charset: 'utf8mb4',
 
   // ⚠️ SOMENTE a entity mínima do sistema
@@ -53,6 +56,7 @@ export const AppDataSource = new DataSource({
     SystablesEntity,
     PessoasEntity,
     EmpresasEntity,
+    ArquivadosEntity,
     VisitantesEntity,
     VisitasEntity,      
     ConsumidoresEntity,
@@ -75,6 +79,8 @@ export const AppDataSource = new DataSource({
     AcessosEntity,  
     ChavesEntity,
     PergsrespsEntity,
+    ServicosEntity,
+    GrpServicosEntity,
   ],
   synchronize: true,
   logging: ["error"],

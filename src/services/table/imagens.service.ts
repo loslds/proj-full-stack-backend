@@ -1,3 +1,5 @@
+
+ 
 // C:\repository\proj-full-stack-backend\src\services\table\imagens.service.ts
 
 import fs from 'fs';
@@ -1341,3 +1343,4 @@ export const imagensService = {
     console.info(`[LISTA][${nome}] ${this.formatLista(lista)}`);
   }
 };
+  
