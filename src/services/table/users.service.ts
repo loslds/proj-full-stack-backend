@@ -41,6 +41,10 @@ export const usersService = {
           NOT NULL
           DEFAULT 1,
 
+        arquivado TINYINT(1)
+          NOT NULL
+          DEFAULT 0,
+
         createdBy INT UNSIGNED
           NOT NULL
           DEFAULT 0,

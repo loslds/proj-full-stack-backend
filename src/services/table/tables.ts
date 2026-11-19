@@ -9,6 +9,7 @@ export const systemTables = [
   'systables',
   'pessoas',
   'empresas',
+  'arquivados',
   'visitantes',
   'visitas',
   'consumidores',

@@ -9,6 +9,7 @@ import { cidadesService } from "./cidades.service";
 import { imagensService } from "./imagens.service";
 
 import { empresasService } from "./empresas.service";
+import { arquivadosService } from "./arquivados.service";
 import { visitantesService } from "./visitantes.service";
 import { visitasService } from "./visitas.service";
 import { consumidoresService } from "./consumidores.service";
@@ -50,6 +51,7 @@ export const tableServicesRegistry: Partial<
   imagens: imagensService,
 
   empresas: empresasService,
+  arquivados: arquivadosService,
   visitantes: visitantesService,
   visitas: visitasService,
   consumidores: consumidoresService,

@@ -53,6 +53,15 @@ export class UsersEntity {
   })
   is_actived: number;
 
+  // 1 = arquivado (histórico em `arquivados`); listagens normais o escondem
+  @Column({
+    type: 'tinyint',
+    width: 1,
+    nullable: false,
+    default: 0
+  })
+  arquivado: number;
+
   // ==========================================================
   // AUDITORIA
   // ==========================================================

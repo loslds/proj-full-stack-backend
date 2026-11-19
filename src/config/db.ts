@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { SystablesEntity } from '../use-cases/systable/systables.entity';
 import { PessoasEntity } from './../use-cases/pessoa/pessoas.entity';
 import { EmpresasEntity } from './../use-cases/empresa/empresas.entity';
+import { ArquivadosEntity } from './../use-cases/arquivado/arquivados.entity';
 import { VisitantesEntity } from './../use-cases/visitante/visitantes.entity';
 import { VisitasEntity } from './../use-cases/visita/visitas.entity';
 import { ConsumidoresEntity } from './../use-cases/consumidor/consumidores.entity';
@@ -55,6 +56,7 @@ export const AppDataSource = new DataSource({
     SystablesEntity,
     PessoasEntity,
     EmpresasEntity,
+    ArquivadosEntity,
     VisitantesEntity,
     VisitasEntity,      
     ConsumidoresEntity,

@@ -45,6 +45,8 @@ export const clientesService = {
           NOT NULL
           COLLATE utf8mb4_general_ci,
 
+        arquivado TINYINT(1) NOT NULL DEFAULT 0,
+
         createdBy INT UNSIGNED
           NOT NULL
           DEFAULT 0,

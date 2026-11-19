@@ -7,6 +7,7 @@ import { pessoasService } from './pessoas.service';
 import { estadosService } from './estados.service';
 import { cidadesService } from './cidades.service';
 import { empresasService } from './empresas.service';
+import { arquivadosService } from './arquivados.service';
 import { visitantesService } from './visitantes.service';
 import { visitasService } from './visitas.service';
 import { consumidoresService } from './consumidores.service';
@@ -39,6 +40,7 @@ export const tableServices: TableService[] = [
   estadosService,
   cidadesService,
   empresasService, 
+  arquivadosService,
   visitantesService,      
   visitasService,
   consumidoresService,    
